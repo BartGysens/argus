@@ -10,6 +10,7 @@ pipelines:
     - step:
         script: # Modify the commands below to build your repository.
           - composer install
+          - curl -sSL https://download.sourceclear.com/ci.sh | sh
   branches:
     master:
       - step:
