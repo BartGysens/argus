@@ -616,3 +616,13 @@ ini_set('xdebug.max_nesting_level', 200);
  * Add the domain module setup routine.
  */
 include DRUPAL_ROOT . '/sites/all/modules/domain/settings.inc';
+
+// Bugsnag
+$bugsnag = "sites/all/libraries/bugsnag/lib/bugsnag.php";
+if (file_exists($bugsnag)) {
+	require_once("sites/all/libraries/bugsnag/lib/bugsnag.php");
+	Bugsnag::register('YOUR_API_KEY');
+	set_error_handler("Bugsnag::errorHandler");
+	set_exception_handler("Bugsnag::exceptionHandler");
+	//Bugsnag::setReleaseStage("development");
+}

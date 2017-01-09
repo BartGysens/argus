@@ -1,0 +1,11 @@
+name = "Bugsnag"
+description = "Bugsnag v2 integration"
+core = 7.x
+dependencies[] = libraries
+configure = admin/config/development/bugsnag
+; Information added by Drupal.org packaging script on 2016-11-02
+version = "7.x-2.3"
+core = "7.x"
+project = "bugsnag"
+datestamp = "1478058546"
+
