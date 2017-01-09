@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Preventiekalender feature.
+ */
+
+include_once 'argus_preventiekalender.features.inc';

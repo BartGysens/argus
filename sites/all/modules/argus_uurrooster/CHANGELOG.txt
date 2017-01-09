@@ -1,0 +1,104 @@
+**Releases:
+
+v7.x-9.1
+---------
+- Fix when no users in config form
+- Bugfix for every view when no schedules are available
+
+v7.x-9.0
+---------
+- Update Uurrooster Capaciteit: betere tabel
+- Upgrade Uurrooster capacity: beschrijving
+- Update Uurrooster Capaciteit lokalen
+- Upgrade Uurrooster: uitbreiding Capaciteit lokalen
+- Upgrade Uurroosters: fix in juist beeld klaslokaal
+
+v7.x-8.5
+---------
+- Upgrade Uurrooster: ook fix in week-overzicht
+- Upgrade Uurroosters: accurate roosters op basis van periodes
+- Uurrooster: nieuwe functie om vakken op te halen van een LKR
+- Uurrooster: aangeven van conflicten op permanentierooster
+
+v7.x-8.4
+---------
+- Fix comments uurrooster
+- Fix in insert BIGINT node_counter
+- Update Klaslijst uurroosters Nieuw block Vervangingen LLN
+- Optie naar als geen vervanger bij uurrooster vervangingen
+
+v7.x-8.3
+---------
+- Module Personeelsafwezigheden -> Uurrooster - Vervangingen: multi-embedding in argus via block
+- Fix in embedding uurrooster vervangingen en css
+- Final fix uurrooster dag header
+
+v7.x-8.2
+---------
+- Fix in dag header uurroosters
+- Uurrooster - vervanging voor embedding in Smartschool
+- Fix Uurrooster: param
+- Update Uurroosters: extra informatie over vervangingen toegevoegd, week-gebaseerd rooster
+
+v7.x-8.1
+---------
+- Fix Uurrooster dagen
+- Update Uurrooster: beveiliging toegevoegd
+- Update Uurroosters, nieuwe features (opvoeders, vervangingen)
+- Fix in feature Uurrooster - vervanging
+
+v7.x-8.0
+---------
+- New module Uurrooster - Vervanging
+
+v7.x-7.0
+---------
+- Fix in uurroosters: meerdere vakken per blok, gesorteerde lijstjes
+- Update uurrooster setup: opmerking instelbaar
+- Update uurrooster: setup aangepast voor 'wegens niet op lijst' en opmerkingen
+
+v7.x-6.0
+---------
+- Update uurroosters: fouten zichtbaar gemaakt in toezichten en permanenties, groeperen Personen
+- Fix in uurrooster - week: opvangen bij ll. supervision
+- Fix in uurrooster block - sneller laden
+- Fix in uurrooster module: details klassen, lln namen
+- Fix in template with status added of users
+- Nieuw in uurroosters LKR toezichten en permanentie
+- Update block uurrooster met echte namen en status 1
+
+v7.x-5.0
+---------
+- Update uurroosters: maken van toezichtenroosters
+
+v7.x-4.0
+---------
+- Update uurrooster -> nieuwe mogelijkheid tot opmaken permanentierooster
+
+v7.x-3.0
+---------
+- Nieuw item: lokaalbezetting (Uurrooster)
+- Update Uurrooster beschikbare lkr+lok
+
+v7.x-2.0
+---------
+- Uitbreiding Module Uurroosters: beschikbare leerkrachten en beschikbare lokalen
+
+v7.x-1.1
+---------
+- Fix3 icon Uurrooster + fix in Readme
+- Fix2 icon Uurrooster
+- Fix icon Uurrooster
+- Update icon Uurrooster voor menu
+- Update Uurroosters: title, fixes in hid, waiter.gif
+
+v7.x-1.0
+---------
+- First initial release - featured based
+- Module Uurrooster - fase 1 (perioden)
+- Nieuwe module Uurroosters
+- Fix koppeling Sync lokalen
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

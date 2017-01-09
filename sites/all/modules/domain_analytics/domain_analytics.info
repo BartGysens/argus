@@ -1,0 +1,13 @@
+name = Domain Analytics
+description = Provides per domain Google Analytics settings for Domain Access
+core = 7.x
+package = Domain Access
+dependencies[] = domain_conf
+dependencies[] = googleanalytics
+
+; Information added by Drupal.org packaging script on 2015-12-22
+version = "7.x-1.0-alpha2"
+core = "7.x"
+project = "domain_analytics"
+datestamp = "1450822142"
+

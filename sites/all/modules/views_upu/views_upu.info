@@ -1,0 +1,16 @@
+name = Views User Picture URL
+description = Add an option to the "User: Picture" column to output plain URLs of user pictures
+core = 7.x
+
+package = Views
+
+files[] = views_upu.handler.inc
+
+dependencies[] = views
+
+; Information added by Drupal.org packaging script on 2016-08-06
+version = "7.x-1.0-beta1"
+core = "7.x"
+project = "views_upu"
+datestamp = "1470474243"
+

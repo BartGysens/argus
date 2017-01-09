@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Views User Picture URL main module file.
+ */
+
+/**
+ * Implements hook_views_data_alter()
+ */
+function views_upu_views_data_alter(&$data) {
+  $data['users']['picture']['field']['handler'] = 'views_upu_user_picture_handler';
+}

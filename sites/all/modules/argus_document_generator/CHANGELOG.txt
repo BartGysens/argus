@@ -1,0 +1,102 @@
+**Releases:
+
+v7.x-4.8
+---------
+- Nieuw automatisch document Leerplichtbegeleiding
+
+v7.x-4.7
+---------
+- Nieuwe documenten: HRM Evaluatie, Planning en Functionering - verslag+uitnodiging
+
+v7.x-4.6
+---------
+- Nieuwe autodocs voor de uitnodiging HRM Evaluatie, Planning en Functionering
+
+v7.x-4.5
+---------
+- Nieuw document HRM Uitnodiging Planningsgesprek
+- Update autodoc inschrijvingsdossier
+
+v7.x-4.4
+---------
+- Nieuw autodoc: Inschrijvingen
+- Fix in document Stagedossier
+
+v7.x-4.3
+---------
+- Nieuw Stageschrift autodoc
+
+v7.x-4.2
+---------
+- Update Stagedossier autodoc
+
+v7.x-4.1
+---------
+- Stagedossier autodoc: risicoanalyse en werpostfiche op structuuronderdeel
+
+v7.x-4.0
+---------
+- Stagedocumenten: werkpostfiches + risicoanalyses (templates)
+- Fix in autodoc Stagedossier - extra call functie voor commandline dossier opvraag
+
+v7.x-3.2
+---------
+- Update (f1) PHPWord 1.12 autodocs
+- Nieuw automatisch document toegevoegd: BO Laattijdige inschrijving
+
+v7.x-3.1
+---------
+- Nieuw autodoc Intentieverklaring	
+
+v7.x-3.0
+---------
+- Nieuw document Document generator: BRF Preventieve schorsing
+- Update document in generator
+
+v7.x-2.9
+---------
+- Nieuw document Document generator: Voorblad Klasinterventie dossier
+
+v7.x-2.8
+---------
+- Nieuw document in Document generator: Melding Definitieve verwijdering tav LSEC
+
+v7.x-2.7
+---------
+- Nieuw document Document Generator : BO Gedrag
+
+v7.x-2.6
+---------
+- Nieuw document Document Generator: Verslag Hoor Inzage Comments bijgewerkt
+
+v7.x-2.5
+---------
+- Nieuw document Document Generator: BRF Def uitsl fase 2 na hoor en inzage
+
+v7.x-2.4
+---------
+- Nieuw document Document Generator: BRF Definitieve uitsluiting f1
+
+v7.x-2.3
+---------
+- Nieuw document Document Generator Map Tuchtdossier
+
+v7.x-2.2
+---------
+- Nieuwe document Document Generator: BO Afwezigheden
+
+v7.x-2.1
+---------
+- Nieuw document in Document Generator
+
+v7.x-2.0
+---------
+- Document generator sterk geautomatiseerd met plugins
+
+v7.x-1.0
+---------
+- First initial release - featured based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

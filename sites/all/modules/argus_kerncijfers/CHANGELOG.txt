@@ -1,0 +1,33 @@
+**Releases:
+
+v7.x-1.5
+---------
+- Nieuw systeem om grafieken aan te maken met filter
+- Nieuwe plugins voor module Kerncijfers: leeftijd, leeftijd vs normale leeftijd, levensbeschouwelijk vak
+- Fix in Kerncijfers engine, uitbreiding mogelijkheden
+
+v7.x-1.4
+---------
+- Nieuwe plugin module Kerncijfers, lln per leerjaar
+
+v7.x-1.3
+---------
+- Nieuwe plugins voor module Kerncijfers: lln per onderwijsvorm en structuuronderdeel
+- Fix in per klas
+
+v7.x-1.2
+---------
+- Nieuwe plugin voor module Kerncijfers: lln per klas
+
+v7.x-1.1
+---------
+- Update module Kerncijfers
+- Nieuwe plugins voor module Kerncijfers (grafieken)
+
+v7.x-1.0
+---------
+- First initial release
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

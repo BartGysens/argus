@@ -1,0 +1,17 @@
+**Releases:
+
+v7.x-3.0
+---------
+- Printerbeheer: snelbewerken geactiveerd in overzicht
+
+v7.x-2.0
+---------
+- Printerbeheer (update): printerbeheer
+
+v7.x-1.0
+---------
+- First initial release - featured based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

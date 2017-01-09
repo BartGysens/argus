@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Stages feature.
+ */
+
+include_once 'argus_stages.features.inc';

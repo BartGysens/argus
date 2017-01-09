@@ -1,0 +1,8 @@
+**Installation:
+
+Theme Klassenraad is a theme form the argus - a Quality control extension.
+
+1. Unpack the argus_theme_klassenraad folder and contents in the appropriate themes
+directory of your Drupal installation.  This is probably sites/all/themes/
+2. Enable the argus_theme_klassenraad theme in the administration tools.
+3. Please check settings at admin/appearance/settings.

@@ -1,0 +1,29 @@
+**Releases:
+
+v7.x-3.0
+---------
+- Simplified login form
+- Extra check op gebruikersrol login
+- argus - alternatieve login: update (skip oude authorisatie), activatie OAuth2 Smartschool
+- Update + nieuw: module argus - Alternatieve login, met voorziening van OAuth voor Google en Smartschool
+
+v7.x-2.0
+---------
+- Fix in login procedure selectie non-Smartschool gebruikers Paswoord en email update bij login
+- Update login module: no more saving username when registered (case sensitive)
+- Nieuwe module urllogin voor automatische logins
+- Update module Smartschool login: mogelijkheid om users zo te laten inloggen en de Smartschool authenticatie te skippen
+
+v7.x-1.0
+---------
+- Login-procedure bijgesteld naar synchronisatie
+- Aangepaste login procedure voor bestaande (import) gebruikers
+- Module argus_sms_login:  - template aangepaste loginbtn
+- SOAP-protocol handler toegevoegd
+- Some obsolete files, minor extra features in api + login
+- Login pagina image omgezet naar permanent beeld
+- First initial release
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

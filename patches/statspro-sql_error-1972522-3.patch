@@ -1,0 +1,30 @@
+diff --git a/statspro.inc b/statspro.inc
+index 578a3d1..5014b9e 100644
+--- a/statspro.inc
++++ b/statspro.inc
+@@ -921,12 +921,19 @@ class StatsPro {
+       $sql_values[] = $date;
+ 
+       // TODO Please convert this statement to the D7 database API syntax.
+-      db_query(
+-        "UPDATE {statspro} SET
+-          " . implode(', ', $sql_fields) . "
+-          WHERE day = '%s'",
+-        $sql_values
+-      );
++      $sql_values[] = $date;
++      db_update('statspro')
++      ->fields(array(
++        'nuser' => $sql_fields['nuser'],
++        'auser' => $sql_fields['auser'],
++        'nnode' => $sql_fields['nnode'],
++        'cnode' => $sql_fields['cnode'],
++        'pi' => $sql_fields['pi'],
++        'upi' => $sql_fields['upi'],
++        'error' => $sql_fields['error']
++      ))
++      ->condition('day', date("Y, n, j"), '=')
++      ->execute();
+     }
+     // new row
+     else {

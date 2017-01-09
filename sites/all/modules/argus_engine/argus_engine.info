@@ -1,0 +1,11 @@
+name = argus-Engine
+description = Functies die over alle modules binnen dit het argus-pakket kunnen worden aangeroepen.
+package = argus - a Quality control extension
+php = 5.2
+configure = admin/config/argus/engine
+
+version = 7.x-1.3
+core = 7.x
+project = argus_engine
+datestamp = 1426017016
+project status url = http://www.projectargus.be/release-history

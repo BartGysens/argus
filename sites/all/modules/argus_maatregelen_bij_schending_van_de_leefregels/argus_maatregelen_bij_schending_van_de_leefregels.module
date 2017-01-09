@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Maatregelen bij Schending van de Leefregels feature.
+ */
+
+include_once 'argus_maatregelen_bij_schending_van_de_leefregels.features.inc';

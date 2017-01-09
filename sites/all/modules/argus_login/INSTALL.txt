@@ -1,0 +1,19 @@
+**Installation:
+
+Alternatieve login is an extension to the argus - a Quality extension platform.
+
+Login could rely on Smartschool API and OAuth2.
+You must have a working account and administration access.
+You also must have working useraccounts on your Smartschool platform.
+
+1. Unpack the argus_sms_login folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably
+  sites/all/modules/
+2. Enable the argus_login module in the administration tools.
+3. If you're not using Drupal's default administrative account, make
+sure "administer smartschool login" is enabled through access control
+administration.
+4. Visit the argus_login settings page and make appropriate configurations
+   For 5.x: Administer > argus > Alternatieve login
+   For 6.x: Administer > Sitebuilding > argus > Alternatieve login
+   For 7.x: Administer > argus > Alternatieve login

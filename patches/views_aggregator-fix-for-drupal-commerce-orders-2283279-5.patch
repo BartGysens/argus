@@ -1,0 +1,13 @@
+diff --git a/views/views_aggregator_plugin_style_table.inc b/views/views_aggregator_plugin_style_table.inc
+index 725375e..54ccfcc 100644
+--- a/views/views_aggregator_plugin_style_table.inc
++++ b/views/views_aggregator_plugin_style_table.inc
+@@ -794,7 +794,7 @@ class views_aggregator_plugin_style_table extends views_plugin_style_table {
+           $key = key($entity->{$field_name}[$lang][0]);
+           // Cannot override 'tid' with non-numeric value. But like 'value',
+           // 'tid' may be set in case of min, max, most frequent etc.
+-          if ($affect_view && $key != 'value' && !($key == 'tid' && is_numeric($raw_value))) {
++          if ($affect_view && $key != 'value' && $key != 'amount' && !($key == 'tid' && is_numeric($raw_value))) {
+             return FALSE;
+           }
+         }

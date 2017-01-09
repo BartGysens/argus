@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Merken feature.
+ */
+
+include_once 'argus_merken.features.inc';

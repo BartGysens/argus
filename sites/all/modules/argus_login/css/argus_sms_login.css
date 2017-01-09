@@ -1,0 +1,86 @@
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* 
+    Created on : 10-okt-2014, 15:41:05
+    Author     : bartgysens
+*/
+
+img{vertical-align:middle}
+fieldset{border:0;margin:0;padding:0}
+label{vertical-align:middle;margin:0 0 0 5px;line-height:16px;cursor:pointer}
+
+#authLeftPane:before{content:'';display:inline-block;height:100%;vertical-align:middle;margin-right:-0.25em}
+.authLeftPaneCentering{display:inline-block;vertical-align:middle;width:99%}
+.authLeftPaneMargin{margin-right:341px;margin-left:10px}
+#authLeftPane .smscContainer{background-color:#ffffff;-webkit-border-radius:15px;-moz-border-radius:15px;border-radius:15px;border:1px solid #a2a2a2;-webkit-box-shadow:-1px -1px 1px #ccc;-moz-box-shadow:-1px -1px 1px #ccc;box-shadow:-1px -1px 1px #ccc}
+#authLeftPane #tipContainer{padding:50px}
+#authLeftPane #statusContainer{height:70px;margin-top:20px}
+#authLeftPane #smsctip{text-align:center}
+
+#statusContainer{overflow:hidden; position:relative;background-color: #f8fff0;color: #234600;}
+
+#authLeftPaneLoginFadeDiv{display:none;margin-bottom:18px;}
+#schoolname{margin-top:18px;font-weight:bold;color:#FF520E;margin-left:10px}
+#schoolplace{margin-bottom:15px;color:#262626}
+
+#authRightPaneLogin p{position:relative}
+#authRightPaneLogin input{height:24px;line-height:18px;width:187px;border:1px solid #999;padding:2px;border-radius:5px}
+#authRightPaneLogin .disabled input,
+#authRightPaneLogin .disabled label,
+#authRightPaneLogin .disabled #swekeyButton,
+#authRightPaneLogin .disabled #authLeftPaneLoginButton{filter:alpha(opacity=50);-moz-opacity:.5;-khtml-opacity:.5;opacity:.5;cursor:default}
+
+button{background:none;border:none;margin:0;padding:0;height:25px;margin-top:10px}
+
+#authLeftPaneLoginButton{margin-top:4px;cursor:pointer;margin-left:90px}
+#authLeftPaneLoginButton.disabled,
+#authLeftPaneLoginGoogleButton.disabled,
+#authLeftPaneLoginLiveAtEduButton.disabled,
+#authLeftPaneLoginOffice365Button.disabled{filter:alpha(opacity=50);-moz-opacity:.5;-khtml-opacity:.5;opacity:.5;cursor:default}
+
+
+.status{position: absolute; top: -70px;margin:0 auto;width:100%;height:70px;background-position:15px center;background-repeat:no-repeat;padding-left:90px;text-align:left;background-color: #f8fff0;color: #234600;}
+.status div{display:table-cell;vertical-align:middle;height:70px;width:100%;line-height:25px;font-weight:bold;color:#757575;font-size:120%;background-color: #f8fff0;color: #234600;}
+.status.notok{background-image:url(../images/key1_error_48x48.png)}
+.status.register{background-image:url(../images/check_48x48.png);line-height:25px}
+
+#authRightPaneOptions>div{text-align:right;height:20px;line-height:20px;padding-right:10px;cursor:pointer;color:#ffffff;text-decoration:none;text-shadow:0 0 3px black}
+#sendButton{margin-top:10px}
+
+#authLeftPane{position:absolute;text-align:center;height:100%;width:100%;}
+#schoolname{color:#B30042 !important}
+
+#authRightPane{
+    background:url(../images/1go.png) repeat-y top left;
+    width:341px;
+    position:absolute;
+    top:0;
+    right:0;
+    height:100%;
+    min-height:596px;
+}
+#authRightPaneCurl{background:url(../images/3go.png) no-repeat top left;height:141px;width:341px;position:absolute;bottom:0;right:0;left:0}
+#authRightPaneCurl>a{display:none}
+#authRightPaneLogo{background:url(../images/2go.png) no-repeat bottom center;margin-top:0;height:149px}
+#authRightPaneImage{visibility:hidden;height:7%}
+#authRightPaneLogin{text-align:right;padding-right:30px;width:240px;min-height:140px;position:relative;left:69px;border-top:1px solid #eaeae6;border-bottom:1px solid #eaeae6;border-left:1px solid #eaeae6;border-right:1px solid #eaeae6;-webkit-border-top-left-radius:20px;-webkit-border-bottom-left-radius:20px;-moz-border-radius-topleft:20px;-moz-border-radius-bottomleft:20px;border-top-left-radius:20px;border-bottom-left-radius:20px;z-index:2;background:#f6f6f2;background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2Y2ZjZmMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNkZGRkZGQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);background:-moz-linear-gradient(top, #f6f6f2 0, #ddd 100%);background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #f6f6f2), color-stop(100%, #ddd));background:-webkit-linear-gradient(top, #f6f6f2 0, #ddd 100%);background:-o-linear-gradient(top, #f6f6f2 0, #ddd 100%);background:-ms-linear-gradient(top, #f6f6f2 0, #ddd 100%);background:linear-gradient(to bottom, #f6f6f2 0, #ddd 100%);box-shadow:-1px -1px 1px #7b7b7b}
+#authRightPaneOptions{width:165px;position:relative;left:165px;z-index:1;margin-top:-2px;padding:5px;border-top:none;border-bottom:1px solid #878775;border-left:1px solid #878775;border-right:none;-webkit-border-bottom-left-radius:20px;-moz-border-radius-bottomleft:20px;border-bottom-left-radius:20px;background:#858585;background:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzg1ODU4NSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM0MTQxNDEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);background:-moz-linear-gradient(top, #858585 0, #414141 100%);background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #858585), color-stop(100%, #414141));background:-webkit-linear-gradient(top, #858585 0, #414141 100%);background:-o-linear-gradient(top, #858585 0, #414141 100%);background:-ms-linear-gradient(top, #858585 0, #414141 100%);background:linear-gradient(to bottom, #858585 0, #414141 100%);box-shadow:-1px 1px 1px #7b7b7b}
+
+#authLeftPaneLoginFadeDiv div.description{
+    font-size: 8px;
+}

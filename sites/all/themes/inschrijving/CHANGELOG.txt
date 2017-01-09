@@ -1,0 +1,18 @@
+**Releases:
+
+v7.x-3.0
+---------
+- First initial release - featured based
+- Nieuwe mogelijkheid Herinschrijving bijgewerkt
+
+v7.x-2.0
+---------
+- Nieuw mogelijkheid voorinschrijving
+
+v7.x-1.0
+---------
+- Nieuw thema voor Inschrijvingen
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

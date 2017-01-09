@@ -1,0 +1,104 @@
+From 4ddb76620ea5c8f868a27063f7a44cc05448ea47 Mon Sep 17 00:00:00 2001
+From: Marcel Partap <mpartap@gmx.net>
+Date: Wed, 16 Nov 2011 17:58:24 +0100
+Subject: [PATCH] Fix PHP undefined warnings, restructure
+ chart_unique_color(), add color to watchdog severity schema
+
+---
+ chart.module                       |   34 +++++++++++++---------------------
+ system_charts/system_charts.module |   12 ++++--------
+ 2 files changed, 17 insertions(+), 29 deletions(-)
+
+diff --git a/chart.module b/chart.module
+index 68b1b5c..3093eb1 100644
+--- a/chart.module
++++ b/chart.module
+@@ -1285,35 +1285,27 @@ function chart_unique_color($content_id, $scheme = 'default') {
+   $colors_used = &drupal_static(__FUNCTION__);
+   $colors = chart_color_schemes();
+ 
+-  // Revert to default color schema if $schema has not been registered.
++  // Revert to default color schema if $scheme has not been registered.
+   if (!isset($colors[$scheme])) {
+     $scheme = 'default';
+   }
+ 
+-  // Associative color is available
++  // This content_id has already been color-mapped
++  if (isset($colors_used[$scheme][$content_id])) {
++    return $colors_used[$scheme][$content_id];
++  }
++  // Specific associative color is available
+   if (isset($colors[$scheme][$content_id])) {
+-    return $colors[$scheme][$content_id];
++    return $colors_used[$scheme][$content_id] = $colors[$scheme][$content_id];
+   }
+-  // The content_id has already been mapped
+-  elseif (isset($colors_used[$scheme][$content_id])) {
+-    return $colors_used[$scheme][$content_id];
++  // Map first unused color from color scheme
++  if (isset($colors_used[$scheme])) {
++    $available_colors = array_diff($colors[$scheme], $colors_used[$scheme]);
++    return $colors_used[$scheme][$content_id] = array_shift($available_colors);
+   }
++  // No used colors yet, use first one in scheme
+   else {
+-    // No used colors yet use the first one in the scheme
+-    // and map it to the content id
+-    if (!is_array($colors_used)) {
+-      $colors_used[$scheme][$content_id] = array_shift($colors[$scheme]);
+-
+-      return $colors_used[$scheme][$content_id];
+-    }
+-    // Get the avilable colors left in the scheme
+-    // and map the remaining colors that are used
+-    else {
+-      $available_colors = array_diff($colors[$scheme], (array) $colors_used[$scheme]);
+-      $colors_used[$scheme][$content_id] = array_shift($available_colors);
+-
+-      return $colors_used[$scheme][$content_id];
+-    }
++    return $colors_used[$scheme][$content_id] = array_shift($colors[$scheme]);
+   }
+ 
+   return '000000';
+diff --git a/system_charts/system_charts.module b/system_charts/system_charts.module
+index f20956e..2e04504 100644
+--- a/system_charts/system_charts.module
++++ b/system_charts/system_charts.module
+@@ -74,6 +74,7 @@ function system_charts_chart_color_schemes() {
+       'Error'   => 'a00000',
+       'Warning' => 'e06000',
+       'Notice'  => 'f0c040',
++      ''        => 'c0c0c0',
+     ),
+   );
+ }
+@@ -186,8 +187,8 @@ function system_charts_build($type) {
+       while ($result = $results->fetchAssoc()) {
+         $day = ltrim(date('d', $result['created']), '0');
+         $types[$result['type']] = $result['type'];
+-        $counts[$day][$result['type']]++;
+-        $max[$result['type']]++;
++        $counts[$day][$result['type']] = isset($counts[$day][$result['type']]) ? $counts[$day][$result['type']] + 1 : 0;
++        $max[$result['type']] = isset($max[$result['type']]) ? $max[$result['type']] + 1 : 0;
+       }
+ 
+       // Generate data and labels
+@@ -196,12 +197,7 @@ function system_charts_build($type) {
+           $chart['#labels'][] = $i;
+ 
+           foreach ($types as $type) {
+-            if ($counts[$i][$type]) {
+-              $chart['#data'][$type][] = $counts[$i][$type];
+-            }
+-            else {
+-              $chart['#data'][$type][] = '0';
+-            }
++            $chart['#data'][$type][] = isset($counts[$i][$type]) ? $counts[$i][$type] : 0;
+           }
+         }
+       }
+-- 
+1.7.8.rc1
+

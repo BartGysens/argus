@@ -1,0 +1,13 @@
+**Releases:
+
+v7.x-1.1
+---------
+- View voor wetboek
+
+v7.x-1.0
+---------
+- First initial release - featured based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

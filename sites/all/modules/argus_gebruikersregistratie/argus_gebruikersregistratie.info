@@ -1,0 +1,12 @@
+name = Gebruikersregistratie
+description = Voeg op een procedurematige manier een gebruiker (leerling of personeelslid) toe.
+package = argus - a Quality control extension
+php = 5.2
+version = 7.x-2.1
+core = 7.x
+project = argus_gebruikersregistratie
+datestamp = 1461695302
+dependencies[] = argus_engine
+test_dependencies[] = argus_document_generator
+test_dependencies[] = argus_sms_api
+project status url = http://www.projectargus.be/release-history

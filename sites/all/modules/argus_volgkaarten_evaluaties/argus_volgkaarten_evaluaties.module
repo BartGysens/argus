@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Volgkaarten - Evaluaties feature.
+ */
+
+include_once 'argus_volgkaarten_evaluaties.features.inc';

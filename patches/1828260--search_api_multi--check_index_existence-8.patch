@@ -1,0 +1,79 @@
+diff --git a/search_api_multi.query.inc b/search_api_multi.query.inc
+index 32d8800..d891d96 100644
+--- a/search_api_multi.query.inc
++++ b/search_api_multi.query.inc
+@@ -5,7 +5,7 @@
+  * same server. The server has to support the "search_api_multi" feature.
+  *
+  * For discerning from which index a certain field should be used (for filtering
+- * or specifying the fulltext fields, fr instance), all field identifiers have
++ * or specifying the fulltext fields, for instance), all field identifiers have
+  * to be prefixed with their index' machine name, seperated by a colon.
+  * For example, to filter on the "author:name" field from the index with the
+  * machine name "default_node_index", use "default_node_index:author:name" as
+diff --git a/views/query.inc b/views/query.inc
+index cda003e..44722a6 100644
+--- a/views/query.inc
++++ b/views/query.inc
+@@ -46,13 +46,16 @@ class SearchApiMultiViewsQuery extends SearchApiViewsQuery {
+    */
+   protected function addResults(array $results, $view) {
+     $rows = array();
+-    foreach ($results as $id => $result) {
++    foreach ($results as $result) {
+       $row = array();
+ 
+       // Add the index.
+       $row['index_id'] = $result['index_id'];
+       if (empty($this->indexes[$result['index_id']])) {
+-        $this->indexes[$result['index_id']] = search_api_index_load($result['index_id']);
++        $index = search_api_index_load($result['index_id']);
++        if ($index) {
++          $this->indexes[$result['index_id']] = $index;
++        }
+       }
+ 
+       // Include the loaded item for this result row, if present, or the item
+@@ -69,12 +72,9 @@ class SearchApiMultiViewsQuery extends SearchApiViewsQuery {
+       $row['_entity_properties']['search_api_relevance'] = $result['score'];
+       $row['_entity_properties']['search_api_excerpt'] = empty($result['excerpt']) ? '' : $result['excerpt'];
+ 
+-      // Save the row values for adding them to the Views result afterwards.
+-      $rows[$id] = (object) $row;
++      // Add the row to the Views result set.
++      $view->result[] = (object) $row;
+     }
+-
+-    // Finally, add all rows to the Views result set.
+-    $view->result = array_values($rows);
+   }
+ 
+   /**
+@@ -103,7 +103,7 @@ class SearchApiMultiViewsQuery extends SearchApiViewsQuery {
+ 
+     // Pick out all results that need to be loaded.
+     foreach ($results as $row_index => $row) {
+-      if (isset($row->entity)) {
++      if (isset($row->entity) && !empty($this->indexes[$row->index_id])) {
+         $index = $this->indexes[$row->index_id];
+         // If this item isn't loaded, register it for pre-loading.
+         if (is_scalar($row->entity)) {
+@@ -121,11 +121,13 @@ class SearchApiMultiViewsQuery extends SearchApiViewsQuery {
+ 
+     // Create wrappers for all results.
+     foreach ($results as $row_index => $row) {
+-      $index = $this->indexes[$row->index_id];
+-      $item = is_scalar($row->entity) ? $load_items[$index->item_type][$row->entity] : $row->entity;
+-      $data = new stdClass();
+-      $data->{$row->index_id} = $item;
+-      $wrappers[$row_index] = entity_metadata_wrapper('search_api_multi', $data, $info);
++      if ($this->indexes[$row->index_id]) {
++        $index = $this->indexes[$row->index_id];
++        $item = is_scalar($row->entity) ? $load_items[$index->item_type][$row->entity] : $row->entity;
++        $data = new stdClass();
++        $data->{$row->index_id} = $item;
++        $wrappers[$row_index] = entity_metadata_wrapper('search_api_multi', $data, $info);
++      }
+     }
+ 
+     // Apply the relationship, if necessary.

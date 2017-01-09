@@ -1,0 +1,117 @@
+/*
+Copyright (C) 2015 bartgysens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/* 
+    Created on : 8-jan-2015, 18:19:01
+    Author     : bartgysens
+*/
+
+table.argus_hrm,
+table.argus_hrm_nav{
+	width: 100%;
+	margin: 0;
+}
+
+#argus_hrm_nav_previous,
+#argus_hrm_nav_today,
+#argus_hrm_nav_next{
+	font-style: italic;
+}
+	#argus_hrm_nav_today{
+		text-align: center;
+	}
+	#argus_hrm_nav_next{
+		text-align: right;
+	}
+
+table.argus_hrm thead th{
+    vertical-align: bottom;
+}
+table.argus_hrm tbody td{
+    border: 1px solid #999;
+    text-align: center;
+    vertical-align: top;
+}
+table.argus_hrm tbody ol{
+    margin: 0px;
+}
+table.argus_hrm tbody .lesson{
+    cursor: pointer;
+}
+    table.argus_hrm tbody .lessonOver{
+        background-color: #ddf !important;
+    }
+    table.argus_hrm tbody td.lessonDetail{
+        background-color: #ffd;
+    }
+    
+    table.argus_hrm tbody td.available{
+        font-size: 2em;
+        vertical-align: middle;
+    }
+    
+    table.argus_hrm tbody td.period_descr{
+        vertical-align: middle;
+    }
+    
+    table.argus_hrm tbody .substituted{
+        color: #aaa !important;
+        background-color: #fdd;
+    }
+    table.argus_hrm tbody .substitutedNotOK{
+        color: #555 !important;
+        background-color: #f66;
+    }
+
+table.argus_hrm tbody td div.substitution{
+	color: red;
+	border: 1px red solid;
+	padding: 2px;
+	margin: 2px;
+	font-weight: bold;
+	background-color: white;
+	line-height: 1.5em;
+}
+
+table.argus_hrm tbody td div.supervision{
+	color: green;
+	border: 1px green solid;
+	padding: 2px;
+	margin: 2px;
+	line-height: 1.5em;
+}
+
+#argus_hrm_details{
+    vertical-align: top;
+    padding: 10px;
+    background-color: #ffd;
+    text-align: left;
+}
+    #argus_hrm_details ol{
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+.argus_hrm_student_list{
+    display: none;
+}
+
+.argus_hrm_student_toggler{
+    background-color: #ddd;
+    border: 1px solid #777;
+    cursor: pointer;
+    padding: 1px 2px;
+}

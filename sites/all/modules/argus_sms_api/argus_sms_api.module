@@ -1,0 +1,1044 @@
+<?php
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Smartschool API reference, description of returnobject 'user'
+ * stdClass Object
+ *  (
+ *      [number] => abcd1234 (intern nummer)
+ *      [username] => janjanssen
+ *      [name] => Jan
+ *      [surname] => janssen
+ *      [email] => janjanssen@gmail.com
+ *      [role] => 1 (0 = leerkracht, 1 = leerling, 13 = andere, 30 = directie)
+ *      [accountType] => 0 (0 = hoofdaccount, 1 = co-account 1, 2 = co-account 2)
+ *  )
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_sms_api_menu().
+ */
+function argus_sms_api_menu() {
+    $items = array();
+    $items['admin/config/argus'] = array(
+        'title' => 'argus',
+        'description' => 'Instellingen voor argus - a Smartschool extension.',
+        'position' => 'right',
+        'weight' => 0,
+        'page callback' => 'argus_sms_api_admin_menu_block_page',
+        'access arguments' => array('access administration pages'),
+        'file' => 'argus_sms_api.admin.inc',
+    );
+    $items['admin/config/argus/smartschool-api'] = array(
+        'title' => 'Smartschool-API',
+        'description' => 'Koppel jouw Smartschool-platform met argus.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_smartschool_api_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 1,
+    );
+    return $items;
+}
+
+/**
+ * Implements argus_sms_api_install().
+ */
+function argus_sms_api_install() {
+  db_update('system')
+    ->fields(array('weight' => -1))
+    ->condition('name', '[argus_sms_api]', '=')
+    ->execute();
+}
+
+/**
+ * Page callback: Smartschool API settings
+ *
+ * @see argus_sms_api_menu()
+ */
+function argus_smartschool_api_form($form, &$form_state) {
+    $form['argus_sms_url'] = array(
+        '#type' => 'textfield',
+        '#title' => t('URL'),
+        '#default_value' => variable_get('argus_sms_url','https://uwschool.smartschool.be/'),
+        '#size' => 100,
+        '#description' => t('Pas de bovenstaande url aan naar jouw school.'),
+        '#required' => TRUE,
+    );
+    $form['argus_sms_api_url'] = array(
+        '#type' => 'textfield',
+        '#title' => t('API-URL'),
+        '#default_value' => variable_get('argus_sms_api_url','https://uwschool.smartschool.be/Webservices/V3?wsdl'),
+        '#size' => 100,
+        '#description' => t('Pas de bovenstaande url aan naar jouw school <em>(zie Help)</em>.'),
+        '#required' => TRUE,
+    );
+    $form['argus_sms_api_password'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Password'),
+        '#default_value' => variable_get('argus_sms_api_password','vertelikaanniemand!'),
+        '#size' => 40,
+        '#description' => t('Het paswoord dat ingesteld werd bij je Smartschoolplatform om toegang te krijgen tot de API.'),
+        '#required' => TRUE,
+    );
+  
+    $form['roles'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Instellen van de rollen'),
+        '#weight' => 5,
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+  
+    /*
+     * Smartschool User role = 0 (leerkracht)
+     */
+    $form['roles']['argus_sms_api_roles_0'] = array(
+        '#type' => 'select',
+        '#title' => t('Leerkracht'),
+        '#multiple' => true,
+        '#options' => user_roles($membersOnly = true),
+        '#default_value' => variable_get('argus_sms_api_roles_0',NULL),
+        '#description' => t('Selecteer de overeenstemmende rol voor <em>leerkracht (code <strong>0</strong>)</em>.'),
+    );
+  
+    /*
+     * Smartschool User role = 1 (leerling)
+     */
+    $form['roles']['argus_sms_api_roles_1'] = array(
+        '#type' => 'select',
+        '#title' => t('Leerling'),
+        '#multiple' => true,
+        '#options' => user_roles($membersOnly = true),
+        '#default_value' => variable_get('argus_sms_api_roles_1',NULL),
+        '#description' => t('Selecteer de overeenstemmende rol voor <em>leerling (code <strong>1</strong>)</em>.'),
+    );
+
+    /*
+     * Smartschool User role = 13 (andere)
+     */
+    $form['roles']['argus_sms_api_roles_13'] = array(
+        '#type' => 'select',
+        '#title' => t('Andere'),
+        '#multiple' => true,
+        '#options' => user_roles($membersOnly = true),
+        '#default_value' => variable_get('argus_sms_api_roles_13',NULL),
+        '#description' => t('Selecteer de overeenstemmende rol voor <em>andere (code <strong>13</strong>)</em>.'),
+    );
+
+    /*
+     * Smartschool User role = 30 (directie)
+     */
+    $form['roles']['argus_sms_api_roles_30'] = array(
+        '#type' => 'select',
+        '#title' => t('Directie'),
+        '#multiple' => true,
+        '#options' => user_roles($membersOnly = true),
+        '#default_value' => variable_get('argus_sms_api_roles_30',NULL),
+        '#description' => t('Selecteer de overeenstemmende rol voor <em>directie (code <strong>30</strong>)</em>.'),
+    );
+    return system_settings_form($form);
+}
+
+/**
+ * Implements argus_sms_api_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function argus_sms_api_help($path, $arg) {
+    $output = '';
+    switch ($path) {
+      case "admin/help#argus_sms_api":
+        $output =
+          '<h3>' . t('Configuratie van deze module') . '</h3>'
+        . '<p>' . t('Na de installatie dien je volgende items instellen:') . '</p>'
+        
+        . '<h4>' . t('Algemene instellingen') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Uw Smartschool-platform') . '</strong></dt>'
+        . '<dd>' . t('Vervang in de url <em>"uwschool"</em> met de verwijzing naar je eigen school.') . '</dd>'
+        . '</dl>'
+        
+        . '<h4>' . t('API - webservices') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Smartschool API-url') . '</strong></dt>'
+        . '<dd>' . t('Vervang ook hier in de url <em>"uwschool"</em> met de verwijzing naar je eigen school of pas de url aan naar een specifieke locatie.') . '</dd>'
+        . '<dt><strong>' . t('Smartschool API-paswoord') . '</strong></dt>'
+        . '<dd>' . t('Zoek in je Smartschool-platform het paswoord van jouw school op: <em>Ga > Algemene configuratie > Webservices (module=Globalmanagement&file=webservices)</em>.') . '</dd>'
+        . '</dl>'
+        . '<h4>' . t('Rollen instellen') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Overdracht van permissies') . '</strong></dt>'
+        . '<dd>' . t('De login-procedure neemt de gebruikers van jouw Smartschool-platform automatisch over; hiervoor moet je wel eerst de rollen aanmaken die binnen jouw platform zullen gelden. Deze kan je dan koppelen via deze weg aan de <em>Smartschool-rollen (standaard: 0=leerkracht, 1=leerling, 13=andere en 30=directie)</em>.') . '</dd>'
+        . '</dl>';
+        break;
+    }
+    return $output;
+}
+
+
+/**
+ * Custom module functionality
+ */
+
+/** 
+ * Handlers for the connection to your Smartschool platform through SOAP
+ * 
+ * returns & sets a SOAPclient referral
+ */
+$argus_sms_SOAPclient = NULL;
+function argus_sms_getSOAPclient() {
+    global $argus_sms_SOAPclient;
+    if (!isset($argus_sms_SOAPclient)) {
+        argus_sms_setSOAPclient();
+    }
+    return $argus_sms_SOAPclient;
+}
+function argus_sms_setSOAPclient() {
+    global $argus_sms_SOAPclient;
+    $SOAPurl = variable_get('argus_sms_api_url');
+    if ($SOAPurl) {
+        $array = @get_headers($SOAPurl);
+        $string = $array[0];
+        if(strpos($string,"200")){
+            $argus_sms_SOAPclient = new SoapClient($SOAPurl);
+            if (!isset($argus_sms_SOAPclient)) {
+                argus_report(t('Geen connectie mogelijk met de Smartschool-services').': <em>'.$SOAPurl.'</em>');
+            }
+        } else {
+            argus_report(t('De opgegeven link naar de API van Smartschool is niet geldig of momenteel offline').': <em>'.$SOAPurl.'</em> - kijk je instellingen na op <a href="/admin/config/argus/smartschool-api">Smartschool API</a>.');
+        }
+    } else {
+        argus_report(t('Er werd nog geen link naar de services van Smartschool ingesteld, deze kan je instellen op <a href="/admin/config/argus/smartschool-api">Smartschool API</a>.'));
+    }
+}
+
+/**
+ * Retrieve error description based on returncode.
+ */
+function argus_sms_error($code) {
+	if ($client = argus_sms_getSOAPclient()){
+		$errorArray = json_decode($client->returnJsonErrorCodes(), true);
+	} else {
+	    $errorArray = array( 
+	        1 => "De naam moet uit minstens 2 karakters bestaan.",
+	        2 => "De voornaam moet uit minstens 2 karakters bestaan.",
+	        3 => "De gebruikersnaam moet uit minstens 2 karakters bestaan.",
+	        4 => "Het nieuwe wachtwoord moet uit minstens 5 karakters bestaan.",
+	        5 => "Er is geen groep geselecteerd.",
+	        6 => "De gebruikersnaam bestaat reeds.",
+	        7 => "De wachtwoorden zijn niet identiek.",
+	        8 => "Het opgegeven webserviceswachtwoord is niet correct.",
+	        9 => "Deze gebruiker bestaat niet",
+	        10 => "Er is een fout gebeurd tijdens het verwerken van de gegevens. Er is niets toegepast.",
+	        11 => "Er is een fout opgetreden tijdens het bewaren van de klasgegevens.",
+	        12 => "Deze gebruiker bestaat niet",
+	        13 => "Er is een fout opgetreden tijdens het kopiëren/verplaatsen van de gebruikers naar de opgegeven klas.",
+	        14 => "Onvoeldoende gegeven aangeleverd.",
+	        15 => "Dubbele gebruikersnaam",
+	        16 => "Dubbele interne nummer",
+	        17 => "Er is een fout opgetreden tijdens het bewaren van één of meerdere profielvelden.",
+	        18 => "Er is een fout opgetreden bij het versturen van het bericht",
+	        19 => "Parent-ID bestaat niet !",
+	        20 => "Cursus toevoegen mislukt.",
+	        21 => "Cursus met zelfde naam aanwezig.",
+	        22 => "Cursus niet gevonden.",
+	        23 => "Er is een onbekende fout opgetreden tijdens de verwerking.",
+	        24 => "Er is reeds een gebruiker aanwezig met dit intern nummer. Gelieve een ander nummer in te geven.",
+	        25 => "Opgelet, de gebruiker kon niet worden gewijzigd, omdat deze niet bestaat in Smartschool.",
+	        26 => "Opgelet, de gebruiker kon niet worden toegevoegd, omdat deze reeds bestaat in Smartschool.",
+	        27 => "Opgelet, het instellingsnummer komt niet voor in Smartschool. Gelieve eerst de instelling toe te voegen.",
+	        28 => "Het selecteren van een basisrol is veplicht.",
+	        29 => "U mag de basisrol van deze account niet meer wijzigen.",
+	        30 => "Enkel leerlingen (basisrol leerling) mogen lid zijn van officiële klassen.",
+	        31 => "De leerling mag maar lid zijn van één officiële klas.",
+	        32 => "Een leerling moet lid zijn van één officiële klas.",
+	        33 => "Er is een fout opgetreden bij het correct registeren van de klasbeweging.",
+	        34 => "De leerling kan niet geactiveerd worden omdat hij geen lid is van een officiële klas.",
+	        35 => "Het instellingsnummer is verplicht bij een officiële klas.",
+	        36 => "U mag het type van een officiële klas niet wijzigen.",
+	        37 => "U mag het type van deze klas of groep niet wijzigen omdat sommige leden van deze groep of klas niet de basisrol leerling hebben.",
+	        38 => "U mag het type van deze klas of groep niet wijzigen omdat sommige leden van deze groep of klas reeds lid zijn van een andere officiële klas.",
+	        39 => "U dient een vormingscomponent te selecteren.",
+	        40 => "U mag de naam van een klas niet meer wijzigen.",
+	        41 => "U mag het administratiefnummer niet meer wijzigen.",
+	        42 => "U mag het instellingsnummer niet meer wijzigen.",
+	        43 => "U mag de vormingscomponent niet meer wijzigen.",
+	        44 => "De vormingscomponent is verplicht op te geven.",
+	        45 => "U mag het type van een klas niet wijzigen.",
+	        46 => "U dient het type van de groep te selecteren.",
+	        47 => "Er bestaat reeds een klas met dezelfde unieke klas- of groepcode",
+	        48 => "Het intern nummer bestaat reeds.",
+			49 => 'De datum is niet geldig',
+			50 => "De module 'Skore' is niet geactiveerd",
+			51 => 'Er is een fout opgetreden tijdens het uitschrijven van de leerling',
+			52 => 'Dit wachtwoord werd niet toegestaan. Gelieve een ander wachtwoord te kiezen.',
+			53 => 'De bovenliggende groep werd niet gevonden.',
+			54 => 'De bovenliggende groep mag geen officiële klas zijn.',
+			55 => 'Een officiële klas kan geen subgroepen bevatten.',
+			56 => 'Gelieve een geldige datum op te geven voor het schooljaar',
+			57 => "Het 'Koppelingsveld schoolagenda' dient uniek te zijn. De waarde die u invulde is reeds in gebruik.",
+	    );
+	}
+	
+    return $errorArray[$code];
+}
+
+
+/**
+ * Supporting function for converting weird fieldnames to standards
+ * 
+ * @param field_name
+ *   String to convert to usefull fieldname
+ * @param field_reset
+ *   String which will be added in front of fieldname
+*/
+function argus_sms_uniform_field($field_name, $field_preset='') {
+    $replace = [
+        '&lt;' => '', '&gt;' => '', '&#039;' => '', '&amp;' => '',
+        '&quot;' => '', 'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'Ae',
+        '&Auml;' => 'A', 'Å' => 'A', 'Ā' => 'A', 'Ą' => 'A', 'Ă' => 'A', 'Æ' => 'Ae',
+        'Ç' => 'C', 'Ć' => 'C', 'Č' => 'C', 'Ĉ' => 'C', 'Ċ' => 'C', 'Ď' => 'D', 'Đ' => 'D',
+        'Ð' => 'D', 'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E', 'Ē' => 'E',
+        'Ę' => 'E', 'Ě' => 'E', 'Ĕ' => 'E', 'Ė' => 'E', 'Ĝ' => 'G', 'Ğ' => 'G',
+        'Ġ' => 'G', 'Ģ' => 'G', 'Ĥ' => 'H', 'Ħ' => 'H', 'Ì' => 'I', 'Í' => 'I',
+        'Î' => 'I', 'Ï' => 'I', 'Ī' => 'I', 'Ĩ' => 'I', 'Ĭ' => 'I', 'Į' => 'I',
+        'İ' => 'I', 'Ĳ' => 'IJ', 'Ĵ' => 'J', 'Ķ' => 'K', 'Ł' => 'K', 'Ľ' => 'K',
+        'Ĺ' => 'K', 'Ļ' => 'K', 'Ŀ' => 'K', 'Ñ' => 'N', 'Ń' => 'N', 'Ň' => 'N',
+        'Ņ' => 'N', 'Ŋ' => 'N', 'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O',
+        'Ö' => 'Oe', '&Ouml;' => 'Oe', 'Ø' => 'O', 'Ō' => 'O', 'Ő' => 'O', 'Ŏ' => 'O',
+        'Œ' => 'OE', 'Ŕ' => 'R', 'Ř' => 'R', 'Ŗ' => 'R', 'Ś' => 'S', 'Š' => 'S',
+        'Ş' => 'S', 'Ŝ' => 'S', 'Ș' => 'S', 'Ť' => 'T', 'Ţ' => 'T', 'Ŧ' => 'T',
+        'Ț' => 'T', 'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ü' => 'Ue', 'Ū' => 'U',
+        '&Uuml;' => 'Ue', 'Ů' => 'U', 'Ű' => 'U', 'Ŭ' => 'U', 'Ũ' => 'U', 'Ų' => 'U',
+        'Ŵ' => 'W', 'Ý' => 'Y', 'Ŷ' => 'Y', 'Ÿ' => 'Y', 'Ź' => 'Z', 'Ž' => 'Z',
+        'Ż' => 'Z', 'Þ' => 'T', 'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a',
+        'ä' => 'ae', '&auml;' => 'ae', 'å' => 'a', 'ā' => 'a', 'ą' => 'a', 'ă' => 'a',
+        'æ' => 'ae', 'ç' => 'c', 'ć' => 'c', 'č' => 'c', 'ĉ' => 'c', 'ċ' => 'c',
+        'ď' => 'd', 'đ' => 'd', 'ð' => 'd', 'è' => 'e', 'é' => 'e', 'ê' => 'e',
+        'ë' => 'e', 'ē' => 'e', 'ę' => 'e', 'ě' => 'e', 'ĕ' => 'e', 'ė' => 'e',
+        'ƒ' => 'f', 'ĝ' => 'g', 'ğ' => 'g', 'ġ' => 'g', 'ģ' => 'g', 'ĥ' => 'h',
+        'ħ' => 'h', 'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i', 'ī' => 'i',
+        'ĩ' => 'i', 'ĭ' => 'i', 'į' => 'i', 'ı' => 'i', 'ĳ' => 'ij', 'ĵ' => 'j',
+        'ķ' => 'k', 'ĸ' => 'k', 'ł' => 'l', 'ľ' => 'l', 'ĺ' => 'l', 'ļ' => 'l',
+        'ŀ' => 'l', 'ñ' => 'n', 'ń' => 'n', 'ň' => 'n', 'ņ' => 'n', 'ŉ' => 'n',
+        'ŋ' => 'n', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'oe',
+        '&ouml;' => 'oe', 'ø' => 'o', 'ō' => 'o', 'ő' => 'o', 'ŏ' => 'o', 'œ' => 'oe',
+        'ŕ' => 'r', 'ř' => 'r', 'ŗ' => 'r', 'š' => 's', 'ù' => 'u', 'ú' => 'u',
+        'û' => 'u', 'ü' => 'ue', 'ū' => 'u', '&uuml;' => 'ue', 'ů' => 'u', 'ű' => 'u',
+        'ŭ' => 'u', 'ũ' => 'u', 'ų' => 'u', 'ŵ' => 'w', 'ý' => 'y', 'ÿ' => 'y',
+        'ŷ' => 'y', 'ž' => 'z', 'ż' => 'z', 'ź' => 'z', 'þ' => 't', 'ß' => 'ss',
+        'ſ' => 'ss', 'ый' => 'iy', 'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G',
+        'Д' => 'D', 'Е' => 'E', 'Ё' => 'YO', 'Ж' => 'ZH', 'З' => 'Z', 'И' => 'I',
+        'Й' => 'Y', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O',
+        'П' => 'P', 'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F',
+        'Х' => 'H', 'Ц' => 'C', 'Ч' => 'CH', 'Ш' => 'SH', 'Щ' => 'SCH', 'Ъ' => '',
+        'Ы' => 'Y', 'Ь' => '', 'Э' => 'E', 'Ю' => 'YU', 'Я' => 'YA', 'а' => 'a',
+        'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'yo',
+        'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k', 'л' => 'l',
+        'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's',
+        'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch',
+        'ш' => 'sh', 'щ' => 'sch', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'e',
+        'ю' => 'yu', 'я' => 'ya', '/' => '_', '\\' => '_', '(' => '_', ')' => '_',
+        ',' => '_', '.' => '_', '?' => '_', ':' => '_', ';' => '_', '=' => '_', 
+        '+' => '_', '%' => '_', '*' => '_', '£' => '_', '$' => '_', '{' => '_', 
+        '}' => '_', '[' => '_', ']' => '_', '#' => '_', '@' => '_', '&' => '_', 
+        '-' => '_', ' ' => '_', '\'' => ''
+    ];
+    
+    $field_name = strtolower($field_name);
+    $field_name = str_replace(array_keys($replace), $replace, $field_name);
+    $field_name = str_replace(' ', '_', $field_name);
+    $field_name = strtolower(substr($field_name, 0, 1)).substr($field_name, 1);
+    
+    // Exeptions
+    switch ($field_name){
+    	case 'voornaam_coaccount1':
+    		$field_name = 'voornaam_coac1'; break;
+    	case 'telefoonnummer_coaccount1':
+    		$field_name = 'telnummer_coac1'; break;
+    	case 'mobielnummer_coaccount1':
+    		$field_name = 'mobielnr_coac1'; break;
+    	case 'voornaam_coaccount2':
+    		$field_name = 'voornaam_coac2'; break;
+    	case 'telefoonnummer_coaccount2':
+    		$field_name = 'telnummer_coac2'; break;
+    	case 'mobielnummer_coaccount2':
+    		$field_name = 'mobielnr_coac2'; break;
+    }
+    
+    $field_name = substr($field_preset . $field_name, 0, 32);
+    
+    return $field_name;
+}
+
+/**
+ * Action Implementation: Send Smartschool message.
+ * 
+ * Smartschool API:
+ * 
+ * mixed sendMsg(
+ * 			string $accesscode,
+ * 			string $userIdentifier,
+ * 			string $title,
+ * 			string $body,
+ * 			string $senderIdentifier,
+ * 			array $attachments,
+ * 			[integer $coaccount = 0])
+ * 		string $senderIdentifier, array $attachments, integer $coaccount 0,1,2 zijn optioneel
+ */
+function argus_sms_api_send_msg($key, $to, $co = 0, $from = NULL, $subject, $body, $attachments = array()) {
+	// Retrieve real names for these users
+	$fromRealname = argus_get_user_realname($from);
+	$toRealname = argus_get_user_realname($to);
+	
+	// Retrieve usernames for these users
+	$fromName = db_query('SELECT name FROM {users} WHERE uid = :uid', array(':uid' => $from))->fetchAssoc()['name'];
+	$toName = db_query('SELECT name FROM {users} WHERE uid = :uid', array(':uid' => $to))->fetchAssoc()['name'];
+	
+	// Wrap body in template
+	global $base_url;
+	$header = '<div style="margin: 20px 0px 30px 0px;">';
+	$footer = '</div><div style="border-top: solid 1px #dddddd;"><img src="'.$base_url.'/sites/default/files/argus/sms_msg/msg-logoarguskta1.png" /></div><div style="font-size: smaller; padding: 5px; font-style: italic;">(dit is een automatisch verzonden bericht van argus)</div>';
+	
+	$body = $header.$body.$footer;
+	
+	/* Get all available Smartschool-groups */
+	if ($client = argus_sms_getSOAPclient()){
+		if (variable_get('argus_engine_demo_mode')){
+			$result = 0;
+		} else {
+			$result = $client->sendMsg(variable_get('argus_sms_api_password'), $toName, $subject, $body, $fromName, array(), $co);
+		}
+		if ($result) {
+			argus_report('Bericht met als sleutel "%key" kon niet verzonden worden naar Smartschool<hr>%subject<br>%body<hr><ul><li>to: %toRealname (%toId - %toName) - co: %co</li><li>from: %fromRealname (%fromId - %fromName)', array('%toId' => $to, '%toRealname' => $toRealname, '%toName' => $toName, '%fromId' => $from, '%fromRealname' => $fromRealname, '%fromName' => $fromName, '%subject' => $subject, '%body' => $body, '%co' => $co, '%key' => $key),'error');
+		} else {
+			argus_report('Bericht verzonden via Smartschool van %from naar %to met als onderwerp: %subject', array('%to' => $toRealname, '%from' => $fromRealname, '%subject' => $subject),'status');
+		}
+	}
+}
+
+/**
+ * Action Implementation: Send Smartschool message to users with selected roles.
+ *
+ * Smartschool API:
+ *
+ * mixed sendMsg(
+ * 			string $accesscode,
+ * 			string $userIdentifier,
+ * 			string $title,
+ * 			string $body,
+ * 			string $senderIdentifier,
+ * 			array $attachments,
+ * 			[integer $coaccount = 0])
+ * 		string $senderIdentifier, array $attachments, integer $coaccount 0,1,2 zijn optioneel
+ */
+function argus_sms_api_send_msg_to_users_of_role($key, $roles, $co = 0, $from = NULL, $subject, $body, $attachments = array()) {
+	// Retrieve data from sending user
+	$fromRealname = argus_get_user_realname($from);
+	$fromName = db_query('SELECT name FROM {users} WHERE uid = :uid', array(':uid' => $from))->fetchAssoc()['name'];
+	
+	// Wrap body in template
+	global $base_url;
+	$header = '<div style="margin: 20px 0px 30px 0px;">';
+	$footer = '</div><div style="border-top: solid 1px #dddddd;"><img src="'.$base_url.'/sites/default/files/argus/sms_msg/msg-logoarguskta1.png" /></div><div style="font-size: smaller; padding: 5px; font-style: italic;">(dit is een automatisch verzonden bericht van argus)</div>';
+
+	$body = $header.$body.$footer;
+	
+	/* Send message through Smartschool API */
+	if ($client = argus_sms_getSOAPclient()){
+		$usersSendOK = array();
+		$usersSendNotOK = array();
+		
+		// Fetch all users with selected roles
+		$query = 'SELECT DISTINCT(ur.uid) FROM {users_roles} AS ur WHERE ur.rid IN (:rids)';
+		$uids = db_query($query, array(':rids' => $roles))->fetchCol();
+		
+		foreach ($uids as $uid){
+			$toRealname = argus_get_user_realname($uid);
+			$toName = db_query('SELECT name FROM {users} WHERE uid = :uid', array(':uid' => $uid))->fetchAssoc()['name'];
+			
+			if (variable_get('argus_engine_demo_mode')){
+				$result = 0;
+			} else {
+				$result = $client->sendMsg(variable_get('argus_sms_api_password'), $toName, $subject, $body, $fromName, array(), $co);
+				if ($result) {
+					// There was something wrong
+					$usersSendNotOK[] = $toRealname.' ('.$uid.' - '.$toName.')';
+				} else {
+					$usersSendOK[] = $toRealname.' ('.$uid.' - '.$toName.')';
+				}
+			}
+		}
+		
+		if (count($usersSendNotOK)>0) {
+			argus_report('Bericht met als sleutel "%key" kon niet verzonden worden naar Smartschool<hr>%subject<br>%body<hr><ul><li>to: %users - co: %co</li><li>from: %fromRealname (%fromId - %fromName)', array('%users' => implode(', ',$usersSendNotOK), '%fromId' => $from, '%fromRealname' => $fromRealname, '%fromName' => $fromName, '%subject' => $subject, '%body' => $body, '%co' => $co, '%key' => $key),'error');
+		}
+		if (count($usersSendOK)>0){
+			argus_report('Bericht verzonden via Smartschool van %from naar %to gebruiker(s) met als onderwerp: %subject', array('%to' => count($usersSendOK), '%from' => $fromRealname, '%subject' => $subject),'status');
+		}
+	}
+}
+
+/** 
+ * Supporting function for retrieving groupcodes of Smartschool-groups
+ * 
+ * Function returns a flat array (hierarchical dimensions are obsolete in Drupal)
+ * 
+ * @param $retrievedData
+ *   XML-data to read
+ * @param $level
+ *   Level of this element in the hierarchy
+ * @param $parent
+ *   Code of the parent element
+ */
+function argus_sms_get_group_codes($retrievedData, $level = 0, $parent = NULL) {
+    $groups = array();
+    foreach ($retrievedData->group as $group) {
+        $code = (string) $group->code;
+        if ($code) {
+            $groups[$code] = array(
+                'code' => $code,
+                'label' => (string) $group->name,
+                'level' => $level,
+                'parent' => $parent,
+            );
+        }
+        foreach ($group->children as $groupChild) {
+            $groups = array_merge($groups, argus_sms_get_group_codes($groupChild, $level+1, $code));
+        }
+    }
+    return $groups;
+}
+
+/**
+ * Using Smartschools API function saveUser; with following details:
+
+	 saveUser
+	 
+	 mixed saveUser (string $accesscode, string $internnumber, string $username, string $passwd1, string $passwd2, string $passwd3, string $name, string $surname, string $extranames, string $initials, string $sex, string $birthday, string $birthplace, string $birthcountry, string $address, string $postalcode, string $location, string $country, string $email, string $mobilephone, string $homephone, string $fax, string $prn, string $stamboeknummer, string $basisrol, string $untis)
+	
+	 Voegt een gebruiker toe of wijzigt een bestaande gebruiker.
+	
+	 Als de saveUser methode wordt aangeroepen dan wordt het ingesteld uniek veld (userIdentifier) gecontroleerd.
+	 Indien er nog geen account bestaat met het ingesteld uniek veld dan zal er een nieuwe account worden toegevoegd.
+	 Bestaat er echter wel reeds een account met het ingesteld uniek veld dan worden de gegevens van deze account geüpdatet met de meegeleverde gegevens.
+	
+	 string $accesscode: Wachtwoord webservices
+	 string $internnumber: Intern nummer
+	 string $username: Gebruikersnaam (minstens 2 karakters)
+	 string $passwd1: Wachtwoord hoofdaccount
+		 Voor nieuwe gebruikers is het verplicht om dit wachtwoord op te geven.
+		 Bij bestaande gebruikers is het mogelijk om deze string leeg te laten, zo zal het wachtwoord van deze gebruiker niet gewijzigd worden.
+		 Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
+			 een kleine letter bevatten (a-z);
+			 een hoofdletter bevatten (A-Z);
+			 een cijfer bevatten (0-9);
+			 een ander karakter bevatten (._-*!?/).
+	 string $passwd2: Wachtwoord co-account (optioneel)
+	 string $passwd3: Wachtwoord tweede co-account (optioneel)
+	 string $name: Voornaam (minstens 1 karakter)
+	 string $surname: Achternaam (minstens 1 karakter)
+	 string $extranames: Extra voornamen (optioneel)
+	 string $initials: Initialen (optioneel)
+	 string $sex: Geslacht (optioneel)
+	 string $birthday: Geboortedatum (optioneel; formaat YYYY-MM-DD of DD-MM-YYYY)
+	 string $birthplace: Geboorteplaats (optioneel)
+	 string $birthcountry: Geboorteland (optioneel)
+	 string $address: Adres (optioneel)
+	 	Het huisnummer en busnummer kunnen meegeleverd worden in de '$address' parameter.
+	 	Wanneer het adres in de vorm <straatnaam> spatie <huisnummer> spatie 'bus' spatie <busnummer> wordt aangeboden zal de saveUser service dit herkennen de gegevens in de juiste databankvelden invoeren. Bv.: Kerkstraat 22 of Kerkstraat 22 bus 1. Naast het woord 'bus' wordt ook een schuine streep gebruikt om huisnummer van busnummer te scheiden. Kerkstraat 22/1 wordt dus Kerkstraat 22 bus 1.
+	 string $postalcode: Postcode (optioneel)
+	 string $location: Stad/Gemeente (optioneel)
+	 string $country: Land (optioneel)
+	 string $email: E-mailadres (optioneel)
+	 string $mobilephone: Mobiel nummer (optioneel)
+	 string $homephone: Telefoonnummer (optioneel)
+	 string $fax: Fax (optioneel)
+	 string $prn: Rijksregisternummer (optioneel)
+	 string $stamboeknummer: Stamnummer (optioneel)
+	 string $basisrol: Basisrol (verplicht op te geven: 'leerling', 'leerkracht', 'directie' of 'andere')
+	 string $untis: Untisveld (optioneel)
+ 
+ * 
+ * @param $uid integer Refering ID for user
+ * 
+ */
+function argus_sms_add_user_to_smartschool($uid){
+	if ($client = argus_sms_getSOAPclient()){
+		
+		$u = user_load($uid, false);
+		
+		// Create address string
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_straat)){
+			$address = $u->field_user_sms_straat[LANGUAGE_NONE][0]['value'];
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_huisnummer)){
+			if ($u->field_user_sms_huisnummer[LANGUAGE_NONE][0]['value']){
+			$address .= ' '.$u->field_user_sms_huisnummer[LANGUAGE_NONE][0]['value'];
+			}
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_busnummer)){
+			if ($u->field_user_sms_busnummer[LANGUAGE_NONE][0]['value']){
+				$address .= '/'.$u->field_user_sms_busnummer[LANGUAGE_NONE][0]['value'];
+			}
+		}
+
+		$types = array(
+			0 => 'leerkracht',
+			1 => 'leerling',
+			13 => 'andere',
+			30 => 'directie',
+		);
+		
+		// Prepare data for saving
+		$userVars['name'] = $u->name;
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_internnummer)){
+			$userVars['internnummer'] = $u->field_user_sms_internnummer[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['internnummer'] = 'KTA-'.date('dmYHis');
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_tmp_pwhfd)){
+			$userVars['pwh'] = $u->field_user_tmp_pwhfd[LANGUAGE_NONE][0]['value'];
+		}
+		if (strlen($userVars['pwh'] < 10)) {
+			$userVars['pwh'] = user_password(10).'Aa1!';
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_tmp_pwco1)){
+			$userVars['pw1'] = $u->field_user_tmp_pwco1[LANGUAGE_NONE][0]['value'];
+		} 
+		if (strlen($userVars['pw1'] < 10)) {
+			$userVars['pw1'] = user_password(10).'Aa1!';
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_tmp_pwco2)){
+			$userVars['pw2'] = $u->field_user_tmp_pwco2[LANGUAGE_NONE][0]['value'];
+		} 
+		if (strlen($userVars['pw2'] < 10)) {
+			$userVars['pw2'] = user_password(10).'Aa1!';
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_naam)){
+			$userVars['naam'] = $u->field_user_sms_naam[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['naam'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_voornaam)){
+			$userVars['voornaam'] = $u->field_user_sms_voornaam[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['voornaam'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_extravoornamen)){
+			$userVars['extravoornamen'] = $u->field_user_sms_extravoornamen[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['extravoornamen'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_initialen)){
+			$userVars['initialen'] = $u->field_user_sms_initialen[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['initialen'] = null;
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_geslacht)){
+			$userVars['geslacht'] = $u->field_user_sms_geslacht[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['geslacht'] = null;
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_geboortedatum)){
+			$userVars['geboortedatum'] = $u->field_user_sms_geboortedatum[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['geboortedatum'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_geboorteplaats)){
+			$userVars['geboorteplaats'] = $u->field_user_sms_geboorteplaats[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['geboorteplaats'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_geboorteland)){
+			$userVars['geboorteland'] = $u->field_user_sms_geboorteland[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['geboorteland'] = null;
+		}
+		
+		$userVars['adres'] = $address;
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_postcode)){
+			$userVars['postcode'] = $u->field_user_sms_postcode[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['postcode'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_woonplaats)){
+			$userVars['woonplaats'] = $u->field_user_sms_woonplaats[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['woonplaats'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_land)){
+			$userVars['land'] = $u->field_user_sms_land[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['land'] = null;
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_emailadres)){
+			$userVars['email'] = $u->field_user_sms_emailadres[LANGUAGE_NONE][0]['email'];
+		} else {
+			$userVars['email'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_mobielnummer)){
+			$userVars['mobielnummer'] = $u->field_user_sms_mobielnummer[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['mobielnummer'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_telefoonnummer)){
+			$userVars['telefoonnummer'] = $u->field_user_sms_telefoonnummer[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['telefoonnummer'] = null;
+		}
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_fax)){
+			$userVars['fax'] = $u->field_user_sms_fax[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['fax'] = null;
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_rijksregisternumm)){
+			$userVars['rrn'] = $u->field_user_sms_rijksregisternumm[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['rrn'] = null;
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_stamboeknummer)){
+			$userVars['stamboeknummer'] = $u->field_user_sms_stamboeknummer[LANGUAGE_NONE][0]['value'];
+		} else {
+			$userVars['stamboeknummer'] = null;
+		}
+		
+		if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_basisrol)){
+			$userVars['type'] = $types[$u->field_user_sms_basisrol[LANGUAGE_NONE][0]['value']];
+		} else {
+			$userVars['type'] = null;
+		}
+		
+		$userVars['untisnummer'] = null;
+		
+		// Send user data to Smartschool
+		/* saveUser
+
+		Voegt een gebruiker toe of wijzigt een bestaande gebruiker.
+		
+		Als de saveUser methode wordt aangeroepen dan wordt het ingesteld uniek veld (userIdentifier) gecontroleerd. Indien er nog geen account bestaat met het ingesteld uniek veld dan zal er een nieuwe account worden toegevoegd. Bestaat er echter wel reeds een account met het ingesteld uniek veld dan worden de gegevens van deze account geüpdatet met de meegeleverde gegevens.
+		
+		string $accesscode: Wachtwoord webservices
+		string $internnumber: Intern nummer
+		string $username: Gebruikersnaam (minstens 2 karakters)
+		string $passwd1: Wachtwoord hoofdaccount
+		Voor nieuwe gebruikers is het verplicht om dit wachtwoord op te geven. Bij bestaande gebruikers is het mogelijk om deze string leeg te laten, zo zal het wachtwoord van deze gebruiker niet gewijzigd worden.
+		Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
+		een kleine letter bevatten (a-z);
+		een hoofdletter bevatten (A-Z);
+		een cijfer bevatten (0-9);
+		een ander karakter bevatten (._-*!?/).
+		string $passwd2: Wachtwoord co-account (optioneel)
+		string $passwd3: Wachtwoord tweede co-account (optioneel)
+		string $name: Voornaam (minstens 1 karakter)
+		string $surname: Achternaam (minstens 1 karakter)
+		string $extranames: Extra voornamen (optioneel)
+		string $initials: Initialen (optioneel)
+		string $sex: Geslacht (optioneel)
+		string $birthday: Geboortedatum (optioneel; formaat YYYY-MM-DD of DD-MM-YYYY)
+		string $birthplace: Geboorteplaats (optioneel)
+		string $birthcountry: Geboorteland (optioneel)
+		string $address: Adres (optioneel) 
+		Het huisnummer en busnummer kunnen meegeleverd worden in de '$address' parameter. Wanneer het adres in de vorm <straatnaam> spatie <huisnummer> spatie 'bus' spatie <busnummer> wordt aangeboden zal de saveUser service dit herkennen de gegevens in de juiste databankvelden invoeren. Bv.: Kerkstraat 22 of Kerkstraat 22 bus 1. Naast het woord 'bus' wordt ook een schuine streep gebruikt om huisnummer van busnummer te scheiden. Kerkstraat 22/1 wordt dus Kerkstraat 22 bus 1.
+		string $postalcode: Postcode (optioneel)
+		string $location: Stad/Gemeente (optioneel)
+		string $country: Land (optioneel)
+		string $email: E-mailadres (optioneel)
+		string $mobilephone: Mobiel nummer (optioneel)
+		string $homephone: Telefoonnummer (optioneel)
+		string $fax: Fax (optioneel)
+		string $prn: Rijksregisternummer (optioneel)
+		string $stamboeknummer: Stamnummer (optioneel)
+		string $basisrol: Basisrol (verplicht op te geven: 'leerling', 'leerkracht', 'directie' of 'andere')
+		string $untis: Untisveld (optioneel)
+		 */
+		$result = $client->saveUser(
+				variable_get('argus_sms_api_password'),
+				$userVars['internnummer'],
+				$userVars['name'],
+				$userVars['pwh'],
+				$userVars['pw1'],
+				$userVars['pw2'],
+				$userVars['voornaam'],
+				$userVars['naam'],
+				$userVars['extravoornamen'],
+				$userVars['initialen'],
+				$userVars['geslacht'],
+				$userVars['geboortedatum'],
+				$userVars['geboorteplaats'],
+				$userVars['geboorteland'],
+				$userVars['adres'],
+				$userVars['postcode'],
+				$userVars['woonplaats'],
+				$userVars['land'],
+				$userVars['email'],
+				$userVars['mobielnummer'],
+				$userVars['telefoonnummer'],
+				$userVars['fax'],
+				$userVars['rrn'],
+				$userVars['stamboeknummer'],
+				$userVars['type'],
+				$userVars['untisnummer']
+		);
+		
+		if ($result > 0) {
+			argus_report('De <em>gebruiker</em> "%account" werd NIET gesynchroniseerd: foutmelding - %error', array('%account' => $u->name, '%error' => argus_sms_error($result)), 'error', 'argus');
+		} else {
+			argus_report('De nieuwe <em>gebruiker</em> "%account" werd toegevoegd aan Smartschool.', array('%account' => $u->field_user_sms_voornaam[LANGUAGE_NONE][0]['value'].' '.$u->field_user_sms_naam[LANGUAGE_NONE][0]['value']), 'status', 'argus');
+			
+			// Remove user from new users
+			$u->field_user_tmp_reg_smartschool[LANGUAGE_NONE][0]['value'] = format_date(time());
+			user_save($u);
+		
+			// Activate the user in Smartschool
+			/* setAccountStatus
+			
+			Met deze methode kan de status van een leerling gewijzigd worden. De methode vereist 3 parameters:
+			
+			string $accesscode: Wachtwoord webservices
+			string $userIdentifier: Uniek veld gebruiker
+			mixed $accountStatus: Status account
+			Deze laatste parameter kan volgende waarden hebben:
+			
+			'actief', 'active' of 'enabled' om de account op actief te zetten
+			'inactief', 'inactive' of 'disabled' om de account uit te schakelen
+			'administrative' of 'administratief' om van de account een administratieve account te maken.
+			*/
+			$client->setAccountStatus(variable_get('argus_sms_api_password'), $userVars['name'], 'active');
+			
+			// Remove the user from old class in Smartschool
+			/*
+			 * removeUserFromGroup
+
+				Met deze methode is het mogelijk een gebruiker uit een specifieke groep te verwijderen.
+				
+				string $accesscode: Webservices toegangscode
+				string $userIdentifier: Uniek veld gebruiker
+				string $class: Unieke klas- of groepscode
+				string $officialDate: Officiële datum klasbeweging (optioneel)
+			
+			* getUserOfficialClass
+
+				Met deze methode kan je controleren in welke officiële klas een bepaalde leerling zit op een bepaalde dag.
+				
+				string $accesscode: Wachtwoord webservices
+				string $userIdentifier: Uniek veld gebruiker
+				string $date: Datum (optioneel: zonder datum wordt de huidige dag opgevraagd; formaat: YYYY-MM-DD of DD-MM-YYYY)
+
+			 */
+			$result = $client->getUserDetailsByUsername(variable_get('argus_sms_api_password'), $userVars['name']);
+			if ($result > 0){
+				argus_report('De <em>gebruiker</em> werd niet correct aangemaakt (controle groepen): foutmelding - %error', array('%error' => argus_sms_error($result)), 'error', 'argus');
+			} else {
+				$result = (array) json_decode($result);
+				if (count($result['groups'])){
+					foreach ($result['groups'] as $group){
+						$result = $client->removeUserFromGroup(variable_get('argus_sms_api_password'), $userVars['name'], $group->code);
+						if ($result > 0){
+							argus_report('De <em>gebruiker</em> kon niet worden verwijderd uit groep "%group": foutmelding - %error', array('%group' => $group->name.' ('.$group->code.')', '%error' => argus_sms_error($result)), 'error', 'argus');
+						} else {
+							argus_report('De <em>gebruiker</em> werd succesvol verwijderd uit groep "%group" in Smartschool.', array('%group' => $group->name.' ('.$group->code.')'), 'status', 'argus');
+						}
+					}
+				} else {
+					argus_report('De <em>gebruiker</em> kon niet worden verwijderd uit groep "%group": foutmelding - %error', array('%group' => $result['groups'], '%error' => argus_sms_error($result)), 'error', 'argus');
+				}
+			}
+			
+			// Add custom data fields to user
+			/*
+			 * mixed saveUserParameter (string $accesscode, string $userIdentifier, string $paramName, string $paramValue)
+			 * 	string $paramName werd uitgebreid met mogelijkheden voor co-accounts
+			 * 
+			 * Met deze methode kunnen de onderstaande velden uit het profiel worden ingevuld:
+			 * 		eigen profielvelden
+			 * 		Nationaliteit, Nationaliteitscode, Godsdienstkeuze, Soort leerling
+			 * 		name, surname, extranames, initials, sex, birthday, birthplace, birthcountry, prn, street,
+			 * 		streetnr, busnr, postalCode, location, country, email, website, mobilePhone, homePhone, fax,
+			 * 		im, website, type_coaccount1, type_coaccount2, naam_coaccount1, naam_coaccount2, voornaam_coaccount1,
+			 * 		voornaam_coaccount2, email_coaccount1, email_coaccount2, telefoonnummer_coaccount1, telefoonnummer_coaccount2,
+			 * 		mobielnummer_coaccount1, mobielnummer_coaccount2
+			 * 
+			 * 		De functie verwacht 4 parameters:
+			 * 			string $accesscode: Wachtwoord webservices
+			 * 			string $userIdentifier: Uniek veld gebruiker
+			 * 			string $paramName: Naam parameter
+			 * 			string $paramValue: Waarde parameter (bij aanvinkvakjes dient u meerdere keuzes te scheiden met een puntkomma)
+			 */
+			//$field_items = field_info_field_map();
+			foreach($field_items as $k => $field){
+				$f = substr($k,0,15);
+				if ($f == 'field_user_sms_'){
+					$f = substr($k,15);
+					
+					$f_sms = null;
+					switch ($f){
+						case 'godsdienstkeuze': $f_sms = 'Godsdienstkeuze';
+							switch ($u->field_user_sms_godsdienstkeuze[LANGUAGE_NONE][0]['value']){
+								case 'Niet-confessionele zedenleer': $value = '187'; break;
+								case 'Katholieke godsdienst': $value = '140'; break;
+								case 'Protestantse godsdienst': $value = '225'; break;
+								case 'Israëlitische godsdienst': $value = '0136'; break;
+								case 'Islamitische godsdienst': $value = '135'; break;
+								case 'Orthodoxe godsdienst': $value = '194'; break;
+								case 'Anglicaanse godsdienst': $value = '418'; break;
+								case 'Vrijgesteld of niet van toepassing': $value = '9999'; break;
+								case 'Cultuurbeschouwing': $value = '52'; break;
+								case 'Eigen cultuur en religie': $value = '63'; break;
+							}
+							$value = substr('0000'.$value, -4);
+							break;
+						case 'soortleerling': $f_sms = 'Soort leerling';
+							switch ($u->field_user_sms_soortleerling[LANGUAGE_NONE][0]['value']){
+								case 'Vrije leerling': $value = '01'; break;
+								case 'Regelmatig financierbaar': $value = '02'; break;
+								case 'Regelmatig niet-financierbaar': $value = '03'; break;
+								case 'Onder voorbehoud aanvaarde leerling': $value = '99'; break;
+							}
+							break;
+						
+						case 'algemene_opmerkin': $f_sms = 'algemene_opmerkingen'; break;
+						case 'instantmessenger': $f_sms = 'im'; break;
+						case 'woonplaats___deel': $f_sms = 'woonplaats_-_deelgemeente'; break;
+						case 'nationaliteit': $f_sms = 'Nationaliteit'; break;
+						case 'nationaliteitscod': $f_sms = 'Nationaliteitscode'; break;
+						
+						case 'nationaliteit_vad': $f_sms = 'nationaliteit_vader'; break;
+						case 'stad_gemeente_vad': $f_sms = 'stad_gemeente_vader'; break;
+						case 'telefoon_werk_vad': $f_sms = 'telefoon_werk_vader'; break;
+						case 'geboortedatum_vad': $f_sms = 'geboortedatum_vader'; break;
+						
+						case 'nationaliteit_moe': $f_sms = 'nationaliteit_moeder'; break;
+						case 'stad_gemeente_moe': $f_sms = 'stad_gemeente_moeder'; break;
+						case 'telefoon_werk_moe': $f_sms = 'telefoon_werk_moeder'; break;
+						case 'geboortedatum_moe': $f_sms = 'geboortedatum_moeder'; break;
+					
+						case 'huisdokter_woonpl': $f_sms = 'huisdokter_woonplaats'; break;
+						case 'telefoon_huisdokt': $f_sms = 'telefoon_huisdokter'; break;
+
+						case 'taal_met_broers_z': $f_sms = 'taal_met_broers_zussen'; break;
+						case 'aantal_zussen_bro': $f_sms = 'aantal_zussen_broers'; break;
+						case 'rekeningnummer_ge': $f_sms = 'rekeningnummer_gezin'; break;
+					
+						case 'concentratieprobl': $f_sms = 'concentratieproblemen'; break;
+						case 'ass__autisme_spec': $f_sms = 'ass__autisme_spectrum_stoornis_'; break;
+						case 'nld__non_verbale_': $f_sms = 'nld__non_verbale_leerstoornis_'; break;
+						case 'diagnose_deskundi': $f_sms = 'diagnose_deskundige_'; break;
+						case 'attest_leerstoorn': $f_sms = 'attest_leerstoornis'; break;
+						case 'diagnose_speciali': $f_sms = 'diagnose_specialist_'; break;
+						case 'doktersattest_': $f_sms = 'doktersattest?'; break;
+						case 'medicatie_': $f_sms = 'medicatie?'; break;
+						case 'aandachtspunten_p': $f_sms = 'aandachtspunten_pv_en_of_lo_'; break;
+						case 'opvolging_voorzie': $f_sms = 'opvolging_voorzien_'; break;
+						case 'attest_lo_': $f_sms = 'attest_lo?'; break;
+						case 'buitengewoon_onde': $f_sms = 'buitengewoon_onderwijs'; break;
+						case 'ingeent_tegen_kle': $f_sms = 'ingeent_tegen_klem'; break;
+						case 'wanneer_ingeent_t': $f_sms = 'wanneer_ingeent_tegen_klem_'; break;
+						
+						case 's_middags_buiten_': $f_sms = "'s_middags_buiten?"; break;
+						case 'toelating_te_laat': $f_sms = 'toelating_te_laat_komen'; break;
+						case 'toelating_vroeger': $f_sms = 'toelating_vroeger_vertrekken'; break;
+						case 'sl_leerjaar_en_st': $f_sms = 'sl_leerjaar_en_studierichting'; break;
+						case 'sl2_leerjaar_en_s': $f_sms = 'sl2_leerjaar_en_studierichting'; break;
+						case 'intern_extern': $f_sms = 'intern_extern_'; break;
+						
+						case 'voornaam_coac1': $f_sms = 'voornaam_coaccount1'; break;
+						case 'telnummer_coac1': $f_sms = 'telefoonnummer_coaccount1'; break;
+						case 'mobielnr_coac1': $f_sms = 'mobielnummer_coaccount1'; break;
+						
+						case 'voornaam_coac2': $f_sms = 'voornaam_coaccount2'; break;
+						case 'telnummer_coac2': $f_sms = 'telefoonnummer_coaccount2'; break;
+						case 'mobielnr_coac2': $f_sms = 'mobielnummer_coaccount2'; break;
+
+						case 'contact_via_adver': $f_sms = 'contact_via_advertentie'; break;
+						case 'contact_via_famil': $f_sms = 'contact_via_familie'; break;
+						case 'contact_via_opend': $f_sms = 'contact_via_opendeurdag'; break;
+						case 'contact_via_schoo': $f_sms = 'contact_via_schoolfolder'; break;
+						case 'contact_via_websi': $f_sms = 'contact_via_website'; break;
+						case 'contact_via__ande': $f_sms = 'contact_via__andere_'; break;
+						
+						case 'gebruikersnaam':
+						case 'status':
+						case 'sorteerveld':
+						case 'opvoling_voorzien':
+						case 'b_kopie_baso_fich':
+						case 'groups':
+						case 'straat':
+						case 'huisnummer':
+						case 'busnummer':
+						case 'basisrol':
+						case 'emailadres':
+						case 'rijksregisternumm':
+						case 'type_coaccount3':
+						case 'type_coaccount4':
+						case 'type_coaccount5':
+						case 'type_coaccount6':
+						case 'klasnummer':
+							$f = null;
+							break;
+						default:
+							$f_sms = $f;
+					}
+					
+					if (!$f_sms){
+						$f_sms = $f;
+						$f = null;
+					}
+					
+					if (!array_key_exists($f, $userVars) && $f){
+						if (array_key_exists('bundles', $field)){
+							if (array_key_exists('user', $field['bundles'])){
+								eval("\$field = \$u->field_user_sms_".$f.";");
+								if (array_key_exists(LANGUAGE_NONE, $field)){
+									if (array_key_exists('value', $field[LANGUAGE_NONE][0]) && $value == ''){
+										$value = $field[LANGUAGE_NONE][0]['value'];
+									} elseif (array_key_exists('email', $field[LANGUAGE_NONE][0]) && $value == ''){
+										$value = $field[LANGUAGE_NONE][0]['email'];
+									}
+									$result = $client->saveUserParameter(variable_get('argus_sms_api_password'), $userVars['name'], $f_sms, $value);
+									if ($result && $value){
+										argus_report('Het veld "%field" werd NIET gesynchroniseerd: foutmelding - %error', array('%field' => $f, '%error' => argus_sms_error($result)), 'error', 'argus');
+									}
+								}
+							}
+						}
+					}
+					$value = '';
+				}
+			}
+		}
+	}
+}

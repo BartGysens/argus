@@ -1,0 +1,14 @@
+**Installation:
+
+Smartschool API is an extension to the Smartschool platform from the argus
+extension suite for Smartschool.
+You must have a working account and administration access.
+
+1. Unpack the argus_sms_api folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably
+  sites/all/modules/
+2. Enable the argus_sms_api module in the administration tools.
+3. If you're not using Drupal's default administrative account, make
+sure "administer smartschool" is enabled through access control administration.
+4. Visit the argus_buscheck settings page and make appropriate configurations
+ at admin > argus > Smartschool API: /admin/config/argus/smartschool-api

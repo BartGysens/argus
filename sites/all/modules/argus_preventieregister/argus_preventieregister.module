@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Preventieregister feature.
+ */
+
+include_once 'argus_preventieregister.features.inc';

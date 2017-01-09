@@ -1,0 +1,515 @@
+<?php
+/**
+ * @file
+ * Code for the HRM feature.
+ */
+include_once 'argus_hrm.features.inc';
+
+/*
+ * Copyright (C) 2016 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_hrm_menu().
+ */
+function argus_hrm_menu() {
+	$items = array ();
+	$items ['admin/config/argus/hrm/workload'] = array (
+			'title' => 'HRM: workload',
+			'description' => '.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'argus_hrm_workload_setup_form' 
+			),
+			'access arguments' => array (
+					'access administration pages' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 1 
+	);
+	$items ['hrm/workload'] = array (
+			'title' => t ( 'Belasting' ),
+			'description' => 'Bereken hoeveel elk personeelslid wordt ingeschakeld per functie.',
+			'page callback' => 'argus_hrm_workload_overview',
+			'access arguments' => array (
+					'access argus_hrm content' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'menu_name' => 'menu-modules' 
+	);
+	return $items;
+}
+
+/**
+ * Implement hook_theme()
+ */
+function argus_hrm_theme() {
+	return array (
+			'argus_hrm--overview_workload' => array (
+					'template' => 'templates/argus_hrm--overview_workload' 
+			) 
+	);
+}
+
+/**
+ * Implements hook_permission().
+ */
+function argus_hrm_permission() {
+	return array (
+			'access argus_hrm content' => array (
+					'title' => t ( 'Belasting van personeelsleden bekijken' ) 
+			) 
+	);
+}
+
+/**
+ * Page callback: HRM - workload instellingen
+ *
+ * @see argus_hrm_workload_setup_form()
+ */
+function argus_hrm_workload_setup_form($form, &$form_state) {
+	$form ['general'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Algemeen' ),
+			'#description' => t ( 'Voor de berekening van de score wordt er rekening gehouden met het aantal leerlingen per groep. Het aantal minuten wordt verrekend per <strong>schooljaar</strong>.' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => FALSE 
+	);
+	
+	$form ['general'] ['argus_hrm_workload_roles'] = array (
+			'#type' => 'select',
+			'#title' => t ( 'Selecteer enkel de gebruikers van onderstaande groep' ),
+			'#options' => user_roles (),
+			'#multiple' => TRUE,
+			'#size' => 10,
+			'#default_value' => variable_get ( 'argus_hrm_workload_roles', 0 ),
+			'#description' => t ( 'Als de score wordt berekend, zal er enkel naar de mensen uit deze groep(en) gekeken worden.' ) 
+	);
+	
+	$form ['general'] ['roles'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Rollen' ),
+			'#description' => t ( 'Stel het gewicht van elke rol in. Deze factor houdt rekening met een gemiddelde groep (in het geval van begeleiding) van 10 leerlingen.<br /><small><u>Opgelet</u>: als je het gewicht ingeeft bij een specifieke module (zie verder), dan kan je best hier de waarde op 0 zetten, anders wordt dit dubbel gerekend voor de score.</small>' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => TRUE 
+	);
+	
+	$roles = user_roles ();
+	foreach ( $roles as $rid => $role ) {
+		$form ['general'] ['roles'] ['argus_hrm_workload_role-' . $rid] = array (
+				'#type' => 'textfield',
+				'#title' => $role,
+				'#field_suffix' => t ( 'minuten' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_role-' . $rid, 0 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+	}
+	
+	if (module_exists ( 'argus_uurrooster' )) {
+		$form ['argus_uurrooster'] = array (
+				'#type' => 'fieldset',
+				'#title' => t ( 'Module Uurroosters' ),
+				'#collapsible' => TRUE,
+				'#collapsed' => FALSE,
+				'#description' => t ( 'Voor de toezichten en permanenties kan je apart de gemiddelde tijd per opdracht ingeven. Meerdere toezichten of permanenties worden verrekend door het systeem.' ) 
+		);
+		
+		$form ['argus_uurrooster'] ['argus_hrm_workload_springuren'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Springuren' ),
+				'#description' => t ( 'Een springuur is in principe de tijd van een lesuur, maar kan ook als minder gewicht worden ingesteld.<br /><small><u>Opgelet</u>: een springuur wordt ook gezien als een verlichting van de werkdruk, bvb. bij een dag van 8 lesuren.</small>' ),
+				'#field_suffix' => t ( 'minuten' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_springuren', 50 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+		
+		$form ['argus_uurrooster'] ['argus_hrm_workload_plage-uren'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Plage-uren' ),
+				'#description' => t ( 'Een plage-uur is in principe de tijd van een lesuur, maar kan ook als minder gewicht worden ingesteld.<br /><small><u>Opgelet</u>: een plage-uur kan ook worden in rekening gebracht bij het opgeven van toezichten en permanentie.</small>' ),
+				'#field_suffix' => t ( 'minuten' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_plage-uren', 50 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+		
+		$form ['argus_uurrooster'] ['argus_hrm_workload_substitutes'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Permanenties' ),
+				'#description' => t ( 'Een permanentieuur is in het rooster opgenomen als vast vervangingsuur.<br /><small><u>Opgelet</u>: dit kan in sommige gevallen niet overeenkomen met de echte situatie als er bvb. vervangingen door een afdeling worden opgevangen.</small>' ),
+				'#field_suffix' => t ( 'minuten' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_substitutes', 30 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+		
+		$form ['argus_uurrooster'] ['supervisions'] = array (
+				'#type' => 'fieldset',
+				'#title' => t ( 'Toezichten' ),
+				'#collapsible' => TRUE,
+				'#collapsed' => FALSE,
+				'#description' => t ( 'Stel het gewicht van elk type toezicht in.' ) 
+		);
+		$form ['argus_uurrooster'] ['supervisions'] ['argus_hrm_workload_toezicht-kort-effectief'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Kort - effectief' ),
+				'#description' => t ( 'Dit toezicht is een effectief toezicht en wordt elke week uitgevoerd.' ),
+				'#field_suffix' => t ( 'minuten' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_toezicht-kort-effectief', 30 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+		$form ['argus_uurrooster'] ['supervisions'] ['argus_hrm_workload_toezicht-kort-vervanger'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Kort - vervanger' ),
+				'#description' => t ( 'Een vervanger staat als reserve op en zal het toezicht sporadisch uitvoeren.' ),
+				'#field_suffix' => t ( 'minuten' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_toezicht-kort-vervanger', 5 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+		$form ['argus_uurrooster'] ['supervisions'] ['argus_hrm_workload_toezicht-lang-effectief'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Lang - effectief' ),
+				'#description' => t ( 'Dit toezicht is een effectief toezicht en wordt elke week uitgevoerd.' ),
+				'#field_suffix' => t ( 'minuten' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_toezicht-lang-effectief', 30 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+		$form ['argus_uurrooster'] ['supervisions'] ['argus_hrm_workload_toezicht-lang-vervanger'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Lang - vervanger' ),
+				'#description' => t ( 'Een vervanger staat als reserve op en zal het toezicht sporadisch uitvoeren.' ),
+				'#field_suffix' => t ( 'minuten' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_toezicht-lang-vervanger', 15 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+	}
+	
+	if (module_exists ( 'argus_klasbeheer' )) {
+		$form ['argus_klasbeheer'] = array (
+				'#type' => 'fieldset',
+				'#title' => t ( 'Module Klasbeheer' ),
+				'#collapsible' => TRUE,
+				'#collapsed' => FALSE,
+				'#description' => t ( 'Stel het gewicht van elke rol in.' ) 
+		);
+		
+		$form ['argus_klasbeheer'] ['argus_hrm_workload_ktt'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Klastitularis' ),
+				'#description' => t ( 'De rol van de klastitularis wordt berekend per leerling; geef daarom hier de tijd die nodig is voor een gemiddelde leerling.' ),
+				'#field_suffix' => t ( 'minuten per leerling' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_ktt', 120 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+		
+		$form ['argus_klasbeheer'] ['argus_hrm_workload_hktt'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Hulpklastitularis' ),
+				'#description' => t ( 'De rol van de hulpklastitularis wordt berekend per leerling; geef daarom hier de tijd die nodig is voor een gemiddelde leerling.' ),
+				'#field_suffix' => t ( 'minuten per leerling' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_hktt', 30 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+	}
+	
+	if (module_exists ( 'argus_stages' )) {
+		$form ['argus_stages'] = array (
+				'#type' => 'fieldset',
+				'#title' => t ( 'Module Stages' ),
+				'#collapsible' => TRUE,
+				'#collapsed' => FALSE,
+				'#description' => t ( 'Indien de stagebegeleiders worden vrijgesteld via BPT-uren, dan moet je het gewicht van deze factor eventueel verlagen of op 0 zetten.' ) 
+		);
+		
+		$form ['argus_stages'] ['argus_hrm_workload_stages'] = array (
+				'#type' => 'textfield',
+				'#title' => t ( 'Stagebegeleider' ),
+				'#description' => t ( 'De rol van de stagebegeleider (zoals toegekend in de stagedossiers!) wordt berekend per leerling; geef daarom hier de tijd die nodig is voor een gemiddelde leerling.' ),
+				'#field_suffix' => t ( 'minuten per leerling' ),
+				'#default_value' => variable_get ( 'argus_hrm_workload_stages', 270 ),
+				'#required' => TRUE,
+				'#size' => 10 
+		);
+	}
+	
+	return system_settings_form ( $form );
+}
+
+/**
+ * Page callback: Overzicht van de totale workload, afhankelijk van de instellingen en de geinstalleerde modules
+ *
+ *
+ *
+ * @return array
+ */
+function argus_hrm_workload_overview() {
+	$schoolyear = ( array ) argus_schoolyear ( 0, 'Y-m-d' );
+	
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_hrm' ) . '/css/argus_hrm.css' );
+	
+	$data = array ();
+	
+	$relevant_roles = variable_get ( 'argus_hrm_workload_roles', false );
+	
+	if (! $relevant_roles) {
+		global $base_url;
+		argus_report ( 'Module HRM: workload is not correctly set; please visit the <a href="' . $base_url . '/admin/config/argus/hrm-workload">admin-pages</a>.' );
+	}
+	
+	// Get all prospected users
+	$default_user = array (
+			'name' => null,
+			'springuren' => 0,
+			'plage-uren' => 0,
+			'substitute' => false,
+			'supervision_kort-effectief' => 0,
+			'supervision_kort-vervanger' => 0,
+			'supervision_lang-effectief' => 0,
+			'supervision_lang-vervanger' => 0,
+			'ktt' => 0,
+			'ktt_lln' => 0,
+			'hktt' => 0,
+			'hktt_lln' => 0,
+			'stages' => 0,
+			'roles' => array (),
+			'roles_count' => 0,
+			'score' => 0 
+	);
+	
+	$data ['users'] = array ();
+	$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users} AS u ' . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 'WHERE ur.rid IN (:rids) AND status = 1';
+	$result = array_keys ( db_query ( $query, array (
+			':rids' => $relevant_roles 
+	) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+	
+	foreach ( $result as $uid ) {
+		$data ['users'] [$uid] = $default_user;
+		$data ['users'] [$uid] ['name'] = argus_get_user_realname ( $uid );
+	}
+	
+	// Data related to roles and their value
+	$roles = user_roles ();
+	foreach ( $roles as $rid => $role ) {
+		$skore = variable_get ( 'argus_hrm_workload_role-' . $rid, 0 );
+		if ($skore) {
+			$role = user_role_load ( $rid );
+			$query = 'SELECT uid FROM {users_roles} WHERE rid = :rid';
+			$users = db_query ( $query, array (
+					':rid' => $rid 
+			) )->fetchAllAssoc ( 'uid' );
+			foreach ( $users as $uid => $d ) {
+				if (array_key_exists ( $uid, $data ['users'] )) {
+					$data ['users'] [$uid] ['score'] += $skore;
+					$data ['users'] [$uid] ['roles'] [] = $role->name;
+					$data ['users'] [$uid] ['roles_count'] = count ( $data ['users'] [$uid] ['roles'] );
+				}
+			}
+		}
+	}
+	
+	// Data related to module 'argus - Uurroosters'
+	if (module_exists ( 'argus_uurrooster' )) {
+		// Get users 'springuren'
+		foreach ( $data ['users'] as $uid => $username ) {
+			$factor = argus_uurrooster_get_springuren ( $uid );
+			$data ['users'] [$uid] ['springuren'] = $factor;
+			$data ['users'] [$uid] ['score'] += $factor * variable_get ( 'argus_hrm_workload_springuren', 50 );
+			
+			$assignment = argus_uurrooster_get_assignment ( $uid );
+			$data ['users'] [$uid] ['plage-uren'] = $assignment ['plage'];
+			$data ['users'] [$uid] ['score'] += $factor * variable_get ( 'argus_hrm_workload_plage-uren', 50 );
+		}
+		
+		// Get user candidate substitutes
+		$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users} AS u ' . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 'WHERE u.uid NOT IN (:uidsNOK) AND ur.rid IN (:rids) AND status = 1';
+		$data ['availableSubstitutes'] = array_keys ( db_query ( $query, array (
+				':uidsNOK' => variable_get ( 'argus_uurrooster_substitutions_exemptions' ),
+				':rids' => variable_get ( 'argus_uurrooster_substitutions_roles' ) 
+		) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		
+		// Get user candidate supervisors
+		$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users} AS u ' . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 'WHERE u.uid NOT IN (:uidsNOK) AND ur.rid IN (:rids) AND status = 1';
+		$data ['availableSupervisors'] = array_keys ( db_query ( $query, array (
+				':uidsNOK' => variable_get ( 'argus_uurrooster_supervisions_exemptions' ),
+				':rids' => variable_get ( 'argus_uurrooster_supervisions_roles' ) 
+		) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		
+		// Get all substitutions
+		$query = 'SELECT DISTINCT(u.field_uurrooster_perm_vervanger_target_id) AS id ' . 'FROM {field_data_field_uurrooster_perm_vervanger} AS u';
+		$result = array_keys ( db_query ( $query )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		foreach ( $data ['users'] as $uid => $username ) {
+			if (in_array ( $uid, $result )) {
+				$data ['users'] [$uid] ['substitute'] = true;
+				$data ['users'] [$uid] ['score'] += variable_get ( 'argus_hrm_workload_substitutes', 50 );
+			}
+		}
+		
+		// Get all supervisions, short and fixed
+		foreach ( array (
+				'kort',
+				'lang' 
+		) as $tl ) {
+			foreach ( array (
+					'effectief',
+					'vervanger' 
+			) as $tt ) {
+				$query = 'SELECT u.field_uurrooster_toez_toezichter_target_id AS id, COUNT(u.field_uurrooster_toez_toezichter_target_id) AS amount ' . 'FROM {field_data_field_uurrooster_toez_toezichter} AS u ' . 'INNER JOIN {field_data_field_uurrooster_toez_locatie} AS l ON l.entity_id = u.entity_id ' . 'INNER JOIN {field_data_field_uurrooster_toez_type} AS tt ON tt.entity_id = l.field_uurrooster_toez_locatie_target_id ' . 'INNER JOIN {field_data_field_uurrooster_toez_lengte} AS tl ON tl.entity_id = l.field_uurrooster_toez_locatie_target_id ' . 'WHERE tt.field_uurrooster_toez_type_value = :type AND tl.field_uurrooster_toez_lengte_value = :lengte ' . 'GROUP BY u.field_uurrooster_toez_toezichter_target_id';
+				$result = db_query ( $query, array (
+						':type' => $tt,
+						':lengte' => $tl 
+				) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED );
+				
+				foreach ( $data ['users'] as $uid => $username ) {
+					if (array_key_exists ( $uid, $result )) {
+						switch (array (
+								$tl,
+								$tt 
+						)) {
+							case array (
+									'kort',
+									'effectief' 
+							) :
+								$data ['users'] [$uid] ['supervision_kort-effectief'] = $result [$uid] ['amount'];
+								$data ['users'] [$uid] ['score'] += $result [$uid] ['amount'] * variable_get ( 'argus_hrm_workload_toezicht-kort-effectief', 10 );
+								break;
+							case array (
+									'kort',
+									'vervanger' 
+							) :
+								$data ['users'] [$uid] ['supervision_kort-vervanger'] = $result [$uid] ['amount'];
+								$data ['users'] [$uid] ['score'] += $result [$uid] ['amount'] * variable_get ( 'argus_hrm_workload_toezicht-kort-vervanger', 5 );
+								break;
+							case array (
+									'lang',
+									'effectief' 
+							) :
+								$data ['users'] [$uid] ['supervision_lang-effectief'] = $result [$uid] ['amount'];
+								$data ['users'] [$uid] ['score'] += $result [$uid] ['amount'] * variable_get ( 'argus_hrm_workload_toezicht-lang-effectief', 30 );
+								break;
+							case array (
+									'lang',
+									'vervanger' 
+							) :
+								$data ['users'] [$uid] ['supervision_lang-vervanger'] = $result [$uid] ['amount'];
+								$data ['users'] [$uid] ['score'] += $result [$uid] ['amount'] * variable_get ( 'argus_hrm_workload_toezicht-lang-vervanger', 15 );
+								break;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// Data related to module 'argus - Klasbeheer' (roles KTT & HKTT)
+	if (module_exists ( 'argus_klasbeheer' )) {
+		$query = 'SELECT DISTINCT n.nid AS cid, ktt.field_klas_klastitularis_target_id AS uid, COUNT(l.field_klas_leerlingen_target_id) AS lln ' . 'FROM {field_data_field_klas_klastitularis} AS ktt ' . 'INNER JOIN {node} AS n ON ktt.entity_id = n.nid ' . 'INNER JOIN {field_data_field_klas_leerlingen} AS l ON ktt.entity_id = l.entity_id ' . 'WHERE n.status ' . 'GROUP BY n.nid';
+		$result = db_query ( $query, array () )->fetchAll ();
+		foreach ( $result as $d ) {
+			if (array_key_exists ( $d->uid, $data ['users'] )) {
+				$data ['users'] [$d->uid] ['ktt'] ++;
+				$data ['users'] [$d->uid] ['ktt_lln'] += $d->lln;
+				$data ['users'] [$d->uid] ['score'] += $d->lln * variable_get ( 'argus_hrm_workload_ktt', 120 );
+			}
+		}
+		
+		$query = 'SELECT DISTINCT n.nid AS cid, hktt.field_klas_hulpklastitularis_target_id AS uid, COUNT(l.field_klas_leerlingen_target_id) AS lln ' . 'FROM {field_data_field_klas_hulpklastitularis} AS hktt ' . 'INNER JOIN {node} AS n ON hktt.entity_id = n.nid ' . 'INNER JOIN {field_data_field_klas_leerlingen} AS l ON hktt.entity_id = l.entity_id ' . 'WHERE n.status ' . 'GROUP BY n.nid';
+		$result = db_query ( $query, array () )->fetchAll ();
+		foreach ( $result as $d ) {
+			if (array_key_exists ( $d->uid, $data ['users'] )) {
+				$data ['users'] [$d->uid] ['hktt'] ++;
+				$data ['users'] [$d->uid] ['hktt_lln'] += $d->lln;
+				$data ['users'] [$d->uid] ['score'] += $d->lln * variable_get ( 'argus_hrm_workload_hktt', 30 );
+			}
+		}
+	}
+	
+	// Data related to module 'argus - Stages
+	if (module_exists ( 'argus_stages' )) {
+		$query = 'SELECT l.field_leerkracht_target_id AS id, COUNT(n.nid) AS amount ' . 'FROM {field_data_field_leerkracht} AS l ' . 'INNER JOIN {node} AS n ON l.entity_id = n.nid ' . 'INNER JOIN {field_data_field_stage_periode} AS p ON p.entity_id = n.nid ' . 'INNER JOIN {field_data_field_tijdstip} AS t ON p.field_stage_periode_target_id = t.entity_id ' . 'WHERE n.status AND l.bundle = :bundle AND t.field_tijdstip_value BETWEEN :startdate AND :enddate ' . 'GROUP BY l.field_leerkracht_target_id';
+		$result = db_query ( $query, array (
+				':bundle' => 'stage',
+				':startdate' => $schoolyear ['start'],
+				':enddate' => $schoolyear ['end'] 
+		) )->fetchAllKeyed ( 0, 1 );
+		foreach ( $result as $uid => $amount ) {
+			if (array_key_exists ( $uid, $data ['users'] )) {
+				$data ['users'] [$uid] ['stages'] = $amount;
+				$data ['users'] [$uid] ['score'] += $amount * variable_get ( 'argus_hrm_workload_stages', 270 );
+			}
+		}
+	}
+	
+	// Sort the data as requested
+	$data ['order'] = 'ASC';
+	if (isset ( $_GET ['order'] )) {
+		if ($_GET ['order'] == 'DESC') {
+			$data ['order'] = 'DESC';
+		}
+	}
+	
+	if ($data ['order'] == 'ASC') {
+		asort ( $data ['users'] );
+	} else {
+		arsort ( $data ['users'] );
+	}
+	
+	// Set first index as sorting index
+	$data ['orderBy'] = 'name';
+	if (isset ( $_GET ['s'] )) {
+		if (array_key_exists ( $_GET ['s'], $default_user )) {
+			$data ['orderBy'] = $_GET ['s'];
+		}
+	}
+	
+	// Sort the array by given key
+	argus_engine_sortBy ( $data ['orderBy'], $data ['users'], $data ['order'] );
+	
+	return theme ( 'argus_hrm--overview_workload', $data );
+}
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Retrieve 'plage-uren' for user
+ *
+ * @param
+ *        	uid integer
+ *        	Get reports for specified user
+ *        	
+ *        	
+ * @return int
+ */
+function argus_hrm_get_plage_uren($uid) {
+	$query = 'SELECT n.nid AS id, o.field_lvs_melding_onderwerp_value AS title, d.field_lvs_melding_datum_feit_value AS factdate, un.field_user_sms_naam_value AS name, uv.field_user_sms_voornaam_value AS firstname ' . 'FROM {node} AS n ' . 'LEFT JOIN {field_data_field_uurrooster_periode_periode} AS pp ON n.nid = pp.entity_id ' . 'WHERE n.type = :type AND l.field_lvs_melding_leerling_target_id = :uid AND pp.field_uurrooster_periode_periode_value > 1 ' . 'ORDER BY field_lvs_melding_datum_feit_value DESC';
+	$result = db_query ( $query, array (
+			':uid' => $uid,
+			':type' => 'uurrooster_les' 
+	) )->fetchAll ();
+	dpm ( $result );
+	return 1;
+}

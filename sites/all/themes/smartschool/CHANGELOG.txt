@@ -1,0 +1,48 @@
+**Releases:
+
+v7.x-3.1
+---------
+- First initial release - featured based
+- Fix in css back to Smartschool	
+
+v7.x-3.0
+---------
+- Activering van Superfish Mega menu voor uitgebreide informatie in de Navigatie (thema Smartschool)
+- Fix script.js : drawChart enkel uitvoeren als ze bestaat
+
+v7.x-2.1
+---------
+- Fitch anonymous voor Smartschool-theme	
+
+v7.x-2.0
+---------
+- Update Smartschool Date iCal, Zen-theme	
+
+v7.x-1.5
+---------
+- Fix in sync Smartschool (new layout?): groups added to xml/json?	
+
+v7.x-1.4
+---------
+- Fixes in Go! logos Smartschool	
+
+v7.x-1.3
+---------
+- Update Smartschool API: message verzenden op juiste plaats 3 x nieuw icoon voor nieuwe modules print.css bijgewerkt voor beter print-out	
+
+v7.x-1.2
+---------
+- Update Smartschool thema : Klasprofile
+- Fix thema Smartschool profiles	
+
+v7.x-1.1
+---------
+- Update Smartschool import (fix in klassen, rollen en users)
+
+v7.x-1.0
+---------
+- Betere performantie op theme "Smartschool"	 alternatieve load voor Ga
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

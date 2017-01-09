@@ -1,0 +1,26 @@
+**Releases:
+
+v7.x-3.0
+---------
+- First initial release
+- Fix thema Klassenraad profiles
+
+v7.x-2.1
+---------
+- Final version User profile in Theme Klassenraad
+
+v7.x-2.0
+---------
+- Nieuwe grafieken bij het userprofile Klassenraad
+
+v7.x-1.1
+---------
+- Update Klassenraad: nieuw user browser, overview pagina
+
+v7.x-1.0
+---------
+- Nieuw thema voor deliberaties en klassenraden
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

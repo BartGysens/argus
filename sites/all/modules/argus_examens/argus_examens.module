@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Examens feature.
+ */
+
+include_once 'argus_examens.features.inc';

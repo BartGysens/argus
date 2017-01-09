@@ -1,0 +1,16 @@
+**Releases:
+
+v7.x-2.0
+---------
+- First initial release
+- Fixes theme Infoscherm LKR:
+  - background repeater + new background img
+  - theme simplified no title & main content => block instead
+
+v7.x-1.0
+---------
+- Nieuw thema Infoscherm Leerkrachten
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

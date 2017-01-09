@@ -1,0 +1,15 @@
+**Releases:
+
+v7.x-2.0
+---------
+- First initial release - featured based
+- Telaatkomers Activatie thema Infoscherm LLN
+- Nieuw block Vervangingen LLN
+
+v7.x-1.0
+---------
+- Nieuw thema Infoscherm Leerlingen (beta1)
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

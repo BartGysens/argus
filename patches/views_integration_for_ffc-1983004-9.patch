@@ -1,0 +1,26 @@
+diff --git a/ffc.ffc_conditions_info.inc b/ffc.ffc_conditions_info.inc
+index 0ee93c3..25e849b 100644
+--- a/ffc.ffc_conditions_info.inc
++++ b/ffc.ffc_conditions_info.inc
+@@ -19,15 +19,18 @@ function _ffc_field_formatter_settings_form_alter(&$settings_form, $context, $co
+     if (!empty($field['formatter_settings']['conditions'])) {
+       $settings = array('conditions' => $field['formatter_settings']['conditions']);
+     }
++    $entity_type = $context['form']['#entity_type'];
++    $bundle = $context['form']['#bundle'];
++    $view_mode = $context['form']['#view_mode'];
+   }
+   else {
+     $settings = $context['instance']['display'][$context['view_mode']]['settings'];
++    $entity_type = $context['instance']['entity_type'];
++    $bundle = $context['instance']['bundle'];
++    $view_mode = $context['view_mode'];
+   }
+ 
+   // Get context variables.
+-  $entity_type = $context['form']['#entity_type'];
+-  $bundle = $context['form']['#bundle'];
+-  $view_mode = $context['form']['#view_mode'];
+   $field_name = !$ds ? $context['field']['field_name'] : $context['field']['name'];
+   $field_type = !$ds ? $context['field']['type'] : 'ds';
+ 

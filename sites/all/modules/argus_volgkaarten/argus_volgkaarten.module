@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Volgkaarten feature.
+ */
+
+include_once 'argus_volgkaarten.features.inc';

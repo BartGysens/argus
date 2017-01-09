@@ -1,0 +1,15 @@
+**Installation:
+
+Uurrooster is an extension to the argus - a Quality control extension.
+
+1. Unpack the argus_uurrooster folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably sites/all/modules/
+2. Enable the argus_uurrooster module in the administration tools.
+3. If you're not using Drupal's default administrative account, make sure 
+ "administer argus uurrooster" is enabled through access control
+ administration.
+4. Visit the argus_uurrooster settings page and make appropriate configurations
+ at 
+ - admin > argus > Uurrooster: /admin/config/argus/uurrooster
+ - admin > argus > Uurrooster > Permanentierooster: /admin/config/argus/uurrooster/permanentierooster
+ - admin > argus > Uurrooster > Toezichtenrooster: /admin/config/argus/uurrooster/toezichtenrooster

@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Installation file for Domain Analytics module.
+ */
+
+/**
+ * Change structure of the dimension/metrics array for compatability with google analytics module 7.x-2.1
+ */
+function domain_analytics_update_7100(&$sandbox) {
+  $domain_ids = domain_id_list();
+  foreach ($domain_ids as $did) {
+    $googleanalytics_custom_dimension = domain_conf_variable_get($did, 'googleanalytics_custom_dimension');
+    if (isset($googleanalytics_custom_dimension['indexes'])) {
+     foreach ($googleanalytics_custom_dimension['indexes'] as $dimension) {
+       $googleanalytics_custom_dimension['indexes'][$dimension['index']]['value'] = trim($dimension['value']);
+       // Remove empty values from the array.
+       if (!drupal_strlen($googleanalytics_custom_dimension['indexes'][$dimension['index']]['value'])) {
+         unset($googleanalytics_custom_dimension['indexes'][$dimension['index']]);
+       }
+     }
+     domain_conf_variable_set($did, 'googleanalytics_custom_dimension', $googleanalytics_custom_dimension['indexes']);
+    }
+    $googleanalytics_custom_metric = domain_conf_variable_get($did, 'googleanalytics_custom_metric');
+    if (isset($googleanalytics_custom_metric['indexes'])) {
+     foreach ($googleanalytics_custom_metric['indexes'] as $dimension) {
+       $googleanalytics_custom_metric['indexes'][$dimension['index']]['value'] = trim($dimension['value']);
+       // Remove empty values from the array.
+       if (!drupal_strlen($googleanalytics_custom_metric['indexes'][$dimension['index']]['value'])) {
+         unset($googleanalytics_custom_metric['indexes'][$dimension['index']]);
+       }
+     }
+     domain_conf_variable_set($did, 'googleanalytics_custom_metric', $googleanalytics_custom_metric['indexes']);
+    }
+  }
+}

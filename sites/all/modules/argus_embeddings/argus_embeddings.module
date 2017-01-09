@@ -1,0 +1,130 @@
+<?php
+/* 
+ * Copyright (C) 2015 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_embeddings_menu().
+ */
+function argus_embeddings_menu() {
+    $items = array();
+    $items['admin/config/argus/embeddings'] = array(
+        'title' => 'Invoegvensters',
+        'description' => 'Voeg informatie uit argus toe in je eigen toepassingen via iframes of html-inclusie.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_embeddings_setup_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 1,
+    );
+    return $items;
+}
+
+/**
+ * Page callback: Buscheck instellingen
+ *
+ * @see arguss_buscheck_setup_form()
+ */
+function argus_embeddings_setup_form($form, &$form_state) {
+    $form['argus_embeddings_key'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Sleutel'),
+        '#default_value' => variable_get('argus_embeddings_key',NULL),
+        '#size' => 100,
+        '#description' => t('Geef de sleutel op die je zal meesturen met de url-aanvraag.'),
+    	'#required' => true,
+    );
+    $form['argus_embeddings_hosts'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Servers die aanvragen kunnen doen'),
+        '#default_value' => variable_get('argus_embeddings_hosts',NULL),
+        '#rows' => 10,
+        '#cols' => 100,
+    	'#description' => t('Geef de domeinen van waaruit een aanvraag wordt gedaan.<br />Gebruik één regel per serverhost; formaat: <em>http://www.mijnwebsite.be/ (let op de laatste \'slash\')</em>'),
+    	'#required' => true,
+    );
+    return system_settings_form($form);
+}
+
+/**
+ * Implements argus_embeddings_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function argus_embeddings_help($path, $arg) { //TODO: text fixen
+    $output = '';
+    switch ($path) {
+      case "admin/help#argus_embeddings":
+        $output =
+          '<h3>' . t('Informatie over het invoegen van de toepassingen') . '</h3>'
+        . '<p>' . t('Deze module geeft je toegang tot gegevensblokken uit argus.').'</p>'
+
+        . '<h3>' . t('Algemeen gebruik') . '</h3>'
+        
+        . '<h4>' . t('Activeren') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Voeg een iframe of http-inclusie toe via je webdevelopment-tools.') . '</strong></dt>'
+        . '<dd>' . t('Hoofdurl om aan te roepen') . ': <em>http://www.mijndomein.be/sites/all/modules/argus_embeddings/argus_embedding.php?parmeters</em>' . '</p></dd>'
+        . '<dd>' . t('Geef de nodige parameters mee. (zie verder)') . '</dd>'
+        . '</dl>'
+
+        . '<h4>' . t('Parameters') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>key</strong></dt>'
+        . '<dd>' . t('sleutel die werd opgegeven bij de configuratie') . '</dd>'
+        . '</dl>'
+        . '<dl>'
+        . '<dt><strong>type</strong></dt>'
+        . '<dd>iframe</dd>'
+        . '<dd>html</dd>'
+        . '</dl>'
+        . '<dl>'
+        . '<dt><strong>module</strong></dt>'
+        . '<dd>' . t('Uurrooster - vervangingen') . ' : <em>uurrooster_vervangingen</em></dt>'
+        . '</dl>'
+        . '<dl>'
+        . '<dt><strong>css</strong></dt>'
+        . '<dd>' . t('geef de opmaak van het resultaat op: smartschool, informat of blanco') . '</dd>'
+        . '</dl>'
+        . '<dl>'
+        . '<dt><strong>security (' . t('optioneel') . ')</strong></dt>'
+        . '<dd>Smartschool: <em>smsID=$UNAME$,$INUM$</em></dd>'
+        . '</dl>'
+        
+        . '<h4>' . t('Voorbeelden') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>iFrame</strong></dt>'
+        . '<dd>http://www.mijndomein.be/sites/all/modules/argus_embeddings/argus_embedding.php?module=uurrooster_vervangingen&type=iframe</dd>'
+        . '<dt><strong>HTML</strong></dt>'
+        . '<dd>http://www.mijndomein.be/sites/all/modules/argus_embeddings/argus_embedding.php?module=uurrooster_vervangingen&type=html</dd>'
+        . '</dl>';
+
+        break;
+    }
+    return $output;
+}
+
+
+/**
+ * Custom module functionality
+ */

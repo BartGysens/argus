@@ -1,0 +1,159 @@
+<?php
+/* 
+ * Copyright (C) 2016 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+* RECOMMENDED THEME: Inschrijving
+*/
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_gebruikersregistratie_menu().
+ */
+function argus_gebruikersregistratie_menu() {
+	$items = array();
+    $items['gebruikersregistratie'] = array(
+        'title' => t('Een nieuwe persoon toevoegen'),
+        'description' => 'Voeg op een procedurematige manier een gebruiker (leerling of personeelslid) toe.',
+        'page callback' => 'argus_gebruikersregistratie_overview',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,
+        'menu_name' => 'navigation',
+    );
+    
+    $items['gebruikersregistratie/%/%'] = array(
+        'title' => t('Een nieuwe persoon toevoegen'),
+    	'page callback' => 'argus_gebruikersregistratie_form',
+        'page arguments' => array(1,2),
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,
+    );
+
+    $items['gebruikersregistratie.saveToSmartschool/%'] = array(
+    		'page callback' => 'argus_gebruikersregistratie_saveToSmartschool',
+    		'page arguments' => array(1),
+    		'access arguments' => array('access content'),
+    		'access callback' => TRUE,
+    );
+    return $items;
+}
+
+
+/** 
+ * Implement hook_theme()
+ */
+function argus_gebruikersregistratie_theme() {
+	return array(
+        'argus_gebruikersregistratie--overview' => array(
+            'template' => 'templates/argus_gebruikersregistratie--overview',
+        ),
+        'argus_gebruikersregistratie--form-pupil' => array(
+            'template' => 'templates/argus_gebruikersregistratie--form-pupil',
+        ),
+        'argus_gebruikersregistratie--form-employee' => array(
+            'template' => 'templates/argus_gebruikersregistratie--form-employee',
+        ),
+      );
+}
+
+
+/**
+ * Page callback: Select registrationform
+ *
+ * @return array
+ */
+function argus_gebruikersregistratie_overview() {
+	global $user;
+	if (!$user->uid){
+		drupal_goto('/user/login?destination=/gebruikersregistratie');
+	}
+	
+    drupal_add_css(drupal_get_path('module', 'argus_gebruikersregistratie').'/css/argus_gebruikersregistratie.css');
+	return theme('argus_gebruikersregistratie--overview');
+}
+
+
+/**
+ * Page callback: Start registrationprocess
+ * 
+ * @param1 string Type of registrationform
+ * @param2 string Step with parameters
+ *
+ * @return array
+ */
+function argus_gebruikersregistratie_form($param1, $param2) {
+	global $user;
+	if (!$user->uid){
+		drupal_goto('/user/login?destination=/gebruikersregistratie/'.$param1.'/'.$param2);
+	}
+	
+    drupal_add_css(drupal_get_path('module', 'argus_gebruikersregistratie').'/css/argus_gebruikersregistratie.css');
+	
+	switch ($param1){
+		case 'leerling':
+			if ($param2 == 'pre') {
+				drupal_add_js ( drupal_get_path ( 'module', 'argus_gebruikersregistratie' ) . '/js/argus_gebruikersregistratie-pupil_pre.js' );
+				drupal_set_title ( 'Voorinschrijving van een nieuwe leerling' );
+				require_once 'includes/argus_gebruikersregistratie_pupil_pre.inc.php';
+				return theme ( 'argus_gebruikersregistratie--form-pupil', array (
+						'form' => drupal_get_form ( 'argus_gebruikersregistratie_form_pupil_pre' ) 
+				) );
+			} elseif ($param2 == 'renewal') {
+				drupal_add_js ( drupal_get_path ( 'module', 'argus_gebruikersregistratie' ) . '/js/argus_gebruikersregistratie-pupil_renewal.js' );
+				drupal_set_title ( 'Herinschrijving van een bestaande leerling' );
+				require_once 'includes/argus_gebruikersregistratie_pupil_renewal.inc.php';
+				return theme ( 'argus_gebruikersregistratie--form-pupil', array (
+						'form' => drupal_get_form ( 'argus_gebruikersregistratie_form_pupil_renewal' ) 
+				) );
+			} else {
+				drupal_add_js ( drupal_get_path ( 'module', 'argus_gebruikersregistratie' ) . '/js/argus_gebruikersregistratie-pupil.js' );
+				drupal_set_title ( 'Inschrijving van een nieuwe leerling' );
+				require_once 'includes/argus_gebruikersregistratie_pupil.inc.php';
+				return theme ( 'argus_gebruikersregistratie--form-pupil', array (
+						'id' => $param2,
+						'form' => drupal_get_form ( 'argus_gebruikersregistratie_form_pupil', array (
+								'uid' => $param2 
+						) ) 
+				) );
+			}
+			exit;
+		case 'employee':
+		default:
+			return theme('argus_gebruikersregistratie--form-employee');
+			exit;
+	}
+}
+
+
+/**
+ * Function callback: Save requested user to Smartschool
+ * 
+ * @param $uid integer Requested user id
+ *
+ */
+function argus_gebruikersregistratie_saveToSmartschool($uid) {
+	if (module_exists('argus_sms_api') && $uid){
+		argus_sms_add_user_to_smartschool($uid);
+	}
+	drupal_goto('/gebruikersregistratie/leerling-beheer');
+}
+
+
+/**
+ * Custom module functionality
+ */

@@ -1,0 +1,255 @@
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file
+ * Positioning for a fixed-width, desktop-centric layout.
+ *
+ * Define CSS classes to create a table-free, 3-column, 2-column, or single
+ * column layout depending on whether blocks are enabled in the left or right
+ * columns.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */
+
+/**
+ * Center the page.
+ *
+ * If you want to make the page a fixed width and centered in the viewport,
+ * this is the standards-compliant way to do that.
+ */
+#page,
+.region-bottom {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%; /* 980px; */
+}
+
+/* Apply the shared properties of grid items in a single, efficient ruleset. */
+#header,
+#content,
+#navigation,
+.region-sidebar-first,
+.region-sidebar-second,
+#footer {
+  padding-left: 10px;
+  padding-right: 10px;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  word-wrap: break-word;
+  *behavior: url("/path/to/boxsizing.htc");
+  _display: inline;
+  _overflow: hidden;
+  _overflow-y: visible;
+}
+
+/* Containers for grid items and flow items. */
+#header,
+#main,
+#footer {
+  *position: relative;
+  *zoom: 1;
+}
+#header:before,
+#header:after,
+#main:before,
+#main:after,
+#footer:before,
+#footer:after {
+  content: "";
+  display: table;
+}
+#header:after,
+#main:after,
+#footer:after {
+  clear: both;
+}
+
+/* Navigation bar */
+#main {
+  /* Move all the children of #main down to make room. */
+  padding-top: 3em;
+  position: relative;
+}
+#navigation {
+  /* Move the navbar up inside #main's padding. */
+  position: absolute;
+  top: 0;
+  height: 3em;
+  /* width: 960px; */
+}
+
+/**
+ * The layout when there is only one sidebar, the left one.
+ */
+
+/* Span 4 columns, starting in 2nd column from left. */
+.sidebar-first #content {
+  position: relative;
+  z-index: 0;
+  float: left;
+  width: 120%;
+  min-width: 800px;
+  // width: 764px;
+  // margin-left: 196px;
+  // margin-right: -980px;
+}
+
+/* Span 1 column, starting in 1st column from left. */
+.sidebar-first .region-sidebar-first {
+  position: relative;
+  z-index: 1;
+  float: left;
+  width: 230px; /* 176px; => + 54 */
+  // margin-left: 0px;
+  // margin-right: -196px;
+}
+
+/**
+ * The layout when there is only one sidebar, the right one.
+ */
+
+/* Span 4 columns, starting in 1st column from left. */
+.sidebar-second #content {
+  position: relative;
+  z-index: 0;
+  float: left;
+  width: 120%;
+  min-width: 600px;
+  margin-left: -230px;
+}
+
+/* Span 1 column, starting in 5th column from left. */
+.sidebar-second .region-sidebar-second {
+  position: relative;
+  z-index: 1;
+  float: left;
+  width: 230px; /* 176px; => + 54 */
+  // margin-left: 784px;
+  // margin-right: -980px;
+}
+
+/**
+ * The layout when there are two sidebars.
+ */
+
+/* Span 3 columns, starting in 2nd column from left. */
+.two-sidebars #content {
+  position: relative;
+  z-index: 0;
+  float: left;
+  min-width: 600px;
+  // width: 100%; // width: 568px;
+  // margin-left: 240px; /* 196px; => + 54 */
+  // margin-right: 240px; /* 784px; => + 54 */
+}
+
+/* Span 1 column, starting in 1st column from left. */
+.two-sidebars .region-sidebar-first {
+  position: relative;
+  z-index: 1;
+  float: left;
+  width: 230px; /* 176px; => + 54 */
+  // margin-left: 0px;
+  // margin-right: -196px;
+}
+
+/* Span 1 column, starting in 5th column from left. */
+.two-sidebars .region-sidebar-second {
+  position: relative;
+  z-index: 2;
+  float: left;
+  width: 230px; /* 176px; => + 54 */
+  // margin-left: 784px;
+  // margin-right: -980px;
+}
+
+/* Additional Smartschool theme (fixed) lines */
+
+div#fd_wrapper{
+    float: left;
+    width: 100%;
+}
+div#fd_content{
+    margin: 0 240px;
+}
+div#fd_content .sms_smscborder.sms_bleft.sms_topl,
+div#fd_content .sms_smscborder.sms_bleft.sms_bottoml{
+    margin-left: -10px !important;
+}
+div#fd_content .sms_smscborder.sms_bright.sms_topr{
+    position: absolute;
+    right: -3px;
+    top: 0px;
+}
+div#fd_content .sms_smscborder.sms_bright.sms_bottomr{
+    position: absolute;
+    right: -3px;
+    bottom: 0px;
+}
+
+div#fd_content .sms_smscborder.sms_centery.sms_topy.sms_smallboxct{
+    width: 100% !important;
+    margin-right: -20px !important;
+}
+
+div#fd_content .sms_smscborder.sms_centery.sms_bottomy.sms_smallboxcb{
+    width: 100% !important;
+    margin-right: -20px !important;
+    margin-bottom: 0px !important;
+}
+div#fd_content .sms_title.sms_tcenter{
+    width: 50% !important;
+}
+div#fd_content .breadcrumb{
+    clear: both;
+    padding-top: 10px;
+}
+div#fd_content .fd_page{
+    margin: 0 -10px;
+}
+
+div#fd_navigation{
+    float: left;
+    width: 230px;
+    margin-left: -100%;
+    position: relative;
+}
+
+div#fd_extra{
+    float: left;
+    width: 230px;
+    margin-left: -250px;
+}
+
+.sms_smscborder.sms_centery.sms_topy.sms_smallboxct{
+    width: 200px;
+}
+.sms_smscborder.sms_centery.sms_bottomy.sms_smallboxcb{
+    width: 200px;
+}
+.sms_smscborder.sms_centerxy.sms_smallboxc{
+    width: 212px;
+}
+.sms_title.sms_tcenter{
+    width: 184px;
+}
+
+.sms_smscborder.sms_centerxy.sms_smallboxc{
+    padding-left: 10px;
+    padding-right: 5px;
+}

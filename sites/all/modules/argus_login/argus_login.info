@@ -1,0 +1,15 @@
+name = Alternatieve login
+description = Log in via een eigen Smartschool-clone pagina, met echtheidscontrole van de Smartschoolaccounts via OAuth2 of integreer Google OAuth2 in je login pagina.
+core = 7.x
+php = 5.2
+configure = admin/config/argus/login
+test_dependencies[] = argus_sms_api
+test_dependencies[] = oauth2_authentication
+test_dependencies[] = oauth2_client
+
+version = "7.x-3.0"
+core = "7.x"
+project = "argus_login"
+datestamp = "1412945879"
+package = argus - a Quality control extension
+project status url = http://www.projectargus.be/release-history

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Intern kwaliteitszorgsysteem feature.
+ */
+
+include_once 'argus_ikz.features.inc';

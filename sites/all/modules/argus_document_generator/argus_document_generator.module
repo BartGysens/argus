@@ -1,0 +1,143 @@
+<?php
+/*
+ * Copyright (C) 2015 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_document_generator_menu().
+ */
+function argus_document_generator_menu() {
+    $items = array();
+    $items['documenten_generator'] = array(
+        'title' => t('Documenten aanmaken'),
+        'page callback' => 'argus_document_generator_overview',
+    	'page arguments' => array('get',1,2),
+        'access callback' => TRUE,
+        'menu_name' => 'menu-modules',
+    );
+    $items['documenten_generator.get/%/%'] = array(
+        'page callback' => 'argus_document_generator_get',
+    	'page arguments' => array(1,2),
+        'access callback' => TRUE,
+    	'type' => MENU_CALLBACK,
+    );
+    $items['documenten_generator/%'] = array(
+        'title' => t('Automatische documenten: aanmaken & downloaden'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_document_generator_form', 1),
+        'access callback' => TRUE,
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+/**
+ * Implement hook_theme()
+ */
+function argus_document_generator_theme() {
+    return array(
+        'argus_document_generator_overview' => array(
+            'template' => 'templates/argus_document_generator--overview',
+        ),
+      );
+}
+
+/**
+ * Page callback mapped to the url document_generator
+ *
+ * @return array
+ */
+function argus_document_generator_overview() {
+    /* Define structure for each plugin */
+    $argus_document_generator_plugins = array(
+        'LLN-BRF' => array(
+            array('ref' => 'BRF_Definitieve_uitsluiting', 'title' => 'Brief - Definitieve uitsluiting (fase 1 met uitnodiging voor het Hoor- en inzagerecht) - ILB'),
+            array('ref' => 'BRF_Definitieve_uitsluiting_na_hoor_en_inzagerecht', 'title' => 'Brief - Definitieve uitsluiting (fase 2 na het Hoor- en inzagerecht) - ILB'),
+            array('ref' => 'BRF_Preventieve_schorsing', 'title' => 'Brief - Preventieve schorsing - ILB'),
+            array('ref' => 'BRF_Tijdelijke_uitsluiting', 'title' => 'Brief - Tijdelijke uitsluiting - ILB'),
+        ),
+        'LLN-CNT' => array(
+            array('ref' => 'CNT_Begeleidingsovereenkomst_Afwezigheden', 'title' => 'Begeleidingsovereenkomst - Afwezigheden - ILB'),
+            array('ref' => 'CNT_Begeleidingsovereenkomst_Gedrag', 'title' => 'Begeleidingsovereenkomst - Gedrag - ILB'),
+            array('ref' => 'CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving', 'title' => 'Begeleidingsovereenkomst - Laattijdige inschrijving - ILB'),
+        	array('ref' => 'CNT_Intentieverklaring', 'title' => 'Contract - Intentieverklaring - ILB'),
+        	array('ref' => 'CNT_Inschrijvingsdossier', 'title' => 'Contract - Inschrijvingsdossier - LSEC'),
+        	array('ref' => 'CNT_Stagedossier_Individueel', 'title' => 'Contract - Stagedossier (individueel) - TA'),
+        	array('ref' => 'CNT_Voorinschrijvingsdossier', 'title' => 'Contract - Voorinschrijvingsdossier - LSEC'),
+        ),
+        'LLN-VSG' => array(
+            array('ref' => 'VSG_BBKR', 'title' => 'Verslag - (Bijzondere) Begeleidende Klassenraad - ILB'),
+            array('ref' => 'VSG_Melding_Definitieve_verwijdering', 'title' => 'Verslag - Melding Definitieve verwijdering - LSEC'),
+            array('ref' => 'VSG_Leerplichtbegeleidingsfiche', 'title' => 'Verslag - Leerplichtbegeleidingsfiche - ILB'),
+        	array('ref' => 'VSG_Stageschrift_Individueel', 'title' => 'Verslag - Stageschrift (individueel) - TA'),
+        	array('ref' => 'VSG_Stageverslag', 'title' => 'Verslag - Stagebezoek - LKR/STAGEBEGELEIDER/TA'),
+        	array('ref' => 'VSG_Verslag_Hoor_en_inzagerecht', 'title' => 'Verslag - Hoor- en inzagerecht tuchtdossier - ILB'),
+        ),
+        'LLN-DIV' => array(
+            array('ref' => 'MAP_Voorblad_KLASINTERVENTIE', 'title' => 'Voorblad map Klasinterventie - ILB'),
+            array('ref' => 'MAP_Voorblad_TUCHTDOSSIER', 'title' => 'Voorblad map Tuchtdossier / leerling - ILB'),
+        ),
+        'PERS-ATT' => array(
+            array('ref' => 'ATT_Bewijs_van_nascholing', 'title' => 'Attest - Bewijs van nascholing - PSEC/DIR'),
+        ),
+        'PERS-BRF' => array(
+            array('ref' => 'BRF_HRM_Evaluatiegesprek_uitnodiging', 'title' => 'Brief - Uitnodiging evaluatiegesprek - PSEC/DIR'),
+            array('ref' => 'BRF_HRM_Functioneringsgesprek_uitnodiging', 'title' => 'Brief - Uitnodiging functioneringsgesprek - PSEC/DIR'),
+            array('ref' => 'BRF_HRM_Planningsgesprek_uitnodiging', 'title' => 'Brief - Uitnodiging planningsgesprek - PSEC/DIR'),
+        ),
+        'PERS-VSG' => array(
+            array('ref' => 'VSG_HRM_Evaluatiegesprek', 'title' => 'Verslag - Evaluatiegesprek - PSEC/DIR'),
+            array('ref' => 'VSG_HRM_Functioneringsgesprek', 'title' => 'Verslag - Functioneringsgesprek - PSEC/DIR'),
+            array('ref' => 'VSG_HRM_Planningsgesprek', 'title' => 'Verslag - Planningsgesprek - PSEC/DIR'),
+        ),
+    );
+    return theme('argus_document_generator_overview', array('plugins' => $argus_document_generator_plugins));
+}
+
+/**
+ * Form callback general -> determine generator plugin
+ *
+ * @return array
+ */
+function argus_document_generator_form($form, &$form_state, $plugin) {
+    require_once 'plugins/'.$plugin.'.doc.inc';
+    $form['#prefix'] = '<p>Document: <strong>'.$plugin.'</strong></p>';
+    $form['#submit'][] = 'argus_document_generator_'.$plugin.'_form_submit';
+    return call_user_func_array('argus_document_generator_'.$plugin.'_form', array($form, $form_state));
+}
+
+/**
+ * Page callback general -> determine generator plugin
+ *
+ * @return array
+ */
+function argus_document_generator_get($plugin, $args) {
+    require_once 'plugins/'.$plugin.'.doc.inc';
+    
+    $params = array( 'values' => array() );
+    $args = explode(',',$args);
+    foreach ($args as $arg){
+    	$parts = explode('=', $arg);
+    	if (count($parts) == 2){
+	    	$params['values'][$parts[0]] = $parts[1];
+    	}
+    }
+    
+    call_user_func_array('argus_document_generator_'.$plugin.'_document', array($params));
+}

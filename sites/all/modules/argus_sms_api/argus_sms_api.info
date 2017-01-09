@@ -1,0 +1,12 @@
+name = Smartschool API
+description = Verbind je systeem met je eigen Smartschool API-account
+package = argus - a Quality control extension
+project status url = http://www.projectargus.be/release-history
+core = 7.x
+php = 5.2
+configure = admin/config/argus/sms-api
+
+version = "7.x-1.3"
+core = "7.x"
+project = "argus_sms_api"
+datestamp = "1413358147"

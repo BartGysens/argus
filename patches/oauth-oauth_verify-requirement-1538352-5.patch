@@ -1,0 +1,151 @@
+diff --git a/includes/DrupalOAuthClient.inc b/includes/DrupalOAuthClient.inc
+index d0a6ee2..218513e 100644
+--- a/includes/DrupalOAuthClient.inc
++++ b/includes/DrupalOAuthClient.inc
+@@ -208,7 +208,7 @@ class DrupalOAuthClient {
+    *     - 'get' (default FALSE)
+    *       Whether to use GET as the HTTP-method instead of POST.
+    *     - 'verifier'
+-   *       A string containing a verifier for he user from the provider.
++   *       A string containing a verifier for the user from the provider.
+    *       Only used by versions higher than OAUTH_COMMON_VERSION_1.
+    * @return DrupalOAuthToken
+    *  The access token.
+@@ -233,8 +233,13 @@ class DrupalOAuthClient {
+         $endpoint = '/oauth/access_token';
+       }
+     }
+-    if ($this->version > OAUTH_COMMON_VERSION_1 && $options['verifier'] !== NULL) {
+-      $options['params']['oauth_verifier'] = $options['verifier'];
++    if ($this->version > OAUTH_COMMON_VERSION_1) {
++      if($options['verifier'] !== NULL && $options['verifier'] !== "") {
++	    $options['params']['oauth_verifier'] = $options['verifier'];
++	  }
++	  else {
++	    throw new OAuthException('Parameter oauth_verifier is missing');
++	  }
+     }
+ 
+     $response = $this->get($endpoint, array(
+diff --git a/includes/DrupalOAuthDataStore.inc b/includes/DrupalOAuthDataStore.inc
+index 2820737..ed52dde 100644
+--- a/includes/DrupalOAuthDataStore.inc
++++ b/includes/DrupalOAuthDataStore.inc
+@@ -4,10 +4,15 @@
+  * Database abstraction class
+  */
+ class DrupalOAuthDataStore extends OAuthDataStore {
++  public $version = OAUTH_COMMON_VERSION_1_RFC;
+   private $context;
+ 
+-  public function __construct($context) {
++  public function __construct($context, $version = NULL) {
+     $this->context = $context;
++	
++	if ($version) {
++      $this->version = $version;
++    }
+   }
+ 
+   /**
+@@ -125,6 +130,13 @@ class DrupalOAuthDataStore extends OAuthDataStore {
+   function new_access_token($token_old, $consumer, $verifier = NULL) {
+     module_load_include('inc', 'oauth_common');
+ 
++	if ($this->version > OAUTH_COMMON_VERSION_1) {
++	  // Check if the passed oauth_verifier matches our own verifier.
++	  if($verifier === NULL || $verifier === "" || $verifier !== $token_old->verifier) {
++	    throw new OAuthException('Parameter oauth_verifier incorrect or not present');
++	  }
++    }
++	
+     if ($token_old && $token_old->authorized) {
+       $token_new = new DrupalOAuthToken(user_password(32), user_password(32), $consumer, array(
+         'type'       => OAUTH_COMMON_TOKEN_TYPE_ACCESS,
+diff --git a/includes/DrupalOAuthToken.inc b/includes/DrupalOAuthToken.inc
+index d622a7a..7aa49b0 100644
+--- a/includes/DrupalOAuthToken.inc
++++ b/includes/DrupalOAuthToken.inc
+@@ -11,6 +11,7 @@ class DrupalOAuthToken extends OAuthToken {
+   public $changed = 0;
+   public $services = array();
+   public $authorized = 0;
++  public $verifier = "";
+ 
+   public $in_database = FALSE;
+ 
+@@ -59,6 +60,7 @@ class DrupalOAuthToken extends OAuthToken {
+         'changed'    => $this->changed,
+         'services'   => json_encode($this->services),
+         'authorized' => $this->authorized,
++		'verifier'   => $this->verifier,
+       );
+ 
+       if ($update) {
+@@ -176,7 +178,7 @@ class DrupalOAuthToken extends OAuthToken {
+ 
+     if (!$consumer || is_object($consumer) && $consumer->provider_consumer) {
+       $query->join('oauth_common_provider_token', 'pt', 'pt.tid = t.tid');
+-      $query->fields('pt', array('created', 'changed', 'services', 'authorized'));
++      $query->fields('pt', array('created', 'changed', 'services', 'authorized', 'verifier'));
+     }
+ 
+     // Only fetch non-provider tokens - needed for backwards compatibility with deprecated DrupalOAuthToken::load() from 6.x-3.0-beta3
+diff --git a/oauth_common.install b/oauth_common.install
+index c4f00dc..8bc51c0 100644
+--- a/oauth_common.install
++++ b/oauth_common.install
+@@ -372,6 +372,12 @@ function _oauth_common_provider_token_schema() {
+         'not null'    => TRUE,
+         'default'     => 0,
+       ),
++	  'verifier' => array(
++        'description' => 'Verification code (oauth_verifier) after authorization. (OAuth 1.0a)',
++        'type'        => 'varchar',
++        'length'      => 255,
++        'not null'    => FALSE,
++	  ),
+     ),
+     'primary key' => array('token_key'),
+     'unique keys' => array(
+@@ -398,3 +404,16 @@ function oauth_common_update_7100() {
+   );
+   db_add_field( 'oauth_common_token', 'callback_url', $spec);
+ }
++
++/**
++ * Add verifier (oauth_verifier) field to {oauth_common_provider_token} table.
++ */
++function oauth_common_update_7101() {
++  $spec = array(
++    'description' => 'Verification code (oauth_verifier) after authorization. (OAuth 1.0a)',
++    'type'        => 'varchar',
++    'length'      => 255,
++    'not null'    => FALSE,
++  );
++  db_add_field( 'oauth_common_provider_token', 'verifier', $spec);
++}
+\ No newline at end of file
+diff --git a/oauth_common.pages.inc b/oauth_common.pages.inc
+index 494ad7d..206e967 100644
+--- a/oauth_common.pages.inc
++++ b/oauth_common.pages.inc
+@@ -300,6 +300,9 @@ function oauth_common_form_authorize_submit(&$form, &$form_state) {
+     $token->services = array();
+   }
+ 
++  // Generate oauth_verifier according to the spec 6.2.3 for OAuth 1.0a.
++  $token->verifier = hash('sha1', $token->created . rand());
++  
+   $token->write(TRUE);
+ 
+   if (!empty($consumer->callback_url) && $consumer->callback_url !== 'oob') {
+@@ -310,7 +313,7 @@ function oauth_common_form_authorize_submit(&$form, &$form_state) {
+       parse_str($callback['query'], $query);
+     }
+     $query['oauth_token'] = $token->key;
+-    $query['oauth_verifier'] = hash('sha1', $token->expires);
++    $query['oauth_verifier'] = $token->verifier;
+ 
+     // Append Consumer provided query parameters according to the spec 6.2.3 for OAuth 1.0a.
+     $oauth_query = array();

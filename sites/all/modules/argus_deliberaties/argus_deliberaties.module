@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Deliberaties feature.
+ */
+
+include_once 'argus_deliberaties.features.inc';

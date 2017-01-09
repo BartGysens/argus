@@ -1,0 +1,395 @@
+<?php
+/**
+ * @file
+ * Provides per domain Google Analytics settings for Domain Access.
+ */
+
+/**
+ * Implements hook_domain_batch().
+ */
+function domain_analytics_domain_batch() {
+  $batch = array();
+  if (!module_exists('googleanalytics')) {
+    return array();
+  }
+
+  $batch['googleanalytics_account'] = array(
+    '#form' => array(
+      '#title' => t('Google Analytics'),
+      '#type' => 'textfield',
+      '#size' => 20,
+      '#maxlength' => 20,
+      '#description' => t('Google Analytics account key, in the format UA-XXXXXX'),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_account', ''),
+    '#meta_description' => t('Set Google Analytics keys for each domain.'),
+    '#variable' => 'googleanalytics_account',
+    '#data_type' => 'string',
+    '#weight' => -1,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  // Domains.
+  $batch['googleanalytics_domain_mode'] = array(
+    '#form' => array(
+      '#type' => 'radios',
+      '#title' => t('What are you tracking?'),
+      '#options' => array(
+        0 => t('A single domain (default)'),
+        1 => t('One domain with multiple subdomains'),
+        2 => t('Multiple top-level domains'),
+      ),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_domain_mode', 0),
+    '#meta_description' => t('Set Google Analytics domain mode.'),
+    '#variable' => 'googleanalytics_domain_mode',
+    '#data_type' => 'integer',
+    '#weight' => 0,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+  $batch['googleanalytics_cross_domains'] = array(
+    '#form' => array(
+      '#title' => t('List of top-level domains'),
+      '#type' => 'textarea',
+      '#description' => t('If you selected "Multiple top-level domains" above, enter all related top-level domains. Add one domain per line. By default, the data in your reports only includes the path and name of the page, and not the domain name. For more information see section <em>Show separate domain names</em> in <a href="@url">Tracking Multiple Domains</a>.', array(
+        '@url' => url('http://support.google.com/analytics/bin/answer.py', array(
+          'query' => array(
+            'answer' => '1034342'),
+    ))))),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_cross_domains', ''),
+    '#meta_description' => t('Set Google Analytics list of top-level domains.'),
+    '#variable' => 'googleanalytics_cross_domains',
+    '#data_type' => 'string',
+    '#weight' => 1,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  // Visibility.
+  $php_access = user_access('use PHP for tracking visibility');
+  $options = array(
+    t('Every page except the listed pages'),
+    t('The listed pages only'),
+  );
+  $description = t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+    '%blog' => 'blog',
+    '%blog-wildcard' => 'blog/*',
+    '%front' => '<front>',
+  ));
+
+  if (module_exists('php') && $php_access) {
+    $options[] = t('Pages on which this PHP code returns <code>TRUE</code> (experts only)');
+    $description .= ' ' . t('If the PHP option is chosen, enter PHP code between %php. Note that executing incorrect PHP code can break your Drupal site.', array('%php' => '<?php ?>'));
+  }
+
+  $batch['igoogleanalytics_visibility_pages'] = array(
+    '#form' => array(
+      '#type' => 'radios',
+      '#title' => t('Add tracking to specific pages'),
+      '#options' => $options,
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_visibility_pages', 0),
+    '#meta_description' => t('Set Google Analytics visibility options'),
+    '#variable' => 'googleanalytics_visibility_pages',
+    '#data_type' => 'integer',
+    '#weight' => 2,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+  $batch['googleanalytics_pages'] = array(
+    '#form' => array(
+      '#type' => 'textarea',
+      '#title' => t('Pages'),
+      '#title_display' => 'invisible',
+      '#description' => $description,
+      '#rows' => 10,
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_pages', GOOGLEANALYTICS_PAGES),
+    '#meta_description' => t('Set Google Analytics visibility pages'),
+    '#variable' => 'googleanalytics_pages',
+    '#data_type' => 'string',
+    '#weight' => 3,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  // Roles.
+  $batch['googleanalytics_visibility_roles'] = array(
+    '#form' => array(
+      '#type' => 'radios',
+      '#title' => t('Add tracking for specific roles'),
+      '#options' => array(
+        t('Add to the selected roles only'),
+        t('Add to every role except the selected ones'),
+      ),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_visibility_roles', 0),
+    '#meta_description' => t('Set Google Analytics visibility role options'),
+    '#variable' => 'googleanalytics_visibility_roles',
+    '#data_type' => 'string',
+    '#weight' => 4,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+  $role_options = array_map('check_plain', user_roles());
+  $batch['googleanalytics_roles'] = array(
+    '#form' => array(
+      '#type' => 'checkboxes',
+      '#title' => t('Roles'),
+      '#default_value' => variable_get('googleanalytics_roles', array()),
+      '#options' => $role_options,
+      '#description' => t('If none of the roles are selected, all users will be tracked. If a user has any of the roles checked, that user will be tracked (or excluded, depending on the setting above).'),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_roles', array()),
+    '#meta_description' => t('Set Google Analytics visibility roles'),
+    '#variable' => 'googleanalytics_pages',
+    '#data_type' => 'string',
+    '#weight' => 5,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  // Users.
+  $t_permission = array('%permission' => t('opt-in or out of tracking'));
+  $batch['googleanalytics_custom'] = array(
+    '#form' => array(
+      '#type' => 'radios',
+      '#title' => t('Allow users to customize tracking on their account page'),
+      '#options' => array(
+        t('No customization allowed'),
+        t('Tracking on by default, users with %permission permission can opt out', $t_permission),
+        t('Tracking off by default, users with %permission permission can opt in', $t_permission),
+      ),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_custom', 0),
+    '#meta_description' => t('Set Google Analytics user options'),
+    '#variable' => 'googleanalytics_custom',
+    '#data_type' => 'string',
+    '#weight' => 6,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  // Links and downloads.
+  $batch['googleanalytics_trackoutbound'] = array(
+    '#form' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Track clicks on outbound links'),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_trackoutbound', 1),
+    '#meta_description' => t('Set Google Analytics track outbound links'),
+    '#variable' => 'googleanalytics_trackoutbound',
+    '#data_type' => 'integer',
+    '#weight' => 7,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+  $batch['googleanalytics_trackmailto'] = array(
+    '#form' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Track clicks on mailto links'),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_trackmailto', 1),
+    '#meta_description' => t('Set Google Analytics track mailto links'),
+    '#variable' => 'googleanalytics_trackmailto',
+    '#data_type' => 'string',
+    '#weight' => 8,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+  $batch['googleanalytics_trackfiles'] = array(
+    '#form' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Track downloads (clicks on file links) for the following extensions'),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_trackfiles', 1),
+    '#meta_description' => t('Set Google Analytics track files options'),
+    '#variable' => 'googleanalytics_trackfiles',
+    '#data_type' => 'string',
+    '#weight' => 4,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  $batch['googleanalytics_trackfiles_extensions'] = array(
+    '#form' => array(
+      '#title' => t('List of download file extensions'),
+      '#title_display' => 'invisible',
+      '#type' => 'textfield',
+      '#description' => t('A file extension list separated by the | character that will be tracked as download when clicked. Regular expressions are supported. For example: !extensions', array('!extensions' => GOOGLEANALYTICS_TRACKFILES_EXTENSIONS)),
+      '#maxlength' => 500,
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_trackfiles_extensions', GOOGLEANALYTICS_TRACKFILES_EXTENSIONS),
+    '#meta_description' => t('Set Google Analytics track files extensions'),
+    '#variable' => 'googleanalytics_trackfiles_extensions',
+    '#data_type' => 'string',
+    '#weight' => 5,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  // Messages.
+  $batch['googleanalytics_trackmessages'] = array(
+    '#form' => array(
+      '#type' => 'checkboxes',
+      '#title' => t('Track messages of type'),
+      '#description' => t('This will track the selected message types shown to users. Tracking of form validation errors may help you identifying usability issues in your site. Keep in mind that Google allows a maximum of 500 events per session only and every message is tracked as one individual event. If the limit has been exceeded no further events are tracked, but normal page tracking is not effected. Messages from excluded pages cannot tracked.'),
+      '#options' => array(
+        'status' => t('Status message'),
+        'warning' => t('Warning message'),
+        'error' => t('Error message'),
+      ),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_trackmessages', array()),
+    '#meta_description' => t('Set Google Analytics messages tracking'),
+    '#variable' => 'googleanalytics_trackmessages',
+    '#data_type' => 'string',
+    '#weight' => 6,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  // Search and Advertising.
+  $site_search_dependencies = '<div class="admin-dependencies">';
+  $site_search_dependencies .= t('Depends on: !dependencies', array(
+    '!dependencies' => (module_exists('search') ?
+      t('@module (<span class="admin-enabled">enabled</span>)', array('@module' => 'Search')) :
+      t('@module (<span class="admin-disabled">disabled</span>)', array('@module' => 'Search'))
+    ),
+  ));
+  $site_search_dependencies .= '</div>';
+  $batch['googleanalytics_site_search'] = array(
+    '#form' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Track internal search'),
+      '#description' => t('If checked, internal search keywords are tracked. You must configure your Google account to use the internal query parameter <strong>search</strong>. For more information see <a href="@url">Setting Up Site Search for a Profile</a>.', array(
+          '@url' => url('http://support.google.com/analytics/bin/answer.py', array(
+            'query' => array('answer' => '1012264'),
+          )
+        ),
+      )) . $site_search_dependencies,
+      '#disabled' => (module_exists('search') ? FALSE : TRUE),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_site_search', FALSE),
+    '#meta_description' => t('Set Google Analytics Site Search Tracking'),
+    '#variable' => 'googleanalytics_site_search',
+    '#data_type' => 'string',
+    '#weight' => 7,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+  $batch['googleanalytics_trackadsense'] = array(
+    '#form' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Track AdSense ads'),
+      '#description' => t('If checked, your AdSense ads will be tracked in your Google Analytics account.'),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_trackadsense', FALSE),
+    '#meta_description' => t('Set Google Analytics AdSense Tracking'),
+    '#variable' => 'googleanalytics_trackadsense',
+    '#data_type' => 'string',
+    '#weight' => 8,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+  $batch['googleanalytics_trackdoubleclick'] = array(
+    '#form' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Track DoubleClick data'),
+      '#description' => t('If checked, the alternative Google <a href="@doubleclick">DoubleClick data tracking</a> is used to enable AdWords remarketing features. If you choose this option you will need to <a href="@privacy">update your privacy policy</a>.', array(
+        '@doubleclick' => url('http://support.google.com/analytics/bin/answer.py', array(
+          'query' => array('answer' => '2444872'),
+        )),
+        '@privacy' => url('http://support.google.com/analytics/bin/answer.py', array(
+          'query' => array('answer' => '2636405'),
+        )),
+      )),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_trackdoubleclick', FALSE),
+    '#meta_description' => t('Set Google Analytics DoubleClick tracking'),
+    '#variable' => 'googleanalytics_trackdoubleclick',
+    '#data_type' => 'string',
+    '#weight' => 9,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  // Privacy.
+  $batch['googleanalytics_tracker_anonymizeip'] = array(
+    '#form' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Anonymize visitors IP address'),
+      '#description' => t('Tell Google Analytics to anonymize the information sent by the tracker objects by removing the last octet of the IP address prior to its storage. Note that this will slightly reduce the accuracy of geographic reporting. In some countries it is not allowed to collect personally identifying information for privacy reasons and this setting may help you to comply with the local laws.'),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_tracker_anonymizeip', 0),
+    '#meta_description' => t('Set Google Analytics Anonymize IP setting'),
+    '#variable' => 'googleanalytics_tracker_anonymizeip',
+    '#data_type' => 'string',
+    '#weight' => 10,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+  $batch['googleanalytics_privacy_donottrack'] = array(
+    '#form' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Universal web tracking opt-out'),
+      '#description' => t('If enabled and your server receives the <a href="@donottrack">Do-Not-Track</a> header from the client browser, the Google Analytics module will not embed any tracking code into your site. Compliance with Do Not Track could be purely voluntary, enforced by industry self-regulation, or mandated by state or federal law. Please accept your visitors privacy. If they have opt-out from tracking and advertising, you should accept their personal decision. This feature is currently limited to logged in users and disabled page caching.', array('@donottrack' => 'http://donottrack.us/')),
+    ),
+    '#domain_action' => 'domain_conf',
+    '#system_default' => variable_get('googleanalytics_privacy_donottrack', 1),
+    '#meta_description' => t('Set Google Analytics Opt-out setting'),
+    '#variable' => 'googleanalytics_privacy_donottrack',
+    '#data_type' => 'string',
+    '#weight' => 11,
+    '#group' => t('Google Analytics'),
+    '#update_all' => TRUE,
+    '#module' => t('Domain Analytics'),
+  );
+
+  return $batch;
+}
+
+/**
+ * Implements hook_domain_warning().
+ */
+function domain_analytics_domain_warning() {
+  return array(
+    'googleanalytics_admin_settings_form' => 'admin/structure/domain/view/%domain_id/config',
+  );
+}

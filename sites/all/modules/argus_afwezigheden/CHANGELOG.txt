@@ -1,0 +1,18 @@
+**Releases:
+
+v7.x-3.0
+---------
+- Added new features:
+- Added new package for handling Latecomers (Telaatkomers), includes also rectification-process
+- Added new theme-supported screens for students
+
+v7.x-2.0
+---------
+- Added overview of status B-codes
+
+v7.x-1.0
+---------
+- First initial release
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

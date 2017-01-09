@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Werken voor derden feature.
+ */
+
+include_once 'argus_werken_voor_derden.features.inc';

@@ -1,0 +1,14 @@
+name = Huisstijlhandboek
+description = Een template om zelf je huisstijlhandboek in argus te integreren.
+core = 7.x
+package = argus - a Quality control extension
+version = 7.x-1.0
+project = argus_huisstijlhandboek
+dependencies[] = node
+dependencies[] = text
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[menu_links][] = menu-modules_huisstijlhandboek:node/72777
+features[uuid_node][] = e4b84fdc-10cf-45de-b336-1f62c2797dc3
+features[uuid_term][] = 006f0126-bc0e-4ef8-a3dd-db08be32f980
+project status url = http://www.projectargus.be/release-history

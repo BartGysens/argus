@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Ontleningen feature.
+ */
+
+include_once 'argus_ontleningen.features.inc';

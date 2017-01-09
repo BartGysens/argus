@@ -1,0 +1,11 @@
+--- a/editablefields.module
++++ b/editablefields.module
+@@ -215,6 +215,8 @@ function editablefields_fallback_formatter($entity_type, $entity, $field, $insta
+   // Clone the entity to avoid messing with it.
+   $cloned_entity = clone $entity;
+ 
++  $cloned_entity->_field_view_prepared = false;
++
+   return field_view_field($entity_type, $cloned_entity, $field['field_name'], $display, $langcode);
+ }
+ 

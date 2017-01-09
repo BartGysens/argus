@@ -1,0 +1,15 @@
+name = Smartschool Synchronisation tools
+description = Synchroniseer je gegevens uit je eigen Smartschool-platform met argus.
+package = argus - a Quality control extension
+core = 7.x
+php = 5.2
+dependencies[] = argus_engine
+dependencies[] = argus_sms_api
+dependencies[] = phpexcel
+configure = admin/config/argus/sms-api/sync
+
+version = 7.x-1.11-1
+core = 7.x
+project = argus_sms_sync
+datestamp = 1476305399
+project status url = http://www.projectargus.be/release-history

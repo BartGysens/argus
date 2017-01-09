@@ -1,0 +1,35 @@
+From 5a5d6bd6a8bfbac1b925edccb1a43d5fccf56ebf Mon Sep 17 00:00:00 2001
+From: Liuba Kazakov <liuba@catalyst-au.net>
+Date: Wed, 19 Jun 2013 14:29:18 +1000
+Subject: [PATCH] Issue #1898110 by liuba: Work around the case where a bundle
+ was
+
+disabled but not uninstalled it still has its field returned by
+field_info_instances() but field_info_bundles() returns only
+active bundles
+---
+ modules/field_ui/field_ui.admin.inc |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/modules/field_ui/field_ui.admin.inc b/modules/field_ui/field_ui.admin.inc
+index 5c6f529..9c49cf1 100644
+--- a/modules/field_ui/field_ui.admin.inc
++++ b/modules/field_ui/field_ui.admin.inc
+@@ -19,6 +19,14 @@ function field_ui_fields_list() {
+   $rows = array();
+   foreach ($instances as $entity_type => $type_bundles) {
+     foreach ($type_bundles as $bundle => $bundle_instances) {
++      // work around the case where a bundle was disabled but not
++      // uninstalled it still has its field returned by
++      // field_info_instances() but field_info_bundles()
++      // returns only active bundles
++      if (!isset($bundles[$entity_type][$bundle])) {
++        continue;
++      }
++
+       foreach ($bundle_instances as $field_name => $instance) {
+         $field = field_info_field($field_name);
+ 
+-- 
+1.7.9.5
+

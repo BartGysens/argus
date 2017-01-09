@@ -1,0 +1,37 @@
+? .settings
+Index: modules/field_ui/field_ui.admin.inc
+===================================================================
+RCS file: /cvs/drupal/drupal/modules/field_ui/field_ui.admin.inc,v
+retrieving revision 1.52
+diff -u -p -r1.52 field_ui.admin.inc
+--- modules/field_ui/field_ui.admin.inc	31 May 2010 18:15:20 -0000	1.52
++++ modules/field_ui/field_ui.admin.inc	5 Jun 2010 14:27:34 -0000
+@@ -21,8 +21,8 @@ function field_ui_fields_list() {
+         $field = field_info_field($field_name);
+         $admin_path = _field_ui_bundle_admin_path($entity_type, $bundle);
+         $rows[$field_name]['data'][0] = $field['locked'] ? t('@field_name (Locked)', array('@field_name' => $field_name)) : $field_name;
+-        $rows[$field_name]['data'][1] = t($field_types[$field['type']]['label']);
+-        $rows[$field_name]['data'][2][] = l($bundles[$entity_type][$bundle]['label'], $admin_path . '/fields');
++        $rows[$field_name]['data'][1] = $field_types[$field['type']]['label'];
++        $rows[$field_name]['data'][2][] = $admin_path ? l($bundles[$entity_type][$bundle]['label'], $admin_path . '/fields') : $bundles[$entity_type][$bundle]['label'];
+         $rows[$field_name]['class'] = $field['locked'] ? array('menu-disabled') : array('');
+       }
+     }
+Index: modules/field_ui/field_ui.module
+===================================================================
+RCS file: /cvs/drupal/drupal/modules/field_ui/field_ui.module,v
+retrieving revision 1.30
+diff -u -p -r1.30 field_ui.module
+--- modules/field_ui/field_ui.module	23 May 2010 19:10:23 -0000	1.30
++++ modules/field_ui/field_ui.module	5 Jun 2010 14:27:58 -0000
+@@ -303,7 +303,9 @@ function field_ui_field_attach_create_bu
+ function _field_ui_bundle_admin_path($entity_type, $bundle_name) {
+   $bundles = field_info_bundles($entity_type);
+   $bundle_info = $bundles[$bundle_name];
+-  return isset($bundle_info['admin']['real path']) ? $bundle_info['admin']['real path'] : $bundle_info['admin']['path'];
++  if (isset($bundle_info['admin'])) {
++    return isset($bundle_info['admin']['real path']) ? $bundle_info['admin']['real path'] : $bundle_info['admin']['path'];
++  }
+ }
+ 
+ /**

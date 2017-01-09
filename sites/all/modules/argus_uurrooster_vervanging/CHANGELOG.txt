@@ -1,0 +1,63 @@
+**Releases:
+
+
+v7.x-1.10
+---------
+- Nieuw block Vervangingen LLN
+- Geen vervangingsblok tonen als niet van toepassing
+
+v7.x-1.9
+---------
+- Gefilterde view vervangingen, toevoeging lange vervangingen
+
+v7.x-1.8
+---------
+- Juiste opsplitsing meerdere EMA's van 1 user op 1 dag in vervangingsmodule.
+- Update module Vervangingen: betere planningsdialoog, geen vervanging voor lege lessen
+- Vervangingen: geen aanmaken als er geen klassen zijn, aanklikbaar maken in de lijst
+- Optie naar als geen vervanger bij uurrooster vervangingen
+
+v7.x-1.7
+---------
+- Juiste weergave bij de vervangingen
+- Module Personeelsafwezigheden -> Uurrooster - Vervangingen: multi-embedding in argus via block
+
+v7.x-1.6
+---------
+- Fix in embedding vervangingen
+
+v7.x-1.5
+---------
+- Fix in embedding uurrooster vervangingen en css
+
+v7.x-1.4
+---------
+- Embeddings systeem klaargemaakt voor diverse types
+- Uurrooster - vervanging voor embedding in Smartschool
+- Fix check op te vervangen klassen
+
+v7.x-1.3
+---------
+- Update Uurroosters: extra informatie over vervangingen toegevoegd, week-gebaseerd rooster
+- Update Personeel - Afwezigheid: klassen toegevoegd, vervanging per dag toegevoegd
+
+v7.x-1.2
+---------
+- Update Personeel Afwezigheden: periode-gebaseerde registratie vervangingen
+- Fix in Views: na catch release error on plugins
+
+v7.x-1.1
+---------
+- Update Personeel Afwezigheden: langdurige vervanging (vaste vervangers)
+- Update Uurroosters, nieuwe features (opvoeders, vervangingen)
+- Fix in feature Uurrooster - vervanging Versioning
+
+v7.x-1.0
+---------
+- First initial release - featured based
+- New module Uurrooster - Vervanging
+
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

@@ -1,0 +1,19 @@
+**Releases:
+
+v7.x-2.1
+---------
+- Betere verwerking van eerdere registraties
+
+v7.x-2.0
+---------
+- Gebruikersregistratie: aanpassing dat men kan verder inschrijven op basis van bestaande gebruikersgegevens
+
+v7.x-1.0
+---------
+- First initial release: Nieuwe toepassing Inschrijvingen (argus_gebruikersregistratie)
+- Nieuwe functies om gebruikers in Smartschool te importeren
+- Nieuw autodoc: Inschrijvingen
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

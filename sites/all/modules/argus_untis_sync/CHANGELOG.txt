@@ -1,0 +1,25 @@
+**Releases:
+
+v7.x-1.4
+---------
+- Update sync Untis : version id, only delete selected items
+
+v7.x-1.3
+---------
+- Update berichten Untis-sync
+
+v7.x-1.2
+---------
+- Extract nieuwe module GP Untis import
+
+v7.x-1.1
+---------
+- Update module Sync - part GP Untis (modules Vakken, Lokalen, Klassen, Uurrooster en Periodes afgewerkt)
+
+v7.x-1.0
+---------
+- Synchronisatie met GP Untis deel 1 (vakken, lokalen, perioden)
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

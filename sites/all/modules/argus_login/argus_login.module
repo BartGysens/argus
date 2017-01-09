@@ -1,0 +1,471 @@
+<?php
+/* 
+ * Copyright (C) 2015 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file
+ * Smartschool API reference, description of returnobject 'user'
+ * stdClass Object
+ *  (
+ *      [number] => abcd1234 (intern nummer)
+ *      [username] => janjanssen
+ *      [name] => Jan
+ *      [surname] => janssen
+ *      [email] => janjanssen@gmail.com
+ *      [role] => 1 (0 = leerkracht, 1 = leerling, 13 = andere, 30 = directie)
+ *      [accountType] => 0 (0 = hoofdaccount, 1 = co-account 1, 2 = co-account 2)
+ *  )
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_login_menu().
+ */
+function argus_login_menu() {
+    $items = array();
+    $items['argus_login.sms.retrieve'] = array(
+        'page callback' => 'argus_login_retrieve',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+        'position' => 'left',
+    );
+    $items['admin/config/argus/login'] = array(
+        'title' => 'Alternatieve login pagina',
+        'description' => 'Instellingen voor een alternatieve login-pagina en -procedure met authenticatie op jouw Smartschool-platform of via OAuth2 voor Google ea.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_login_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 1,
+    );
+    $items['argus_login.google.oauth2callback'] = array(
+        'page callback' => 'argus_login_google_oauth2callback',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    $items['argus_login.sms.oauth2callback'] = array(
+        'page callback' => 'argus_login_sms_oauth2callback',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+
+/**
+ * Page callback: Smartschool alternatieve login-pagina instellingen
+ *
+ * @see argus_sms_api_menu()
+ */
+function argus_login_form($form, &$form_state) {
+    $form['argus_login_context'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Begeleidende tekst'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+    $form['argus_login_context']['argus_login_context_line1'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Lijn 1'),
+        '#default_value' => variable_get('argus_login_context_line1'),
+        '#size' => 100,
+        '#description' => t('Geef een eerste begeleidende tekstregel. Deze lijn wordt vet gedrukt bovenaan het login-formulier'),
+    );
+    $form['argus_login_context']['argus_login_context_line2'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Lijn 2'),
+        '#default_value' => variable_get('argus_login_context_line2'),
+        '#size' => 50,
+        '#description' => t('Geef de tweede begeleidende regel'),
+    );
+    $form['argus_login_ad'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Advertentie (linkerbeeld + url)'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+    $form['argus_login_ad']['argus_login_ad_image'] = array(
+        '#type' => 'managed_file',
+        '#title' => t('Afbeelding'),
+        '#default_value' => variable_get('argus_login_ad_image',drupal_get_path('module', 'argus_login').'/images/argus.png'),
+        '#size' => 22,
+        '#description' => t('Selecteer een foto of afbeelding als advertentie. <em>Afmetingen: 500 x 400 - toegestane formaten: png, jpeg, gif</em>.'),
+        '#required' => TRUE,
+        '#upload_location' => 'public://argus/sms_login_ad',
+        '#upload_validators' => array(
+            'file_validate_extensions' => array('jpg jpeg png gif'),
+        ),
+    );
+    $form['argus_login_ad']['argus_login_ad_tooltip'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Tooltip'),
+        '#default_value' => variable_get('argus_login_ad_tooltip','KTA 1 Hasselt'),
+        '#size' => 50,
+        '#description' => t('Geef een korte beschrijving als alternatief voor de advertentie (zo lezen blinden en slechtzienden ook mee).'),
+        '#required' => TRUE,
+    );
+    $form['argus_login_ad']['argus_login_ad_url'] = array(
+        '#type' => 'textfield',
+        '#title' => t('URL'),
+        '#default_value' => variable_get('argus_login_ad_url','http://www.kta1-hasselt.be/'),
+        '#size' => 100,
+        '#description' => t('Pas de bovenstaande url aan naar een bestemming die je in de kijker wil zetten.'),
+    );
+    
+    $form['argus_login_security'] = array(
+    		'#type' => 'fieldset',
+    		'#title' => t('Extra beveilingsinstellingen'),
+    		'#collapsible' => TRUE,
+    		'#collapsed' => FALSE,
+    );    
+	    $form['argus_login_security']['argus_login_drupal_active'] = array(
+	    	'#type' => 'checkbox',
+		    '#title' => t('Activeer standaard Drupal authorisatie (standaard actief)'),
+	    	'#default_value' => variable_get('argus_login_drupal_active', true),
+		    '#description' => t('Activeer de controle van de gebruikers in Drupal met de standaard login-voorzieningen (formulier met login en paswoord).'),
+		);
+	    $form['argus_login_security']['argus_login_roles_allowed'] = array(
+	        '#type' => 'select',
+	        '#title' => t('Toegelaten rollen'),
+	        '#multiple' => true,
+	        '#options' => user_roles($membersOnly = true),
+	        '#default_value' => variable_get('argus_login_roles_allowed',NULL),
+	        '#description' => t('Selecteer de rollen die toegelaten zijn om in te loggen op argus.'),
+	    );
+
+    $form['argus_login_sms'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Instellingen voor Smartschool login'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+	    $form['argus_login_sms']['argus_login_sms_active'] = array(
+	        '#type' => 'checkbox',
+	        '#title' => t('Activeer Smartschool OAuth2 authorisatie'),
+	        '#default_value' => variable_get('argus_login_sms_active', false),
+	        '#description' => t('Activeer de controle van de gebruikers in Smartschool via OAuth2.<br /><em style="font-size: smaller">(Let op: dit werkt enkel met een geldige Smartschool-account en de activatie van de module Smartschool API; voor de activatie van OAuth2 via Smartschool kan je meer informatie vinden op de <a href="http://www.smartschool.be/oauth/" target="_blank">Smartschool OAuth2-pagina</a>)</em>'),
+	    );
+	    $form['argus_login_sms']['argus_login_sms_oauth_url'] = array(
+	        '#type' => 'textfield',
+	        '#title' => t('URL voor OAuth2-calls'),
+	        '#default_value' => variable_get('argus_login_sms_oauth_url','https://uwschool.smartschool.be/OAuth'),
+	        '#size' => 100,
+	        '#description' => t('Pas de bovenstaande url aan zodat de aanvraag voor de authorisatie naar jouw school verwijst.'),
+	    );
+	    $form['argus_login_sms']['argus_login_sms_client_id'] = array(
+	        '#type' => 'textfield',
+	        '#title' => t('OAuth2 - Client ID'),
+	        '#default_value' => variable_get('argus_login_sms_client_id'),
+	        '#size' => 100,
+	        '#description' => t('Kopieer je client ID vanuit de credentials die je ontvangen hebt van Smartschool.'),
+	    );
+	    $form['argus_login_sms']['argus_login_sms_client_secret'] = array(
+	        '#type' => 'textfield',
+	        '#title' => t('OAuth2 - Client Password'),
+	        '#default_value' => variable_get('argus_login_sms_client_secret'),
+	        '#size' => 100,
+	        '#description' => t('Kopieer je client Password vanuit de credentials die je ontvangen hebt van Smartschool.'),
+	    );
+    
+    $form['argus_login_google'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Instellingen voor Google OAuth2 login'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+	    $form['argus_login_google']['argus_login_google_active'] = array(
+	        '#type' => 'checkbox',
+	        '#title' => t('Activeer Google OAuth2 authorisatie'),
+	        '#default_value' => variable_get('argus_login_google_active', false),
+	        '#description' => t('Activeer de controle van de gebruikers in Google via OAuth2.<br /><em style="font-size: smaller">(Let op: dit werkt enkel met een geldige <a href="https://console.developers.google.com/apis/credentials" target="_blank">Google API Credential</a>-account en de activatie van de modules <a href="https://www.drupal.org/project/oauth2_client" target="_blank">OAuth2 Client</a> en <a href="https://www.drupal.org/project/oauth2_authentication" target="_blank">OAuth Authentication</a>)</em>'),
+	    );
+	    $form['argus_login_google']['argus_login_google_application_name'] = array(
+	        '#type' => 'textfield',
+	        '#title' => t('OAuth2 - Application Name'),
+	        '#default_value' => variable_get('argus_login_google_application_name'),
+	        '#size' => 100,
+	        '#description' => t('Kopieer je de naam die je aan de toepassing hebt gegeven vanuit de credentials op je Google API pagina.'),
+	    );
+	    $form['argus_login_google']['argus_login_google_client_id'] = array(
+	        '#type' => 'textfield',
+	        '#title' => t('OAuth2 - Client ID'),
+	        '#default_value' => variable_get('argus_login_google_client_id'),
+	        '#size' => 100,
+	        '#description' => t('Kopieer je client ID vanuit de credentials op je Google API pagina.'),
+	    );
+	    $form['argus_login_google']['argus_login_google_client_secret'] = array(
+	        '#type' => 'textfield',
+	        '#title' => t('OAuth2 - Client Secret'),
+	        '#default_value' => variable_get('argus_login_google_client_secret'),
+	        '#size' => 100,
+	        '#description' => t('Kopieer je client Secret vanuit de credentials op je Google API pagina.'),
+	    );
+    
+    $form['#submit'] = array('argus_login_form_submit');
+    return system_settings_form($form);
+}
+
+
+/**
+ * Change status of uploaded file
+ */
+function argus_login_form_submit($form, &$form_state) {
+    if ($form_state['values']['argus_login_ad_image']){
+        $file = file_load($form_state['values']['argus_login_ad_image']);
+        $file->status = FILE_STATUS_PERMANENT;
+        file_usage_add($file,'argus_login','login_page',0,1);
+        file_save($file);
+    }
+}
+
+/**
+ * Implements argus_login_theme_registry_alter().
+ */
+function argus_login_theme_registry_alter(&$theme_registry) {
+    $module_path = drupal_get_path('module', 'argus_login');
+    $template_file_objects = drupal_find_theme_templates($theme_registry, '.tpl.php', $module_path);
+    foreach ($template_file_objects as $key => $template_file_object) {
+        if (!isset($theme_registry[$key]['theme path']) || !preg_match('#/themes/#', $theme_registry[$key]['theme path'])) {
+            $theme_registry[$key]['theme path'] = $module_path;
+            $theme_registry[$key] = array_merge($theme_registry[$key], $template_file_object);
+            $theme_registry[$key]['type'] = 'module';
+        }
+    }
+}
+
+/**
+ * Implements argus_login_page_build().
+ */
+function argus_login_page_build(&$page) {
+    if(current_path() === 'user/login'){
+        drupal_set_title("Login");
+        drupal_add_css(drupal_get_path('module', 'argus_login') . "/css/argus_sms_login.css", array( 'every_page' => FALSE ) );
+        drupal_add_js(drupal_get_path('module', 'argus_login') . "/js/argus_sms_login.js");
+    }
+}
+
+/**
+ * Implements argus_login_preprocess_user_login().
+ */
+function argus_login_form_alter( &$form, &$form_state, $form_id ){
+	if ($form_id=='user_login'){
+		$form['name']['#description'] = '';
+		$form['pass']['#description'] = '';
+		$form['actions']['submit']['#value'] = t('Aanmelden');
+	}
+}
+
+/**
+ * Implements argus_login_user_login().
+ */
+function argus_login_user_login(&$edit, $account) {
+	if (!isset($_POST['form_id'])) {
+		if (!argus_login_check_user_roles($account)){
+			exit('This account has no access to this website.');
+		}
+	}
+}
+
+/**
+ * Implements argus_login_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function argus_login_help($path, $arg) {
+    $output = '';
+    switch ($path) {
+      case "admin/help#argus_login":
+        $output =
+          '<h3>' . t('Configuratie van deze module') . '</h3>'
+        . '<p>' . t('Bij de installatie dien je volgende items instellen:') . '</p>'
+        
+        . '<h4>' . t('Algemene instellingen') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Activatie als standaard login-template') . '</strong></dt>'
+        . '<dd>' . t('Ga naar <em>"admin/config/system/site-information"</em> en stel de 403-pagina in op <em>"user/login"</em>.') . '</dd>'
+        . '</dl>'
+        
+        . '<h4>' . t('Smartschool verificatie (authorisatie)') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Activatie van deze authorisatie') . '</strong></dt>'
+        . '<dd>' . t('Als je het vinkje aanduidt, dan zullen de inloggevens worden gecontroleerd op een Smartschool-account (<strong>username</strong>).') . '</dd>'
+        . '</dl>'
+        . '<dl>'
+        . '<dt><strong>' . t('Omzeilen van de Smartschool-authenticatie') . '</strong></dt>'
+        . '<dd>' . t('Om je toepassingen en/of rollen te testen kan je de login-procedure omzeilen met de account <em>"admin"</em> en <em>"roltester" (zelf aan te maken)</em>.') . '</dd>'
+        . '</dl>'
+        
+        . '<h4>' . t('Google OAuth2 verificatie (authorisatie)') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Activatie van deze authorisatie') . '</strong></dt>'
+        . '<dd>' . t('Als je het vinkje aanduidt, dan zullen de inloggevens worden gecontroleerd op een Google-account (<strong>email</strong>).') . '</dd>'
+        . '</dl>'
+        . '<dl>'
+        . '<dt><strong>' . t('Omzeilen van de Google-authenticatie') . '</strong></dt>'
+        . '<dd>' . t('Om je toepassingen en/of rollen te testen kan je de login-procedure standaard laten verlopen maar zal er geen check zijn van de gebruikersaccount in argus.') . '</dd>'
+        . '</dl>';
+        break;
+    }
+    return $output;
+}
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Retrieve credentials from a Google-account through OAuth2.
+ */
+function argus_login_google_oauth2callback(){
+	global $base_url;
+	
+	if (array_key_exists('code', $_GET)){
+		$authentication_code = $_GET['code'];
+		
+		require_once 'includes/google/vendor/autoload.php';
+		$client = new Google_Client();
+		$client->setAccessType('online');
+		$client->setApplicationName(variable_get('argus_login_google_application_name'));
+		$client->setClientId(variable_get('argus_login_google_client_id'));
+		$client->setClientSecret(variable_get('argus_login_google_client_secret'));
+		$client->setRedirectUri($base_url.'/argus_login.google.oauth2callback');
+		$client->addScope(array('email'));
+		$client->authenticate($authentication_code);
+		
+		$google_oauth =new Google_Service_Oauth2($client);
+		$u = $google_oauth->userinfo->get();
+		if (isset($u)){
+			$userInfo = user_load_by_mail($u->email);
+			if (!$userInfo) {
+				exit('This account has no access to this website.<br />Failed on: '.$u->email.'<hr />Please try again with another account: <a href="'.$base_url.'">login here</a>');
+			} else {
+				if (!argus_login_check_user_roles($userInfo)){
+					exit('This account has no access to this website.');
+				} else {
+					global $user;
+					$user = user_load($userInfo->uid);
+					$login_array = array ('name' => $userInfo->name);
+					user_login_finalize($login_array);
+					header('Location: '.$base_url);
+					exit;
+				}
+			}
+		}
+	} else {
+		exit('Illegal use of this module. Be advised.');
+	}
+}
+
+/**
+ * Retrieve credentials from a Smartschoolplatform through OAuth2.
+ */
+function argus_login_sms_oauth2callback(){
+	global $base_url;
+	
+	require_once 'includes/smartschool/vendor/autoload.php';
+	
+	if (! user_is_logged_in ()) {
+		$client = new \OAuth2SmS\Client ( variable_get ( 'argus_login_sms_client_id' ), variable_get ( 'argus_login_sms_client_secret' ) );
+		$callBackUrl = $base_url . '/argus_login.sms.oauth2callback';
+		
+		try {
+			if (! isset ( $_GET ['code'] )) {
+				$oAuthUrl = variable_get ( 'argus_login_sms_oauth_url' ) . '/OAuth';
+				$auth_url = $client->getAuthenticationUrl ( $oAuthUrl, $callBackUrl, [
+					'scope' => 'userinfo'
+				] );
+				
+				header ( 'Location: ' . $auth_url );
+				die ();
+			} else {
+				$response = $client->getAccessToken ( 'https://oauth.smartschool.be/OAuth/index/token', 'authorization_code', [ 
+					'code' => $_GET ['code'],
+					'redirect_uri' => $callBackUrl,
+					'scope' => 'userinfo' 
+				] );
+				
+				if ($response ['code'] != '200') {
+					throw new \Exception ( 'De authenticatie is niet gelukt!' );
+				}
+				$accessToken = $response ['result'] ['access_token'];
+				
+				$result = file_get_contents ( 'https://oauth.smartschool.be/Api/V1/userinfo?access_token=' . $accessToken );
+				$credentials = json_decode ( $result );
+				
+				
+				
+				if (isset ( $credentials->username )) {
+					$userInfo = user_load_by_name ( $credentials->username );
+					if (! $userInfo) {
+						exit ( 'This account has no access to this website.<br />Failed on: ' . $credentials->username . '<hr />Please try again with another account: <a href="' . $base_url . '">login here</a>' );
+					} else {
+						if (!argus_login_check_user_roles($userInfo)){
+							exit('This account has no access to this website.');
+						} else {
+							global $user;
+							$user = user_load ( $userInfo->uid );
+							$login_array = array (
+								'name' => $userInfo->name 
+							);
+							user_login_finalize ( $login_array );
+							header ( 'Location: ' . $base_url );
+							exit ();
+						}
+					}
+				} else {
+					exit ( 'Illegal use of this module. Be advised.' );
+				}
+			}
+		} catch ( \Exception $e ) {
+			echo $e->getMessage ();
+			die ();
+		}
+	} else {
+		header ( 'location:/index.php' );
+	}
+}
+
+/**
+ * Check if this user is allowed, depending on his/her role(s)
+ */
+function argus_login_check_user_roles($account){
+	$roles = variable_get('argus_login_roles_allowed', NULL);
+	if (is_array($roles)){
+		foreach (variable_get('argus_login_roles_allowed') as $role){
+			if (user_has_role($role, $account)){
+				return true;
+				break;
+			}
+		}
+		if(in_array('administrator',$account->roles)){
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return true;
+	}
+}

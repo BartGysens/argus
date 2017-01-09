@@ -1,0 +1,20 @@
+**Releases:
+
+
+v7.x-3.0
+---------
+- Berekeningen toegevoegd voor het gebruik van het busje
+- Autmatische opvolging via berichten geupdate
+
+v7.x-2.0
+---------
+- Smartschool messages in gebouwd
+- Workflow toegevoegd
+
+v7.x-1.0
+---------
+- First initial release - featured based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

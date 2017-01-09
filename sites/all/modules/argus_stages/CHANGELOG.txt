@@ -1,0 +1,42 @@
+**Releases:
+
+
+v7.x-4.2
+---------
+- Update Stagedossier
+- Update Auto Doc: Stageverslag
+
+v7.x-4.1
+---------
+- Autodoc Stageverslag
+- Fix in document Stagedossier
+
+v7.x-4.0
+---------
+- Nieuw Stageschrift autodoc
+- Update Stagedossier autodoc
+
+v7.x-3.0
+---------
+- Fix in ref stagegever
+- Clean Stagedossier
+- Stagedossier autodoc: risicoanalyse en werpostfiche op structuuronderdeel
+
+v7.x-2.0
+---------
+- Stagedocumenten: werkpostiches + risicoanalyses (templates)
+- Fix in autodoc Stagedossier
+- Nieuwe extra call functie voor commandline dossier opvraag
+
+v7.x-1.1
+---------
+- Update Document generator template: Stagedossier
+
+v7.x-1.0
+---------
+- First initial release - featured based
+- Nieuwe plugin Document Generator: Stagedossier
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

@@ -1,0 +1,389 @@
+<?php
+/* 
+ * Copyright (C) 2015 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+include_once 'includes/argus_klasbeheer.field_group.inc';
+function argus_klasbeheer_ctools_plugin_api($module = NULL, $api = NULL) {
+  if ($module == "field_group" && $api == "field_group") {
+    return array("version" => "1");
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+include_once 'includes/argus_klasbeheer.views_default.inc';
+function argus_klasbeheer_views_api($module = NULL, $api = NULL) {
+  return array("api" => "3.0");
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_klasbeheer_node_info() {
+  $items = array(
+    'klas' => array(
+      'name' => t('Klas'),
+      'base' => 'node_content',
+      'description' => t('Een <em>klas</em> groepeert leerlingen & leerkrachten en laat je toe om extra gegevens in te stellen zoals richting, graad en klastitularis.'),
+      'has_title' => '1',
+      'title_label' => t('Afkorting'),
+      'help' => '',
+    ),
+  );
+  drupal_alter('node_info', $items);
+  return $items;
+}
+
+
+/**
+* Implements hook_block_info().
+*/
+function argus_klasbeheer_block_info() {
+    $blocks = array();
+    $blocks['klasbeeld'] = array(
+        'info' => t('Klasbeeld'),
+        'title' => t('Klasbeeld'),
+    );
+
+    return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function argus_klasbeheer_block_view($delta = '') {
+    $block = array();
+    $variables = array();
+    $today = new DateTime('NOW');
+
+    /* Filter data only for this schoolyear (active schoolyear) */
+    $schoolyear = (array) argus_schoolyear(0);
+    
+    global $user;
+    $query = 'SELECT DISTINCT n.nid AS nid, '
+        . 'l.entity_id AS id, '
+        . 'l.field_lvs_melding_leerling_target_id AS uid, '
+        . 'klas_id.entity_id AS cid, '
+        . 'klas.title AS cname, '
+        . 'n.uid AS author, '
+        . 'd.field_lvs_melding_datum_feit_value AS factdate, '
+        . 'p.field_lvs_melding_prive_value AS private, '
+        . 'b.field_lvs_melding_betreft_value AS about, '
+        . 'name.field_user_sms_naam_value AS name '
+        . 'FROM {field_data_field_lvs_melding_leerling} AS l '
+        . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = l.field_lvs_melding_leerling_target_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id '
+        . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid '
+        . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid '
+        . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON l.field_lvs_melding_leerling_target_id = name.entity_id '
+        . 'WHERE d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
+        . 'AND b.field_lvs_melding_betreft_value = :about ';
+    $params = array();
+    
+    $pupils = array();
+    
+    // Setup query for ktt/hktt
+    if (argus_get_user_has_role($user->uid,'ktt')){
+        $q2 = 'SELECT n.nid AS id, '
+            . 'n.title AS title '
+            . 'FROM {node} AS n '
+            . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id '
+            . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id '
+            . 'WHERE ktt.field_klas_klastitularis_target_id = :uid '
+            . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
+        $variables['myClasses'] = db_query($q2, array(':uid' => $user->uid))->fetchAllKeyed();
+        
+        if (count($variables['myClasses'])){
+            $query .= 'AND klas_id.entity_id IN (:cids) ';
+            $params[':cids'] = array_keys($variables['myClasses']);
+            
+            foreach ($params[':cids'] as $cid){
+                $class = node_load($cid);
+				if (array_key_exists(LANGUAGE_NONE, $class->field_klas_leerlingen)){
+                	$pupils[$cid] = $class->field_klas_leerlingen[LANGUAGE_NONE];
+				}
+            }
+
+            // TODO: check policy -> only private messages for ILB & Staff !
+            $query .= 'AND p.field_lvs_melding_prive_value != :private ';
+            $params[':private'] = 1;
+
+            $variables['reportType'] = 'ktt';
+        }
+    }
+    
+    // Setup query for ilb
+    if (argus_get_user_has_role($user->uid,'ilb')){
+        $variables['reportType'] = 'ilb';
+    }
+    
+    // Setup query for staff
+    if (argus_get_user_has_role($user->uid,'staff')){
+        $variables['reportType'] = 'staff';
+    }
+    
+    $query .= 'ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC ';
+    if (isset($variables['reportType'])){
+        // Retrieve data about : absences
+        $codes = array('B', 'D', 'Z', '-', 'G', 'T', 'C', 'H', 'R', 'O', 'Q', 'P', 'J');
+        if ($variables['reportType'] == 'ktt'){
+           	foreach ($params[':cids'] as $cid){
+				if (array_key_exists($cid, $pupils)){
+	                foreach ($pupils[$cid] as $student){
+	                    $variables['absences'][$cid][$student['target_id']]['absence']['last'] = 0;
+	                    $variables['absences'][$cid][$student['target_id']]['late']['last'] = 0;
+			    
+	                    $queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total '
+	                        . 'FROM {argus_lvs_afwezigheden} AS a '
+	                        . 'WHERE a.leerling = :uid '
+	                        . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
+	                    for ($w = 3; $w > 0; $w--){
+	                        // Absences
+	                        $results = db_query($queryAbsences.'AND a.am IN (:code)', array(':uid' => $student['target_id'], ':code' => $codes, ':startdate' => date('Ymd', strtotime('-'.$w.' weeks')), ':enddate' => date('Ymd', strtotime('-'.($w-1).' weeks'))))->fetchAll();
+	                        foreach ($results as $r){
+	                            $variables['absences'][$cid][$student['target_id']]['absence'][$w] = $r->total;
+	                            $variables['absences'][$cid][$student['target_id']]['absence']['last'] += $r->total;
+	                        }
+	                        $results = db_query($queryAbsences.'AND a.pm IN (:code)', array(':uid' => $student['target_id'], ':code' => $codes, ':startdate' => date('Ymd', strtotime('-'.$w.' weeks')), ':enddate' => date('Ymd', strtotime('-'.($w-1).' weeks'))))->fetchAll();
+	                        foreach ($results as $r){
+	                            $variables['absences'][$cid][$student['target_id']]['absence'][$w] += $r->total;
+	                            $variables['absences'][$cid][$student['target_id']]['absence']['last'] += $r->total;
+	                        }
+	                        // Late
+	                        $results = db_query($queryAbsences.'AND (a.am IN (:code) OR a.pm IN (:code))', array(':uid' => $student['target_id'], ':code' => array('L'), ':startdate' => date('Ymd', strtotime('-'.$w.' weeks')), ':enddate' => date('Ymd', strtotime('-'.($w-1).' weeks'))))->fetchAll();
+	                        foreach ($results as $r){
+	                            $variables['absences'][$cid][$student['target_id']]['late'][$w] = $r->total;
+	                            $variables['absences'][$cid][$student['target_id']]['late']['last'] += $r->total;
+	                        }
+	                    }
+	                    $results = db_query($queryAbsences.'AND a.am IN (:code)', array(':uid' => $student['target_id'], ':code' => $codes, ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+	                    $variables['absences'][$cid][$student['target_id']]['absence']['total'] = $results[0]->total;
+	                    $results = db_query($queryAbsences.'AND a.pm IN (:code)', array(':uid' => $student['target_id'], ':code' => $codes, ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+	                    $variables['absences'][$cid][$student['target_id']]['absence']['total'] += $results[0]->total;
+	                    
+	                    $results = db_query($queryAbsences.'AND (a.am IN (:code) OR a.pm IN (:code))', array(':uid' => $student['target_id'], ':code' => array('L'), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+	                    $variables['absences'][$cid][$student['target_id']]['late']['total'] = $results[0]->total;
+	                }
+				}
+		    }
+        } else {
+            $today = date('Ymd');
+            $queryAbsences = 'SELECT DISTINCT a.leerling, klas_id.entity_id AS class_id '
+                . 'FROM {argus_lvs_afwezigheden} AS a '
+                . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = a.leerling '
+                . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid '
+                . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON a.leerling = name.entity_id '
+                . 'WHERE a.datum = :today AND klas_id.entity_id IS NOT NULL ';
+            $results = db_query($queryAbsences.'AND (a.am IN (:code) OR a.pm IN (:code)) ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC', array(':code' => $codes, ':today' => $today))->fetchAll();
+            if ($results){
+                $variables['absencesTotal'] = count($results);
+                foreach ($results as $absence){
+                    $queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total '
+                        . 'FROM {argus_lvs_afwezigheden} AS a '
+                        . 'WHERE a.leerling = :uid '
+                        . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
+                    $resultsSchoolyear = db_query($queryAbsences.'AND a.am IN (:code)', array(':uid' => $absence->leerling, ':code' => $codes, ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+                    $variables['absences'][$absence->class_id][$absence->leerling]['schoolyear'] = $resultsSchoolyear[0]->total;
+                    $resultsSchoolyear = db_query($queryAbsences.'AND a.pm IN (:code)', array(':uid' => $absence->leerling, ':code' => $codes, ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+                    $variables['absences'][$absence->class_id][$absence->leerling]['schoolyear'] += $resultsSchoolyear[0]->total;
+                    $cntr = 0;
+                    do {
+                        $cntr++;
+                        $checkdate = strtotime('-'.$cntr.'days',$today);
+                        $queryAbsencesPupil = 'SELECT DISTINCT COUNT(a.id) AS total '
+                            . 'FROM {argus_lvs_afwezigheden} AS a '
+                            . 'WHERE a.leerling = :uid '
+                            . 'AND a.datum = :date '
+                            . 'AND (a.am IN (:code) OR a.pm IN (:code))';
+                        $resultsPupil = db_query($queryAbsencesPupil, array(':uid' => $absence->leerling, ':code' => $codes, ':date' => date('Y-m-d', $checkdate)))->fetchAll();
+                    } while($resultsPupil && date('Y-m-d', $checkdate) > $schoolyear['start']);
+                    $variables['absences'][$absence->class_id][$absence->leerling]['length'] = $cntr;
+                }
+            }
+            
+            $queryAbsences = 'SELECT DISTINCT a.leerling, klas_id.entity_id AS class_id '
+                . 'FROM {argus_lvs_afwezigheden} AS a '
+                . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = a.leerling '
+                . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid '
+                . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON a.leerling = name.entity_id '
+                . 'WHERE a.datum = :today AND klas_id.entity_id IS NOT NULL ';
+            $results = db_query($queryAbsences.'AND (a.am IN (:code) OR a.pm IN (:code)) ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC', array(':code' => array('L'), ':today' => $today))->fetchAll();
+            if ($results){
+                $variables['lateTotal'] = count($results);
+                foreach ($results as $absence){
+                    $queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total '
+                        . 'FROM {argus_lvs_afwezigheden} AS a '
+                        . 'WHERE a.leerling = :uid '
+                        . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
+                    $resultsSchoolyear = db_query($queryAbsences.'AND a.am IN (:code)', array(':uid' => $absence->leerling, ':code' => array('L'), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+                    $variables['late'][$absence->class_id][$absence->leerling]['schoolyear'] = $resultsSchoolyear[0]->total;
+                    $resultsSchoolyear = db_query($queryAbsences.'AND a.pm IN (:code)', array(':uid' => $absence->leerling, ':code' => array('L'), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+                    $variables['late'][$absence->class_id][$absence->leerling]['schoolyear'] += $resultsSchoolyear[0]->total;
+                }
+            }
+        }
+        
+        // Retrieve data about : negative behaviour
+        $behaviourParams = array('negatief gedrag', 'positief gedrag');
+        foreach ($behaviourParams as $bp){
+	        $params[':about'] = $bp;
+	        $variables['behaviour'] = array();
+	        
+	            // Get total status
+	            $params[':startdate'] = $schoolyear['start'];
+	            $params[':enddate'] = $schoolyear['end'];
+	            $reports = db_query($query, $params)->fetchAll();
+	            foreach ($reports as $report){
+	                if (isset($variables['behaviour'][$report->cid][$report->uid]['neg'])){
+	                    $variables['behaviour'][$report->cid][$report->uid]['neg']['total']++;
+	                } else {
+	                    $variables['behaviour'][$report->cid][$report->uid]['neg'] = array(
+	                        'total' => 1,
+	                        'today' => 0,
+	                        'previous' => 0,
+	                    );
+	                }
+	            }
+	            // Get current status
+	            $params[':startdate'] = date('Ymd', strtotime('-30days'));
+	            $params[':enddate'] = date('Ymd');
+	            $reports = db_query($query, $params)->fetchAll();
+	            foreach ($reports as $report){
+	                if (isset($variables['behaviour'][$report->cid][$report->uid]['neg'])){
+	                    $variables['behaviour'][$report->cid][$report->uid]['neg']['today']++;
+	                } else {
+	                    $variables['behaviour'][$report->cid][$report->uid]['neg'] = array(
+	                        'total' => 0,
+	                        'today' => 1,
+	                        'previous' => 0,
+	                    );
+	                }
+	            }
+	            // Get previous status
+	            $params[':startdate'] = date('Ymd', strtotime('-60days'));
+	            $params[':enddate'] = date('Ymd', strtotime('-30days'));
+	            $reports = db_query($query, $params)->fetchAll();
+	            foreach ($reports as $report){
+	                if (isset($variables['behaviour'][$report->cid][$report->uid]['neg'])){
+	                    $variables['behaviour'][$report->cid][$report->uid]['neg']['total']++;
+	                } else {
+	                    $variables['behaviour'][$report->cid][$report->uid]['neg'] = array(
+	                        'total' => 1,
+	                        'today' => 0,
+	                        'previous' => 0,
+	                    );
+	                }
+	            }
+        }
+            
+        // Retrieve data about : study
+        $query = 'SELECT id, afkorting '
+            . 'FROM {argus_skore_periode} '
+            . 'ORDER BY volgorde ASC';
+        $variables['periods'] = db_query($query)->fetchAll();
+        if ($variables['reportType'] == 'ktt'){
+            foreach ($params[':cids'] as $cid){
+				if (array_key_exists($cid, $pupils)){
+	                foreach ($pupils[$cid] as $student){
+	                    foreach ($variables['periods'] as $p){
+	                        $query = 'SELECT r.behaald, r.max '
+	                            . 'FROM {argus_skore_resultaten} AS r '
+	                            . 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid';
+	                        $results = db_query($query, array(':uid' => $student['target_id'], ':pid' => $p->id, 'schoolyear' => substr($schoolyear['start'],0,4).'-'.substr($schoolyear['end'],0,4)))->fetchAll();
+	                        $fails = 0;
+	                        $success = 0;
+	                        foreach ($results as $r){
+	                            if (isset($r->behaald)){
+	                                if ((real) $r->behaald < ((real) $r->max)/2){
+	                                    $fails++;
+	                                } else {
+	                                    $success++;
+	                                }
+	                            }
+	
+	                        }
+	                        $variables['study'][$cid][$student['target_id']][$p->afkorting]['fails'] = $fails;
+	                        $variables['study'][$cid][$student['target_id']][$p->afkorting]['success'] = $success;
+	                        $variables['study'][$cid][$student['target_id']][$p->afkorting]['total'] = $success+$fails;
+	                    }
+	                }
+				}
+            }
+        } else {
+            // TODO: overzicht van alle klassen met aantal tekorten, %geslaagden!
+        }
+    }
+
+    switch ($delta) {
+        default:
+            $block['title'] = 'Klasbeeld - evolutie';
+            $block['subject'] = 'Klasbeeld';
+            $block['content'] = theme('argus_klasbeheer_block_LST', $variables);
+            break;
+    }
+    drupal_add_css(drupal_get_path('module', 'argus_klasbeheer').'/css/argus_klasbeheer--LST_block.css');
+    drupal_add_js(drupal_get_path('module', 'argus_klasbeheer').'/js/argus_klasbeheer--LST_block.js');
+    
+    return $block;
+}
+
+/** 
+ * Implement hook_theme()
+ */
+function argus_klasbeheer_theme() {
+    return array(
+        'argus_klasbeheer_block_LST' => array(
+            'variables' => array(
+                'content' => NULL,
+                'popular_content' => NULL,
+            ),
+            'template' => 'templates/argus_klasbeheer--LST_block',
+        ),
+    );
+}
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Retrieve the teachers of this class.
+ *
+ * Function returns an array
+ *
+ * @param $cid int
+ *   Node id
+ *
+ * @return array int
+ */
+function argus_klasbeheer_get_teachers($cid) {
+	if (isset($cid)) {
+		$query = 'SELECT u.uid AS id ';
+		$query .= 'FROM {field_data_field_klas_leerkrachten} AS l ';
+		$query .= 'INNER JOIN {users} AS u ON l.field_klas_leerkrachten_target_id = u.uid ';
+		$query .= 'WHERE l.entity_id = :cid';
+		return db_query($query, array(':cid' => $cid))->fetchAll();
+	}
+}

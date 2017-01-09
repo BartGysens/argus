@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Organisaties feature.
+ */
+
+include_once 'argus_organisaties.features.inc';

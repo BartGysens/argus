@@ -1,0 +1,45 @@
+**Releases:
+
+v7.x-1.7-1
+---------
+- Fix Klassenraad notulen
+
+v7.x-1.7
+---------
+- Aanduiding KTT en HKTT in lijst acties bij Klassenraden notities
+
+v7.x-1.6
+---------
+- Update Klassenraad - notities > Acties fieldcollection vervangen door nodes voor gemakkelijkere user settings
+
+v7.x-1.5
+---------
+- Update Klassenraden: juiste volgorde overzicht
+
+v7.x-1.4
+---------
+- Update Klassenraden & Notities: final release v1.0
+
+v7.x-1.3
+---------
+- Update Klassenraden - notities: beta2
+- Fix Klassenraden: opvang bij geen cijfers
+
+v7.x-1.2
+---------
+- Nieuwe module argus_Klassenraden (beta)
+
+v7.x-1.1
+---------
+- Fix thema Klassenraad profiles
+- Final version User profile in Theme Klassenraad
+- Nieuwe grafieken bij het userprofile Klassenraad
+- Update Klassenraad: nieuw user browser, overview pagina
+
+v7.x-1.0
+---------
+- First initial release - featured based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

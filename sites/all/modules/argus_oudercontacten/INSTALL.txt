@@ -1,0 +1,10 @@
+**Installation:
+
+Oudercontacten is an extension to the argus - a Quality control extension.
+
+1. Unpack the argus_oudercontacten folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably sites/all/modules/
+2. Enable the argus_oudercontacten module in the administration tools.
+3. If you're not using Drupal's default administrative account, make sure 
+ "administer argus oudercontacten" is enabled through access control
+ administration.

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Sticker onwettige afwezigheid feature.
+ */
+
+include_once 'argus_sticker_onwettige_afwezigheid.features.inc';

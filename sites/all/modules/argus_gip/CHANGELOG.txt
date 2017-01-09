@@ -1,0 +1,10 @@
+**Releases:
+
+
+v7.x-0.1-sandbox
+---------
+- First initial pre-release - featured based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

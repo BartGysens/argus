@@ -1,0 +1,22 @@
+**Releases:
+
+v7.x-1.3
+---------
+- Update Smartschool API: message verzenden op juiste plaats 3 x nieuw icoon voor nieuwe modules
+
+v7.x-1.2
+---------
+- Smartschool API: extra controle bereikbaarheid Smartschool
+
+v7.x-1.1
+---------
+- Module argus_sms_api: SOAP-protocol handler toegevoegd
+
+v7.x-1.0
+---------
+- initial commit (TODO: sync KTT, Klas, Uurrooster, Puntenboek?, Afwezigheden
+- Some obsolete files, minor extra features in api + login
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

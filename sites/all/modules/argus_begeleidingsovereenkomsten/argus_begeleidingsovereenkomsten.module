@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Begeleidingsovereenkomsten feature.
+ */
+
+include_once 'argus_begeleidingsovereenkomsten.features.inc';

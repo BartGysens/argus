@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Contracten feature.
+ */
+
+include_once 'argus_contracten.features.inc';

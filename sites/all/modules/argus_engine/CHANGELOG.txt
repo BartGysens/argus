@@ -1,0 +1,21 @@
+**Releases:
+
+v7.x-1.3
+---------
+- Update argus_engine: mail logging
+
+v7.x-1.2
+---------
+- Update: geparametriseerde selection box schoolyear
+
+v7.x-1.1
+---------
+- Added support for date format scholar request
+
+v7.x-1.0
+---------
+- First initial release
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

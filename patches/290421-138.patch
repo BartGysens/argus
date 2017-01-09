@@ -1,0 +1,46 @@
+diff --git a/pathauto.pathauto.inc b/pathauto.pathauto.inc
+index 28d3ce0..04c460c 100644
+--- a/pathauto.pathauto.inc
++++ b/pathauto.pathauto.inc
+@@ -139,13 +139,40 @@ function taxonomy_pathauto($op) {
+ 
+       $vocabularies = taxonomy_get_vocabularies();
+       if (count($vocabularies)) {
++
++        $languages = array();
++        if (module_exists('locale')) {
++          $languages = array(LANGUAGE_NONE => t('language neutral')) + locale_language_list('name');
++        }
++
+         $settings['patternitems'] = array();
+         foreach ($vocabularies as $vid => $vocabulary) {
+           if ($vid == variable_get('forum_nav_vocabulary', '')) {
+             // Skip the forum vocabulary.
+             continue;
+           }
+-          $settings['patternitems'][$vocabulary->machine_name] = t('Pattern for all %vocab-name paths', array('%vocab-name' => $vocabulary->name));
++
++          // If either entity translation or i18n taxonomy is enabled for this
++          // vocabulary, and we have multiple languages, then allow per-language
++          // configuration of paths.
++          $entity_translation_enabled_types = array_filter(variable_get('entity_translation_entity_types', array()));
++          if ((isset($entity_translation_enabled_types['taxonomy_term']) && function_exists('entity_translation_enabled_bundle') && entity_translation_enabled_bundle('taxonomy_term', $vocabulary->machine_name))
++            || (function_exists('i18n_taxonomy_vocabulary_mode') && (i18n_taxonomy_vocabulary_mode($vid) == I18N_MODE_TRANSLATE || i18n_taxonomy_vocabulary_mode($vid) == I18N_MODE_LOCALIZE))
++            && count($languages)) {
++            $settings['patternitems'][$vocabulary->machine_name] = t('Default pattern for all %vocab-name paths (applies to all %vocab-name node types with blank patterns below)', array('%vocab-name' => $vocabulary->name));
++            foreach ($languages as $lang_code => $lang_name) {
++              if (!empty($lang_code)) {
++                $settings['patternitems'][$vocabulary->machine_name .'_'. $lang_code] = t('Pattern for all %vocab-name paths in @language', array('%vocab-name' => $vocabulary->name, '@language' => $lang_name));
++              }
++              else {
++                $settings['patternitems'][$vocabulary->machine_name .'_'. $lang_code] = t('Pattern for all language neutral %vocab-name paths', array('%vocab-name' => $vocabulary->name));
++              }
++            }
++          }
++          else {
++            $settings['patternitems'][$vocabulary->machine_name] = t('Pattern for all %vocab-name paths', array('%vocab-name' => $vocabulary->name));
++          }
++
+         }
+       }
+       return (object) $settings;

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Opruimkalender feature.
+ */
+
+include_once 'argus_opruimkalender.features.inc';

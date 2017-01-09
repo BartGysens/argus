@@ -1,0 +1,39 @@
+**Releases:
+
+
+v7.x-3.2
+---------
+- Module Meldingen: block voor student, ilb, kit en staff
+
+v7.x-3.1
+---------
+- Module Meldingen prototype rechts	
+
+v7.x-3.0
+---------
+- Module Meldingen omgevormd naar custom ipv Features versie
+- extra functie om meldingen op te halen per user Nieuw document Document Generator : BO Gedrag
+
+v7.x-2.1
+---------
+- Fix in sync van meldingen
+- Melding aan profile toegevoegd	
+- Synchronisatie met Smartschool bijgewerkt: meldingen via nieuwe import (XLS + TAR)
+
+v7.x-2.0a
+---------
+- Update argus Stickers, Volgkaart, Meldingen	
+- Sync met Smartschool voor meldingen geactiveerd	
+
+v7.x-2.0
+---------
+- Nieuwe modules: MSL, Meldingen (LVS)
+
+v7.x-1.0
+---------
+- First initial release - featured based
+- Nieuwe modules: Meldingen (basisversie 1)
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

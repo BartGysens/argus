@@ -1,0 +1,2618 @@
+<?php
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Smartschool API reference, description of returnobject 'user'
+ * stdClass Object
+ *  (
+ *      [number] => abcd1234 (intern nummer)
+ *      [username] => janjanssen
+ *      [name] => Jan
+ *      [surname] => janssen
+ *      [email] => janjanssen@gmail.com
+ *      [role] => 1 (0 = leerkracht, 1 = leerling, 13 = andere, 30 = directie)
+ *      [accountType] => 0 (0 = hoofdaccount, 1 = co-account 1, 2 = co-account 2)
+ *  )
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_sms_api_menu().
+ */
+function argus_sms_sync_menu() {
+    $items = array();
+    $items['admin/config/argus/smartschool-api/smartschool-sync'] = array(
+        'title' => 'Synchroniseren met Smartschool',
+        'description' => 'Synchroniseer gegevens van je Smartschool-platform met argus.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_sms_sync_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 1,
+    );
+    $items['argus_sms_sync_now'] = array(
+        'page callback' => 'argus_sms_sync_now',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+/**
+ * Page callback: Smartschool Synchronisation form setup
+ *
+ * @see argus_sms_sync_menu()
+ */
+function argus_sms_sync_form($form, &$form_state) {
+    global $base_url;
+    $path = drupal_get_path('module', 'argus_sms_sync');
+    $form['#attached']['js'] = array(
+        $path . '/js/argus_sms_sync.js',
+    );
+    
+    $form['argus_sms_data'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Selectie van de gegevens'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#description' => t('Selecteer de gegevens die met Smartschool moeten worden gesynchroniseerd.<div style="font-size: smaller;"><u>Opmerking</u>: deze synchronisatie werkt enkel in de richting van Smartschool naar argus, niet omgekeerd.</div>'),
+    );
+  
+    /*
+     * Smartschool import data: Gebruikers / Useraccounts & Groups > Roles
+     */
+    $form['argus_sms_data']['argus_sms_data_accounts'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Gebruikers'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync'] = array(
+            '#type' => 'select',
+            '#title' => t('Synchroniseer de gebruiker-accounts'),
+            '#options' => array(
+                0 => t('Niet synchroniseren'),
+                1 => t('Synchroniseer enkel de basisgegevens: naam, voornaam, gebruikersnaam, internnummer, status'),
+                2 => t('Neem de extra (gebruikers-)velden eveneens over in argus (volledige synchronisatie)'),
+            ),
+            '#default_value' => variable_get('argus_sms_data_accounts_sync',0),
+            '#description' => t('Alle gebruikersaccounts worden overgenomen uit je Smartschool-platform.'),
+        );
+        
+        $query = 'SELECT name,name FROM {users} ORDER BY name';
+        $options = db_query($query)->fetchAllKeyed();
+        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_nosync'] = array(
+            '#type' => 'select',
+            '#title' => t('Gebruikers die niet met Smartschool moeten gesynchroniseerd worden'),
+	        '#multiple' => true,
+            '#options' => $options,
+        	'#size' => 10,
+            '#default_value' => variable_get('argus_sms_data_accounts_nosync',0),
+            '#description' => t('De gebruikers die je hier opgeeft, worden niet gecontroleerd op een Smartschool-account. Hou de "shift"-toets in voor meerdere accounts.'),
+        );
+            $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap'] = array(
+                '#type' => 'fieldset',
+                '#title' => t('Transitie van de velden - enkel van toepassing bij een volledige synchronisatie'),
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+                '#description' => t('Je kan voor de geselecteerde velden instellen, op welke manier de omzetting moet gebeuren van de veldstructuur van Smartschool naar argus.<br />Velden die niet in deze veldmap worden opgenomen, zullen standaard als <em>text</em> worden overgenomen.<br />Elk veld moet per regel gedefinieerd worden. Enkel de laatste instelling die gedefinieerd wordt, is van toepassing.<br />Met <em>"veldnaam"</em> wordt de naam van het veld in Smartschool bedoeld, je dient deze letterlijk te kopiëren vanuit Smartschool.<br />De <em>"waarden"</em> kan je ophalen door een tijdelijke account aan te maken met telkens de geselecteerde waarde.<br /><u>Opgelet</u>: de dubbele aanhalingstekens zijn verplicht.'),
+            );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_fieldmap_textarea'] = array(
+                    '#type' => 'textarea',
+                    '#title' => t('Tekstgebied'),
+                    '#description' => t('Formaat per veld (per regel): <strong>"veldnaam"</strong>'),
+                    '#default_value' => variable_get('argus_sms_data_accounts_sync_fieldmap_textarea',''),
+                );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_fieldmap_options'] = array(
+                    '#type' => 'textarea',
+                    '#title' => t('Keuzerondjes'),
+                    '#description' => t('Formaat per veld (per regel): <strong>"veldnaam"|"waarde":"optie","waarde":"optie","waarde":"optie",...</strong>'),
+                    '#default_value' => variable_get('argus_sms_data_accounts_sync_fieldmap_options',''),
+                );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_fieldmap_checkbox'] = array(
+                    '#type' => 'textarea',
+                    '#title' => t('Aanvinkvakjes'),
+                    '#description' => t('Formaat per veld (per regel): <strong>"veldnaam"|"waarde":"optie","waarde":"optie","waarde":"optie",...</strong>'),
+                    '#default_value' => variable_get('argus_sms_data_accounts_sync_fieldmap_checkbox',''),
+                );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_fieldmap_list'] = array(
+                    '#type' => 'textarea',
+                    '#title' => t('Keuzelijst'),
+                    '#description' => t('Formaat per veld (per regel): <strong>"veldnaam"|"waarde":"optie","waarde":"optie","waarde":"optie",...</strong>'),
+                    '#default_value' => variable_get('argus_sms_data_accounts_sync_fieldmap_list',''),
+                );
+                
+                $fieldTypesArray = field_info_field_types();
+                foreach ($fieldTypesArray as $fieldType => $fieldTypeOptions) {
+                    $fieldTypes[] = $fieldType;
+                }
+                $fieldTypes = implode(', ',$fieldTypes);
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_fieldmap_extra'] = array(
+                    '#type' => 'textarea',
+                    '#title' => t('Extra velddefinities'),
+                    '#description' => t('Formaat per veld (per regel): <strong>"veldnaam"|"veldtype"</strong><br /><span style="font-size: smaller;">Enkel deze veldtypes kan je gebruiken (sync stel standaard "text" in): '.$fieldTypes.'<br /><u>Opmerking</u>: niet elk veldtype kan automatisch worden omgezet, indien de waarde niet of foutief wordt ingelezen, kan je best het veld uit deze lijst verwijderen en een gewoon tekstveld gebruiken.</span>'),
+                    '#default_value' => variable_get('argus_sms_data_accounts_sync_fieldmap_extra',''),
+                );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_getFieldmapUser'] = array(
+                    '#type' => 'textfield',
+                    '#title' => t('Gebruikersnaam'),
+                    '#description' => t('Vraag de velden en hun waarden op van deze account in Smartschool aan de hand van de <em>gebruikersnaam</em>.'),
+                    '#default_value' => variable_get('argus_sms_data_accounts_sync_getFieldmapUser',''),
+                );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_getFieldmapBtn'] = array(
+                    '#type' => 'submit',
+                    '#value' => t('Haal de gegevens op'),
+                    '#submit' => array('argus_sms_getFieldmap_form_submit'),
+                    '#suffix' => t('<em style="font-size: smaller;">Geef een gebruikersnaam op, om de velden op te vragen.</em><div id="argus_sms_getFieldmap_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="'.$base_url.'/'.$path.'/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>'),
+                    '#attributes' => array(
+                        'onclick' => array('argus_sms_getFieldmap()'),
+                    ),
+                );
+                $userFields = field_info_instances('user','user');
+                $valueFields = array();
+                foreach ($userFields as $key => $field) {
+                    $valueFields[] = '"'.$field['label'].'"';
+                }
+                natcasesort($valueFields);
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_deleteFields'] = array(
+                    '#type' => 'textarea',
+                    '#title' => t('Velden verwijderen om opnieuw aan te maken'),
+                    '#description' => t('Formaat per veld (per regel): <strong>"veldnaam"</strong><br /><span style="font-size: smaller;">Als je velden opnieuw wil instellen, kan je ze hier eerst verwijderen en daarna opnieuw synchroniseren. <u>Opgelet</u>: deze waarden worden niet bewaard als instellingen.</span>'),
+                    '#default_value' => implode(chr(13),$valueFields),
+                );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_sync_fieldmap']['argus_sms_data_accounts_sync_deleteFieldsBtn'] = array(
+                    '#type' => 'submit',
+                    '#value' => t('Verwijder de geselecteerde velden'),
+                    '#submit' => array('argus_sms_deleteFields_form_submit'),
+                    '#suffix' => t('<div id="argus_sms_deleteFields_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="'.$base_url.'/'.$path.'/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>'),
+                    '#attributes' => array(
+                        'onclick' => array('argus_sms_deleteFields()'),
+                    ),
+                );
+        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_deprecated'] = array(
+            '#type' => 'select',
+            '#title' => t('Verwijderde gebruikers in Smartschool'),
+            '#options' => array(
+                0 => t('Niet synchroniseren'),
+                1 => t('Alle gegevens behouden; gebruikers op non-actief plaatsen'),
+                2 => t('Gebruikers die verwijderd werden in Smartschool, ook in argus verwijderen (verlies van mogelijke koppelingen!)'),
+                3 => t('Verwijderde gebruikers in Smartschool, ook in argus verwijderen én alle gegevens van deze gebruikers (dataverlies!)'),
+            ),
+            '#default_value' => variable_get('argus_sms_data_deprecated',0),
+            '#description' => t('Bepaal hoe argus met verwijderde gebruikers om moet gaan tijdens de synchronisatie.'),
+        );
+        
+        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_roles'] = array(
+        		'#type' => 'fieldset',
+        		'#title' => t('Groepen van Smartschool -> rollen'),
+        		'#description' => t('De rollen van de gebruikers importeren.'),
+        		'#collapsible' => TRUE,
+        		'#collapsed' => FALSE,
+        );
+	        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_roles']['argus_sms_data_accounts_groups_sync'] = array(
+	            '#type' => 'checkbox',
+	            '#title' => t('Groepen synchroniseren en omzetten naar <em>rollen</em>'),
+	            '#default_value' => variable_get('argus_sms_data_accounts_groups_sync'),
+	            '#description' => t('Bij het synchroniseren van de groepen zullen er in argus geen groepen worden aangemaakt, maar worden deze omgezet in rollen ("drupalisation").'),
+	        );
+	        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_roles']['argus_sms_data_accounts_sync_roles'] = array(
+	            '#type' => 'checkbox',
+	            '#title' => t('Stel de rollen van de gebruikers opnieuw in'),
+	            '#default_value' => variable_get('argus_sms_data_accounts_sync_roles'),
+	            '#description' => t('Als je de groepen van Smartschool hebt gesynchroniseerd en je kiest voor een volledige synchronisatie (alle velden), dan zullen de rollen op basis hiervan worden ingesteld.'),
+	        );
+	        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_roles']['argus_sms_data_accounts_remove_old_roles'] = array(
+	            '#type' => 'checkbox',
+	            '#title' => t('Verwijder de oude rollen'),
+	            '#default_value' => variable_get('argus_sms_data_accounts_remove_old_roles'),
+	            '#description' => t('Als je de groepen van Smartschool hebt gesynchroniseerd dan mogen ook alle oude rollen verwijderd worden.'),
+	        );
+	        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_roles']['argus_sms_data_accounts_not_remove_old_roles'] = array(
+	        		'#type' => 'select',
+	        		'#title' => t('Rollen die niet verwijderd mogen worden'),
+	        		'#multiple' => true,
+	        		'#options' => user_roles(TRUE),
+	        		'#size' => 10,
+	        		'#default_value' => variable_get('argus_sms_data_accounts_not_remove_old_roles',0),
+	        		'#description' => t('De rollen die je hier opgeeft zullen niet verwijderd worden. Hou de "shift"-toets in voor meerdere rollen.'),
+	        );
+	        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_roles']['argus_sms_data_accounts_sort_roles'] = array(
+	            '#type' => 'checkbox',
+	            '#title' => t('Sorteer de rollen alfabetisch'),
+	            '#default_value' => variable_get('argus_sms_data_accounts_sort_roles'),
+	            '#description' => t('Als je de groepen van Smartschool hebt gesynchroniseerd dan mogen de rollen in alfabetische volgorde worden geplaatst (a-z).'),
+	        );
+        
+        $options = array('' => t('- alle groepen -'));
+        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_only_group'] = array(
+            '#type' => 'select',
+            '#title' => t('Selecteer enkel de gebruikers van onderstaande groep'),
+            '#default_value' => variable_get('argus_sms_data_accounts_only_group',''),
+            '#description' => t('Bij het synchroniseren zal argus enkel de geselecteerde gebruikers ophalen op basis van de groepen in je Smartschool-platform.'),
+        );
+        /* Get all available Smartschool-groups */
+        if ($client = argus_sms_getSOAPclient()){
+            $result = $client->getAllGroupsAndClasses(variable_get('argus_sms_api_password'));
+            if (is_int($result)) {
+                $options = array_merge($options, array( 'none' => t('- geen Smartschool-groepen beschikbaar -')));
+            } else {
+                $retrievedData = simplexml_load_string(base64_decode($result));
+                $sms_Options = argus_sms_get_group_codes($retrievedData);
+                foreach ($sms_Options as $key => $group) {
+                    $options = array_merge($options, array( $key => $group['label'] . ' > ' . $key));
+                }
+            }
+        } else {
+            $options = array_merge($options, array( 'none' => t('- geen Smartschool-groepen beschikbaar -')));
+        }
+        asort($options);
+        $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_only_group']['#options'] = $options;
+    
+    $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_photos_fs'] = array(
+                '#type' => 'fieldset',
+                '#title' => t('Foto\'s'),
+                '#description' => t('De foto\'s van de leerlingen en andere gebruikers kan je via deze weg importeren.'),
+                '#collapsible' => TRUE,
+                '#collapsed' => FALSE,
+            );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_photos_fs']['argus_sms_data_accounts_photos_file'] = array(
+                    '#type' => 'managed_file',
+                    '#title' => t('Grafische bestanden (web-ready)'),
+                    '#description' => t('Het bestand moet een grafisch bestand in JPG/JPEG/GIF/PNG-formaat zijn (extensie ".JPG/JPEG/GIF/PNG"); manuele omzetting in Photoshop of een ander grafisch pakket.<br />De foto wordt automatisch aan een gebruiker gekoppeld op basis van de benaming van het bestand, vb. "voornaam.naam.jpg".<br />Je kan ook meerdere bestanden in één keer opladen, door ze samen te bundelen in een archiefbestand (extensie ".TAR/ZIP").'),
+                    '#process' => array('argus_sms_data_photos_file_process'),
+                    '#upload_validators' => array(
+                        'file_validate_extensions' => array('jpg jpeg gif png tar zip'),
+                    ),
+                );
+                $form['argus_sms_data']['argus_sms_data_accounts']['argus_sms_data_accounts_photos_fs']['argus_sms_data_accounts_photos_now'] = array(
+                    '#type' => 'submit',
+                    '#value' => t('Importeer de foto\'s'),
+                    '#submit' => array('argus_sms_dataPhotos'),
+                    '#suffix' => t('<div id="argus_sms_photos_sync_waiter" style="display: none; font-size: smaller; font-style: italic;"><img src="'.$base_url.'/'.$path.'/images/waiter.gif" /><br />(even geduld, dit kan enkele minuten duren - dit venster niet sluiten!)</div>'),
+                    '#attributes' => array(
+                        'onclick' => array('argus_sms_photos_sync_now()'),
+                    ),
+                );
+    
+    /*
+     * Smartschool import data: Klassen / Classes & Klastitularissen / ClassTeachers
+     */
+    $form['argus_sms_data']['argus_sms_data_classes'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Klasgegevens'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+    if (module_exists('argus_klasbeheer')) {
+        $form['argus_sms_data']['argus_sms_data_classes']['argus_sms_data_classes'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Klassen'),
+            '#default_value' => variable_get('argus_sms_data_classes'),
+            '#description' => t('De leerlingen uit specifieke klassen, krijgen twee rollen: <em>leerling</em> en <em>leerling van klasnaam</em> (resp. klas). Op basis hiervan kan je dan leerlingen selecteren uit een bepaalde klas.'),
+        );
+            $form['argus_sms_data']['argus_sms_data_classes']['argus_sms_data_classes_roles'] = array(
+                '#type' => 'fieldset',
+                '#title' => t('Rollen instellen om te koppelen'),
+                '#collapsible' => TRUE,
+                '#collapsed' => TRUE,
+            );
+                $form['argus_sms_data']['argus_sms_data_classes']['argus_sms_data_classes_roles']['argus_sms_data_classes_roles_lln'] = array(
+                    '#type' => 'textfield',
+                    '#title' => t('Leerling'),
+                    '#description' => t('Geef de rolnaam op voor leerlingen; gebruik <strong>"[class]"</strong> als klasnaam, deze wordt vervangen door de "title"-waarde van de klas.'),
+                    '#default_value' => '[class]',
+                    '#size' => 50,
+                );
+                $form['argus_sms_data']['argus_sms_data_classes']['argus_sms_data_classes_roles']['argus_sms_data_classes_roles_lkr'] = array(
+                    '#type' => 'textfield',
+                    '#title' => t('Leerkracht'),
+                    '#description' => t('Geef de rolnaam op voor leerkrachten; gebruik <strong>"[class]"</strong> als klasnaam, deze wordt vervangen door de "title"-waarde van de klas.'),
+                    '#default_value' => 'leerkracht van [class]',
+                    '#size' => 50,
+                );
+        $form['argus_sms_data']['argus_sms_data_classes']['argus_sms_data_classes_sort'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Sorteren op naam'),
+            '#default_value' => variable_get('argus_sms_data_classes_sort'),
+            '#description' => t('De leerlingen en leerkrachten sorteren van A tot Z.'),
+        );
+        $form['argus_sms_data']['argus_sms_data_classes']['argus_sms_data_classes_classteachers'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Klastitularissen'),
+            '#default_value' => variable_get('argus_sms_data_classes_classteachers'),
+            '#description' => t('Indien je alle gebruikersgegevens hebt geïmporteerd, dan koppelt het systeem automatisch de respectievelijke gebruiker als klastitularis.'),
+        );
+        $form['argus_sms_data']['argus_sms_data_classes']['argus_sms_data_classes_resetclassteachers'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Zet de hulpklastitularissen terug op "geen waarde"'),
+            '#default_value' => variable_get('argus_sms_data_classes_resetclassteachers'),
+            '#description' => t('Vermits de hulpklastitularissen niet geactiveerd zijn in Smartschool, is het mogelijk deze te ontkoppelen om ze daarna handmatig in te stellen in argus.'),
+        );
+    } else {
+        $form['argus_sms_data']['argus_sms_data_classes']['argus_sms_data_classes_module_missing'] = array(
+            '#markup' => t('Om de klasgegevens en titularisen vanuit Smartschool te synchroniseren, moet de module "argus - Klasbeheer" zijn geïnstalleerd.<br />Je kan deze downloaden op deze locatie: <a href="http://argus.kta1-hasselt.be/sandbox">http://argus.kta1-hasselt.be/sandbox</a>'),
+        );
+    }
+    
+    /*
+     * Smartschool import data from specific modules: Afwezigheden / Absents & Cursussen / Courses
+     */
+    $form['argus_sms_data']['argus_sms_data_modules'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Modules'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+        $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_hotline'] = array(
+            '#type' => 'fieldset',
+            '#title' => t('Meldpunt'),
+            '#description' => t('De meldingen uit het Meldpunt kunnen via argus beter worden geanalyseerd.<br />Exporteer de meldingen die je wil opnemen via Smartschool als Excel-bestand (xls-formaat).<br />Open het bestand in Excel en sla op als "Excel 97/2003/2004"-bestand (XLS).'),
+            '#collapsible' => TRUE,
+            '#collapsed' => FALSE,
+        );
+            $formats = filter_formats();
+            $format_options = array();
+            foreach ($formats as $f => $fm){
+                $format_options[$f] = $fm->name;
+            }
+            $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_hotline']['argus_sms_data_hotline_format'] = array(
+                '#type' => 'select',
+                '#title' => t('Selecteer het formaat waarin de verslagen worden opgemaakt'),
+                '#options' => $format_options,
+                '#default_value' => variable_get('argus_sms_data_hotline_format',0),
+                '#description' => t('Standaard worden de verslagen in Smartschool met zoveel mogelijk opties aangemaakt (tekstopmaak, foto\'s, links, ...); kies het formaat dat je wil gebruiken om de verslagen in argus om te zetten.'),
+            );
+            $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_hotline']['argus_sms_data_hotline_private'] = array(
+                '#type' => 'checkbox',
+                '#title' => t('De meldingen die worden geïmporteerd, moeten op <em>privé</em> worden gezet.'),
+                '#default_value' => variable_get('argus_sms_data_hotline_private'),
+                '#description' => t('Vermits de export vanuit Smartschool niet meegeeft of een melding op privé moet staan, kan je best in twee fasen een import doen.<br />In eerste fase kan je alle standaardmeldingen importeren, in tweede fase alle meldingen die privé moeten staan.'),
+            );
+            $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_hotline']['argus_sms_data_hotline_file'] = array(
+                '#type' => 'managed_file',
+                '#title' => t('Excel-bestand (export vanuit Smartschool Meldpunt-LVS)'),
+                '#description' => t('Het bestand moet een Excel-bestand in Excel 97/2003/2004-formaat zijn (extensie ".XLS/XLSX").<br />Je kan ook meerdere bestanden in één keer opladen, door ze samen te bundelen in een archiefbestand (extensie ".TAR/ZIP").'),
+                '#process' => array('argus_sms_data_hotline_file_process'),
+                '#upload_validators' => array(
+                    'file_validate_extensions' => array('xls xlsx tar zip'),
+                ),
+            );
+            $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_hotline']['argus_sms_data_hotline_now'] = array(
+                '#type' => 'submit',
+                '#value' => t('Importeer de meldingen'),
+                '#submit' => array('argus_sms_dataHotline'),
+                '#suffix' => t('<div id="argus_sms_hotline_sync_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="'.$base_url.'/'.$path.'/images/waiter.gif" /><br />(even geduld, dit kan enkele minuten duren - dit venster niet sluiten!)</div>'),
+                '#attributes' => array(
+                    'onclick' => array('argus_sms_hotline_sync_now()'),
+                ),
+            );
+            
+            $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_absents'] = array(
+                '#type' => 'fieldset',
+                '#title' => t('Afwezigheden'),
+                '#collapsible' => TRUE,
+                '#collapsed' => FALSE,
+            );
+                $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_absents']['argus_sms_data_absents_import'] = array(
+                    '#type' => 'checkbox',
+                    '#title' => t('Statussen van aanwezigheid, doktersattesten, B-codes, ... importeren'),
+                    '#default_value' => variable_get('argus_sms_data_absents_import'),
+                    '#description' => t('De afwezigheden kunnen gebruikt worden voor overzichten voor klassenraden, samenvattende rapporten of andere doeleinden.'),
+                );
+                $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_absents']['argus_sms_data_absents_period'] = array(
+                    '#type' => 'select',
+                    '#title' => t('Periode'),
+                    '#options' => array(
+                        0 => t('Volledig schooljaar (opgelet: dit kan tot 1 minuut duren per leerling!)'),
+                        1 => t('Laatste drie maanden'),
+                        2 => t('Laatste dertig dagen'),
+                    ),
+                    '#default_value' => variable_get('argus_sms_data_absents_period', 2),
+                    '#description' => t('Als je de eerste keer importeert, kies je best voor een volledig schooljaar (via een handmatige synchronisatie).<br />Daarna kan je de synchronisatietijd aanzienlijk inkorten (optimaliseren, minder serverbelasting) door de periode te verkorten naar 3 maanden of 30 dagen.'),
+                );
+            
+            $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_skore'] = array(
+                '#type' => 'fieldset',
+                '#title' => t('Puntenboeken & behaalde resultaten / Deliberaties'),
+                '#description' => t('Wil je je klassenraad beter voorbereiden, dan kan je de resultaten uit Skore integreren in je voorbereidingsproces of tijdens de klassenraad zelf.'),
+                '#collapsible' => TRUE,
+                '#collapsed' => FALSE,
+            );
+                
+                $schoolyears_options = array();
+                for ($x = date('Y'); $x > (date('Y')-10); $x--){
+                    $schoolyears_options[$x] = $x.' - '.($x+1);
+                }
+                $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_skore']['argus_sms_data_skore_schoolyear'] = array(
+                    '#type' => 'select',
+                    '#title' => t('<h5>Puntenboeken / Resultaten</h5>Selecteer het schooljaar van deze resultaten'),
+                    '#options' => $schoolyears_options,
+                    '#default_value' => variable_get('argus_sms_data_skore_schoolyear',0),
+                    '#description' => t('Het bestand dat je uit Smartschool hebt geïmporteerd is per schooljaar opgesteld. Je moet dus elk schooljaar apart inladen.'),
+                );
+                $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_skore']['argus_sms_data_skore_file'] = array(
+                    '#type' => 'managed_file',
+                    '#title' => t('Excel-bestand (export vanuit Skore - LVS > Afdrukken > Skore > Klasoverzicht)'),
+                    '#description' => t('Het bestand moet een Excel-bestand in Excel 97/2003-formaat zijn (extensie ".XLS").<br />Je kan ook meerdere bestanden in één keer opladen, door ze samen te bundelen in een archiefbestand (extensie ".TAR/ZIP").'),
+                    '#process' => array('argus_sms_data_skore_file_process'),
+                    '#upload_validators' => array(
+                        'file_validate_extensions' => array('xls xlsx tar zip'),
+                    ),
+                );
+                $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_skore']['argus_sms_data_skore_now'] = array(
+                    '#type' => 'submit',
+                    '#value' => t('Importeer de resultaten'),
+                    '#submit' => array('argus_sms_dataSkore'),
+                    '#suffix' => t('<div id="argus_sms_skore_sync_waiter" style="display: none; font-size: smaller; font-style: italic;"><img src="'.$base_url.'/'.$path.'/images/waiter.gif" /><br />(even geduld, dit kan enkele minuten duren - dit venster niet sluiten!)</div>'),
+                    '#attributes' => array(
+                        'onclick' => array('argus_sms_skore_sync_now()'),
+                    ),
+                );
+                
+                $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_skore']['argus_sms_data_skore_deliberations_schoolyear'] = array(
+                    '#type' => 'select',
+                    '#title' => t('<h5>Deliberaties</h5>Selecteer het schooljaar van deze deliberatie'),
+                    '#options' => $schoolyears_options,
+                    '#default_value' => variable_get('argus_sms_data_skore_deliberations_schoolyear',0),
+                    '#description' => t('Het bestand dat je uit Smartschool hebt geëxporteerd is per schooljaar opgesteld. Je moet dus elk schooljaar apart inladen.'),
+                );
+                $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_skore']['argus_sms_data_skore_deliberations_file'] = array(
+                    '#type' => 'managed_file',
+                    '#title' => t('Excel-bestand (export vanuit Skorebeheer > deliberaties > Exporteren > "Downloaden van: \schoolexport\" - alle klassen)'),
+                    '#description' => t('Het bestand moet een Excel-bestand in Excel 97/2003-formaat zijn (extensie ".XLS").'),
+                    '#process' => array('argus_sms_data_skore_deliberations_file_process'),
+                    '#upload_validators' => array(
+                        'file_validate_extensions' => array('xls'),
+                    ),
+                );
+                $form['argus_sms_data']['argus_sms_data_modules']['argus_sms_data_skore']['argus_sms_data_skore_deliberations_now'] = array(
+                    '#type' => 'submit',
+                    '#value' => t('Importeer de deliberaties'),
+                    '#submit' => array('argus_sms_dataSkoreDeliberations'),
+                    '#suffix' => t('<div id="argus_sms_skore_deliberations_sync_waiter" style="display: none; font-size: smaller; font-style: italic;"><img src="'.$base_url.'/'.$path.'/images/waiter.gif" /><br />(even geduld, dit kan enkele minuten duren - dit venster niet sluiten!)</div>'),
+                    '#attributes' => array(
+                        'onclick' => array('argus_sms_skore_deliberations_sync_now()'),
+                    ),
+                );
+    
+    /*
+     * Smartschool synchronisatie automatisatie (cron) / handmatig
+     */
+    $form['argus_sms_sync'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Synchronisatie procedures'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+    );
+        $form['argus_sms_sync']['argus_sms_sync_cron'] = array(
+            '#type' => 'select',
+            '#title' => t('Stel het automatisatieproces in (cron)'),
+            '#options' => array(
+                0 => t('Geen automatische synchronisatie (enkel handmatige synchronisatie)'),
+                1 => t('Synchroniseer één keer per dag (standaard wordt dit \'s nachts om 01:00 uitgevoerd)'),
+                2 => t('Elk uur de synchronisatie uitvoeren (opgelet: extra belasting voor de server - controleer bij je netwerkbeheerder/ICT-er - en meer internetverkeer)'),
+            ),
+            '#default_value' => variable_get('argus_sms_sync_cron',0),
+            '#description' => t('Bij het activeren van de cron-actie zullen je gegevens op regelmatige tijdstippen worden bijgewerkt op basis van de opgeslagen instellingen.<br />Om de synchronisatie uit te voeren, wordt er gebruikt gemaakt van het "curl"-command op de commandline.'),
+        );
+        /* Overwrite all argus/Drupal-data (carefull!) */
+        $form['argus_sms_sync']['argus_sms_sync_overwrite'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('* Verwijder alle gegevens in argus en lees de nieuwe gegevens in (gebruikers - behalve administrators, groepen/rollen, klassen, ... worden verwijderd)'),
+            '#default_value' => FALSE,
+            '#prefix' => '<div style="color: #C40000;">',
+            '#suffix' => '</div>',
+            '#description' => t('<u>Opgelet</u>: als je dit aanvinkt, kunnen er gegevens in argus verloren gaan of relaties tussen gegevens worden verbroken.<br /><small>(<u>tip</u>: maak een backup via de <a href="https://www.drupal.org/project/backup_migrate" target="_blank">Backup & Migrate module</a>)</small>'),
+        );
+        $form['argus_sms_sync']['argus_sms_sync_now'] = array(
+            '#type' => 'submit',
+            '#value' => t('Synchroniseer nu je gegevens'),
+            '#submit' => array('argus_sms_sync_now'),
+            '#suffix' => t('<em style="font-size: smaller;">Sla eerst de eventuele nieuwe instellingen op, deze worden niet automatisch bewaard.</em><div id="argus_sms_sync_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="'.$base_url.'/'.$path.'/images/waiter.gif" /><br />(even geduld, dit kan enkele minuten duren - dit venster niet sluiten!)</div>'),
+            '#attributes' => array(
+                'onclick' => array('argus_sms_sync_now()'),
+            ),
+        );
+    $form['#submit'] = array('argus_sms_sync_form_submit');
+    return system_settings_form($form);
+}
+
+
+/**
+ * Submission call back function
+ */
+function argus_sms_sync_form_submit($form, &$form_state) {
+    /* Handle cron settings */
+    global $base_url,$base_path;
+    $url = $base_url.$base_path;
+    shell_exec('(crontab -l ; echo "0 1 * * * '.$url.'argus_sms_sync_now") 2>&1 | grep -v "no crontab" | grep -v '.$url.'argus_sms_sync_now |  sort | uniq | crontab -');
+    shell_exec('(crontab -l ; echo "0 * * * * '.$url.'argus_sms_sync_now") 2>&1 | grep -v "no crontab" | grep -v '.$url.'argus_sms_sync_now |  sort | uniq | crontab -');
+    switch ($form_state['values']['argus_sms_sync_cron']) {
+        case 1: // Run everyday at 01:00 (1am)
+            shell_exec('(crontab -l ; echo "0 1 * * * curl '.$url.'argus_sms_sync_now") 2>&1 | grep -v "no crontab" | sort | uniq | crontab -');
+            $msg = 'Cron ingesteld om elke dag om 01:00 de gegevens van Smartschool te synchroniseren op basis van de bewaarde instellingen.';
+            break;
+        case 2: // Run every hour; on the hour
+            shell_exec('(crontab -l ; echo "0 * * * * curl '.$url.'argus_sms_sync_now") 2>&1 | grep -v "no crontab" | sort | uniq | crontab -');
+            $msg = 'Cron ingesteld om elke uur de gegevens van Smartschool te synchroniseren op basis van de bewaarde instellingen.';
+            break;
+        case 0: // Deactivate cron
+        default:
+            $msg = 'De cron werd uitgeschakeld; er zal geen automatische synchronisatie meer zijn met Smartschool.';
+            break;
+    }
+    
+    if ($form_state['values']['argus_sms_sync_cron'] != variable_get('argus_sms_sync_cron')) {
+        argus_report(t($msg), array(), 'status', 'argus');
+    }
+}
+
+/**
+ * Button 'sync - now' call back function
+ */
+function argus_sms_sync_now() {
+    $syncStart = time();
+    
+    /* Handle total dump of deprecated data - WARNING: THIS WILL RESET ARGUS TO ZERO DATA */
+    
+    if (variable_get('argus_sms_sync_overwrite')) {
+        /* ... */
+    }
+    
+    /* Handle users data from Smartschool */
+    switch (variable_get('argus_sms_data_accounts_sync')) {
+        case 1:
+        	argus_sms_dataAllAccounts();
+        	break;
+        case 2:
+        	argus_sms_dataAllAccountsExtended();
+        	break;
+    }
+    
+    /* Handle deleted users from Smartschool */
+    if (variable_get('argus_sms_data_deprecated') != 0) {
+    	argus_sms_dataRemoveDeletedUsers();
+    }
+    
+    /* Handle groups/roles from Smartschool */
+    if (variable_get('argus_sms_data_accounts_groups_sync')) {
+        argus_sms_dataGroupsAndClasses();
+    }
+    
+    if (variable_get('argus_sms_data_accounts_sync_roles')) {
+        argus_sms_dataSetRoles();
+    }
+    
+    /* Handle groups/roles from Smartschool */
+    if (variable_get('argus_sms_data_accounts_remove_old_roles')) {
+    	//argus_sms_dataRemoveOldGroups();
+    }
+    
+    /* Handle groups/roles from Smartschool */
+    if (variable_get('argus_sms_data_accounts_sort_roles')) {
+    	argus_sms_dataSortGroups();
+    }
+    
+    /* Handle classes from Smartschool */
+    if (variable_get('argus_sms_data_classes')) {
+        argus_sms_dataClassList();
+    }
+    
+    if (variable_get('argus_sms_data_classes_classteachers')) {
+        //argus_sms_dataClassTeachers();
+    }
+    
+    /* Handle modules */
+
+        /* Handle absences from Smartschool */
+        if (variable_get('argus_sms_data_absents_import')) {
+            argus_sms_dataAbsents();
+        }
+    
+    /* Finish messaging and timing */
+    if (drupal_get_messages(FALSE,FALSE)) {
+        $timeElapsed = array();
+        if ($hours = intval((time() - $syncStart)/3600)) {
+            $timeElapsed[] = $hours. 'u';
+        }
+        if ($minutes = intval((time() - $syncStart - $hours*3600)/60)) {
+            $timeElapsed[] = $minutes. 'm';
+        }
+        if ($seconds = intval((time() - $syncStart - $hours*3600 - $minutes*60))) {
+            $timeElapsed[] = $seconds. 's';
+        }
+        argus_report('Synchronisatie voltooid in <em>%diffTime</em>.', array('%diffTime' => implode(' ',$timeElapsed)), 'status', 'argus');
+    }else{
+        argus_report('Geen gegevens gesynchroniseerd.', array(), 'status', 'argus');
+    }
+}
+
+
+/**
+ * Button getFieldmap call back function
+ */
+function argus_sms_getFieldmap_form_submit($form, &$form_state) {
+    $username = $form_state['values']['argus_sms_data_accounts_sync_getFieldmapUser'];
+    if ($username != '') {
+        if ($client = argus_sms_getSOAPclient()){
+            $result = $client->getAllAccountsExtended(variable_get('argus_sms_api_password'),'','1');
+            if (is_int($result)) {
+                argus_report('Er werden geen <em>gebruikers</em> gevonden: foutmelding - %error', array('%error' => argus_sms_error($result)), 'error', 'argus');
+            } else {
+                $retrievedData = json_decode($result,true);
+
+                $userFields = array();
+                foreach ($retrievedData as $key => $account) {
+                    if ($username == $account['gebruikersnaam']) {
+                        ksort($account);
+                        foreach ($account as $field => $value) {
+                            $userFields[] = 'veldnaam: "'.$field.'" = "'.$value.'"';
+                        }
+                        break;
+                    }
+                }
+                if (count($userFields) > 0) {
+                    argus_report('<u>Volgende velden werden teruggevonden in Smartschool</u>:<br />%users', array('%users' => implode('<br />', $userFields)), 'status', 'argus');
+                } else {
+                    argus_report('De <em>gebruiker</em> "%user" werd niet gevonden in Smartschool.', array('%user' => $username), 'status', 'argus');
+                }
+            }
+        }
+    } else {
+        argus_report('Je moet een bestaande Smartschool-<em>gebruikersnaam</em> opgeven.', array(), 'warning', 'argus');
+    }
+}
+
+
+/**
+ * Button removeFields call back function
+ */
+function argus_sms_deleteFields_form_submit($form, &$form_state) {
+    $fields_to_delete = explode("\r\n",$form_state['values']['argus_sms_data_accounts_sync_deleteFields']);
+    if (count($fields_to_delete)) {
+        $foundFields = array();
+        $notFoundFields = array();
+        foreach ($fields_to_delete as $fieldLabel) {
+            $fieldName = argus_sms_uniform_field(substr($fieldLabel,1,-1), 'field_user_sms_');
+            if (field_info_field($fieldName)) {
+                field_delete_field($fieldName);
+                $foundFields[] = $fieldLabel;
+            } else {
+                $notFoundFields[] = $fieldLabel;
+            }
+        }
+
+        /**
+         * The fields aren't really deleted until the purge function runs, ordinarily
+         * during cron.  Count the number of fields we need to purge, and add five in
+         * case a few other miscellaneous fields are in there somehow.
+         */
+        field_purge_batch(count($fields_to_delete) + 5);
+
+        // THEN, in case of field type change, revert the feature
+        features_revert(array('module_name' => array('field')));
+        
+        if (count($foundFields)) {
+            argus_report('Er werden %cntFields velden verwijderd: %fields', array( '%cntFields' => count($foundFields), '%fields' => implode(', ',$foundFields)), 'status', 'argus');
+        }
+        
+        if (count($notFoundFields)) {
+            argus_report('%cntFields velden werden overgeslagen wegens niet gevonden: %fields', array( '%cntFields' => count($notFoundFields), '%fields' => implode(', ',$notFoundFields)), 'status', 'argus');
+        }
+    } else {
+        argus_report(t('Geen velden geselecteerd om te verwijderen.'), array(), 'warning', 'argus');
+    }
+}
+
+
+/**
+ * Implements argus_sms_sync_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function argus_sms_sync_help($path, $arg) {
+    $output = '';
+    switch ($path) {
+      case "admin/help#argus_sms_sync":
+        $output =
+          '<h3>' . t('Configuratie van deze module') . '</h3>/**
+ * Longer loading times sometimes needed for import
+ */
+ini_set(\'max_execution_time\', 0);'
+        . '<p>' . t('Na de installatie dien je volgende items instellen:') . '</p>'
+        
+        . '<h4>' . t('Algemene instellingen') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Uw Smartschool-platform') . '</strong></dt>'
+        . '<dd>' . t('Vervang in de url <em>"uwschool"</em> met de verwijzing naar je eigen school.') . '</dd>'
+        . '</dl>'
+        
+        . '<h4>' . t('API - webservices') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Smartschool API-url') . '</strong></dt>'
+        . '<dd>' . t('Vervang ook hier in de url <em>"uwschool"</em> met de verwijzing naar je eigen school of pas de url aan naar een specifieke locatie.') . '</dd>'
+        . '<dt><strong>' . t('Smartschool API-paswoord') . '</strong></dt>'
+        . '<dd>' . t('Zoek in je Smartschool-platform het paswoord van jouw school op: <em>Ga > Algemene configuratie > Webservices (module=Globalmanagement&file=webservices)</em>.') . '</dd>'
+        . '</dl>'
+        . '<h4>' . t('Rollen instellen') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Overdracht van permissies') . '</strong></dt>'
+        . '<dd>' . t('De login-procedure neemt de gebruikers van jouw Smartschool-platform automatisch over; hiervoor moet je wel eerst de rollen aanmaken die binnen jouw platform zullen gelden. Deze kan je dan koppelen via deze weg aan de <em>Smartschool-rollen (standaard: 0=leerkracht, 1=leerling, 13=andere en 30=directie)</em>.') . '</dd>'
+        . '</dl>';
+        break;
+    }
+    return $output;
+}
+
+
+/**
+ * Custom module functionality
+ */
+
+
+/* Smartschool Synchronisation tools: modules */
+
+/**
+ * Smartschool API functions:
+ *  - mixed getAbsents (string $accesscode, string $userIdentifier, string $schoolYear)
+ *  - mixed getAllAccounts (string $accesscode, string $code, string $recursive)
+ *  - mixed getAllAccountsExtended (string $accesscode, string $code, string $recursive)
+ *  - mixed getAllGroupsAndClasses (string $accesscode)
+ *  - string getClassList (string $accesscode)
+ *  - mixed getClassTeachers (string $accesscode)
+ *  - string getCourses (string $accesscode)
+ *  - mixed getSkoreClassTeacherCourseRelation (string $accesscode)
+ */
+
+
+/**
+ * Import All (user-)Accounts: basic fields
+ * 
+ * Smartschool API function:
+ * 
+ * "getAllAccounts"
+ * Met deze methode kan u voornaam, naam, gebruikersnaam en internnummer ophalen van gebruikers in een bepaalde groep. 
+ * Deze methode levert een in base64 geëncodeerde XML.
+ * 
+ * - string $accesscode: Wachtwoord webservices
+ * - string $code: Unieke klas- of groepscode van de op te halen groep
+ * - string $recursive: Subgroepen ook ophalen ('0' indien niet vereist of '1' indien wel vereist)
+ */
+function argus_sms_dataAllAccounts(){
+    if ($client = argus_sms_getSOAPclient()){
+        $result = $client->getAllAccounts(variable_get('argus_sms_api_password'),variable_get('argus_sms_data_accounts_only_group'),'1');
+        if (is_int($result)) {
+            argus_report('De <em>gebruikers</em> werden NIET '.($overwrite ? 'overschreven':'gesynchroniseerd').': foutmelding - %error', array('%error' => argus_sms_error($result)), 'error', 'argus');
+        } else {
+            $retrievedData = simplexml_load_string(base64_decode($result));
+            
+            /* Check if all fields exists (upon basic user-fields for Drupal) */
+            $userFields = array(
+                array( 'name' => 'field_user_sms_naam', 'label' => 'Achternaam'),
+                array( 'name' => 'field_user_sms_voornaam', 'label' => 'Voornaam'),
+                array( 'name' => 'field_user_sms_internnummer', 'label' => 'Internnummer (Smartschool)'),
+                array( 'name' => 'field_user_sms_status', 'label' => 'Status (Smartschool)'),
+            );
+            foreach ($userFields as $key => $userField) {
+                if (!field_info_field($userField['name'])) {
+                    $field = array(
+                        'field_name' => $userField['name'],
+                        'type' => 'text',
+                    );
+                    field_create_field($field);
+
+                    // Create the instance on the bundle.
+                    $instance = array(
+                        'field_name' => $userField['name'],
+                        'entity_type' => 'user',
+                        'label' => $userField['label'],
+                        'bundle' => 'user',
+                        'settings' => array(
+                            'user_register_form' => 1,
+                        ),
+                        'widget' => array(
+                            'type' => 'textfield',
+                            'weight' => 100 + $key, /* Add fields to back of Userform */
+                        ), 
+                    );
+                    field_create_instance($instance);
+                }
+            }
+            
+            $cntNewUsers = 0;
+            $cntExistingUsers = 0;
+            
+            /* Start synchronisation process */
+            foreach ($retrievedData as $account){
+            	$accountname = (string) $account->gebruikersnaam;
+                $userInfo = user_load_by_name($accountname);
+                if (!$userInfo) {
+                    $user_data = array(
+                        'name' => $accountname,
+                        'mail' => 'change.this@localhost.argus',
+                        'signature_format' => 'full_html',
+                    );
+                    $user = '';
+                    $cntNewUsers++;
+                }
+                else {
+                    $user_data = array();
+                    $user = $userInfo;
+                    $cntExistingUsers++;
+                }
+                $user_data = array_merge($user_data, array(
+                    'status' => ((string) $account['status'] == 'actief' ? 1 : 0),
+                    'field_user_sms_naam' => array(LANGUAGE_NONE => array(0 => array('value' => (string) $account->naam))),
+                    'field_user_sms_voornaam' => array(LANGUAGE_NONE => array(0 => array('value' => (string) $account->voornaam))),
+                    'field_user_sms_internnummer' => array(LANGUAGE_NONE => array(0 => array('value' => (string) $account->internnummer))),
+                    'field_user_sms_status' => array(LANGUAGE_NONE => array(0 => array('value' => (string) $account['status']))),
+                ));
+                
+                try {
+                 	user_save($user, $user_data);
+                } catch (PDOException $e) {
+                    $cntNewUsers--;
+                	argus_report('The user "%accountname" could not be added.<br />'.$e->getMessage(), array('%accountname' => $accountname), WATCHDOG_CRITICAL, 'argus');
+                }
+            }
+            
+            argus_report('%cntNewUsers nieuwe <em>gebruikers</em> toegevoegd en %cntExistingUsers bestaande <em>gebruikers</em> '.(variable_get('argus_sms_sync_overwrite') ? 'overschreven':'gesynchroniseerd').(variable_get('argus_sms_data_accounts_sync_roles') ? ' en de rollen werden bijgewerkt' : '').'.', array( '%cntNewUsers' => $cntNewUsers, '%cntExistingUsers' => $cntExistingUsers), 'status', 'argus');
+        }
+    }
+}
+
+/**
+ * Import All (user-)Accounts, extended with all profile fields
+ * 
+ * Smartschool API function:
+ * 
+ * "getAllAccountsExtended"
+ * 
+ * Met deze methode kan u alle profielvelden (behalve wachtwoorden en profielfoto) ophalen van gebruikers in een bepaalde groep. 
+ * Deze methode levert een JSON-object.
+ * 
+ * - string $accesscode: Wachtwoord webservices
+ * - string $code: Unieke klas- of groepscode van de op te halen groep
+ * - string $recursive: Subgroepen ook ophalen ('0' indien niet vereist of '1' indien wel vereist)
+ */
+function argus_sms_dataAllAccountsExtended(){
+    if ($client = argus_sms_getSOAPclient()){
+        $result = $client->getAllAccountsExtended(variable_get('argus_sms_api_password'),variable_get('argus_sms_data_accounts_only_group'),'1');
+        if (is_int($result)) {
+            argus_report('De <em>gebruikers</em> werden NIET '.($overwrite ? 'overschreven':'gesynchroniseerd').': foutmelding - %error', array('%error' => argus_sms_error($result)), 'error', 'argus');
+        } else {
+            $retrievedData = json_decode($result,true);
+            
+            if (count($retrievedData) > 0) {
+                /* Check if all fields exists from Smartschool user profile */
+                $groupFields = array();
+                $userFields = array(
+                    array( 'name' => 'field_user_sms_naam', 'label' => 'Achternaam'),
+                    array( 'name' => 'field_user_sms_voornaam', 'label' => 'Voornaam'),
+                    array( 'name' => 'field_user_sms_internnummer', 'label' => 'Internnummer (Smartschool)'),
+                    array( 'name' => 'field_user_sms_status', 'label' => 'Status (Smartschool)'),
+                    array( 'name' => 'field_user_sms_groups', 'label' => 'Groepen (Smartschool)'),
+                );
+                foreach ($retrievedData[0] as $field => $value) {
+                    $field_name = argus_sms_uniform_field($field, 'field_user_sms_');
+                    $userFields[] = array('name' => $field_name, 'label' => $field);
+                }
+                
+                $fieldAsTextarea = argus_sms_fieldsAsArrays(variable_get('argus_sms_data_accounts_sync_fieldmap_textarea'));
+                $fieldAsOptions = argus_sms_fieldsAsArrays(variable_get('argus_sms_data_accounts_sync_fieldmap_options'));
+                $fieldAsCheckbox = argus_sms_fieldsAsArrays(variable_get('argus_sms_data_accounts_sync_fieldmap_checkbox'));
+                $fieldAsList = argus_sms_fieldsAsArrays(variable_get('argus_sms_data_accounts_sync_fieldmap_list'));
+                $fieldAsExtra = argus_sms_fieldsAsArrays(variable_get('argus_sms_data_accounts_sync_fieldmap_extra'));
+                $fieldTypesArray = field_info_field_types();
+                
+                foreach ($userFields as $key => $userField) {
+                    if (!field_info_field($userField['name'])) {
+                        /* Create the field on the bundle. */
+                        $field = array(
+                            'field_name' => $userField['name'],
+                            'type' => 'text', /* default */
+                        );
+                        
+                        // Create the instance on the bundle.
+                        $instance = array(
+                            'field_name' => $userField['name'],
+                            'entity_type' => 'user',
+                            'label' => $userField['label'],
+                            'bundle' => 'user',
+                            'settings' => array(
+                                'user_register_form' => 1,
+                            ),
+                            'widget' => array(
+                                'type' => 'textfield',
+                                'weight' => 100 + $key, /* Add fields to back of Userform */
+                            ),
+                        );
+                        
+                            /* Set fieldsettings as type eq textarea */
+                            if (array_key_exists($userField['name'], $fieldAsTextarea)) {
+                                $field['type'] = 'text_long';
+                                $instance['widget']['rows'] = '5';
+                            }
+
+                            /* Set fieldsettings as type eq options */
+                            if (array_key_exists($userField['name'], $fieldAsOptions)) {
+                                $field['type'] = 'list_text';
+                                $field['settings']['allowed_values'] = (array) $fieldAsOptions[$userField['name']];
+                                $instance['type'] = 'options_buttons';
+                                $instance['widget']['type'] = 'options_buttons';
+                            }
+                            
+                            /* Set fieldsettings as type eq checkbox */
+                            if (array_key_exists($userField['name'], $fieldAsCheckbox)) {
+                                $field['type'] = 'list_text';
+                                $field['settings']['allowed_values'] = (array) $fieldAsCheckbox[$userField['name']];
+                                $field['cardinality'] = -1;
+                                $instance['type'] = 'options_buttons';
+                                $instance['widget']['type'] = 'options_buttons';
+                            }
+                            
+                            /* Set fieldsettings as type eq list */
+                            if (array_key_exists($userField['name'], $fieldAsList)) {
+                                $field['type'] = 'list_text';
+                                $field['settings']['allowed_values'] = (array) $fieldAsList[$userField['name']];
+                                $instance['type'] = 'options_select';
+                                $instance['widget']['type'] = 'options_select';
+                            }
+                            
+                            /* Set fieldsettings to type when defined in extra */
+                            if (array_key_exists($userField['name'], $fieldAsExtra)) {
+                                if (array_key_exists($fieldAsExtra[$userField['name']],$fieldTypesArray)) {
+                                    $field['type'] = $fieldAsExtra[$userField['name']];
+                                }
+                            }
+                        
+                        field_create_field($field);
+                        
+                        field_create_instance($instance);
+                    }
+                    $groupFields[] = $userField['name'];
+                }
+                
+                /* Group userfields in Smartschool fieldset */
+                $group_name = 'field_user_group_argus_sms';
+                $entity_type = 'user';
+                $bundle = 'user';
+                $mode = 'form';
+                if (!field_group_exists($group_name, $entity_type, $bundle, $mode)) {
+                    $group = (object) array(
+                        'identifier' => $group_name .'|'. $entity_type .'|'. $bundle .'|'. $mode,
+                        'group_name' => $group_name,
+                        'entity_type' => $entity_type,
+                        'bundle' => $bundle,
+                        'mode' => $mode,
+                        'label' => t('Extra gegevens uit Smartschool'),
+                        'weight' => 99,
+                        'children' => $groupFields,
+                        'format_type' => 'fieldset',
+                        'format_settings' => array(
+                            'formatter' => 'collapsible',
+                            'instance_settings' => array(
+                                'description' => t('Deze gegevens worden uit Smartschool gehaald, als je deze gegevens aanpast dan worden ze opnieuw overschreven bij een synchronisatie. Als je dit wil voorkomen, dien je dus de gegevens in Smartschool aan te passen.'),
+                                'classes' => '',
+                                'required_fields' => FALSE,
+                            ),
+                        ),
+                    );
+                    field_group_group_save($group);
+                }
+
+                $cntNewUsers = 0;
+                $cntExistingUsers = 0;
+                
+                // Fetch existing users
+                $existingUsers = entity_load('user');
+                $existingUsernames = array();
+                foreach($existingUsers as $id => $user){
+                	$existingUsernames[$user->uid] = $user->name;
+                }
+				
+                /* Start synchronisation process */
+                foreach ($retrievedData as $key => $account){
+                	if (in_array($account['gebruikersnaam'], $existingUsernames)) {
+                    	$user_data = array();
+                        $user = user_load_by_name($account['gebruikersnaam']);
+                        $cntExistingUsers++;
+                    } else {
+                        $user_data = array(
+                            'name' => $account['gebruikersnaam'],
+                            'signature_format' => 'full_html',
+                        );
+                        $user = '';
+                        $cntNewUsers++;
+                    }
+                    
+                    $user_data['mail'] = $account['emailadres'];
+                    $user_data['status'] = ($account['status'] == 'actief' ? 1 : 0);
+                    $user_data['field_user_sms_naam'][LANGUAGE_NONE][0]['value'] = $account['naam'];
+                    $user_data['field_user_sms_voornaam'][LANGUAGE_NONE][0]['value'] = $account['voornaam'];
+                    $user_data['field_user_sms_internnummer'][LANGUAGE_NONE][0]['value'] = $account['internnummer'];
+                    $user_data['field_user_sms_status'][LANGUAGE_NONE][0]['value'] = $account['status'];
+                    
+                    foreach ($account as $field => $value){
+                    	$fieldname = argus_sms_uniform_field($field, 'field_user_sms_');
+                        if (array_key_exists($fieldname, $fieldAsCheckbox)) {
+                        	$values = explode(',', $value);
+                            $setValues = array();
+                            $cnt = 0;
+                            foreach ($values as $value) {
+                                $user_data[$fieldname][LANGUAGE_NONE][$cnt++]['value'] = $value;
+                            }
+                        } elseif ($field == 'groups') { //TODO: Needs some exploration
+                        	/*
+                        	 * Format received, example:
+                        	 * 
+                        	 * [groups] => Array
+				                (
+				                    [0] => Array
+				                        (
+				                            [id] => 2
+				                            [code] => Smartschool-beheerder
+				                            [name] => Beheerders
+				                            [desc] => Beheerders
+				                            [isKlas] => 
+				                            [isOfficial] => 
+				                        )
+				
+				                    [1] => Array
+				                        (
+				                            [id] => 252
+				                            [code] => lid van vriendencomite
+				                            [name] => Vriendencomite
+				                            [desc] => Vriendencomite
+				                            [isKlas] => 
+				                            [isOfficial] => 
+				                        )
+				                        	 
+                        	 * */
+                        	$groupsStr = array();
+                        	foreach ($value as $k => $group){
+                        		$groupsStr[] = $group['id'];
+                        	}
+                    		$user_data['field_user_sms_groups'][LANGUAGE_NONE][0]['value'] = implode(',',$groupsStr);
+                        } else {
+                        	$set = 'value';
+	                        
+                        	if (is_string($value)){
+	                        	$f = field_info_field($fieldname);
+	                        	if ($f['type'] == 'email'){
+	                        		$set = 'email';
+	                        	}
+	                        	
+	                            if (DateTime::createFromFormat('Y-m-d', $value) !== FALSE) {
+	                                $value .= 'T00:00:00';
+	                            }
+                        	}
+                            $user_data[argus_sms_uniform_field($field, 'field_user_sms_')][LANGUAGE_NONE][0][$set] = $value;
+                        }
+                    }
+                    
+                    try {
+                    	user_save($user, $user_data);
+                    } catch (PDOException $e) {
+                    	$cntNewUsers--;
+                    	argus_report('The user "%accountname" could not be added.<br />'.$e->getMessage(), array('%accountname' => $account['gebruikersnaam']), 'error', 'argus');
+                    }
+                }
+            }
+            
+            argus_report('%cntNewUsers nieuwe <em>gebruikers</em> toegevoegd en %cntExistingUsers bestaande <em>gebruikers</em> '.(variable_get('argus_sms_sync_overwrite') ? 'overschreven':'gesynchroniseerd').(variable_get('argus_sms_data_accounts_sync_roles') ? ' en de rollen werden bijgewerkt' : '').'.', array( '%cntNewUsers' => $cntNewUsers, '%cntExistingUsers' => $cntExistingUsers), 'status', 'argus');
+        }
+    }
+}
+
+/**
+ * Remove users according to the requested protocol
+ */
+function argus_sms_dataRemoveDeletedUsers(){
+	if ($client = argus_sms_getSOAPclient()){
+		$result = $client->getAllAccounts(variable_get('argus_sms_api_password'),variable_get('argus_sms_data_accounts_only_group'),'1');
+		if (is_int($result)) {
+			argus_report('Er werden geen <em>gebruikers</em> verwijderd: foutmelding - %error', array('%error' => argus_sms_error($result)), WATCHDOG_CRITICAL, 'argus');
+		} else {
+			$retrievedData = simplexml_load_string(base64_decode($result));
+
+			$activeSmartschoolAcounts = array();
+
+			$cntDeleted = 0;
+
+			// Disable accounts which are disabled in Smartschool
+			foreach ($retrievedData as $account){
+				$username = (string) $account->gebruikersnaam;
+				if ((string) $account['status'] != 'actief') {
+					$userInfo = user_load_by_name($username);
+					if ($userInfo->status == 1){
+						switch (variable_get('argus_sms_data_deprecated')) {
+							// disable user, leave content
+							case 1: user_cancel(array(), $userInfo->uid, 'user_cancel_block'); break;
+							// delete user, reassign content to uid=0
+							case 2: user_cancel(array(), $userInfo->uid, 'user_cancel_reassign'); break;
+							// delete user, delete content
+							case 3: user_cancel(array(), $userInfo->uid, 'user_cancel_delete'); break;
+						}
+						$cntDeleted++;
+					}
+				} else {
+					$activeSmartschoolAcounts[] = $username;
+				}
+			}
+
+			// Disable accounts which no longer exist in Smartschool
+			$query = 'SELECT u.uid '
+					. 'FROM {users} AS u '
+							. 'WHERE name NOT IN (:usernames) AND status = 1';
+							$deletedAccounts = db_query($query, array(':usernames' => array_merge($activeSmartschoolAcounts,variable_get('argus_sms_data_accounts_nosync'))))->fetchAll();
+							foreach ($deletedAccounts as $account){
+								switch (variable_get('argus_sms_data_deprecated')) {
+									// disable user, leave content
+									case 1: user_cancel(array(), (string) $account->uid, 'user_cancel_block'); break;
+									// delete user, reassign content to uid=0
+									case 2: user_cancel(array(), (string) $account->uid, 'user_cancel_reassign'); break;
+									// delete user, delete content
+									case 3: user_cancel(array(), (string) $account->uid, 'user_cancel_delete'); break;
+								}
+								$cntDeleted++;
+							}
+
+							if ($cntDeleted>0) {
+								$batch =& batch_get();
+								$batch['progressive'] = FALSE;
+								batch_process();
+								argus_report('Er werden %cntDeleted <em>gebruikers</em> verwijderd.', array('%cntDeleted' => $cntDeleted), 'status', 'argus');
+							}
+		}
+	}
+}
+
+/**
+ * Import Groups and Classes
+ *
+ * Smartschool API function:
+ * 
+ * "getAllGroupsAndClasses"
+ * 
+ * Met deze methode kan u alle profielvelden (behalve wachtwoorden en profielfoto) ophalen van gebruikers in een bepaalde groep.
+ * Deze methode levert een XML-object.
+ * 
+ * - string $accesscode: Wachtwoord webservices
+ * - string $code: Unieke klas- of groepscode van de op te halen groep
+ * - string $recursive: Subgroepen ook ophalen ('0' indien niet vereist of '1' indien wel vereist)
+ */
+function argus_sms_dataGroupsAndClasses(){
+    if ($client = argus_sms_getSOAPclient()){
+        $result = $client->getAllGroupsAndClasses(variable_get('argus_sms_api_password'));
+        if (is_int($result)) {
+            argus_report('De <em>groepen</em> werden NIET '.($overwrite ? 'overschreven':'gesynchroniseerd').': foutmelding - %error', array('%error' => argus_sms_error($result)), 'error', 'argus');
+        } else {
+            $retrievedData = simplexml_load_string(base64_decode($result));
+            
+            /* Start synchronisation process */
+            $cntGroups = 0;
+            $cntGroupsSkipped = 0;
+            $sms_Options = argus_sms_get_group_codes($retrievedData);
+            asort($sms_Options);
+            foreach ($sms_Options as $key => $group) {
+            	$key = trim($key);
+                if (user_role_load_by_name($key) == FALSE) {
+                    $newRole = new stdClass();
+                    $newRole->name = $key;
+                    user_role_save($newRole);
+                    $cntGroups++;
+                } else {
+                    $cntGroupsSkipped++;
+                }
+            }
+        }
+    }
+    argus_report('%cntGroups <em>groepen</em> gesynchroniseerd (%cntGroupsSkipped overgeslaan omdat ze al bestaan) en omgezet naar rollen.', array('%cntGroupsSkipped' => $cntGroupsSkipped, '%cntGroups' => $cntGroups), 'status', 'argus');
+}
+
+/**
+ * Set roles to users based on (imported) roles/groups
+ */
+function argus_sms_dataSetRoles(){
+	if ($client = argus_sms_getSOAPclient()){
+        $roles = user_roles(TRUE); // TRUE for skipping the anonymous role
+        $cntRolesRemoved = 0;
+        $cntRolesAdded = 0;
+        foreach ($roles as $rid => $role) {
+            /* Init with clean arrays */
+            $users = array('existing' => array(),'sync' => array(),'nosync' => array());
+            
+            /* Get users in current role from argus */
+            $query = 'SELECT ur.uid '
+                . 'FROM {users_roles} AS ur '
+                . 'WHERE ur.rid = :rid';
+            $result = db_query($query, array(':rid' => $rid));
+            $users['existing'] = $result->fetchCol();
+            
+            /* Get users in current role from Smartschool */
+            $result = $client->getAllAccounts(variable_get('argus_sms_api_password'), $role, '1');
+            if (!is_int($result)) {
+                $retrievedData = simplexml_load_string(base64_decode($result));
+                
+                /* Start preparing synchronisation process */
+                foreach ($retrievedData as $account){
+                    $users['sync'][] = (string) $account->gebruikersnaam;
+                }
+            }
+            
+            /* Kick user from lists when they do not need syncing */
+            foreach(variable_get('argus_sms_data_accounts_nosync') as $username){
+                $u = user_load_by_name($username);
+                if ($u){
+                    $users['nosync'][] = $u->uid;
+                }
+            }
+            $users['sync'] = array_diff($users['sync'], $users['nosync']);
+            $users['existing'] = array_diff($users['existing'], $users['nosync']);
+            
+            /* Users by ID */
+            if (count($users['sync'])>0) {
+                $query = 'SELECT u.uid '
+                    . 'FROM {users} AS u '
+                    . 'WHERE u.name IN (:accounts)';
+                $result = db_query($query, array(':accounts' => $users['sync']));
+                $users['sync'] = $result->fetchCol();
+            }
+            
+            /* First remove role from users */
+            $us = array_diff($users['existing'], $users['sync']);
+            $cntRolesRemoved += count($us);
+            user_multiple_role_edit($us,'remove_role',$rid);
+            
+            /* Then add role to users */
+            $us = array_diff($users['sync'], $users['existing']);
+            $cntRolesAdded += count($us);
+            user_multiple_role_edit($us,'add_role',$rid);
+        }
+        argus_report('%cntRolesAdded rollen aan <em>gebruikers</em> toegevoegd en %cntRolesRemoved rollen werden verwijderd.', array( '%cntRolesAdded' => $cntRolesAdded, '%cntRolesRemoved' => $cntRolesRemoved), 'status', 'argus');
+    }
+}
+
+
+/**
+ * Remove old roles/groups
+ */
+function argus_sms_dataRemoveOldGroups(){
+	/* Get all available Smartschool-groups */
+	if ($client = argus_sms_getSOAPclient()){
+		$result = $client->getAllGroupsAndClasses(variable_get('argus_sms_api_password'));
+		if (is_int($result)) {
+			argus_report('Rollen konden niet verwijderd worden wegens gebrek aan SOAP-informatie.', array(), 'error', 'argus');
+		} else {
+			// Get all roles and filter roles which may be removed
+			$allRoles = user_roles(TRUE); // TRUE for skipping the anonymous role
+			$roles = array_diff_key($allRoles, variable_get('argus_sms_data_accounts_not_remove_old_roles'));
+			
+			// Filter roles with existing groups in Smartschool
+			$retrievedData = simplexml_load_string(base64_decode($result));
+			$sms_Options = array_keys(argus_sms_get_group_codes($retrievedData));
+			$roles = array_diff($roles, $sms_Options);
+			
+			// Remove roles which are no longer used
+			foreach ($roles as $role) {
+				user_role_delete($role);
+			}
+		}
+    	argus_report('%cntRolesRemoved rollen werden verwijderd.', array( '%cntRolesRemoved' => count($roles)), 'status', 'argus');
+	}
+}
+
+
+/**
+ * Sort roles/groups
+ */
+function argus_sms_dataSortGroups(){
+	$roles = user_roles();
+	natcasesort($roles);
+	
+	$cntr = 0;
+    foreach ($roles as $rid => $role) {
+    	$query = 'UPDATE {role} SET weight = :cnt WHERE rid = :rid';
+    	$result = db_query($query, array(':rid' => $rid, ':cnt' => $cntr++));
+    }
+    argus_report('%cntRoles rollen werden gesorteerd van A-Z.', array( '%cntRoles' => count($roles)), 'status', 'argus');
+}
+
+
+/**
+ * Import Photos of all users from Smartschool
+ */
+function argus_sms_dataPhotos($form, &$form_state){
+    $syncStart = time();
+    
+    if ($form_state['values']['argus_sms_data_accounts_photos_file']) {
+        $file = file_load($form_state['values']['argus_sms_data_accounts_photos_file'])->uri;
+        if (file_exists($file)) {
+            /* Handle uploaded file and prepare file(s) for parsing */
+            $tmp_path = '/tmp/argus'.date('YmdHis');
+            $archive = archiver_get_archiver($file);
+            if ($archive){
+                $archive->extract($tmp_path);
+            } else {
+                mkdir($tmp_path);
+                rename(drupal_realpath($file), $tmp_path.'/'.file_load($form_state['values']['argus_sms_data_accounts_photos_file'])->filename);
+            }
+            $files = file_scan_directory($tmp_path,'/\.(jpeg|JPEG|jpg|JPG|gif|GIF|png|PNG)/');
+            
+            $path = 'public://user_pictures';
+            if (count($files)){
+                mkdir($path);
+            }
+            
+            $usersNotFound = array();
+            $filesFound = array();
+            foreach ($files as $fn => $f){
+                $filesFound[] = $f->filename;
+                file_unmanaged_copy($f->uri, $path);
+                
+                /* Start synchronisation process */
+                $username = substr($f->filename,0,strrpos($f->filename, '.'));
+                $account = user_load_by_name($username);
+                
+                if ($account){
+                    // Get image information
+                    $image_path = $path.'/'.$f->filename;
+                    $image_info = image_get_info($image_path);
+
+                    // Create file object
+                    $file = new StdClass();
+                    $file->uid = $account->uid;
+                    $file->uri = $image_path;
+                    $file->filemime = $image_info['mime_type'];
+                    $file->status = 0;
+                    $file->filesize = $image_info['file_size'];
+
+                    // Save user picture
+                    file_save($file);
+                    $edit['picture'] = $file;
+                    user_save($account, $edit);
+                } else {
+                    $usersNotFound[] = $username;
+                }
+            }
+            
+            /* Clean up and delete uploaded file(s) and directory from tmp */
+            file_delete(file_load($form_state['values']['argus_sms_data_accounts_photos_file']));
+            
+            if (PHP_OS === 'Windows') {
+                exec("rd /s /q {$tmp_path}");
+            } else {
+                exec("rm -rf {$tmp_path}");
+            }
+            
+            if (count($filesFound)){
+                drupal_set_message(count($filesFound).' bestand(en) geïmporteerd: '.implode(', ',$filesFound));
+            } else {
+                drupal_set_message('Geen bestanden gevonden om te importeren.');
+            }
+            
+            if (count($usersNotFound) > 0){
+                $usersNotFound = array_unique($usersNotFound);
+                drupal_set_message(count($usersNotFound).' leerlingen werden niet gevonden: '.implode(', ',$usersNotFound));
+            }
+        }
+        argus_report('%i <em>foto\'s</em> gesynchroniseerd.', array( '%i' => count($filesFound)), 'status', 'argus');
+    } else {
+        drupal_set_message(t('Geen bestand geselecteerd voor het importeren.'));
+    }
+    
+    /* Finish messaging and timing */
+    if (drupal_get_messages(FALSE,FALSE)) {
+        $timeElapsed = array();
+        if ($hours = intval((time() - $syncStart)/3600)) {
+            $timeElapsed[] = $hours. 'u';
+        }
+        if ($minutes = intval((time() - $syncStart - $hours*3600)/60)) {
+            $timeElapsed[] = $minutes. 'm';
+        }
+        if ($seconds = intval((time() - $syncStart - $hours*3600 - $minutes*60))) {
+            $timeElapsed[] = $seconds. 's';
+        }
+        drupal_set_message('Synchronisatie voltooid in <em>'.implode(' ',$timeElapsed).'</em>.');
+    } else {
+        drupal_set_message('Geen gegevens gesynchroniseerd.');
+    }
+}
+
+/**
+ * Disable "upload"-btn on managed Excel-Skore file upload (Deliberaties)
+ */
+function argus_sms_data_photos_file_process($element, &$form_state, $form) {
+    $element = file_managed_file_process($element, $form_state, $form);
+    $element['upload_button']['#access'] = FALSE;
+
+    return $element;
+}
+
+
+/**
+ * Import ClassList
+ *
+ * Smartschool API function:
+ * 
+ * "getClassList"
+ * 
+ * Deze methode vraagt een lijst met alle klassen op.
+ * Deze methode levert een CSV-bestand met de klasnaam, de omschrijving, de unieke klascode en het type.
+ * 
+ * - string $accesscode: Wachtwoord webservices
+ */
+function argus_sms_dataClassList(){
+    if ($client = argus_sms_getSOAPclient()){
+        $result = $client->getClassListJSON(variable_get('argus_sms_api_password'));
+        if (is_int($result)) {
+            argus_report('De <em>klassen</em> werden NIET '.($overwrite ? 'overschreven':'gesynchroniseerd').': foutmelding - %error', array('%error' => argus_sms_error($result)), 'error', 'argus');
+        } else {
+            /* Prepare CSV for reading */
+            $retrievedData = json_decode($result, true);
+            
+            /* Start synchronisation process */
+            $cntGroupsNew = 0;
+            $cntGroupsEdit = 0;
+            $classes = array();
+            foreach ($retrievedData as $data){
+            	$query = 'SELECT entity_id '
+	                    . 'FROM {field_data_field_klas_sms_id} '
+	                    . 'WHERE field_klas_sms_id_value LIKE :id';
+                $result = db_query($query, array(':id' => $data['id']));
+                $foundClass = $result->fetchColumn();
+                
+                if ($foundClass>0){
+                    $node = node_load($foundClass);
+                    $cntGroupsEdit++;
+                } else {
+                    $node = new stdClass();
+                    $node->type = 'klas';
+                    node_object_prepare($node);
+                    $node->language = LANGUAGE_NONE;
+                    $node->uid = 0;
+                    $node->promote = 0;
+                    $node->comment = 0;
+                    $cntGroupsNew++;
+                }
+                
+                // Set data for node
+                $node->status = 1;
+                $node->title = $data['name'];
+                $node->field_klas_sms_id[LANGUAGE_NONE][0]['value'] = $data['id'];
+                $node->field_klas_sms_code[LANGUAGE_NONE][0]['value'] = $data['code'];
+                $node->field_klas_omschrijving[LANGUAGE_NONE][0]['value'] = $data['desc'];
+                $node->field_klas_sms_status[LANGUAGE_NONE][0]['value'] = 'actief';
+                
+                $users = array();
+                $node->field_klas_leerlingen[LANGUAGE_NONE] = array();
+                $class = user_role_load_by_name(str_replace('[class]', $data['name'], variable_get('argus_sms_data_classes_roles_lln')));
+                if ($class) {
+                    $result = db_select('users_roles', 'ur')
+                        ->fields('ur')
+                        ->condition('ur.rid', $class->rid, '=')
+                        ->execute();
+                    foreach ($result as $user) {
+                        $user = user_load($user->uid);
+                        $users[$user->uid] = $user->field_user_sms_naam[LANGUAGE_NONE][0]['value'].','.$user->field_user_sms_voornaam[LANGUAGE_NONE][0]['value'];
+                    }
+                    
+                    if (variable_get('argus_sms_data_classes_sort')) {
+                        asort($users);
+                    }
+                    
+                    foreach ($users as $uid => $user) {
+                        $node->field_klas_leerlingen[LANGUAGE_NONE][]['target_id'] = $uid;
+                    }
+                }
+                
+                $users = array();
+                $node->field_klas_leerkrachten[LANGUAGE_NONE] = array();
+                $class = user_role_load_by_name(str_replace('[class]', $data['name'], variable_get('argus_sms_data_classes_roles_lkr')));
+                if ($class) {
+                    $result = db_select('users_roles', 'ur')
+                        ->fields('ur')
+                        ->condition('ur.rid', $class->rid, '=')
+                        ->execute();
+                    foreach ($result as $user) {
+                        $user = user_load($user->uid);
+                        $users[$user->uid] = $user->field_user_sms_naam[LANGUAGE_NONE][0]['value'].','.$user->field_user_sms_voornaam[LANGUAGE_NONE][0]['value'];
+                    }
+                    
+                    if (variable_get('argus_sms_data_classes_sort')) {
+                        asort($users);
+                    }
+                    
+                    foreach ($users as $uid => $user) {
+                        $node->field_klas_leerkrachten[LANGUAGE_NONE][]['target_id'] = $uid;
+                    }
+                }
+                
+                // Save the node.
+                node_save($node);
+                
+                $classes[] = $node->nid;
+            }
+            
+            /* Set classes to inactive when not in this list */
+            $query = 'SELECT * '
+                . 'FROM {node} '
+                . 'WHERE type LIKE :type AND nid NOT IN (:cids)';
+            $result = db_query($query, array(':type' => 'klas', ':cids' => $classes));
+            $foundClasses = $result->fetchAll();
+            
+            if (count($foundClasses)>0) {
+                foreach ($foundClasses as $class){
+                    $class->field_klas_sms_status[LANGUAGE_NONE][0]['value'] = 'uitgeschakeld';
+                    $class->status = 0;
+                    node_save($class);
+                }
+            }
+        }
+    }
+    argus_report('%i <em>klassen</em> gesynchroniseerd (%cntGroupsNew toegevoegd, %cntGroupsInactive gedeactiveerd en %cntGroupsEdit bijgewerkt).', array( '%i' => $i, '%cntGroupsNew' => $cntGroupsNew, '%cntGroupsEdit' => $cntGroupsEdit, '%cntGroupsInactive' => count($foundClasses)), 'status', 'argus');
+}
+
+/**
+ * Import Class Teachers
+ * 
+ * Smartschool API function:
+ * 
+ * "getClassTeachers"
+ * 
+ * Deze methode vraagt een lijst van de klastitularissen op.
+ * Deze methode levert een JSON-object.
+ * 
+ * - string $accesscode: Wachtwoord webservices
+ */
+function argus_sms_dataClassTeachers(){
+    if ($client = argus_sms_getSOAPclient()){
+        $result = $client->getClassTeachers(variable_get('argus_sms_api_password'));
+        if (is_int($result)) {
+            argus_report('De <em>klastitularissen</em> werden NIET '.($overwrite ? 'overschreven':'gesynchroniseerd').': foutmelding - %error', array('%error' => argus_sms_error($result)), 'error', 'argus');
+        } else {
+            $retrievedData = json_decode($result,true);
+            
+            if (count($retrievedData) > 0) {
+                $cntNewKTT = 0;
+                $cntUnkownKTT = 0;
+                $cntNogroupKTT = 0;
+                foreach ($retrievedData as $key => $ktt) {
+                    if ($ktt['klasnaam']) {
+                        if ($ktt['gebruikersnaam']) {
+                            $user = user_load_by_name($ktt['gebruikersnaam']);
+                            if ($user) {
+                                $query = 'SELECT entity_id '
+                                    . 'FROM {field_data_field_klas_sms_code} '
+                                    . 'WHERE field_klas_sms_code_value LIKE :id';
+                                $result = db_query($query, array(':id' => $ktt['klasnaam']));
+                                $foundClass = $result->fetchColumn();
+                                
+                                if ($foundClass>0) {
+                                    $node = node_load($foundClass);
+                                    
+                                    $updated = FALSE;
+                                    if ($node->field_klas_klastitularis[LANGUAGE_NONE][0]['target_id'] != $user->uid) {
+                                        $node->field_klas_klastitularis[LANGUAGE_NONE][0]['target_id'] = $user->uid;
+                                        $updated = TRUE;
+                                    }
+                                    
+                                    if (variable_get('argus_sms_data_classes_resetclassteachers')) {
+                                        unset($node->field_klas_hulpklastitularis[LANGUAGE_NONE]);
+                                        $updated = TRUE;
+                                    }
+                                    
+                                    // Save the node.
+                                    if ($updated) {
+                                        node_save($node);
+                                        $cntNewKTT++;
+                                    }
+                                } else {
+                                    $cntNogroupKTT++;
+                                }
+                            } else {
+                                $cntUnkownKTT++;
+                            }
+                        } else {
+                            $cntUnkownKTT++;
+                        }
+                    }
+                }
+            }
+            
+            argus_report('%cntNewKTT nieuwe <em>klastitularissen</em> gesynchroniseerd en %cntUnkownKTT <em>klastitularissen</em> overgeslaan wegens niet geregistreerde gebruikers in argus.'.($cntNogroupKTT>0 ? ' ('.$cntNogroupKTT.' klassen werden niet gevonden)' : ''), array( '%cntNewKTT' => $cntNewKTT, '%cntUnkownKTT' => $cntUnkownKTT), 'status', 'argus');
+        }
+    }
+}
+
+
+/**
+ * Import Hotline (Meldpunt)
+ * 
+ * Smartschool export for Excel, no API-function available.
+ * This file needs to be manually converted to a CSV-format, with ';'-delimiter ("Door lijstscheidingstekens gescheiden Windows-tekst").
+ * 
+ * Current fields in csv-file (dependent for this specified installation, manual adjust the code beneath):
+ * Array
+    (
+        [0] => Naam
+        *[1] => Klas (not needed)
+        *[2] => Datum (creation date automatic)
+        [3] => Auteur
+        [4] => Titel
+        [5] => Datum feit
+        [6] => Betreft (nieuw)
+        [7] => Verslag
+        [8] => Positief gedrag
+        [9] => Positief gedrag - andere
+        [10] => Studiebegeleiding (meldpunt)
+        [11] => Ordemaatregel - fase 1
+        [12] => Ordemaatregel - fase 1 - andere
+        [13] => Ordemaatregel - fase 2
+        [14] => Bewarende maatregel
+        [15] => Tuchtmaatregel
+        *[16] => Afwezigheidsbeleid (depricated, module "Stickers onwettige afwezigheid")
+        [17] => Status
+        [18] => Dringend
+    )
+ */
+function argus_sms_dataHotline($form, &$form_state){
+    $syncStart = time();
+    
+    if ($form_state['values']['argus_sms_data_hotline_file']) {
+        $file = file_load($form_state['values']['argus_sms_data_hotline_file'])->uri;
+        if (file_exists($file)) {
+            /* Prepare Excel 97/2003/2004 for reading */
+            module_load_include('inc', 'phpexcel');
+            
+            /* Handle uploaded file and prepare file(s) for parsing */
+            $path = '/tmp/argus'.date('YmdHis');
+            $archive = archiver_get_archiver($file);
+            if ($archive){
+                $archive->extract($path);
+            } else {
+                mkdir($path);
+                rename(drupal_realpath($file), $path.'/'.file_load($form_state['values']['argus_sms_data_hotline_file'])->filename);
+            }
+            $files = file_scan_directory($path,'/\.(xls|XLS|xlsx|XLSX)/');
+            $usersNotFound = array();
+            $authorsNotfound = array();
+            $filesFound = array();
+            $cntReportsNew = 0;
+            $cntReportsEdit = 0;
+            foreach ($files as $fn => $f){
+                $retrievedData = phpexcel_import($f->uri);
+                $filesFound[] = $f->filename;
+                
+                /* Start synchronisation process */
+                if (count($retrievedData)){
+                    foreach ($retrievedData[0] as $data) {
+                        /* Get user in current report from argus */
+                        $query = 'SELECT u.uid '
+                            . 'FROM {users} AS u '
+                            . 'LEFT JOIN {field_data_field_user_sms_naam} AS ln ON u.uid=ln.entity_id '
+                            . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS fn ON u.uid=fn.entity_id '
+                            . 'WHERE CONCAT(ln.field_user_sms_naam_value,\' \',fn.field_user_sms_voornaam_value) = :username';
+                        $result = db_query($query, array(':username' => $data['Naam']));
+                        $userFound = $result->fetchObject();
+
+                        if (!$userFound){
+                            $usersNotFound[] = $data['Naam'];
+                        }
+
+                        /* Get author in current report from argus */
+                        $query = 'SELECT u.uid '
+                            . 'FROM {users} AS u '
+                            . 'LEFT JOIN {field_data_field_user_sms_naam} AS ln ON u.uid=ln.entity_id '
+                            . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS fn ON u.uid=fn.entity_id '
+                            . 'WHERE CONCAT(ln.field_user_sms_naam_value,\' \',fn.field_user_sms_voornaam_value) = :username';
+                        $result = db_query($query, array(':username' => $data['Auteur']));
+                        $authorFound = $result->fetchObject();
+
+                        if (!$authorFound){
+                            $authorsNotfound[] = $data['Auteur'];
+                        }
+
+                        if ($userFound && $authorFound) {
+                            /* Check if report already exists in argus */
+                            $query = 'SELECT n.nid '
+                                . 'FROM {node} AS n '
+                                . 'LEFT JOIN {field_data_field_lvs_melding_leerling} AS l ON n.nid=l.entity_id '
+                                . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS s ON n.nid=s.entity_id '
+                                . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON n.nid=d.entity_id '
+                                . 'LEFT JOIN {users} AS u ON n.uid=u.uid '
+                                . 'WHERE l.field_lvs_melding_leerling_target_id = :lid AND '
+                                . 'u.uid = :author AND '
+                                . 'd.field_lvs_melding_datum_feit_value = :date AND '
+                                . 's.field_lvs_melding_onderwerp_value = :subject';
+                            $result = db_query($query, array(':lid' => $userFound->uid, ':author' => $authorFound->uid, ':subject' => $data['Titel'], ':date' => $data['Datum feit'].' 00:00:00'));
+                            $report = $result->fetchObject();
+
+                            if ($report){
+                                $node = node_load($report->nid);
+                                $cntReportsEdit++;
+                            } else {
+                                $node = new stdClass();
+                                $node->type = 'lvs_melding';
+                                node_object_prepare($node);
+                                $node->language = LANGUAGE_NONE;
+                                $node->uid = $authorFound->uid;
+                                $node->field_lvs_melding_leerling[LANGUAGE_NONE][0]['target_id'] = $userFound->uid;
+                                $node->status = 1;
+                                $node->promote = 0;
+                                $node->comment = 0;
+                                $node->menu = NULL;
+                                $cntReportsNew++;
+                            }
+
+                            // Set data for new node
+                            $node->field_lvs_melding_onderwerp[LANGUAGE_NONE][0]['value'] = $data['Titel'];
+
+                            if ($form_state['values']['argus_sms_data_hotline_private']){
+                                $node->field_lvs_melding_prive[LANGUAGE_NONE][0]['value'] = 1;
+                            }
+
+                            $node->field_lvs_melding_datum_feit[LANGUAGE_NONE][0]['value'] = $data['Datum feit'].' 00:00:00';
+
+                            // With fix for ', ' spacers
+                            $values = str_replace(', ', '***', $data['Betreft (nieuw)']);
+                            $values = explode(',', $values);
+                            $values = str_replace('***', ', ', $values);
+                            $node->field_lvs_melding_betreft[LANGUAGE_NONE] = NULL;
+                            foreach ($values as $value){
+                                $node->field_lvs_melding_betreft[LANGUAGE_NONE][] = array('value' => $value);
+                            }
+
+                            $node->field_lvs_melding_verslag[LANGUAGE_NONE][0]['value'] = nl2br($data['Verslag']);
+                            $node->field_lvs_melding_verslag[LANGUAGE_NONE][0]['format'] = $form_state['values']['argus_sms_data_hotline_format'];
+
+                            $values = explode(',', $data['Positief gedrag']);
+                            $node->field_lvs_melding_positief[LANGUAGE_NONE] = NULL;
+                            foreach ($values as $value){
+                                if (strlen($value)){
+                                    $query = 'SELECT n.nid '
+                                        . 'FROM {node} AS n '
+                                        . 'WHERE LOWER(n.title) = :measure';
+                                    $result = db_query($query, array(':measure' => strtolower($value)));
+                                    $measure = $result->fetchObject();
+                                    if ($measure) {
+                                        $node->field_lvs_melding_positief[LANGUAGE_NONE][]['target_id'] = $measure->nid;
+                                    }
+                                }
+                            }
+                            $node->field_lvs_melding_positief_alt[LANGUAGE_NONE][0]['value'] = $data['Positief gedrag - andere'];
+
+                            $values = explode(',', $data['Studiebegeleiding (meldpunt)']);
+                            $node->field_lvs_melding_studie[LANGUAGE_NONE] = array();
+                            foreach ($values as $value){
+                                $value = str_replace('studiebegeleiding: ', '', $value);
+                                if (strlen($value)){
+                                    $query = 'SELECT n.nid '
+                                        . 'FROM {node} AS n '
+                                        . 'WHERE LOWER(n.title) = :measure';
+                                    $result = db_query($query, array(':measure' => strtolower($value)));
+                                    $measure = $result->fetchObject();
+                                    if ($measure) {
+                                        $node->field_lvs_melding_studie[LANGUAGE_NONE][]['target_id'] = $measure->nid;
+                                    }
+                                }
+                            }
+
+                            $values = explode(',', $data['Ordemaatregel - fase 1']);
+                            $node->field_lvs_melding_msl_fase1[LANGUAGE_NONE] = NULL;
+                            foreach ($values as $value){
+                                if (strlen($value)){
+                                    $query = 'SELECT n.nid '
+                                        . 'FROM {node} AS n '
+                                        . 'WHERE LOWER(n.title) = :measure';
+                                    $result = db_query($query, array(':measure' => strtolower($value)));
+                                    $measure = $result->fetchObject();
+                                    if ($measure) {
+                                        $node->field_lvs_melding_msl_fase1[LANGUAGE_NONE][]['target_id'] = $measure->nid;
+                                    }
+                                }
+                            }
+                            $node->field_lvs_melding_msl_fase1_alt[LANGUAGE_NONE][0]['value'] = $data['Ordemaatregel - fase 1 - andere'];
+
+                            $values = explode(',', $data['Ordemaatregel - fase 2']);
+                            $node->field_lvs_melding_msl_fase2[LANGUAGE_NONE] = NULL;
+                            foreach ($values as $value){
+                                if (strlen($value)){
+                                    $query = 'SELECT n.nid '
+                                        . 'FROM {node} AS n '
+                                        . 'WHERE LOWER(n.title) = :measure';
+                                    $result = db_query($query, array(':measure' => strtolower($value)));
+                                    $measure = $result->fetchObject();
+                                    if ($measure) {
+                                        $node->field_lvs_melding_msl_fase2[LANGUAGE_NONE][]['target_id'] = $measure->nid;
+                                    }
+                                }
+                            }
+
+                            $values = explode(',', $data['Bewarende maatregel']);
+                            $node->field_lvs_melding_msl_bewarend[LANGUAGE_NONE] = NULL;
+                            foreach ($values as $value){
+                                if (strlen($value)){
+                                    $query = 'SELECT n.nid '
+                                        . 'FROM {node} AS n '
+                                        . 'WHERE LOWER(n.title) = :measure';
+                                    $result = db_query($query, array(':measure' => strtolower($value)));
+                                    $measure = $result->fetchObject();
+                                    if ($measure) {
+                                        $node->field_lvs_melding_msl_bewarend[LANGUAGE_NONE][]['target_id'] = $measure->nid;
+                                    }
+                                }
+                            }
+
+                            $values = explode(',', $data['Tuchtmaatregel']);
+                            $node->field_lvs_melding_msl_tucht[LANGUAGE_NONE] = NULL;
+                            foreach ($values as $value){
+                                if (strlen($value)){
+                                    $query = 'SELECT n.nid '
+                                        . 'FROM {node} AS n '
+                                        . 'WHERE LOWER(n.title) = :measure';
+                                    $result = db_query($query, array(':measure' => strtolower($value)));
+                                    $measure = $result->fetchObject();
+                                    if ($measure) {
+                                        $node->field_lvs_melding_msl_tucht[LANGUAGE_NONE][]['target_id'] = $measure->nid;
+                                    }
+                                }
+                            }
+
+                            $node->field_lvs_melding_status[LANGUAGE_NONE][0]['value'] = $data['Status'];
+                            $node->field_lvs_melding_dringend[LANGUAGE_NONE][0]['value'] = ($data['Dringend'] ? 1 : 0);
+
+                            // Save the node.
+                            node_save($node);
+                        }
+                    }
+                }
+            }
+            
+            /* Clean up and delete uploaded file(s) and directory from tmp */
+            file_delete(file_load($form_state['values']['argus_sms_data_hotline_file']));
+            
+            if (PHP_OS === 'Windows') {
+                exec("rd /s /q {$path}");
+            } else {
+                exec("rm -rf {$path}");
+            }
+            
+            if (count($filesFound)){
+                drupal_set_message(count($filesFound).' bestand(en) geïmporteerd: '.implode(', ',$filesFound));
+            } else {
+                drupal_set_message('Geen bestanden gevonden om te importeren.');
+            }
+            
+            if (count($usersNotFound) > 0){
+                $usersNotFound = array_unique($usersNotFound);
+                drupal_set_message(count($usersNotFound).' leerlingen werden niet gevonden: '.implode(', ',$usersNotFound));
+            }
+            
+            if (count($authorsNotfound) > 0){
+                $authorsNotfound = array_unique($authorsNotfound);
+                drupal_set_message(count($authorsNotfound).' personen die een melding maakten, werden niet gevonden: '.implode(', ',$authorsNotfound));
+            }
+        }
+        argus_report('%i <em>meldingen</em> gesynchroniseerd (%cntReportsNew toegevoegd en %cntReportsEdit bijgewerkt).', array( '%i' => $cntReportsNew+$cntReportsEdit, '%cntReportsNew' => $cntReportsNew, '%cntReportsEdit' => $cntReportsEdit), 'status', 'argus');
+    } else {
+        drupal_set_message(t('Geen bestand geselecteerd voor het importeren.'));
+    }
+    
+    /* Finish messaging and timing */
+    if (drupal_get_messages(FALSE,FALSE)) {
+        $timeElapsed = array();
+        if ($hours = intval((time() - $syncStart)/3600)) {
+            $timeElapsed[] = $hours. 'u';
+        }
+        if ($minutes = intval((time() - $syncStart - $hours*3600)/60)) {
+            $timeElapsed[] = $minutes. 'm';
+        }
+        if ($seconds = intval((time() - $syncStart - $hours*3600 - $minutes*60))) {
+            $timeElapsed[] = $seconds. 's';
+        }
+        drupal_set_message('Synchronisatie voltooid in <em>'.implode(' ',$timeElapsed).'</em>.');
+    } else {
+        drupal_set_message('Geen gegevens gesynchroniseerd.');
+    }
+}
+
+/**
+ * Disable "upload"-btn on managed Excel-hotline file upload
+ */
+function argus_sms_data_hotline_file_process($element, &$form_state, $form) {
+    $element = file_managed_file_process($element, $form_state, $form);
+    $element['upload_button']['#access'] = FALSE;
+
+    return $element;
+}
+
+/**
+ * Import Absents
+ * 
+ * Smartschool API function:
+ * 
+ * "getAbsents"
+ * 
+ * Met deze methode kan u de officiële afwezigheden (voor- en namiddag) van een leerling van een bepaald schooljaar ophalen.
+ * Deze methode levert een JSON-object.
+ * 
+ * - string $accesscode: Wachtwoord webservices
+ * - string $userIdentifier: Uniek veld gebruiker
+ * - string $schoolYear: Het startjaar van het schooljaar (bv. '2013' voor het schooljaar 2013-2014)
+ */
+function argus_sms_dataAbsents(){
+    if (db_query("SHOW TABLES LIKE 'argus_lvs_afwezigheden'")->rowCount()==0) {
+        $query = 'CREATE TABLE argus_lvs_afwezigheden (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            leerling VARCHAR(100) NOT NULL,
+            datum DATETIME NOT NULL,
+            am VARCHAR(1),
+            pm VARCHAR(1),
+            motivatie VARCHAR(200)
+        )';
+        $result = db_query($query);
+    }
+    if ($client = argus_sms_getSOAPclient()){
+        $query = 'SELECT u.name, u.uid '
+               . 'FROM {users} AS u '
+               . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid '
+               . 'WHERE ur.rid = :rid';
+        $users = db_query($query, array(':rid' => user_role_load_by_name('leerling')->rid))->fetchAll();
+        
+        $cntAbsencesNew = 0;
+        $cntAbsencesEdit = 0;
+        
+        $schoolyear = date('Y');
+        if (date('n')<9) $schoolyear = date('Y')-1;
+        
+        $checkDates = array();
+        switch (variable_get('argus_sms_data_absents_period')){
+            case 0:
+                $daysBack = date_diff(new DateTime($schoolyear.'-09-01'),new DateTime('now'))->format('%a'); break;
+            case 1:
+                $daysBack = 90; break;
+            case 2:
+                $daysBack = 30; break;
+        }
+        $currentDate = new DateTime('now');
+        for ($d = $daysBack; $d > 0; $d--)
+        {
+            $checkDates[] = date_sub($currentDate, date_interval_create_from_date_string('1 day'))->format('Y-m-d');
+        }
+        foreach ($users as $u){
+            $result = $client->getAbsents(variable_get('argus_sms_api_password'), $u->name, $schoolyear);
+            if (is_int($result)) {
+                argus_report('De <em>afwezigheden</em> van '.$u->name.' werden NIET '.($overwrite ? 'overschreven':'gesynchroniseerd').': foutmelding - %error', array('%error' => argus_sms_error($result)), 'error', 'argus');
+            } else {
+                $retrievedData = json_decode($result,true);
+                
+                foreach ($checkDates as $d){
+                    if (isset($retrievedData[$d])){
+                        /* Check if report already exists in argus */
+                        $query = 'SELECT id '
+                            . 'FROM {argus_lvs_afwezigheden} AS a '
+                            . 'WHERE a.leerling = :uid AND a.datum = :date';
+                        $result = db_query($query, array(':uid' => $u->uid, ':date' => $d.' 00:00:00'));
+                        $absence = $result->fetch();
+
+                        if ($absence){
+                            $query = 'UPDATE {argus_lvs_afwezigheden} SET '
+                                    . 'am = :am , '
+                                    . 'pm = :pm '
+                                    . 'WHERE id = :id';
+                            $result = db_query($query, array(':am' => $retrievedData[$d]['am'], ':pm' => $retrievedData[$d]['pm'], ':id' => $absence->id));
+                            $cntAbsencesEdit++;
+                        } else {
+                            $query = 'INSERT INTO {argus_lvs_afwezigheden} '
+                                    . '(leerling, datum, am, pm) VALUES '
+                                    . '(:uid, :date, :am, :pm)';
+                            $result = db_query($query, array(':uid' => $u->uid, ':date' => $d.' 00:00:00', ':am' => $retrievedData[$d]['am'], ':pm' => $retrievedData[$d]['pm']));
+                            $cntAbsencesNew++;
+                        }
+                    }
+                }
+            }
+        }
+        argus_report('%cntAbsencesNew nieuwe <em>afwezigheden</em> toegevoegd en %cntAbsencesEdit bestaande <em>afwezigheden</em> bijgewerkt voor %i gebruikers.', array( '%i' => count($users), '%cntAbsencesNew' => $cntAbsencesNew, '%cntAbsencesEdit' => $cntAbsencesEdit), 'status', 'argus');
+    }
+}
+
+/**
+ * Import Skore: overview of results (Klasoverzicht)
+ */
+function argus_sms_dataSkore($form, &$form_state){
+    $syncStart = time();
+    if (db_query("SHOW TABLES LIKE 'argus_skore_periode'")->rowCount()==0) {
+        $query = 'CREATE TABLE argus_skore_periode (
+            id int(11) unsigned NOT NULL AUTO_INCREMENT,
+            afkorting varchar(20) NOT NULL DEFAULT \'\',
+            omschrijving varchar(100) NOT NULL DEFAULT \'\',
+            patroon varchar(100) NOT NULL DEFAULT \'\',
+            volgorde int(11) unsigned NOT NULL,
+            PRIMARY KEY (id)
+        )';
+        $result = db_query($query);
+        
+        $query = 'INSERT INTO argus_skore_periode (id, afkorting, omschrijving, patroon)
+            VALUES (1,\'DW1\',\'Dagelijks Werk 1\',\'_dagelijks_werk_1.xls\',1),
+                   (2,\'DW2\',\'Dagelijkse Werk 2\',\'_dagelijks_werk_2.xls\',2),
+                   (3,\'DW3\',\'Dagelijks Werk 3\',\'_dagelijks_werk_3.xls\',4),
+                   (4,\'DW4\',\'Dagelijks Werk 4\',\'_dagelijks_werk_4.xls\',6),
+                   (5,\'E1\',\'Examen 1\',\'_examen_1.xls\',3),
+                   (6,\'E2\',\'Examen 2\',\'_examen_2.xls\',7),
+                   (7,\'EP\',\'Examen Pasen\',\'_examen_pasen.xls\',5)';
+        $result = db_query($query);
+    }
+    if (db_query("SHOW TABLES LIKE 'argus_skore_resultaten'")->rowCount()==0) {
+        $query = 'CREATE TABLE argus_skore_resultaten (
+            id int(11) unsigned NOT NULL AUTO_INCREMENT,
+            leerling int(11) unsigned NOT NULL,
+            periode int(10) unsigned NOT NULL,
+            schooljaar varchar(9) NOT NULL,
+            vak int(11) unsigned NOT NULL,
+            behaald decimal(10,2) DEFAULT NULL,
+            max decimal(10,2) DEFAULT NULL,
+            PRIMARY KEY (id)
+        )';
+        $result = db_query($query);
+    }
+    
+    /* TEMPORARY SOLLUTION FOR WRONGS PARAMS IN COURSE-CODES (Untis <> Skore) [node:field-vak-afkorting] > [node:field-vak-skore-id] */
+    /*
+    module_load_include('inc', 'phpexcel');
+    $retrievedData = phpexcel_import(drupal_get_path('module', 'argus_sms_sync').'/test/VakkenSMSnu.xls')[0];
+    foreach ($retrievedData as $c){
+        $query = 'SELECT entity_id AS id '
+            . 'FROM {field_data_field_vak_afkorting} '
+            . 'WHERE field_vak_afkorting_value = :course';
+        $result = db_query($query, array(':course' => $c['UNTIS_ID']));
+        $cr = $result->fetchObject();
+        if ($cr){
+            $cn = node_load($cr->id);
+            $cn->field_vak_skore_id[LANGUAGE_NONE][0]['value'] = $c['SKORE_ID'];
+            node_save($cn);
+        } else {
+            dvm('Vak niet gevonden: '.$c['UNTIS_ID'].' ('.$c['NAAM'].')');
+        }
+    }
+    /* END OF TEMPORARY CODE */
+    
+    if ($form_state['values']['argus_sms_data_skore_file']) {
+        $file = file_load($form_state['values']['argus_sms_data_skore_file'])->uri;
+        if (file_exists($file)) {
+            $schoolyear = $form_state['values']['argus_sms_data_skore_schoolyear'];
+            $schoolyear .= '-'.($schoolyear+1);
+            
+            module_load_include('inc', 'phpexcel');
+            
+            /* Handle uploaded file and prepare file(s) for parsing */
+            $path = '/tmp/argus'.date('YmdHis');
+            $archive = archiver_get_archiver($file);
+            if ($archive){
+                $archive->extract($path);
+            } else {
+                mkdir($path);
+                file_unmanaged_move(drupal_realpath($file), $path.'/'.file_load($form_state['values']['argus_sms_data_skore_file'])->filename);
+            }
+            $files = file_scan_directory($path,'/\.xls/');
+            $usersNotFound = array();
+            $filesFound = array();
+            $courseNotFound = array();
+            $cntSkoreNew = 0;
+            $cntSkoreEdit = 0;
+            foreach ($files as $fn => $f){
+                $retrievedData = phpexcel_import($f->uri, FALSE);
+                $filename = transliteration_clean_filename($f->filename);
+                $filesFound[] = $filename;
+                
+                /* Search period in filename */
+                $query = 'SELECT id, patroon '
+                    . 'FROM {argus_skore_periode} AS p '
+                    . 'WHERE INSTR(:filename,patroon)';
+                $result = db_query($query, array(':filename' => $filename));
+                $period = $result->fetchObject();
+                
+                /* Search class in filename */
+                $class = strtoupper(str_replace($period->patroon, '', $filename));
+                $query = 'SELECT entity_id AS id '
+                    . 'FROM {field_data_field_klas_sms_code} AS k '
+                    . 'WHERE k.field_klas_sms_code_value = :class';
+                $result = db_query($query, array(':class' => $class));
+                $class = $result->fetchObject();
+                
+                /* Start synchronisation process */
+                if (count($retrievedData)){
+                    /* Read all courses and their maximum values */
+                    $courses = $retrievedData[0][0];
+                    $maxValues = $retrievedData[0][1];
+                    
+                    foreach ($retrievedData[0] as $key => $data) {
+                        if (in_array($data[0], array('','_LVS_RESULTXML_KM','_LVS_RESULTXML_KG','_LVS_RESULTXML_GM','_LVS_RESULTXML_GG','Percentielen','klasgemiddelde','groepsgemiddelde','klasmediaan','groepsmediaan')) || is_numeric($data[0])) continue;
+                        
+                        foreach ($data as $course => $value){
+                            if ($course === 0){
+                                /* Get user in current report from argus */
+                                $query = 'SELECT u.uid '
+                                    . 'FROM {users} AS u '
+                                    . 'LEFT JOIN {field_data_field_user_sms_naam} AS ln ON u.uid=ln.entity_id '
+                                    . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS fn ON u.uid=fn.entity_id '
+                                    . 'WHERE CONCAT(fn.field_user_sms_voornaam_value,\' \',ln.field_user_sms_naam_value) = :username';
+                                $result = db_query($query, array(':username' => $value));
+                                $userFound = $result->fetchObject();
+                                if (!$userFound){
+                                    $usersNotFound[] = $value;
+                                    break;
+                                }
+                            } else {
+                                /* Handle Skore */
+                                $value = str_replace(',', '.', $value);
+                                if ($value == '-'){
+                                    $value = NULL;
+                                }
+                                
+                                if (strpos($value,'/')){
+                                    $value = explode('/',$value)[0];
+                                }
+                                
+                                $maxValue = $maxValues[$course];
+                                $maxValue = substr($maxValue, strpos($maxValue, '(')+1, strpos($maxValue, ')')-strpos($maxValue, '(')-1);
+                                
+                                /* Get course in current report from argus */
+                                $query = 'SELECT entity_id AS id '
+                                    . 'FROM {field_data_field_vak_afkorting} '
+                                    . 'WHERE SUBSTRING(field_vak_afkorting_value,1,5) = :course';
+                                $result = db_query($query, array(':course' => $courses[$course]));
+                                $courseFound = $result->fetchObject();
+                                
+                                    /* TEMPORARY SOLLUTION FOR WRONGS PARAMS IN COURSE-CODES (Untis <> Skore) [node:field-vak-afkorting] > [node:field-vak-skore-id] */
+                            		if (!$courseFound){
+                                        $query = 'SELECT entity_id AS id '
+                                            . 'FROM {field_data_field_vak_skore_id} '
+                                            . 'WHERE field_vak_skore_id_value = :course';
+                                        $result = db_query($query, array(':course' => $courses[$course]));
+                                        $courseFound = $result->fetchObject();
+                                    }
+                                    /* END OF TEMPORARY CODE */
+                                
+                                if ($courseFound){
+                                    /* Check if Skore already exists in argus */
+                                    $query = 'SELECT id '
+                                        . 'FROM {argus_skore_resultaten} '
+                                        . 'WHERE leerling = :lid AND '
+                                        . 'vak = :cid AND '
+                                        . 'periode = :pid AND '
+                                        . 'schooljaar = :schoolyear';
+                                    $result = db_query($query, array(
+                                        ':lid' => $userFound->uid, 
+                                        ':cid' => $courseFound->id,
+                                        ':pid' => $period->id,
+                                        ':schoolyear' => $schoolyear,
+                                    ));
+                                    $skore = $result->fetchObject();
+                                    
+                                    if ($skore){
+                                        $query = 'UPDATE {argus_skore_resultaten} SET '
+                                                . 'behaald = :result , '
+                                                . 'max = :max '
+                                                . 'WHERE id = :id';
+                                        $result = db_query($query, array(':result' => $value, ':max' => $maxValue, ':id' => $skore->id));
+                                        $cntSkoreEdit++;
+                                    } else {
+                                        $query = 'INSERT INTO {argus_skore_resultaten} '
+                                                . '(leerling, schooljaar, periode, vak, behaald, max) VALUES '
+                                                . '(:lid, :schoolyear, :pid, :cid, :result, :max)';
+                                        $result = db_query($query, array(':lid' => $userFound->uid, ':schoolyear' => $schoolyear, ':pid' => $period->id, ':cid' => $courseFound->id, ':result' => $value, ':max' => $maxValue));
+                                        $cntSkoreNew++;
+                                    }
+                                } else {
+                                    $courseNotfound[] = $courses[$course];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            /* Clean up and delete uploaded file(s) and directory from tmp */
+            file_delete(file_load($form_state['values']['argus_sms_data_skore_file']));
+            
+            if (PHP_OS === 'Windows') {
+                exec("rd /s /q {$path}");
+            } else {
+                exec("rm -rf {$path}");
+            }
+            
+            if (count($filesFound)){
+                drupal_set_message(count($filesFound).' bestand(en) geïmporteerd: '.implode(', ',$filesFound));
+            } else {
+                drupal_set_message('Geen bestanden gevonden om te importeren.');
+            }
+            
+            if (count($usersNotFound) > 0){
+                $usersNotFound = array_unique($usersNotFound);
+                drupal_set_message(count($usersNotFound).' leerlingen werden niet gevonden: '.implode(', ',$usersNotFound));
+            }
+            
+            if (count($courseNotfound) > 0){
+                $courseNotfound = array_unique($courseNotfound);
+                drupal_set_message(count($courseNotfound).' vakken werden niet gevonden: '.implode(', ',$courseNotfound));
+            }
+        }
+        argus_report('%i <em>puntenboeken</em> gesynchroniseerd (%cntSkoreNew toegevoegd en %cntSkoreEdit bijgewerkt).', array( '%i' => $cntSkoreNew+$cntSkoreEdit, '%cntSkoreNew' => $cntSkoreNew, '%cntSkoreEdit' => $cntSkoreEdit), 'status', 'argus');
+    } else {
+        drupal_set_message(t('Geen bestand geselecteerd voor het importeren.'));
+    }
+    
+    /* Finish messaging and timing */
+    if (drupal_get_messages(FALSE,FALSE)) {
+        $timeElapsed = array();
+        if ($hours = intval((time() - $syncStart)/3600)) {
+            $timeElapsed[] = $hours. 'u';
+        }
+        if ($minutes = intval((time() - $syncStart - $hours*3600)/60)) {
+            $timeElapsed[] = $minutes. 'm';
+        }
+        if ($seconds = intval((time() - $syncStart - $hours*3600 - $minutes*60))) {
+            $timeElapsed[] = $seconds. 's';
+        }
+        drupal_set_message('Synchronisatie voltooid in <em>'.implode(' ',$timeElapsed).'</em>.');
+    } else {
+        drupal_set_message('Geen gegevens gesynchroniseerd.');
+    }
+}
+
+/**
+ * Disable "upload"-btn on managed Excel-Skore file upload
+ */
+function argus_sms_data_skore_file_process($element, &$form_state, $form) {
+    $element = file_managed_file_process($element, $form_state, $form);
+    $element['upload_button']['#access'] = FALSE;
+
+    return $element;
+}
+
+
+/**
+ * Import Skore: overview of deliberations (Deliberaties)
+ * 
+ * Current fields in csv-file (dependent for this specified installation, manual adjust the code beneath):
+ * Array
+    (
+         internNumber (unused)
+        name (used for looking up pupil)
+        surname (used for looking up pupil)
+         geboorteplaats (unused)
+         geboortedatum (unused)
+         vorm (unused, link through in argus)
+         vorm_lang (unused, link through in argus)
+         graad (unused, link through in argus)
+         leerjaar (unused, link through in argus)
+         afkorting (unused, link through in argus)
+         richting (unused, link through in argus)
+         parallel (unused, link through in argus)
+         naam (unused, link through in argus)
+        klasnaam (used as link through in argus)
+        
+        attest
+        attestup > attest na uitgestelde proef
+        advies
+        clausules
+        diplomas
+        feedback
+        internefeedback
+        remedie
+        motief
+        stemming
+        beslissing
+        clausule
+        gedelibereerd
+        uitgesteld
+        vakantie
+        waarschuwing
+        optioneel
+        vakresultaten
+        eindresultaat
+    )
+ */
+function argus_sms_dataSkoreDeliberations($form, &$form_state){
+    $syncStart = time();
+    
+    if ($form_state['values']['argus_sms_data_skore_deliberations_file']) {
+        $file = file_load($form_state['values']['argus_sms_data_skore_deliberations_file'])->uri;
+        if (file_exists($file)) {
+            /* Prepare Excel 97/2003/2004 for reading */
+            module_load_include('inc', 'phpexcel');
+            
+            /* Handle uploaded file and prepare file(s) for parsing */
+            $path = '/tmp/argus'.date('YmdHis');
+            $archive = archiver_get_archiver($file);
+            if ($archive){
+                $archive->extract($path);
+            } else {
+                mkdir($path);
+                rename(drupal_realpath($file), $path.'/'.file_load($form_state['values']['argus_sms_data_skore_deliberations_file'])->filename);
+            }
+            $files = file_scan_directory($path,'/\.xls/');
+            $usersNotFound = array();
+            $filesFound = array();
+            $courseNotFound = array();
+            $classNotFound = array();
+            $cntSkoreNew = 0;
+            $cntSkoreEdit = 0;
+            foreach ($files as $fn => $f){
+                $retrievedData = phpexcel_import($f->uri);
+                $filesFound[] = $f->filename;
+                
+                /* Start synchronisation process */
+                if (count($retrievedData)){
+                    $schoolyear = $form_state['values']['argus_sms_data_skore_deliberations_schoolyear'];
+                    $schoolyear .= '-'.($schoolyear+1);
+                    
+                    foreach ($retrievedData[0] as $deliberation){
+                        /* Get user in current report from argus */
+                        $query = 'SELECT u.uid '
+                            . 'FROM {users} AS u '
+                            . 'LEFT JOIN {field_data_field_user_sms_naam} AS ln ON u.uid=ln.entity_id '
+                            . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS fn ON u.uid=fn.entity_id '
+                            . 'WHERE fn.field_user_sms_voornaam_value = :firstname AND ln.field_user_sms_naam_value = :lastname';
+                        $result = db_query($query, array(':firstname' => $deliberation['name'], ':lastname' => $deliberation['surname']));
+                        $userFound = $result->fetchObject();
+
+                        if (!$userFound){
+                            $usersNotFound[] = $deliberation['name'].' '.$deliberation['surname'];
+                        } else {
+                            /* Get class in current result from argus */
+                            $query = 'SELECT entity_id AS id '
+                                . 'FROM {field_data_field_klas_sms_code} AS u '
+                                . 'WHERE field_klas_sms_code_value = :class';
+                            $result = db_query($query, array(':class' => $deliberation['klasnaam']));
+                            $classFound = $result->fetchObject();
+                            
+                            if (!$classFound){
+                                $classNotFound[] = $deliberation['klasnaam'];
+                            } else {
+                                /* Check if Skore already exists in argus */
+                                $query = 'SELECT u.entity_id AS nid '
+                                    . 'FROM {field_data_field_lvs_deliberatie_leerling} AS u '
+                                    . 'LEFT JOIN {field_data_field_lvs_deliberatie_schooljaar} AS sj ON u.entity_id=sj.entity_id '
+                                    . 'WHERE u.field_lvs_deliberatie_leerling_target_id = :lid AND sj.field_lvs_deliberatie_schooljaar_value = :schoolyear';
+                                $result = db_query($query, array(':lid' => $userFound->uid, ':schoolyear' => $schoolyear));
+                                $skore = $result->fetchObject();
+                                
+                                if ($skore){
+                                    $node = node_load($skore->nid);
+                                    $cntSkoreEdit++;
+                                } else {
+                                    $node = new stdClass();
+                                    $node->type = 'lvs_deliberatie';
+                                    node_object_prepare($node);
+                                    $node->language = LANGUAGE_NONE;
+                                    $node->uid = 0;
+                                    $node->field_lvs_deliberatie_leerling[LANGUAGE_NONE][0]['target_id'] = $userFound->uid;
+                                    $node->status = 1;
+                                    $node->promote = 0;
+                                    $node->comment = 0;
+                                    $node->menu = NULL;
+                                    $cntSkoreNew++;
+                                }
+                                
+                                $node->field_lvs_deliberatie_klas[LANGUAGE_NONE][0]['target_id'] = $classFound->id;
+                                
+                                $node->field_lvs_deliberatie_schooljaar[LANGUAGE_NONE][0]['value'] = $schoolyear;
+                                
+                                // Set data for new node
+                                if (isset($deliberation['attest'])){
+                                    $node->field_lvs_deliberatie_attest[LANGUAGE_NONE][0]['value'] = $deliberation['attest'];
+                                }
+                                if (isset($deliberation['attestup'])){
+                                    $node->field_lvs_deliberatie_at_uitgest[LANGUAGE_NONE][0]['value'] = $deliberation['attestup'];
+                                }
+                                if (isset($deliberation['advies'])){
+                                    $node->field_lvs_deliberatie_advies[LANGUAGE_NONE][0]['value'] = $deliberation['advies'];
+                                }
+                                if (isset($deliberation['clausules'])){
+                                    $node->field_lvs_deliberatie_clausules[LANGUAGE_NONE][0]['value'] = $deliberation['clausules'];
+                                }
+                                
+                                $node->field_lvs_deliberatie_claus_code[LANGUAGE_NONE] = array();
+                                if (isset($deliberation['clausule'])){
+                                    $clausules_codes = explode(',', $deliberation['clausule']);
+                                    foreach ($clausules_codes as $code){
+                                        if ($code){
+                                            $node->field_lvs_deliberatie_claus_code[LANGUAGE_NONE][] = array( 'value' => $code);
+                                        }
+                                    }
+                                } 
+                                
+                                $node->field_lvs_deliberatie_diplomas[LANGUAGE_NONE] = array();
+                                if (isset($deliberation['diplomas'])){
+                                    $diplomas = explode(',', $deliberation['diplomas']);
+                                    foreach ($diplomas as $diploma){
+                                        if ($diploma){
+                                            $node->field_lvs_deliberatie_diplomas[LANGUAGE_NONE][] = array( 'value' => $diploma);
+                                        }
+                                    }
+                                }
+                                
+                                if (isset($deliberation['feedback'])){
+                                    $node->field_lvs_deliberatie_feedback[LANGUAGE_NONE][0]['value'] = $deliberation['feedback'];
+                                }
+                                if (isset($deliberation['internefeedback'])){
+                                    $node->field_lvs_deliberatie_infeedback[LANGUAGE_NONE][0]['value'] = $deliberation['internefeedback'];
+                                }
+                                if (isset($deliberation['remedie'])){
+                                    $node->field_lvs_deliberatie_remedie[LANGUAGE_NONE][0]['value'] = $deliberation['remedie'];
+                                }
+                                if (isset($deliberation['motief'])){
+                                    $node->field_lvs_deliberatie_motief[LANGUAGE_NONE][0]['value'] = $deliberation['motief'];
+                                }
+                                if (isset($deliberation['stemming'])){
+                                    $node->field_lvs_deliberatie_stemming[LANGUAGE_NONE][0]['value'] = $deliberation['stemming'];
+                                }
+                                if (isset($deliberation['beslissing'])){
+                                    $node->field_lvs_deliberatie_beslissing[LANGUAGE_NONE][0]['value'] = $deliberation['beslissing'];
+                                }
+                                
+                                if (isset($deliberation['gedelibereerd'])){
+                                    $node->field_lvs_deliberatie_gedelib[LANGUAGE_NONE][0]['value'] = 'gedelibereerd';
+                                }
+                                
+                                if (isset($deliberation['uitgesteld'])){
+                                    $node->field_lvs_deliberatie_beslissing[LANGUAGE_NONE][0]['value'] = 'uitgesteld';
+                                }
+                                
+                                $node->field_lvs_deliberatie_vakantie[LANGUAGE_NONE] = array();
+                                if (isset($deliberation['vakantie'])){
+                                    $vakantietaken = explode(',', $deliberation['vakantie']);
+                                    foreach ($vakantietaken as $taak){
+                                        if ($taak){
+                                            $node->field_lvs_deliberatie_vakantie[LANGUAGE_NONE][] = array( 'value' => $taak);
+                                        }                                    
+                                    }
+                                }
+                                
+                                $node->field_lvs_deliberatie_waarschuw[LANGUAGE_NONE] = array();
+                                if (isset($deliberation['waarschuwing'])){
+                                    $waarschuwingen = explode(',', $deliberation['waarschuwing']);
+                                    foreach ($waarschuwingen as $waarschuwing){
+                                        if ($waarschuwing){
+                                            $node->field_lvs_deliberatie_waarschuw[LANGUAGE_NONE][] = array( 'value' => $waarschuwing);
+                                        }
+                                    }
+                                }
+                                
+                                if (isset($deliberation['optioneel'])){
+                                $node->field_lvs_deliberatie_optioneel[LANGUAGE_NONE][0]['value'] = $deliberation['optioneel'];
+                                }
+                                
+                                $node->field_lvs_deliberatie_vakresult[LANGUAGE_NONE] = array();
+                                if (isset($deliberation['vakresultaten'])){
+                                    $results = explode(',', $deliberation['vakresultaten']);
+                                    foreach ($results as $result){
+                                        if ($result){
+                                            $node->field_lvs_deliberatie_vakresult[LANGUAGE_NONE][] = array( 'value' => $result);
+                                        }
+                                    }
+                                }
+                                
+                                if (isset($deliberation['eindresultaat'])){
+                                    $node->field_lvs_deliberatie_eindresult[LANGUAGE_NONE][0]['value'] = $deliberation['eindresultaat'];
+                                }
+                                
+                                // Save the node.
+                                node_save($node);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            /* Clean up and delete uploaded file(s) and directory from tmp */
+            file_delete(file_load($form_state['values']['argus_sms_data_skore_deliberations_file']));
+            
+            if (PHP_OS === 'Windows') {
+                exec("rd /s /q {$path}");
+            } else {
+                exec("rm -rf {$path}");
+            }
+            
+            if (count($filesFound)){
+                drupal_set_message(count($filesFound).' bestand(en) geïmporteerd: '.implode(', ',$filesFound));
+            } else {
+                drupal_set_message('Geen bestanden gevonden om te importeren.');
+            }
+            
+            if (count($usersNotFound) > 0){
+                $usersNotFound = array_unique($usersNotFound);
+                drupal_set_message(count($usersNotFound).' leerlingen werden niet gevonden: '.implode(', ',$usersNotFound));
+            }
+            
+            if (count($classNotFound) > 0){
+                $classNotFound = array_unique($classNotFound);
+                drupal_set_message(count($classNotFound).' klassen werden niet gevonden: '.implode(', ',$classNotFound));
+            }
+        }
+        argus_report('%i <em>deliberaties</em> gesynchroniseerd (%cntSkoreNew toegevoegd en %cntSkoreEdit bijgewerkt).', array( '%i' => $cntSkoreNew+$cntSkoreEdit, '%cntSkoreNew' => $cntSkoreNew, '%cntSkoreEdit' => $cntSkoreEdit), 'status', 'argus');
+    } else {
+        drupal_set_message(t('Geen bestand geselecteerd voor het importeren.'));
+    }
+    
+    /* Finish messaging and timing */
+    if (drupal_get_messages(FALSE,FALSE)) {
+        $timeElapsed = array();
+        if ($hours = intval((time() - $syncStart)/3600)) {
+            $timeElapsed[] = $hours. 'u';
+        }
+        if ($minutes = intval((time() - $syncStart - $hours*3600)/60)) {
+            $timeElapsed[] = $minutes. 'm';
+        }
+        if ($seconds = intval((time() - $syncStart - $hours*3600 - $minutes*60))) {
+            $timeElapsed[] = $seconds. 's';
+        }
+        drupal_set_message('Synchronisatie voltooid in <em>'.implode(' ',$timeElapsed).'</em>.');
+    } else {
+        drupal_set_message('Geen gegevens gesynchroniseerd.');
+    }
+}
+
+/**
+ * Disable "upload"-btn on managed Excel-Skore file upload (Deliberaties)
+ */
+function argus_sms_data_skore_deliberations_file_process($element, &$form_state, $form) {
+    $element = file_managed_file_process($element, $form_state, $form);
+    $element['upload_button']['#access'] = FALSE;
+
+    return $element;
+}
+
+
+
+/* Supporting functions */
+
+/**
+ * Create structured array for quick searching and matching
+ * @param fields string
+ *   String in pseudo json format
+ */
+function argus_sms_fieldsAsArrays($fields = '') {
+    $fieldArray = array();
+    $fieldArrayTmp1 = explode("\r\n",$fields);
+    foreach ($fieldArrayTmp1 as $field) {
+        $fieldArrayTmp2 = explode("|",$field);
+        $key = argus_sms_uniform_field(substr($fieldArrayTmp2[0],1,-1), 'field_user_sms_');
+        if (!isset($fieldArrayTmp2[1])) {
+            $fieldArray[$key] = $key;
+        } else {
+            if (stristr($fieldArrayTmp2[1], '","')) {
+                $fieldArray[$key] = json_decode('{'.$fieldArrayTmp2[1].'}');
+            } else {
+                $fieldArray[$key] = substr($fieldArrayTmp2[1],1,-1);
+            }
+        }
+    }
+    return $fieldArray;
+}

@@ -1,0 +1,109 @@
+diff --git a/includes/DrupalOAuthDataStore.inc b/includes/DrupalOAuthDataStore.inc
+index 3ea69cf..2820737 100644
+--- a/includes/DrupalOAuthDataStore.inc
++++ b/includes/DrupalOAuthDataStore.inc
+@@ -105,9 +105,10 @@ class DrupalOAuthDataStore extends OAuthDataStore {
+    */
+   function new_request_token($consumer, $callback = NULL) {
+     $token = new DrupalOAuthToken(user_password(32), user_password(32), $consumer, array(
+-      'type'    => OAUTH_COMMON_TOKEN_TYPE_REQUEST,
+-      'uid'     => 0,
+-      'expires' => REQUEST_TIME + variable_get('oauth_common_request_token_lifetime', 7200),
++      'type'     => OAUTH_COMMON_TOKEN_TYPE_REQUEST,
++      'uid'      => 0,
++      'expires'  => REQUEST_TIME + variable_get('oauth_common_request_token_lifetime', 7200),
++      'callback_url' => $callback,
+     ));
+     $token->write();
+     return $token;
+diff --git a/includes/DrupalOAuthToken.inc b/includes/DrupalOAuthToken.inc
+index 9040517..d622a7a 100644
+--- a/includes/DrupalOAuthToken.inc
++++ b/includes/DrupalOAuthToken.inc
+@@ -3,6 +3,7 @@
+ class DrupalOAuthToken extends OAuthToken {
+   public $tid = 0;
+   public $expires = 0;
++  public $callback_url = "";
+   public $type = OAUTH_COMMON_TOKEN_TYPE_REQUEST;
+   public $uid = 0;
+ 
+@@ -76,13 +77,14 @@ class DrupalOAuthToken extends OAuthToken {
+     }
+ 
+     $values = array(
+-      'csid'      => $this->consumer->csid,
+-      'key_hash'  => sha1($this->key),
+-      'token_key' => $this->key,
+-      'secret'    => $this->secret,
+-      'expires'   => $this->expires,
+-      'type'      => $this->type,
+-      'uid'       => $this->uid,
++      'csid'          => $this->consumer->csid,
++      'key_hash'      => sha1($this->key),
++      'token_key'     => $this->key,
++      'secret'        => $this->secret,
++      'expires'       => $this->expires,
++      'type'          => $this->type,
++      'uid'           => $this->uid,
++      'callback_url'  => $this->callback_url,
+     );
+ 
+     if ($update) {
+diff --git a/oauth_common.install b/oauth_common.install
+index 0871e31..c4f00dc 100644
+--- a/oauth_common.install
++++ b/oauth_common.install
+@@ -305,6 +305,12 @@ function _oauth_common_token_schema() {
+         'not null'    => TRUE,
+         'default'     => 0,
+       ),
++      'callback_url' => array(
++        'description' => 'Callback url.',
++        'type'        => 'varchar',
++        'length'      => 255,
++        'not null'    => TRUE,
++      ),
+     ),
+     'primary key' => array('tid'),
+     'indexes' => array(
+@@ -379,3 +385,16 @@ function _oauth_common_provider_token_schema() {
+     ),
+   );
+ }
++
++/**
++ * Add callback_url field to {oauth_common_token} table.
++ */
++function oauth_common_update_7100() {
++  $spec = array(
++    'description' => 'Callback url.',
++    'type'        => 'varchar',
++    'length'      => 255,
++    'not null'    => TRUE,
++  );
++  db_add_field( 'oauth_common_token', 'callback_url', $spec);
++}
+diff --git a/oauth_common.pages.inc b/oauth_common.pages.inc
+index 49695e9..494ad7d 100644
+--- a/oauth_common.pages.inc
++++ b/oauth_common.pages.inc
+@@ -310,7 +310,17 @@ function oauth_common_form_authorize_submit(&$form, &$form_state) {
+       parse_str($callback['query'], $query);
+     }
+     $query['oauth_token'] = $token->key;
+-    $callback['query'] = http_build_query($query, 'idx_', '&');
++    $query['oauth_verifier'] = hash('sha1', $token->expires);
++
++    // Append Consumer provided query parameters according to the spec 6.2.3 for OAuth 1.0a.
++    $oauth_query = array();
++    $oauth_callback = !empty($token->callback_url) ? parse_url($token->callback_url) : '';
++    if (!empty($oauth_callback['query'])) {
++      parse_str($oauth_callback['query'], $oauth_query);
++    }
++
++    // Build the and combine the query parameters.
++    $callback['query'] = http_build_query($query + $oauth_query, 'idx_', '&');
+ 
+     // Return to the consumer site
+     header('Location: ' . _oauth_common_glue_url($callback), TRUE, 302);

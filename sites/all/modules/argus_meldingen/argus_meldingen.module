@@ -1,0 +1,292 @@
+<?php
+/* 
+ * Copyright (C) 2015 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements hook_views_api().
+ */
+include_once 'argus_meldingen.views_default.inc';
+function argus_meldingen_views_api($module = NULL, $api = NULL) {
+  return array("api" => "3.0");
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_meldingen_node_info() {
+  $items = array(
+    'lvs_melding' => array(
+      'name' => t('LVS - Melding'),
+      'base' => 'node_content',
+      'description' => t('Elk personeelslid kan een <em>melding</em> doen over verschillende interacties met leerlingen, ouders of anderen. Deze kunnen handelen over studiebegeleiding, gedrag, afwezigheden of andere zaken.'),
+      'has_title' => '1',
+      'title_label' => t('Titel'),
+      'help' => '',
+    ),
+  );
+  drupal_alter('node_info', $items);
+  return $items;
+}
+
+/**
+* Implements hook_block_info().
+*/
+function argus_meldingen_block_info() {
+    $blocks = array();
+    $blocks['meldingen'] = array(
+        'info' => t('Meldingen'),
+        'title' => t('Meldingen'),
+    );
+
+    return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function argus_meldingen_block_view($delta = '') {
+    $block = array();
+    $variables = array();
+    $today = new DateTime('NOW');
+
+    /* Filter data only for this schoolyear (active schoolyear) */
+    $schoolyear = (array) argus_schoolyear(0);
+    
+    global $user;
+    $query = 'SELECT DISTINCT n.nid AS nid, '
+        . 'l.entity_id AS id, '
+        . 'l.field_lvs_melding_leerling_target_id AS uid, '
+        . 'k.field_klas_leerlingen_target_id AS cid, '
+        . 'o.field_lvs_melding_onderwerp_value AS title, '
+        . 'n.uid AS author, '
+        . 'd.field_lvs_melding_datum_feit_value AS factdate, '
+        . 'p.field_lvs_melding_prive_value AS private, '
+        . 'b.field_lvs_melding_betreft_value AS about, '
+        . 'v.field_lvs_melding_verslag_value AS report '
+        . 'FROM {field_data_field_lvs_melding_leerling} AS l '
+        . 'LEFT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = l.field_lvs_melding_leerling_target_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  '
+        . 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id '
+        . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid '
+        . 'WHERE d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+    $params = array(':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']);
+    
+    // Setup query for pupil
+    if (argus_get_user_has_role($user->uid,'pupil')){
+        $query .= 'AND l.field_lvs_melding_leerling_target_id = :uid ';
+        $params[':uid'] = $user->uid;
+        
+        // TODO: check policy -> only private messages for ILB & Staff !
+        $query .= 'AND p.field_lvs_melding_prive_value != :private ';
+        $params[':private'] = 1;
+        
+        $variables['reportType'] = 'pupil';
+    }
+    
+    // Setup query for ktt/hktt
+    if (argus_get_user_has_role($user->uid,'ktt')){
+        $q2 = 'SELECT n.nid AS id, '
+            . 'n.title AS title '
+            . 'FROM {node} AS n '
+            . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id '
+            . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id '
+            . 'WHERE ktt.field_klas_klastitularis_target_id = :uid '
+            . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
+        $variables['myClasses'] = db_query($q2, array(':uid' => $user->uid))->fetchAllKeyed();
+        
+        if (count($variables['myClasses'])){
+            $query .= 'AND k.entity_id IN (:cids) ';
+            $params[':cids'] = array_keys($variables['myClasses']);
+
+            // TODO: check policy -> only private messages for ILB & Staff !
+            $query .= 'AND p.field_lvs_melding_prive_value != :private ';
+            $params[':private'] = 1;
+
+            $variables['reportType'] = 'ktt';
+        }
+    }
+    
+    // Setup query for ilb
+    if (argus_get_user_has_role($user->uid,'ilb')){
+        $variables['reportType'] = 'ilb';
+    }
+    
+    // Setup query for staff
+    if (argus_get_user_has_role($user->uid,'staff')){
+        $variables['reportType'] = 'staff';
+    }
+    
+    $query .= 'ORDER BY d.field_lvs_melding_datum_feit_value DESC ';
+    
+    $allowedReports = array('negatief gedrag', 'positief gedrag', 'studiebegeleiding', 'afwezigheden', 'andere (enkel financieel, medisch, familiaal)');
+    
+    if (isset($variables['reportType'])){
+        $variables['reports'] = db_query($query, $params)->fetchAll();
+        
+        $variables['graph'] = array([
+            t('Maand'),
+            '+', array('role' => 'certainty'),
+            '-', array('role' => 'certainty'),
+            'S', array('role' => 'certainty'),
+            'A', array('role' => 'certainty'),
+            '.', array('role' => 'certainty')]);
+        foreach ($variables['reports'] as $report){
+            if ($report->about){
+            	if (in_array($report->about, $allowedReports)){
+	                if (isset($variables['graph'][$report->about][date('n',strtotime($report->factdate))])){
+	                    $variables['graph'][$report->about][date('n',strtotime($report->factdate))]++;
+	                } else {
+	                    $variables['graph'][$report->about][date('n',strtotime($report->factdate))] = 1;
+	                }
+            	}
+            }
+        }
+        $maxReports = 0;
+        for ($m = 1; $m < 11; $m++){
+            if ($m<5){
+                $month = $m+8;
+            } else {
+                $month = $m-4;
+            }
+            
+            if (isset($variables['graph']['negatief gedrag'][$month])){
+                $neg = $variables['graph']['negatief gedrag'][$month];
+            } else {
+                $neg = 0;
+            }
+            if (isset($variables['graph']['positief gedrag'][$month])){
+                $pos = $variables['graph']['positief gedrag'][$month];
+            } else {
+                $pos = 0;
+            }
+            if (isset($variables['graph']['studiebegeleiding'][$month])){
+                $study = $variables['graph']['studiebegeleiding'][$month];
+            } else {
+                $study = 0;
+            }
+            if (isset($variables['graph']['afwezigheden'][$month])){
+                $absence = $variables['graph']['afwezigheden'][$month];
+            } else {
+                $absence = 0;
+            }
+            if (isset($variables['graph']['andere (enkel financieel, medisch, familiaal)'][$month])){
+                $other = $variables['graph']['andere (enkel financieel, medisch, familiaal)'][$month];
+            } else {
+                $other = 0;
+            }
+
+            if ($neg > $maxReports) $maxReports = $neg;
+            if ($pos > $maxReports) $maxReports = $pos;
+            if ($study > $maxReports) $maxReports = $study;
+            if ($absence > $maxReports) $maxReports = $absence;
+            if ($other > $maxReports) $maxReports = $other;
+
+            $month = t(date('M', strtotime('2000-'.$month.'-01')));
+
+            $variables['graph'][] = [
+                $month,
+                $pos, ($month != t(date('M'))),
+                $neg, ($month != t(date('M'))),
+                $study, ($month != t(date('M'))),
+                $absence, ($month != t(date('M'))),
+                $other, ($month != t(date('M')))];
+        }
+        unset($variables['graph']['negatief gedrag']);
+        unset($variables['graph']['positief gedrag']);
+        unset($variables['graph']['studiebegeleiding']);
+        unset($variables['graph']['afwezigheden']);
+        unset($variables['graph']['andere (enkel financieel, medisch, familiaal)']);
+        
+        $variables['graphMaxReports'] = $maxReports;
+    }
+    
+    switch ($delta) {
+        default:
+            $block['subject'] = 'Meldingen';
+            $block['content'] = theme('argus_meldingen_block_LST', $variables);
+            break;
+    }
+    
+    drupal_add_js("https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}");
+    
+    return $block;
+}
+
+/** 
+ * Implement hook_theme()
+ */
+function argus_meldingen_theme() {
+    return array(
+        'argus_meldingen_block_LST' => array(
+            'variables' => array(
+                'content' => NULL,
+                'popular_content' => NULL,
+            ),
+            'template' => 'templates/argus_meldingen--LST_block',
+        ),
+    );
+}
+
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Retrieve an array with options for select - deducted by only this user
+ * 
+ * @param uid integer
+ *   Get reports for specified user
+ *
+ * @param type array
+ *   Specify type of returned reports:
+ *   - positief gedrag
+ *   - negatief gedrag
+ *   - studiebegeleiding
+ *   - afwezigheden
+ *   - andere
+ *   
+ * @return array
+ */
+function argus_meldingen_get_user_select_options($uid, $type = array()){
+    $query = 'SELECT n.nid AS id, o.field_lvs_melding_onderwerp_value AS title, d.field_lvs_melding_datum_feit_value AS factdate, un.field_user_sms_naam_value AS name, uv.field_user_sms_voornaam_value AS firstname '
+        . 'FROM {node} AS n '
+        . 'LEFT JOIN {field_data_field_lvs_melding_leerling} AS l ON n.nid = l.entity_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON n.nid = b.entity_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON n.nid = o.entity_id '
+        . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON n.nid = d.entity_id '
+        . 'LEFT JOIN {field_data_field_user_sms_naam} AS un ON n.uid = un.entity_id '
+        . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS uv ON n.uid = uv.entity_id '
+        . 'WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value IN (:type)'
+        . 'ORDER BY field_lvs_melding_datum_feit_value DESC';
+    $reports = db_query($query, array(':uid' => $uid, ':type' => $type))->fetchAll();
+    
+    $options = array();
+    $options[''] = t('- Selecteren -');
+    if (count($reports)){
+        foreach($reports as $r){
+            $option = date('d/m/Y', strtotime($r->factdate)).': '.$r->title.' ('.$r->name.', '.$r->firstname.')';
+            $options[$r->id] = $option;
+        }
+    }
+    return $options;
+}

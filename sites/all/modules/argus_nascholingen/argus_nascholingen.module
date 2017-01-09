@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Nascholingen feature.
+ */
+
+include_once 'argus_nascholingen.features.inc';

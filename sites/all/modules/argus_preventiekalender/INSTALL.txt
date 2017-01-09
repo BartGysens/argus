@@ -1,0 +1,14 @@
+**Installation:
+
+Preventiekalender is an extension to the argus - a Quality control extension.
+
+1. Unpack the argus_preventiekalender folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably sites/all/modules/
+2. Enable the argus_preventiekalender module in the administration tools.
+3. If you're not using Drupal's default administrative account, make sure 
+ "administer argus preventiekalender" is enabled through access control
+ administration.
+4. If you want to synchronise your calender with iCal / Feeds, you can use the
+feed for import:
+ - feed settings: /admin/structure/feeds/events_preventiekalender
+ - import through this link: /import/events_preventiekalender

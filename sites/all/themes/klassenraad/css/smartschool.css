@@ -1,0 +1,969 @@
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* 
+    Created on : 17-okt-2014, 15:35:07
+    Author     : bartgysens
+*/
+
+body{
+    background-color: #EEEEEE;
+    font-family: Verdana,Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    color: #262626;
+}
+
+a{
+    text-decoration: none;
+    color: #0033CC;
+}
+a:hover{
+    text-decoration: underline;
+}
+
+header#header{
+    background-image: url(../images/sms_topnav_logo_go_2015_720x58.png);
+    background-repeat: no-repeat;
+    background-position: 100% 0px;
+    background-color: #FFFFFF;
+    height: 57px;
+    padding-left: 0px;
+}
+
+#main-menu{
+    float: right;
+    margin-right: 20px;
+}
+#main-menu a{
+    color: black;
+}
+
+menu, ol, ul {
+    padding: 0 0 0 15px;
+    margin-left: 20px;
+}
+    .view-content menu,
+    .view-content ol,
+    .view-content ul,
+    .view-content dl,
+    .profile menu,
+    .profile ol,
+    .profile ul,
+    .profile dl {
+        padding: 0px;
+        margin: 0em;
+        margin-left: 20px;
+        
+    }
+
+div#page{
+    max-width: 100%;
+}
+
+div#navigation{
+    background-image: url(../images/sms_topbg2.png);
+    height: 30px;
+    width: 100%;
+    padding: 0px;
+}
+
+#content{
+    background-color: white;
+    border-right: 1px solid #d4d4d4 !important;
+    margin: 0 10px;
+    position: relative;
+    padding: 20px;
+    padding-top: 35px;
+}
+
+#content .view-filters{
+    border-bottom: 1px solid #bebfb9;
+}
+
+/* Table design as in "Seven" */
+#content table.views-table,
+#content table.sticky-header{
+    width: 100%;
+    margin: 0 0 10px;
+    border: 1px solid #bebfb9;
+}
+#content table.views-table th,
+#content table.sticky-header th{
+    text-transform: uppercase;
+    background: #e1e2dc;
+    font-weight: normal;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #bebfb9;
+    padding: 3px 10px;
+}
+#content table.views-table tr.even,
+#content table.views-table tr.odd{
+    border-width: 0 1px 0 1px;
+    border-style: solid;
+    border-color: #bebfb9;
+    background: #f3f4ee;
+}
+#content table.views-table tr.odd{
+    background: #fff;
+}
+#content table.views-table td,
+#content table.views-table th,
+#content table.sticky-header td,
+#content table.sticky-header th{
+    vertical-align: top;
+    padding: 4px 6px;
+    border: 0;
+    color: #000;
+}
+
+h5{
+    line-height: 1em;
+    margin-top: 0px;
+    margin-bottom: 0.5em;
+}
+
+.field-items ul{
+    margin-top: 0px;
+}
+
+table td.active {
+    background: #e9e9dd;
+}
+table tr.odd td.active {
+    background: #f3f4ee;
+}
+
+#content table.views-table td.markup-red{
+    background-color: #FFCDCD;
+}
+#content table.views-table tr.odd td.markup-red{
+    background-color: #FFE6E6;
+}
+
+#content table.views-table caption{
+    border-top: 1px solid #0033CC;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px 0px;
+}
+
+#content .view-header,
+#content .view-footer{
+    text-align: right;
+    font-size: 0.8em;
+    font-style: italic;
+}
+#content .view-grouping-header{
+    border-top: 1px solid #0033CC;
+}
+
+article{
+    border-bottom: solid lightgray 1px;
+    margin-bottom: 19px;
+}
+article header h2{
+    border-bottom: #0033CC 1px solid;
+}
+
+.argus_icon_16x16{
+    width: 16px;
+    height: 16px;
+}
+
+.argus_icon_24x24{
+    width: 24px;
+    height: 24px;
+}
+
+.argus_icon_32x32{
+    width: 32px;
+    height: 32px;
+}
+
+.argus_icon_48x48{
+    width: 48px;
+    height: 48px;
+}
+
+.argus_icon_64x64{
+    width: 64px;
+    height: 64px;
+}
+
+/* --- */
+div#navigation #backToSMS{
+    margin-left: 10px;
+}
+div#navigation #backToSMS a{
+    color: #C40000;
+}
+
+a#sms_search{
+    display: block;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    background-image: url('../images/sms_search_custom_dark_16x16.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    position: absolute;
+    right: 2px;
+    top: 0px;
+}
+
+div#content div.sms.block,
+div#content div.sms.block div{
+    background: none !important;
+    margin-top: 5px !important;
+}
+div#content div.sms.block{
+    border-left: 1px solid #d4d4d4 !important;
+}
+div#content div.sms.block div.sms_title.sms_tleft{
+    margin-left: 0px !important;
+}
+
+div.sms.block form{
+    margin: 15px;
+}
+
+div.sms_smscborder.sms_centerxy.sms_smallboxc ul{
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+/* Smartschool borders adjustments */
+.sms_title.sms_tcenter h2{
+    font-size: 11px;
+    font-weight: bold;
+    color: #C40000;
+}
+
+/* Smartschool panel borders */
+.sms_smscborder{
+    background-image:url(../images/sms_border.gif);
+    padding:0;
+}
+.sms_smscborder.sms_bleft{
+    width:15px;
+    float:left;
+    clear:both;
+}
+.sms_smscborder.sms_bleft.sms_topl{
+    background-position:0 0;
+    height:27px;
+}
+.sms_smscborder.sms_bleft.sms_bottoml{
+    background-position:-30px 0;
+    height:19px;
+}
+.sms_smscborder.sms_centery{
+    background-repeat:repeat-x;
+    float:left;
+}
+.sms_smscborder.sms_centery.sms_topy{
+    background-image:url(../images/sms_border_top.gif);
+    height:27px;
+}
+
+.sms_smscborder.sms_centery.sms_bottomy{
+    background-image:none;
+    background-color:#FFF;
+    border-bottom:1px solid #d4d4d4;
+    float:left;
+    height:17px;
+    margin-bottom:10px;
+}
+
+.sms_smscborder.sms_bright{
+    width:15px;
+    float:left;
+}
+.sms_smscborder.sms_bright.sms_topr{
+    background-position:-15px 0;
+    height:27px;
+}
+.sms_smscborder.sms_bright.sms_bottomr{
+    background-position:-45px 0;
+    height:19px;
+}
+.sms_smscborder.sms_centerxy{
+    background-image:url(../images/sms_border_left.gif);
+    background-color:#FFF;
+    background-repeat:repeat-y;
+    border-right:1px solid #d4d4d4;
+    float:left;
+    clear:both;
+    padding-left:10px;
+    padding-right:5px
+}
+
+.sms_smscborder.sms_centerxy.sms_smallboxc{
+    overflow: auto;
+    padding-top: 10px;
+}
+.sms_smscborder.sms_centerxy.sms_smallboxc ul#superfish-1.menu{
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+
+.sms_frametitle{
+    margin: 0 auto;
+}
+
+.sms_title{
+    height: 27px;
+    width: 8px;
+    float:left
+}
+.sms_title.sms_tleft{
+    background-image:url(../images/sms_border.gif);
+    background-position:-60px 0;
+}
+
+.sms_title.sms_tcenter{
+    background-image: url(../images/sms_frame_r1_c9.png);
+    margin-bottom: -2px;
+    overflow: hidden;
+}
+
+.sms_title.sms_tright{
+    background-image:url(../images/sms_border.gif);
+    background-position:-68px 0;
+}
+.sms_titleIdk{
+    height:27px;
+    width:8px;
+    background-image:url(../images/sms_border.gif);
+}
+.sms_titleIdk.sms_leftIdk{
+    background-position:-60px 0;
+}
+.sms_titleIdk.sms_rightIdk{
+    background-position:-68px 0;
+}
+
+/* Smartschool QuickNav */
+#smscQuickNav.active{
+    background:#F5F5F5;
+    border-left:1px solid #868686;
+    border-right:1px solid #868686;
+    padding:5px 3px 6px 3px
+}
+
+#smscQuickNavDialog{
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:rgba(0,0,0,0);
+    -webkit-focus-ring-color:rgba(0,0,0,0);
+    position:absolute;
+    top:25px;
+    right: 10px;
+    z-index:8888;
+    width:496px;
+    min-height:250px;
+    padding:15px 20px 1px 20px;
+    border:1px solid #868686;
+    border-top:1px solid #AEAEAE;
+    border-radius:0 0 5px 5px;
+    box-shadow:0px 3px 6px #888;
+    background:#F5F5F5;
+    background:-moz-linear-gradient(top, #a8a8a8 0, #f5f5f5 5px);
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #a8a8a8), color-stop(5px, #f5f5f5));
+    background:-webkit-linear-gradient(top, #a8a8a8 0, #f5f5f5 5px);
+    background:-o-linear-gradient(top, #a8a8a8 0, #f5f5f5 5px);
+    background:-ms-linear-gradient(top, #a8a8a8 0, #f5f5f5 5px);
+    background:linear-gradient(to bottom, #a8a8a8 0, #f5f5f5 5px);
+    display: none;
+    line-height: 1em;
+}
+#smscQuickNavDialog h3{
+    line-height: 1em;
+    margin-top: 13px;
+}
+#smscQuickNavDialog h4{
+    line-height: 1.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+#smscQuickNavDialog h4.green{
+    color: green;
+    border-bottom: 1px solid lightgreen;
+}
+#smscQuickNavDialog #sms_myitems_list .node small{
+    color: #01A9DB;
+    display: block;
+}
+#smscQuickNavDialog #sms_myitems_list #sms_myitems_list_order{
+    font-size: 0.8em;
+}
+#smscQuickNavDialog #sms_myitems_list #sms_myitems_list_order a{
+    cursor: pointer;
+}
+#smscQuickNavDialog #sms_myitems_list .sms_myitems_list_results{
+    display: none;
+}
+#smscQuickNavDialog #sms_myitems_list .sms_myitems_list_results.active{
+    display: block;
+}
+#smscQuickNavDialog #sms_myitems_list #sms_myitems_list_order{
+    border-bottom: 1px solid #01A9DB;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+#smscQuickNavDialog #sms_myitems_list #sms_myitems_list_order a.active{
+    color: #01A9DB;
+}
+
+#smscQuickNavDialog #sms_myitems_list ul{
+    padding-left: 18px;
+    margin: 10px 0px;
+}
+
+#smscQuickNavDialog #sms_myquicklinks_list .node small{
+    color: #F7819F;
+    display: block;
+}
+
+#smscQuickNavDialog .gradientHide{
+    position:absolute;
+    top:-4px;
+    height:10px;
+    background:#F5F5F5;
+}
+#smscQuickNavDialog .quickNav_settingsBtn{
+    position:absolute;
+    bottom:8px;
+    left:8px;
+    padding:2px 0 2px 20px;
+    color:#868686;
+    cursor:pointer;
+    background-image:url('../../../../../smsc/img/gear/gear_16x16.png');
+    background-repeat:no-repeat;
+    background-position:left center;
+    max-width:220px;
+}
+#smscQuickNavDialog .quickNav_settingsBtn:hover{
+    color:#262626;
+}
+#smscQuickNavDialog .quickNav_settingsBtn.saveMode{
+    background-image:url('../../../../../smsc/img/disk_blue/disk_blue_16x16.png');
+}
+#smscQuickNavDialog .quickNav_settingsBtn.loading{
+    background-image:url('../../../../../smsc/img/spinner-bullets-loader/spinner-bullets-loader_16x16.gif')}
+#smscQuickNavDialog .quickNav_settingsBtn .hilite-red{
+    display:block;
+}
+#smscQuickNavDialog .column{
+    position:relative;
+    float:left;
+    width:214px;
+}
+#smscQuickNavDialog .column.modules{
+    margin-right:13px;
+    padding-bottom:35px;
+}
+#smscQuickNavDialog .column.courses{
+    margin-left:13px;
+}
+#smscQuickNavDialog .column h3{
+    border-bottom:1px solid #989898;
+    padding-bottom:5px;
+    margin-bottom:0px;
+    font-size:11px;
+}
+#smscQuickNavDialog .column .tabbar{
+    position:absolute;
+    top:7px;
+    right:0;
+}
+#smscQuickNavDialog .column .tabbar .tab{
+    float:left;
+    width:24px;
+    height:22px;
+    margin-left:3px;
+    border-radius:3px 3px 0 0;
+    background-repeat:no-repeat;
+    background-position:center center;
+}
+#smscQuickNavDialog .column .tabbar .tab.active,#smscQuickNavDialog .column .tabbar .tab:hover{
+    background-color:#CFCED0;
+}
+#smscQuickNavDialog .column .tabbar .tab.yellow{
+    background-image:url('../images/sms_folder_16x16.png');
+}
+#smscQuickNavDialog .column .tabbar .tab.green{
+    background-image:url('../images/sms_folder_green_16x16.png');
+}
+#smscQuickNavDialog .column .tabbar .tab.blue{
+    background-image:url('../images/sms_folder_blue_16x16.png');
+}
+#smscQuickNavDialog .column .tabbar .tab.pink{
+    background-image:url('../images/sms_folder_go_red_16x16.png');
+}
+#smscQuickNavDialog .column .loader{
+    position:absolute;
+    top:100px;
+    left:93px;
+    width:32px;
+    height:32px;
+    border-radius:5px;
+    background-color:#525252;
+    background-image:url('../../../../../smsc/img/spinner_ios_white_on_greyback/spinner_ios_white_on_greyback_16x16.gif');
+    background-repeat:no-repeat;
+    background-position:center;
+}
+#smscQuickNavDialog .column .list{
+    list-style:none;
+    margin:0;
+    padding:5px 0 0 0;
+    min-width:16px;
+    min-height:200px;
+    max-height:507px;
+    overflow:auto;
+}
+#smscQuickNavDialog .column .list.scroll{
+    overflow:scroll;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    position:relative;
+    padding-bottom:5px;
+}
+#smscQuickNavDialog .column .list .module{
+    position:relative;
+    display:block;
+    padding:3px 0 3px 29px;
+    margin:1px 0;
+    text-decoration:none;
+    color:#262626;
+    background-repeat:no-repeat;
+    background-position:2px center;
+    border-radius:3px;
+}
+#smscQuickNavDialog .column .list .module:hover{
+    background-color:#DEDEDE;
+}
+
+#smscQuickNavDialog .column .list .module.sms_buscheck{
+    background-image:url('../images/modules/16x16/sms_buscheck.png');
+}
+#smscQuickNavDialog .column .list .module.sms_printerbeheer{
+    background-image:url('../images/modules/16x16/sms_printerbeheer.png');
+}
+#smscQuickNavDialog .column .list .module.sms_ikz{
+    background-image:url('../images/modules/16x16/sms_ikz.png');
+}
+#smscQuickNavDialog .column .list .module.sms_keymanagement{
+    background-image:url('../images/modules/16x16/sms_keymanagement.png');
+}
+#smscQuickNavDialog .column .list .module.sms_vakken{
+    background-image:url('../images/modules/16x16/sms_vakken.png');
+}
+#smscQuickNavDialog .column .list .module.sms_klassen{
+    background-image:url('../images/modules/16x16/sms_klassen.png');
+}
+#smscQuickNavDialog .column .list .module.sms_lokalen{
+    background-image:url('../images/modules/16x16/sms_lokalen.png');
+}
+#smscQuickNavDialog .column .list .module.sms_attesten{
+    background-image:url('../images/modules/16x16/sms_attesten.png');
+}
+#smscQuickNavDialog .column .list .module.sms_ktt{
+    background-image:url('../images/modules/16x16/sms_ktt.png');
+}
+#smscQuickNavDialog .column .list .module.sms_lvs{
+    background-image:url('../images/modules/16x16/sms_lvs.png');
+}
+#smscQuickNavDialog .column .list .module.sms_msl{
+    background-image:url('../images/modules/16x16/sms_msl.png');
+}
+#smscQuickNavDialog .column .list .module.sms_stickerOA{
+    background-image:url('../images/modules/16x16/sms_stickerOA.png');
+}
+#smscQuickNavDialog .column .list .module.sms_sync{
+    background-image:url('../images/modules/16x16/sms_sync.png');
+}
+#smscQuickNavDialog .column .list .module.sms_uurrooster{
+    background-image:url('../images/modules/16x16/sms_uurrooster.png');
+}
+#smscQuickNavDialog .column .list .module.sms_underanalysis{
+    background-image:url('../images/modules/16x16/sms_underanalysis.png');
+}
+#smscQuickNavDialog .column .list .module.sms_underdevelopment{
+    background-image:url('../images/modules/16x16/sms_underdevelopment.png');
+}
+
+.sms_locked{
+    background-image:url('../images/sms_lock_16x16.png');
+    width:16px;
+    height:16px;
+}
+
+#smscQuickNavDialog .column .list .module.module-spacer{
+    height:16px;
+    padding:0;
+}
+#smscQuickNavDialog .column .list .module.module-spacer:hover{
+    cursor:default;
+    background:transparent;
+}
+#smscQuickNavDialog .column .list .module.module-spacer span.top{
+    border-bottom:1px solid #CCC;
+    height:8px;
+    display:block;
+    width:100%;
+}
+#smscQuickNavDialog .column .list .module.ui-sortable-helper{
+    background-color:transparent;
+}
+#smscQuickNavDialog .column .list .module span.sort{
+    position:absolute;
+    top:3px;
+    right:0px;
+    display:block;
+    width:16px;
+    height:16px;
+    background-image:url('../../../../../smsc/img/up_down/up_down_16x16.png');
+}
+#smscQuickNavDialog .column .list.sortable .module{
+    cursor:move;
+}
+#smscQuickNavDialog .column .list.sortable .module.module-spacer span.top{
+    width:90%;
+}
+#smscQuickNavDialog .column .list.sortable .module.module-spacer span.sort{
+    top:0;
+}
+#smscQuickNavDialog .column .list.sortable .module.module-spacer:hover{
+    cursor:move;
+    background-color:#DEDEDE;
+}
+#smscQuickNavDialog .column .list .course{
+    display:block;
+    padding:4px 0 4px 4px;
+    margin:2px 0;
+    text-decoration:none;
+    color:#262626;
+    background-repeat:no-repeat;
+    background-position:3px center;
+    border-radius:3px;
+    border:none;
+}
+#smscQuickNavDialog .column .list li.course{
+    display:list-item;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+#smscQuickNavDialog .column .list .course.yellow{
+    background-image:url('../../../../../smsc/img/folder/folder_16x16.png');
+}
+#smscQuickNavDialog .column .list .course.green{
+    background-image:url('../../../../../smsc/img/folder_green/folder_green_16x16.png');
+}
+#smscQuickNavDialog .column .list .course.blue{
+    background-image:url('../../../../../smsc/img/folder_blue/folder_blue_16x16.png');
+}
+#smscQuickNavDialog .column .list .course.pink{
+    background-image:url('../../../../../smsc/img/folder_go_red/folder_go_red_16x16.png');
+}
+#smscQuickNavDialog .column .list .course span{
+    display:block;
+    width:100%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    margin:0;
+}
+#smscQuickNavDialog .column .list .course span.link{
+    font-weight:bold;
+}
+
+#smscQuickNavDialog .column .hidden_list{
+    display: none;
+}
+#smscQuickNavDialog .column .list .course:hover{
+    background-color:#DEDEDE;
+}
+#smscQuickNavDialog .hilite-red{
+    color:#F00;
+    font-weight:bold;
+}
+@-moz-document url-prefix(){
+    #smscQuickNavDialog .column .list{
+        max-height:552px;
+    }
+    #smscQuickNavDialog .column .list.scroll{
+        height:552px;
+    }
+}
+
+.widget-color-yellow{background:#f2bc00}
+.widget-color-red{background:#d00}
+.widget-color-blue{background:#148ea4}
+.widget-color-white{background:#7d7d7d}
+.widget-color-orange{background:#f66e00}
+.widget-color-green{background:#8dc100}
+
+.widget-color-blue h3,
+.widget-color-green h3,
+.widget-color-orange h3,
+.widget-color-red h3,
+.widget-color-white h3,
+.widget-color-yellow h3{color:#FFF}
+
+/* Specific module based css
+ *
+ * As part of "argus - a Smartschool extension" package
+ */
+
+#edit-field-sleutel-nummer-value,
+#edit-field-sleutel-omschrijving-value,
+#edit-field-sleutel-aantal-sleutelkast-value{
+    width: 100%;
+}
+
+/*
+ * CSS for alternative user profile pages
+ */
+.profile hr{
+    background-color: #d4d4d4;
+    height: 1px;
+    border: none;
+}
+
+.profile .profile-admin{
+    position: relative;
+    padding-right: 80px;
+}
+.profile #profile-admin-left,
+.profile #profile-admin-right{
+    width: 49%;
+    margin-right: 1%;
+}
+    .profile #profile-admin-left{
+        float: left;
+    }
+    .profile #profile-admin-right{
+        float: right;
+    }
+    .profile #profile-admin-photo{
+        max-height: 80px;
+        max-width: 60px;
+        position: absolute;
+        right: 0px;
+        top: -40px;
+        cursor: pointer;
+    }
+    .profile #profile-admin-photo-full{
+        max-height: 400px;
+        max-width: 300px;
+        position: absolute;
+        right: 0px;
+        top: -40px;
+        display: none;
+        z-index: 1000;
+    }
+
+.profile #panel-afwezigheden,
+.profile #panel-gedrag,
+.profile #panel-studiebegeleiding{
+    float: left;
+    width: 30%;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 0px 10px 5px 10px;
+}
+    .profile #panel-afwezigheden,
+    .profile #panel-gedrag{
+        margin-right: 1%;
+    }
+
+.profile-table{
+    width: 100%;
+    margin: 0;
+}
+    .profile-table td{
+        width: 33%;
+    }
+
+.profile #panel-afwezigheden{
+    border-color: #B00057;
+}
+    .profile #panel-afwezigheden legend{
+        color: #B00057;
+    }
+    .profile #panel-afwezigheden hr{
+        background-color: #B00057;
+    }
+    
+.profile #panel-gedrag{
+    border-color: #006A32;
+}
+    .profile #panel-gedrag legend{
+        color: #006A32;
+    }
+    .profile #panel-gedrag hr{
+        background-color: #006A32;
+    }
+    
+.profile #panel-studiebegeleiding{
+    border-color: #006CB7;
+    margin-right: 0px;
+}
+    .profile #panel-studiebegeleiding legend{
+        color: #006CB7;
+    }
+    .profile #panel-studiebegeleiding hr{
+        background-color: #006CB7;
+    }
+
+.profile legend{
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.profile .detailList{
+    font-size: 0.8em;
+}
+
+.profile #resultsSelect{
+    margin: 10px 20px;
+}
+
+.profile .results{
+    display: none;
+}
+
+h2{
+    margin:0;
+}
+
+table#classOverview{
+    width: 100%;
+}
+    table#classOverview td{
+        vertical-align: top;
+    }
+
+div.classBox{
+    float: left;
+    width: 95%;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    position: relative;
+    margin-bottom: 10px;
+}
+    div.classBox h2{
+        position: relative;
+        margin-left: 10px;
+        z-index: 1;
+    }
+    div.classBox ol{
+        position: relative;
+        z-index: 1;
+    }
+
+div.amount{
+    position: absolute;
+    top: 50px;
+    right: 3px;
+    font-size: 10em;
+    font-weight: bold;
+    color: #eeeeee;
+    font-family: sans-serif;
+    z-index: 0;
+}
+
+div#classNavBarContainer{
+    background-color: #9D9D9D;
+    border-radius: 3px;
+    margin: 6px 12px;
+    padding: 6px 2px;
+    position: relative;
+}
+div#classNavBarContainerScroll{
+    overflow-x: hidden;
+    position: relative;
+    z-index: 0;
+}
+div#classNavBar{
+    width: 2000px;
+    height: 22px;
+}
+    div#classNavBar a{
+        display: inline;
+        background-color: #E3E3E3;
+        border-radius: 6px;
+        margin: 0px 2px;
+        padding: 7px 10px 6px 20px;
+        background-image: url('../images/student24.gif');
+        background-repeat: no-repeat;
+        background-position: 2px 5px;
+        background-size: 16px 16px;
+        color: #000;
+    }
+
+    div#classNavTools{
+        background-color: #9D9D9D;
+        position: absolute;
+        top: 4px;
+        right: 0px;
+        height: 30px;
+        padding: 0px 4px;
+        z-index: 1;
+    }
+        div#classNavTools a{
+            display: inline;
+            cursor: pointer;
+        }
+        div#classNavToolsMenu{
+            background-color: #E3E3E3;
+            border: 1px solid #9D9D9D;
+            border-top: 0px;
+            right: 0px;
+            top: 34px;
+            position: absolute;
+            z-index: 1;
+            box-shadow: 0px 0px 10px #888888;
+            padding: 5px 15px;
+        }
+        div#classNavToolsMenuClass{
+            background-image: url('../images/class24.gif');
+            background-repeat: no-repeat;
+            background-position: 2px 5px;
+            padding: 5px 0px 10px 35px;
+        }
+        div#classNavToolsMenuStudents{
+            background-image: url('../images/student24.gif');
+            background-repeat: no-repeat;
+            background-position: 2px 5px;
+            padding: 5px 0px 10px 35px;
+        }
+        
+        div#classNavToolsMenu .contentTitle{
+            background-color: #AAA;
+            color: #EFEFEF;
+            padding: 0px 10px;
+            font-weight: bold;
+        }
+        
+.profile .behaviourReportTitle{
+    cursor: context-menu;
+    color: inherit;
+}

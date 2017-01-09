@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Technische meldingen feature.
+ */
+
+include_once 'argus_technische_meldingen.features.inc';

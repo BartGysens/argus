@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Sleutelbeheer feature.
+ */
+
+include_once 'argus_sleutelbeheer.features.inc';

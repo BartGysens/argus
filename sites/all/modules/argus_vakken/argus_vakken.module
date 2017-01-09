@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Vakken feature.
+ */
+
+include_once 'argus_vakken.features.inc';

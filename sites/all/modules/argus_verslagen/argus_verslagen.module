@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Verslagen feature.
+ */
+
+include_once 'argus_verslagen.features.inc';

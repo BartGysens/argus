@@ -1,0 +1,19 @@
+diff --git a/sites/all/modules/simplified_social_share/simplified_social_share.module b/sites/all/modules/simplified_social_share/simplified_social_share.module
+index 23609e0..48581c6 100644
+--- a/sites/all/modules/simplified_social_share/simplified_social_share.module
++++ b/sites/all/modules/simplified_social_share/simplified_social_share.module
+@@ -375,12 +375,12 @@ function simplified_social_share_in_array($value) {
+ function simplified_social_share_horizontal_sharing_div() {
+   $socialsharing_horizontal_images = variable_get('simplified_social_share_horizontal_images');
+   simplified_social_share_sharing_script();
+-  $current_path = url($_GET['q'], array('absolute' => TRUE));
++
+   if (in_array($socialsharing_horizontal_images, array('8', '9'))) {
+-    return '<div class="lrcounter_simplebox" data-share-url="' . $current_path . '" data-counter-url="' . $current_path . '"></div>';
++	return '<div class="lrcounter_simplebox"></div>';
+   }
+   else {
+-    return '<div class="lrsharecontainer" data-share-url="' . $current_path . '" data-counter-url="' . $current_path . '"></div>';
++	return '<div class="lrsharecontainer"></div>';
+   }
+ }

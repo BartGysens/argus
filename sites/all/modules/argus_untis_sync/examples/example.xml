@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document version="1.4" date="20150105" time="091916">
+  <general>
+    <schoolname>Untis 2014</schoolname>
+    <schoolyearbegindate>20130902</schoolyearbegindate>
+    <schoolyearenddate>20140630</schoolyearenddate>
+    <header1>Rooster 2013-2014</header1>
+    <header2>Schoolnaam</header2>
+    <footer>Periode1   G r u b e r  &amp;  P e t t e r s   S o f t w a r e   rooster 27 dec 2014 versie 6</footer>
+    <termbegindate>20130902</termbegindate>
+    <termenddate>20140630</termenddate>
+  </general>
+  <timeperiods>
+    <timeperiod id="TP_1">
+      <day>1</day>
+      <period>1</period>
+      <starttime>0830</starttime>
+      <endtime>0920</endtime>
+    </timeperiod>
+...
+  </timeperiods>
+  <descriptions/>
+  <departments/>
+  <rooms>
+    <room id="RM_045">
+      <longname>werkplaats carrosserie 2de graad</longname>
+    </room>
+...
+  </rooms>
+  <subjects>
+    <subject id="SU_AARDRIJK">
+      <longname>AV Aaardrijkskunde</longname>
+      <subject_room id="RM_183"/>
+    </subject>
+...
+  </subjects>
+  <teachers>
+    <teacher id="TR_JOSM”>
+      <forename>Jos</forename>
+      <surname>Martens</surname>
+    </teacher>
+...
+  </teachers>
+  <classes>
+    <class id="CL_1A">
+      <longname>Eerste leerjaar A</longname>
+    </class>
+...
+  </classes>
+  <students/>
+  <lessons>
+    <lesson id="LS_200">
+      <periods>2</periods>
+      <lesson_subject id="SU_ISLAMGOD"/>
+      <lesson_teacher id="TR_KOYTA"/>
+      <lesson_classes id="CL_7BCW CL_7BAE CL_7BCS CL_7BIE CL_7BBG CL_7BII"/>
+      <teacher_value>200000</teacher_value>
+      <effectivebegindate>20130902</effectivebegindate>
+      <effectiveenddate>20140630</effectiveenddate>
+      <block>2</block>
+      <occurence>11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF11111FF1</occurence>
+      <text>niet op ma</text>
+      <times>
+        <time>
+          <assigned_day>4</assigned_day>
+          <assigned_period>6</assigned_period>
+          <assigned_starttime>1340</assigned_starttime>
+          <assigned_endtime>1430</assigned_endtime>
+          <assigned_room id="RM_206"/>
+        </time>
+        <time>
+          <assigned_day>4</assigned_day>
+          <assigned_period>7</assigned_period>
+          <assigned_starttime>1440</assigned_starttime>
+          <assigned_endtime>1530</assigned_endtime>
+          <assigned_room id="RM_206"/>
+        </time>
+      </times>
+    </lesson>
+...
+  </lessons>
+</document>

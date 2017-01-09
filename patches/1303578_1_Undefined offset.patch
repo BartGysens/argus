@@ -1,0 +1,29 @@
+Index: system_charts/system_charts.module
+===================================================================
+--- system_charts/system_charts.module	(revision 279)
++++ system_charts/system_charts.module	(working copy)
+@@ -186,8 +186,8 @@
+       while ($result = $results->fetchAssoc()) {
+         $day = ltrim(date('d', $result['created']), '0');
+         $types[$result['type']] = $result['type'];
+-        $counts[$day][$result['type']]++;
+-        $max[$result['type']]++;
++        $counts[$day][$result['type']] = isset($counts[$day][$result['type']]) ? $counts[$day][$result['type']] + 1 : 0;
++        $max[$result['type']] = isset($max[$result['type']]) ? $max[$result['type']] + 1 : 0;
+       }
+ 
+       // Generate data and labels
+@@ -196,12 +196,7 @@
+           $chart['#labels'][] = $i;
+ 
+           foreach ($types as $type) {
+-            if ($counts[$i][$type]) {
+-              $chart['#data'][$type][] = $counts[$i][$type];
+-            }
+-            else {
+-              $chart['#data'][$type][] = '0';
+-            }
++            $chart['#data'][$type][] = isset($counts[$i][$type]) ? $counts[$i][$type] : 0;
+           }
+         }
+       }

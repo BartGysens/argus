@@ -1,0 +1,233 @@
+<?php
+/* 
+ * Copyright (C) 2016 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+* REQUIRED MODULE: Chart
+*/
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_kerncijfers_menu().
+ */
+function argus_kerncijfers_menu() {
+    $items = array();
+    $items['kerncijfers'] = array(
+        'title' => t('Kerncijfers'),
+        'description' => 'Bekijk je gegevens in grafieken en statistieken.',
+        'page callback' => 'argus_kerncijfers_overview',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,
+        'menu_name' => 'menu-modules',
+    );
+    $items['kerncijfers/%/%'] = array(
+        'title' => t('Kerncijfers: details'),
+        'page callback' => 'argus_kerncijfers_detail',
+        'page arguments' => array(1,2),
+        'access callback' => TRUE,
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+
+/** 
+ * Implement hook_theme()
+ */
+function argus_kerncijfers_theme() {
+    return array(
+        'argus_kerncijfers--overview_filter_block' => array(
+            'variables' => array(
+                'content' => NULL,
+                'popular_content' => NULL,
+            ),
+            'template' => 'templates/argus_kerncijfers--overview--filter_block',
+        ),
+        'argus_kerncijfers--overview' => array(
+            'template' => 'templates/argus_kerncijfers--overview',
+        ),
+        'argus_kerncijfers--detail' => array(
+            'template' => 'templates/argus_kerncijfers--detail',
+        ),
+      );
+}
+
+
+/** 
+ * Implement hook_block_info().
+ */
+function argus_kerncijfers_block_info() {
+    $blocks = array(
+	    'overview_filter_block' => array(
+	        'info' => t('Kerncijfers: filter'),
+	        'title' => t('Filter'),
+	    ),
+    );
+
+    return $blocks;
+}
+
+/**
+ * Implement hook_block_view().
+ */
+function argus_kerncijfers_block_view($delta='') {
+	drupal_add_js(drupal_get_path('module', 'argus_kerncijfers').'/js/argus_kerncijfers.js');
+	$block = array();
+	$variables = array( 'plugins' => argus_kerncijfers_get_plugins());
+	switch ($delta) {
+		case 'overview_filter_block':
+			$block['title'] = 'Filter';
+			$block['subject'] = 'Kerncijfers: filter';
+			$block['content'] = theme('argus_kerncijfers--overview_filter_block', $variables);
+			break;
+	}
+	return $block;
+}
+
+
+/**
+ * Page callback: Overzicht van alle plugins
+ *
+ * @return array
+ */
+function argus_kerncijfers_overview() {
+    return theme('argus_kerncijfers--overview', array('plugins' => argus_kerncijfers_get_plugins()));
+}
+
+
+/**
+ * Page callback: Detail van opgevraagde plugin
+ * 
+ * @param1 string Folder in which subfolders are located for each plugin
+ * @param2 string Subfolder which includes plugin
+ *
+ * @return array
+ */
+function argus_kerncijfers_detail($param1, $param2) {
+	drupal_add_css(drupal_get_path('module', 'argus_kerncijfers').'/css/argus_kerncijfers.css');
+	
+    /* Check if requested plugin exists */
+    $pluginfile = DRUPAL_ROOT.'/'.drupal_get_path('module', 'argus_kerncijfers').'/plugins/'.$param1.'/'.$param2.'/plugin.php';
+    if (file_exists($pluginfile)){
+		/* Load plugin */
+    	require_once $pluginfile;
+    	
+    	$plugin = array(
+    		'title' => ucfirst($param1).' : '.call_user_func('argus_kerncijfers_plugin_'.$param1.'_'.$param2.'_title'),
+    		'description' => call_user_func('argus_kerncijfers_plugin_'.$param1.'_'.$param2.'_description'),
+    		'type' => call_user_func('argus_kerncijfers_plugin_'.$param1.'_'.$param2.'_type'),
+    		'width' => call_user_func('argus_kerncijfers_plugin_'.$param1.'_'.$param2.'_width'),
+    		'height' => call_user_func('argus_kerncijfers_plugin_'.$param1.'_'.$param2.'_height'),
+    		'package' => call_user_func('argus_kerncijfers_plugin_'.$param1.'_'.$param2.'_package'),
+    		'data' => call_user_func('argus_kerncijfers_plugin_'.$param1.'_'.$param2.'_data'),
+    		'options' => call_user_func('argus_kerncijfers_plugin_'.$param1.'_'.$param2.'_options'),
+    	);
+    	
+    	/* Load Google Charts API */
+    	drupal_add_js("https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['".$plugin['package']['module']."']}]}");
+    } else {
+    	$plugin = array();
+    }
+    
+    return theme('argus_kerncijfers--detail', array('plugin' => $plugin));
+}
+
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Page callback: Retrieve all plugins
+ *
+ * @return array
+ */
+function argus_kerncijfers_get_plugins() {
+    /* Define structure for each plugin */
+    $plugin_folders = array_diff(scandir(DRUPAL_ROOT.'/'.drupal_get_path('module', 'argus_kerncijfers').'/plugins'), array('..', '.'));
+    
+    $plugins = array();
+    if (count($plugin_folders)){
+    	foreach ($plugin_folders as $plugin_folder){
+    		$plugins[$plugin_folder] = array();
+    		$plugin_subfolders = array_diff(scandir(DRUPAL_ROOT.'/'.drupal_get_path('module', 'argus_kerncijfers').'/plugins/'.$plugin_folder), array('..', '.'));
+    		foreach ($plugin_subfolders as $plugin_subfolder){
+	    		require_once DRUPAL_ROOT.'/'.drupal_get_path('module', 'argus_kerncijfers').'/plugins/'.$plugin_folder.'/'.$plugin_subfolder.'/plugin.php';
+	    		$plugins[$plugin_folder][$plugin_subfolder] = array(
+	    			'title' => call_user_func('argus_kerncijfers_plugin_'.$plugin_folder.'_'.$plugin_subfolder.'_title'),
+	    			'description' => call_user_func('argus_kerncijfers_plugin_'.$plugin_folder.'_'.$plugin_subfolder.'_description'),
+	    			'type' => call_user_func('argus_kerncijfers_plugin_'.$plugin_folder.'_'.$plugin_subfolder.'_type'),
+	    		);
+    		}
+    	}
+    }
+    
+    return $plugins;
+}
+
+/**
+ * Preprocess query and add additional query information based upon filter selection in block
+ *
+ * @param $q string Preformed query
+ *
+ * @return string
+ */
+function argus_kerncijfers_preprocess_query($q, $o = array()) {
+	$innerjoin = '';
+	$where = '';
+	
+	/* Process: jaar */
+	if (array_key_exists('jaar', $_GET)){
+		if ($_GET['jaar']){
+			$y = explode('-',$_GET['jaar']);
+			
+			$innerjoin .= ' INNER JOIN {field_data_field_klas_graad} AS gr ON l.entity_id = gr.entity_id ';
+			$where .= ' AND gr.field_klas_graad_value = :graad ';
+			$o['graad'] = $y[0];
+			
+			$innerjoin .= ' INNER JOIN {field_data_field_klas_leerjaar} AS lj ON l.entity_id = lj.entity_id ';
+			$where .= ' AND lj.field_klas_leerjaar_value = :leerjaar ';
+			$o['leerjaar'] = $y[1];
+		}
+	}
+	
+	/* Process: onderwijsvorm */
+	if (array_key_exists('onderwijsvorm', $_GET)){
+		if ($_GET['onderwijsvorm']){
+			$innerjoin .= ' INNER JOIN {field_data_field_klas_onderwijsvorm} AS ov ON l.entity_id = ov.entity_id ';
+			$where .= ' AND ov.field_klas_onderwijsvorm_value = :onderwijsvorm ';
+			$o['onderwijsvorm'] = $_GET['onderwijsvorm'];
+		}
+	}
+	
+	/* Process: structuuronderdeel */
+	if (array_key_exists('structuuronderdeel', $_GET)){
+		if ($_GET['structuuronderdeel']){
+			$innerjoin .= ' INNER JOIN {field_data_field_klas_structuuronderdeel} AS st ON l.entity_id = st.entity_id ';
+			$where .= ' AND st.field_klas_structuuronderdeel_value = :structuuronderdeel ';
+			$o['structuuronderdeel'] = $_GET['structuuronderdeel'];
+		}
+	}
+	
+    $q = str_replace(':innerjoin', $innerjoin, $q);
+    
+    $q = str_replace(':where', $where, $q);
+    
+    return array( 'string' => $q, 'options' => $o);
+}

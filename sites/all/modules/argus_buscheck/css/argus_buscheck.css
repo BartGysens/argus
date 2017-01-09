@@ -1,0 +1,55 @@
+/*
+Copyright (C) 2014 bartgysens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/* 
+    Created on : 20-okt-2014, 15:01:06
+    Author     : bartgysens
+*/
+
+div#argus_buscheck_results{
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: gray 1px solid;
+}
+
+div#argus_buscheck_results .dataSet{
+    clear: both;
+    border-bottom: lightgray 1px solid;
+}
+
+div#argus_buscheck_results_header{
+    clear: both;
+    margin-top: 10px;
+}
+
+div#argus_buscheck_results .dataSet div,
+div#argus_buscheck_results_header div{
+    float: left;
+    padding: 5px;
+    margin: 5px;
+}
+
+div#argus_buscheck_results .dataSet div.times{
+    clear: both;
+    background-color: #efefef;
+}
+
+div#argus_buscheck_results .dataSet .short_name,
+div#argus_buscheck_results_header .short_name{
+    width: 25px;
+    text-align: center;
+}

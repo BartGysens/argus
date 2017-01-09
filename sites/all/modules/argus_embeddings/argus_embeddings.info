@@ -1,0 +1,11 @@
+name = Invoegvensters
+description = Voeg informatie uit argus toe in je eigen toepassingen via iframes of html-inclusie.
+package = argus - a Quality control extension
+core = 7.x
+php = 5.2
+configure = admin/config/argus/embeddings
+
+version = "7.x-1.0"
+project = "argus_embeddings"
+datestamp = "1449303896"
+project status url = http://www.projectargus.be/release-history

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Pedagogische activiteiten feature.
+ */
+
+include_once 'argus_pedagogische_activiteiten.features.inc';

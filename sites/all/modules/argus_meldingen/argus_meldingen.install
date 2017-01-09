@@ -1,0 +1,39 @@
+<?php
+/* 
+ * Copyright (C) 2015 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Install */
+
+include_once 'argus_meldingen.field_base.inc';
+include_once 'argus_meldingen.field_instance.inc';
+include_once 'argus_meldingen.conditional_fields.inc';
+
+/**
+ * Implements hook_install().
+ */
+function argus_meldingen_install() {
+    node_types_rebuild();
+    foreach (_argus_meldingen_installed_fields() as $field) {
+        field_create_field($field);
+    }
+    foreach (_argus_meldingen_installed_instances() as $fieldinstance) {
+        field_create_instance($fieldinstance);
+    }
+    foreach (_argus_meldingen_installed_conditional_fields() as $conditionalfield) {
+        conditional_fields_dependency_insert($conditionalfield['dependee'], $conditionalfield['dependent'], $conditionalfield['options']);
+    }
+}

@@ -1,0 +1,66 @@
+**Releases:
+
+v7.x-2.6-3
+---------
+- Klassen die niet actief zijn niet tonen
+- Extra functie om de leerkrachten van een klas op te halen als ID's
+- Fix in klasbeheer when no pupils Fix in view (patch)
+
+v7.x-2.6-2
+---------
+- Fix in sync van klassen
+- Fixes in klasbeeld
+
+v7.x-2.6-1
+---------
+- Fix in Klasbeheer overzicht juiste data pos/neg behaviour
+
+v7.x-2.6
+---------
+- Update klasbeheer: syntax en fix in error handling
+
+v7.x-2.5
+---------
+- Bladeren door gegevens van vorige schooljaren geactiveerd voor leerlingen en klassen.
+- Fix voor data per schooljaar
+
+v7.x-2.4
+---------
+- Update infoblok (rechts) klasbeheer: afwezigheden en studie voor KTT's
+- Fix in Klasbeheer Secret garden steam
+- Alfabetisch klasbeeld home
+- Dummy proof fout KTT zonder klas
+- Module Klasbeheer: block voor ilb, kit en staff 
+
+v7.x-2.3
+---------
+- Thema aangepast voor rechterblok
+- Module Klasbeheer prototype rechts
+
+v7.x-2.2
+---------
+- Update Klasbeeld (extra gemiddelden graad, leerjaar, type, ...)
+- Klasbeeld fix gem klas Study
+
+v7.x-2.1
+---------
+- Update Klasbeeld: leerkrachten + school- & klasgemiddelden
+- Klasoverzicht: nummering toegevoegd
+
+v7.x-2.0
+---------
+- Update Smartschool thema : Klasprofile
+- Module Klasbeheer > Features naar custom 
+
+v7.x-1.1
+---------
+- Update sync: fix in Klassen sync - permission setting
+
+v7.x-1.0
+---------
+- Nieuwe iconen voor modules klassen, vakken, lokalen
+- First initial release
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

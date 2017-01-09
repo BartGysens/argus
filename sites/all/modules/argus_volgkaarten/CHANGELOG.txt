@@ -1,0 +1,15 @@
+**Releases:
+
+
+v7.x-1.1
+---------
+- Update argus Stickers, Volgkaart, Meldingen
+
+v7.x-1.0
+---------
+- First initial release - featured based
+- Nieuwe modules: Meldingen (basisversie 1), Volgkaarten, Begeleidingsovereenkomsten
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

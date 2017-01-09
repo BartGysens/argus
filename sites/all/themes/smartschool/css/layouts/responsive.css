@@ -1,0 +1,355 @@
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file
+ * Positioning for a responsive layout.
+ *
+ * Define CSS classes to create a fluid grid layout with optional sidebars
+ * depending on whether blocks are placed in the left or right sidebars.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */
+
+/**
+ * Center the page.
+ *
+ * For screen sizes larger than 1200px, prevent excessively long lines of text
+ * by setting a max-width.
+ */
+#page,
+.region-bottom {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1200px;
+}
+
+/* Apply the shared properties of grid items in a single, efficient ruleset. */
+#header,
+#content,
+#navigation,
+.region-sidebar-first,
+.region-sidebar-second,
+#footer {
+  padding-left: 1%;
+  padding-right: 2%;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  /* behavior: url("/path/to/boxsizing.htc"); */
+  _display: inline;
+  _overflow: hidden;
+  _overflow-y: visible;
+}
+
+/* Containers for grid items and flow items. */
+#header,
+#main,
+#footer {
+  /* position: relative; */
+  /* zoom: 1; */
+}
+#header:before,
+#header:after,
+#main:before,
+#main:after,
+#footer:before,
+#footer:after {
+  content: "";
+  display: table;
+}
+#header:after,
+#main:after,
+#footer:after {
+  clear: both;
+}
+
+/* Navigation bar */
+@media all and (min-width: 480px) {
+  #main {
+    /* Move all the children of #main down to make room. */
+    padding-top: 3em;
+    position: relative;
+  }
+  #navigation {
+    /* Move the navbar up inside #main's padding. */
+    position: absolute;
+    top: 0;
+    height: 3em;
+    width: 100%;
+  }
+}
+
+/**
+ * Use 3 grid columns for smaller screens.
+ */
+@media all and (min-width: 480px) and (max-width: 959px) {
+
+  /**
+   * The layout when there is only one sidebar, the left one.
+   */
+
+  /* Span 2 columns, starting in 2nd column from left. */
+  .sidebar-first #content {
+    float: left;
+    width: 65%;
+    margin-left: 33.33333%;
+    margin-right: -98.33333%;
+  }
+
+  /* Span 1 column, starting in 1st column from left. */
+  .sidebar-first .region-sidebar-first {
+    float: left;
+    width: 33.33333%;
+    margin-left: 0%;
+    margin-right: -33.33333%;
+  }
+
+  /**
+   * The layout when there is only one sidebar, the right one.
+   */
+
+  /* Span 2 columns, starting in 1st column from left. */
+  .sidebar-second #content {
+    float: left;
+    width: 65%;
+    margin-left: 0%;
+    margin-right: -65%;
+  }
+
+  /* Span 1 column, starting in 3rd column from left. */
+  .sidebar-second .region-sidebar-second {
+    float: left;
+    width: 33.33333%;
+    margin-left: 65%;
+    margin-right: -98.33333%;
+  }
+
+  /**
+   * The layout when there are two sidebars.
+   */
+
+  /* Span 2 columns, starting in 2nd column from left. */
+  .two-sidebars #content {
+    float: left;
+    width: 66.66666%;
+    margin-left: 33.33333%;
+    margin-right: -100%;
+  }
+
+  /* Span 1 column, starting in 1st column from left. */
+  .two-sidebars .region-sidebar-first {
+    float: left;
+    width: 33.33333%;
+    margin-left: 0%;
+    margin-right: -33.33333%;
+  }
+
+  /* Start a new row and span all 3 columns. */
+  .two-sidebars .region-sidebar-second {
+    float: left;
+    width: 100%;
+    margin-left: 0%;
+    margin-right: -100%;
+    padding-left: 0;
+    padding-right: 0;
+    clear: left;
+  }
+
+  /* Apply the shared properties of grid items in a single, efficient ruleset. */
+  .two-sidebars .region-sidebar-second .block {
+    padding-left: 10px;
+    padding-right: 10px;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    /* behavior: url("/path/to/boxsizing.htc"); */
+    _display: inline;
+    _overflow: hidden;
+    _overflow-y: visible;
+  }
+
+  /* Span 1 column, starting in the 1st column from left. */
+  .two-sidebars .region-sidebar-second .block:nth-child(3n+1) {
+    float: left;
+    width: 33.33333%;
+    margin-left: 0%;
+    margin-right: -33.33333%;
+    clear: left;
+  }
+
+  /* Span 1 column, starting in the 2nd column from left. */
+  .two-sidebars .region-sidebar-second .block:nth-child(3n+2) {
+    float: left;
+    width: 33.33333%;
+    margin-left: 32.33333%;
+    margin-right: -65.66666%;
+  }
+
+  /* Span 1 column, starting in the 3rd column from left. */
+  .two-sidebars .region-sidebar-second .block:nth-child(3n) {
+    float: left;
+    width: 33.33333%;
+    margin-left: 65%;
+    margin-right: -98.33333%;
+  }
+}
+
+/**
+ * Use 5 grid columns for larger screens.
+ */
+@media all and (min-width: 960px) {
+
+  /**
+   * The layout when there is only one sidebar, the left one.
+   */
+
+  /* Span 4 columns, starting in 2nd column from left. */
+  .sidebar-first #content {
+    float: left;
+    width: 79%;
+    margin-left: 20%;
+    margin-right: -99%;
+  }
+
+  /* Span 1 column, starting in 1st column from left. */
+  .sidebar-first .region-sidebar-first {
+    float: left;
+    width: 20%;
+    margin-left: 0%;
+    margin-right: -20%;
+  }
+
+  /**
+   * The layout when there is only one sidebar, the right one.
+   */
+
+  /* Span 4 columns, starting in 1st column from left. */
+  .sidebar-second #content {
+    float: left;
+    width: 79%;
+    margin-left: 0%;
+    margin-right: -79%;
+  }
+
+  /* Span 1 column, starting in 5th column from left. */
+  .sidebar-second .region-sidebar-second {
+    float: left;
+    width: 20%;
+    margin-left: 79%;
+    margin-right: -99%;
+  }
+
+  /**
+   * The layout when there are two sidebars.
+   */
+
+  /* Span 3 columns, starting in 2nd column from left. */
+  .two-sidebars #content {
+    float: left;
+    width: 40%;
+    margin-left: 20%;
+    margin-right: -79%;
+  }
+
+  /* Span 1 column, starting in 1st column from left. */
+  .two-sidebars .region-sidebar-first {
+    float: left;
+    width: 20%;
+    margin-left: 0%;
+    margin-right: -20%;
+  }
+
+  /* Span 1 column, starting in 5th column from left. */
+  .two-sidebars .region-sidebar-second {
+    float: left;
+    width: 40%;
+    margin-left: 60%;
+    margin-right: -98%;
+  }
+}
+
+.sms_smscborder.sms_centery.sms_topy.sms_smallboxct {
+	width: 100%
+}
+
+.sms_smscborder.sms_centery.sms_bottomy.sms_smallboxcb {
+	width: 100%
+}
+
+.sms_smscborder.sms_centerxy.sms_smallboxc {
+	width: 100%;
+	padding-left: 0px;
+	padding-right: 0px
+}
+
+.sms_title.sms_tcenter {
+	width: initial
+}
+
+.sms_title.sms_tleft {
+	margin-left: 30px
+}
+
+div.sms {
+	position: relative;
+	border: 1px solid #d4d4d4;
+	border-left: 0px;
+	background-position-x: -1px;
+	background-image: url(../../images/sms_border_left.gif);
+	background-color: #FFF;
+	background-repeat: repeat-y;
+	padding-top: 20px
+}
+
+div#sms_block_lefttop {
+	position: absolute;
+	top: -1px;
+	left: -1px
+}
+
+div#sms_block_leftbottom {
+	position: absolute;
+	bottom: -3px;
+	left: -1px
+}
+
+div#sms_block_righttop {
+	position: absolute;
+	top: -1px;
+	right: -3px
+}
+
+div#sms_block_rightbottom {
+	position: absolute;
+	bottom: -3px;
+	right: -3px
+}
+
+div.sms_frametitle {
+	position: absolute;
+	top: -1px;
+	left: 0px
+}
+
+h2 {
+	margin: 0
+}

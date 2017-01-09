@@ -1,0 +1,559 @@
+<?php
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * GP Untis reference, description of returnobject in XML-format
+ * stdClass XML Object
+ *  (
+       <?xml version="1.0" encoding="ISO-8859-1"?>
+       <document version="1.4" date="20150105" time="091916">
+         <general><schoolname><schoolyearbegindate><schoolyearenddate><header1><header2><footer><termbegindate><termenddate></general>
+          <timeperiods><timeperiod><day><period><starttime><endtime></timeperiod>...</timeperiods>
+          <descriptions/>
+          <departments/>
+          <rooms><room><longname></room>...</rooms>
+          <subjects><subject><longname><subject_room></subject>...</subjects>
+          <teachers><teacher><forename><surname></teacher>...</teachers>
+          <classes><class><longname></class>...</classes>
+          <students/>
+          <lessons><lesson><periods><lesson_subject><lesson_teacher><lesson_classes><teacher_value><effectivebegindate><effectiveenddate><block><occurence><text><times><time><assigned_day><assigned_period><assigned_starttime><assigned_endtime><assigned_room></time>...</times></lesson>...</lessons>
+        </document>
+ *  )
+ * 
+ * Example with values available in folder
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_sms_api_menu().
+ */
+function argus_untis_sync_menu() {
+    $items = array();
+    $items['admin/config/argus/untis-sync'] = array(
+        'title' => 'Synchroniseren met GP Untis',
+        'description' => 'Synchroniseer gegevens van GP Untis software met argus.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_untis_sync_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 1,
+    );
+    return $items;
+}
+
+/**
+ * Page callback: Smartschool Synchronisation form setup
+ *
+ * @see argus_sms_sync_menu()
+ */
+function argus_untis_sync_form($form, &$form_state) {
+    global $base_url;
+    $path = drupal_get_path('module', 'argus_untis_sync');
+    $form['#attached']['js'] = array(
+        $path . '/js/argus_untis_sync.js',
+    );
+    
+    $form['argus_untis_data'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Selectie van de gegevens'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#description' => t('Selecteer de gegevens die met GP Untis moeten worden gesynchroniseerd.'),
+    );
+    
+    /*
+     * Smartschool import data from specific programs: GP Untis, Moodle, ...
+     */
+    $form['argus_untis_data']['argus_untis_periods'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Perioden'),
+        '#default_value' => variable_get('argus_untis_periods'),
+    );
+    $form['argus_untis_data']['argus_untis_rooms'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Lokalen'),
+        '#default_value' => variable_get('argus_untis_rooms'),
+    );
+    $form['argus_untis_data']['argus_untis_subjects'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Vakken'),
+        '#description' => t('Als je de lokalen aan het vak wil koppelen, moet je de lokalen ook importeren.'),
+        '#default_value' => variable_get('argus_untis_subjects'),
+    );
+    $form['argus_untis_data']['argus_untis_lessons'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Uurroosters / lessentabellen'),
+        '#description' => t('Als je de uurroosters met alle mogelijkheden wil gebruiken, moet je ook de leerkrachten <em>[gebruikers]</em> , periodes, vakken, lokalen en klassen <em>[rollen]</em> importeren.'),
+        '#default_value' => variable_get('argus_untis_lessons'),
+    );
+    
+    $form['argus_untis_oldData'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Oude gegevens verwijderen'),
+        '#description' => t('Gegevens die niet langer voorkomen in de roosters (oude lokalen, vakken die niet langer worden gegeven, andere tijdperiodes, ...) kunnen tijdens de synchronisatie worden verwijderd, de lessenroosters worden automatisch verwijderd; let wel op dat je je databank hebt gearchiveerd. Er kunnen ook links verbroken worden met deze actie. Ben je niet zeker, verwijder dan manueel de oude gegevens.'),
+    );
+    
+    $form['argus_untis_sync_now'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Importeer het bestand nu'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#description' => t('Zorg dat je een export-bestand bij de hand hebt en lees de gegevens nu in.'),
+    );
+    
+    $form['argus_untis_sync_now']['argus_untis_file'] = array(
+        '#type' => 'managed_file',
+        '#title' => t('GP Untis-bestand'),
+        '#description' => t('Het bestand moet een tekstbestand in XML-formaat zijn (extensie ".TXT"); dit kan je selecteren bij de export vanuit GP Untis.'),
+        '#process' => array('argus_untis_file_process'),
+        '#upload_validators' => array(
+            'file_validate_extensions' => array('txt'),
+        ),
+    );
+    $form['argus_untis_sync_now']['argus_untis_now'] = array(
+        '#type' => 'submit',
+        '#value' => t('Importeer dit bestand nu'),
+        '#submit' => array('argus_sms_untis_form_submit'),
+        '#suffix' => t('<div id="argus_sms_untis_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="'.$base_url.'/'.$path.'/images/waiter.gif" /><br />(even geduld, dit kan enkele minuten duren - dit venster niet sluiten!)</div>'),
+        '#attributes' => array(
+            'onclick' => array('argus_untis_now()'),
+        ),
+    );
+
+    return system_settings_form($form);
+}
+
+
+/**
+ * Implements argus_untis_sync_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function argus_untis_sync_help($path, $arg) {
+    $output = '';
+    switch ($path) {
+      case "admin/help#argus_untis_sync":
+        $output =
+          '<h3>' . t('Configuratie van deze module') . '</h3>/**
+ * Longer loading times sometimes needed for import
+ */
+ini_set(\'max_execution_time\', 0);'
+        . '<p>' . t('Na de installatie dien je volgende items instellen:') . '</p>'
+        
+        . '<h4>' . t('Algemene instellingen') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Uw ...-platform') . '</strong></dt>'
+        . '<dd>' . t('Vervang in de url <em>"uwschool"</em> met de verwijzing naar je eigen school.') . '</dd>'
+        . '</dl>';
+        break;
+    }
+    return $output;
+}
+
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Button import Untis files call back function
+ * 
+ * GP Untis
+ * 
+ * http://www.school-timetabling.com/content/manual/UK/index.html?hid_export.htm
+ */
+function argus_sms_untis_form_submit($form, &$form_state) {
+    $syncStart = time();
+    
+    if ($form_state['values']['argus_untis_oldData']) {
+        /* Remove all data from GP Untis: subjects (vakken), rooms (lokalen), periods (perioden) and lessons (uurroosters) */
+        if (variable_get('argus_untis_periods')) {
+	        $query = new EntityFieldQuery();
+	        $query
+	            ->entityCondition('entity_type', 'node', '=')
+	            ->entityCondition('bundle', 'uurrooster_periode', '=');
+	        $result = $query->execute();
+	        if (count($result)>0) {
+	            foreach ($result['node'] as $key => $n){
+	                node_delete($key);
+	            }
+	            argus_report(count($result['node']).' <em>periodes</em> verwijderd.');
+	        }
+        }
+        
+        if (variable_get('argus_untis_subjects')) {
+	        $query = new EntityFieldQuery();
+	        $query
+	            ->entityCondition('entity_type', 'node', '=')
+	            ->entityCondition('bundle', 'vak', '=')
+	            ->fieldCondition('field_vak_untis_id', 'value', 'NULL', '!=');
+	        $result = $query->execute();
+	        if (count($result)>0) {
+	            foreach ($result['node'] as $key => $n){
+	                node_delete($key);
+	            }
+	            argus_report(count($result['node']).' <em>vakken</em> verwijderd.');
+	        }
+        }
+
+        if (variable_get('argus_untis_rooms')) {
+	        $query = new EntityFieldQuery();
+	        $query
+	            ->entityCondition('entity_type', 'node', '=')
+	            ->entityCondition('bundle', 'lokaal', '=')
+	            ->fieldCondition('field_lokaal_id_untis', 'value', 'NULL', '!=');
+	        $result = $query->execute();
+	        if (count($result)>0) {
+	            foreach ($result['node'] as $key => $n){
+	                node_delete($key);
+	            }
+	            argus_report(count($result['node']).' <em>lokalen</em> verwijderd.');
+	        }
+        }
+
+        if (variable_get('argus_untis_lessons')) {
+	        $query = new EntityFieldQuery();
+	        $query
+	            ->entityCondition('entity_type', 'node', '=')
+	            ->entityCondition('bundle', 'uurrooster_les', '=');
+	        $result = $query->execute();
+	        if (count($result)>0) {
+	            foreach ($result['node'] as $key => $n){
+	                node_delete($key);
+	            }
+	            argus_report(count($result['node']).' <em>lessen</em> verwijderd.');
+	        }
+        }
+    }
+    
+    if ($form_state['values']['argus_untis_file']) {
+        $file = file_load($form_state['values']['argus_untis_file'])->uri;
+        if (file_exists($file)) {
+            $retrievedData = simplexml_load_file($file);
+            
+            /* Start synchronisation process */
+            
+            /* Start importing : Timeperiods */
+            if (variable_get('argus_untis_periods')) {
+                $cntTimeperiodsNew = 0;
+                $cntTimeperiodsEdit = 0;
+                foreach ($retrievedData->timeperiods->timeperiod as $timeperiod) {
+                    $timeperiod = (array) $timeperiod;
+
+                    $query = new EntityFieldQuery();
+                    $query
+                      ->entityCondition('entity_type', 'node', '=')
+                      ->entityCondition('bundle', 'uurrooster_periode', '=')
+                      ->fieldCondition('field_uurrooster_periode_id', 'value', $timeperiod['@attributes']['id'], '=');
+                    $result = $query->execute();
+
+                    if (count($result)>0){
+                        $node = node_load(key($result['node']));
+                        $cntTimeperiodsEdit++;
+                    } else {
+                        $node = new stdClass();
+                        $node->type = 'uurrooster_periode';
+                        $node->language = LANGUAGE_NONE;
+                        $node->uid = 0;
+                        $node->status = 1;
+                        $node->promote = 0;
+                        $node->comment = 0;
+                        node_object_prepare($node);
+                        $node->field_uurrooster_periode_id[$node->language][0]['value'] = $timeperiod['@attributes']['id'];
+                        $cntTimeperiodsNew++;
+                    }
+
+                    $node->field_uurrooster_periode_dag[$node->language][0]['value'] = $timeperiod['day'];
+                    $node->field_uurrooster_periode_periode[$node->language][0]['value'] = $timeperiod['period'];
+                    $node->field_uurrooster_periode_start[$node->language][0]['value'] = $timeperiod['starttime'];
+                    $node->field_uurrooster_periode_eind[$node->language][0]['value'] = $timeperiod['endtime'];
+
+                    // Save the node.
+                    node_save($node);
+                }
+
+                argus_report($cntTimeperiodsNew.' nieuwe <em>periodes</em> toegevoegd en '.$cntTimeperiodsEdit.' bestaande <em>periodes</em> '.(variable_get('argus_sms_sync_overwrite') ? 'overschreven':'gesynchroniseerd').'.');
+            }
+            
+            /* Start importing : Rooms */
+            if (variable_get('argus_untis_rooms')) {
+                $cntRoomsNew = 0;
+                $cntRoomsEdit = 0;
+                foreach ($retrievedData->rooms->room as $room) {
+                    $room = (array) $room;
+
+                    $query = new EntityFieldQuery();
+                    $query
+                      ->entityCondition('entity_type', 'node', '=')
+                      ->entityCondition('bundle', 'lokaal', '=')
+                      ->fieldCondition('field_lokaal_afkorting', 'value', substr($room['@attributes']['id'],3), '=');
+                    $result = $query->execute();
+
+                    if (count($result)>0){
+                        $node = node_load(key($result['node']));
+                        $cntRoomsEdit++;
+                    } else {
+                        $node = new stdClass();
+                        $node->type = 'lokaal';
+                        $node->language = LANGUAGE_NONE;
+                        $node->uid = 0;
+                        $node->status = 1;
+                        $node->promote = 0;
+                        $node->comment = 0;
+                        node_object_prepare($node);
+                        $node->field_lokaal_afkorting[$node->language][0]['value'] = substr($room['@attributes']['id'],3);
+                        $cntRoomsNew++;
+                    }
+
+                    $node->field_lokaal_type[$node->language][0]['value'] = 'klaslokaal';
+                    $node->field_lokaal_id_untis[$node->language][0]['value'] = $room['@attributes']['id'];
+                    if (isset($room['longname'])) {
+                        $node->field_lokaal_beschrijving[$node->language][0]['value'] = $room['longname'];
+                    }
+
+                    // Save the node.
+                    node_save($node);
+                }
+
+                argus_report($cntRoomsNew.' nieuwe <em>lokalen</em> toegevoegd en '.$cntRoomsEdit.' bestaande <em>lokalen</em> '.(variable_get('argus_sms_sync_overwrite') ? 'overschreven':'gesynchroniseerd').'.');
+            }
+            
+            /* Start importing : Subjects */
+            if (variable_get('argus_untis_subjects')) {
+                $cntSubjectsNew = 0;
+                $cntSubjectsEdit = 0;
+                foreach ($retrievedData->subjects->subject as $subject) {
+                    $subject = (array) $subject;
+                    
+                    $query = new EntityFieldQuery();
+                    $query
+                      ->entityCondition('entity_type', 'node', '=')
+                      ->entityCondition('bundle', 'vak', '=')
+                      ->fieldCondition('field_vak_afkorting', 'value', substr($subject['@attributes']['id'],3), '=');
+                    $result = $query->execute();
+
+                    if (count($result)>0){
+                        $node = node_load(key($result['node']));
+                        $cntSubjectsEdit++;
+                    } else {
+                        $node = new stdClass();
+                        $node->type = 'vak';
+                        $node->language = LANGUAGE_NONE;
+                        $node->uid = 0;
+                        $node->status = 1;
+                        $node->promote = 0;
+                        $node->comment = 0;
+                        node_object_prepare($node);
+                        $node->field_vak_afkorting[$node->language][0]['value'] = substr($subject['@attributes']['id'],3);
+                        $cntSubjectsNew++;
+                    }
+
+                    $node->field_vak_untis_id[$node->language][0]['value'] = $subject['@attributes']['id'];
+                    if (isset($subject['longname'])) {
+                        $node->field_vak_beschrijving[$node->language][0]['value'] = $subject['longname'];
+                    }
+                    if (isset($subject['subject_room'])) {
+                        $room = (array) $subject['subject_room'];
+                        $query = new EntityFieldQuery();
+                        $query
+                          ->entityCondition('entity_type', 'node', '=')
+                          ->entityCondition('bundle', 'lokaal', '=')
+                          ->fieldCondition('field_lokaal_id_untis', 'value', $room['@attributes']['id'], '=');
+                        $result = $query->execute();
+                        if (count($result) > 0) {
+                            $node->field_vak_lokaal[$node->language][0]['target_id'] = key($result['node']);
+                        }
+                    }
+                    
+                    // Save the node.
+                    node_save($node);
+                }
+
+                argus_report($cntSubjectsNew.' nieuwe <em>vakken</em> toegevoegd en '.$cntSubjectsEdit.' bestaande <em>vakken</em> '.(variable_get('argus_sms_sync_overwrite') ? 'overschreven':'gesynchroniseerd').'.');
+            }
+            
+            /* Start importing : Lessons */
+            if (variable_get('argus_untis_lessons')) {
+                $passedIDs = array();
+                
+                $cntLessonsNew = 0;
+                $cntLessonsEdit = 0;
+                foreach ($retrievedData->lessons->lesson as $lesson) {
+                    $lesson = (array) $lesson;
+                    
+                    foreach ($lesson['times'] as $time) {
+                        $time = (array) $time;
+                        
+                        $query = new EntityFieldQuery();
+                        $query
+                            ->entityCondition('entity_type', 'node', '=')
+                            ->entityCondition('bundle', 'uurrooster_periode', '=')
+                            ->fieldCondition('field_uurrooster_periode_dag', 'value', $time['assigned_day'], '=')
+                            ->fieldCondition('field_uurrooster_periode_periode', 'value', $time['assigned_period'], '=');
+                        $result = $query->execute();
+                        if (count($result)>0){
+                            $period = key($result['node']);
+                            $query = new EntityFieldQuery();
+                            $query
+                                ->entityCondition('entity_type', 'node', '=')
+                                ->entityCondition('bundle', 'uurrooster_les', '=')
+                                ->fieldCondition('field_uurrooster_les_id_untis', 'value', $lesson['@attributes']['id'], '=')
+                                ->fieldCondition('field_uurrooster_les_periode', 'target_id', $period, '=');
+                            $result = $query->execute();
+
+                            if (count($result)>0){
+                                $node = node_load(key($result['node']));
+                                $cntLessonsEdit++;
+                            } else {
+                                $node = new stdClass();
+                                $node->type = 'uurrooster_les';
+                                $node->language = LANGUAGE_NONE;
+                                $node->uid = 0;
+                                $node->status = 1;
+                                $node->promote = 0;
+                                $node->comment = 0;
+                                node_object_prepare($node);
+                                $node->field_uurrooster_les_id_untis[$node->language][0]['value'] = $lesson['@attributes']['id'];
+                                $node->field_uurrooster_les_periode[$node->language][0]['target_id'] = $period;
+                                $cntLessonsNew++;
+                            }
+                            
+                            $node->title = t('Lescode').': '.$lesson['@attributes']['id'].' ('.t('dag').' '.$time['assigned_day'].' - '.t('periode').' '.$time['assigned_period'].')';
+                            
+                            if (isset($lesson['lesson_subject'])) {
+                                $subject = (array) $lesson['lesson_subject'];
+                                $query = new EntityFieldQuery();
+                                $query
+                                    ->entityCondition('entity_type', 'node', '=')
+                                    ->entityCondition('bundle', 'vak', '=')
+                                    ->fieldCondition('field_vak_untis_id', 'value', $subject['@attributes']['id'], '=');
+                                $result = $query->execute();
+                                if (count($result) > 0) {
+                                    $node->field_uurrooster_les_vak[$node->language][0]['target_id'] = key($result['node']);
+                                }
+                            }
+                            
+                            if (isset($lesson['lesson_teacher'])) {
+                                $teacher = (array) $lesson['lesson_teacher'];
+                                $query = new EntityFieldQuery();
+                                $query
+                                    ->entityCondition('entity_type', 'user', '=')
+                                    ->fieldCondition('field_user_sms_koppelingsveldsch', 'value', substr($teacher['@attributes']['id'],3), '=');
+                                $result = $query->execute();
+                                if (count($result) > 0) {
+                                    $node->field_uurrooster_les_leerkracht[$node->language][0]['target_id'] = key($result['user']);
+                                }
+                            }
+                            
+                            if (isset($lesson['lesson_classes'])) {
+                                $classes = (array) $lesson['lesson_classes'];
+                                $classes = explode(' ', $classes['@attributes']['id']);
+                                $node->field_uurrooster_les_klassen[$node->language] = array();
+                                foreach ($classes as $class) {
+                                    $query = new EntityFieldQuery();
+                                    $query
+                                        ->entityCondition('entity_type', 'node', '=')
+                                        ->entityCondition('bundle', 'klas', '=')
+                                        ->fieldCondition('field_klas_sms_code', 'value', substr($class,3), '=');
+                                    $result = $query->execute();
+                                    if (count($result) > 0) {
+                                        $node->field_uurrooster_les_klassen[$node->language][]['target_id'] = key($result['node']);
+                                    }
+                                }
+                            }
+                            
+                            if (isset($time['assigned_room'])) {
+                                $room = (array) $time['assigned_room'];
+                                $query = new EntityFieldQuery();
+                                $query
+                                    ->entityCondition('entity_type', 'node', '=')
+                                    ->entityCondition('bundle', 'lokaal', '=')
+                                    ->fieldCondition('field_lokaal_id_untis', 'value', $room['@attributes']['id'], '=');
+                                $result = $query->execute();
+                                if (count($result) > 0) {
+                                    $node->field_uurrooster_les_lokaal[$node->language][0]['target_id'] = key($result['node']);
+                                }
+                            }
+                            
+                            // Save the node.
+                            node_save($node);
+                            $passedIDs[] = $node->nid;
+                        }
+                    }
+                }
+                
+                argus_report($cntLessonsNew.' nieuwe <em>lessen</em> toegevoegd en '.$cntLessonsEdit.' bestaande <em>lessen</em> '.(variable_get('argus_sms_sync_overwrite') ? 'overschreven':'gesynchroniseerd').'.');
+                
+                /* Remove old lessons, they get depricated when new schedules are imported - WARNING: MAKE A BACKUP OF ARCHIVABLE DATA */
+                $query = new EntityFieldQuery();
+                $query
+                    ->entityCondition('entity_type', 'node', '=')
+                    ->entityCondition('bundle', 'uurrooster_les', '=')
+                    ->propertyCondition('nid', (array) $passedIDs, 'NOT IN');
+                $result = $query->execute();
+                if (count($result)){
+                    foreach ($result['node'] as $key => $n) {
+                        node_delete($key);
+                    }
+                    argus_report(count($result).' oude <em>lessen</em> verwijderd.');
+                }
+            }
+            
+            /* Clean up and delete uploaded file */
+            file_delete(file_load($form_state['values']['argus_untis_file']));
+        }
+    } else {
+        argus_report(t('Geen bestand geselecteerd voor het importeren.'));
+    }
+    
+    /* Finish messaging and timing */
+    if (drupal_get_messages(FALSE,FALSE)) {
+        $timeElapsed = array();
+        if ($hours = intval((time() - $syncStart)/3600)) {
+            $timeElapsed[] = $hours. 'u';
+        }
+        if ($minutes = intval((time() - $syncStart - $hours*3600)/60)) {
+            $timeElapsed[] = $minutes. 'm';
+        }
+        if ($seconds = intval((time() - $syncStart - $hours*3600 - $minutes*60))) {
+            $timeElapsed[] = $seconds. 's';
+        }
+        argus_report('Synchronisatie voltooid in <em>'.implode(' ',$timeElapsed).'</em>.');
+    }else{
+        argus_report('Geen gegevens gesynchroniseerd.');
+    }
+}
+
+
+/* Supporting functions */
+
+/**
+ * Disable "upload"-btn on managed GP Untis file upload
+ */
+function argus_untis_file_process($element, &$form_state, $form) {
+    $element = file_managed_file_process($element, $form_state, $form);
+    $element['upload_button']['#access'] = FALSE;
+
+    return $element;
+}

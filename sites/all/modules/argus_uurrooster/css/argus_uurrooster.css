@@ -1,0 +1,123 @@
+/*
+Copyright (C) 2015 bartgysens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/* 
+    Created on : 8-jan-2015, 18:19:01
+    Author     : bartgysens
+*/
+
+table.argus_uurrooster_schedule,
+table.argus_uurrooster_schedule_nav{
+	width: 100%;
+	margin: 0;
+}
+
+#argus_uurrooster_schedule_nav_previous,
+#argus_uurrooster_schedule_nav_today,
+#argus_uurrooster_schedule_nav_next{
+	font-style: italic;
+}
+	#argus_uurrooster_schedule_nav_today{
+		text-align: center;
+	}
+	#argus_uurrooster_schedule_nav_next{
+		text-align: right;
+	}
+
+table.argus_uurrooster_schedule thead th{
+    text-align: center;
+    background-color: #eee;
+    vertical-align: bottom;
+}
+table.argus_uurrooster_schedule thead td{
+    border: 1px solid gray;
+    width: 10%;
+    text-align: center;
+    background-color: #eee;
+    vertical-align: bottom;
+}
+table.argus_uurrooster_schedule tbody td{
+    border: 1px solid #999;
+    text-align: center;
+    vertical-align: top;
+}
+table.argus_uurrooster_schedule tbody .lesson{
+    cursor: pointer;
+}
+    table.argus_uurrooster_schedule tbody .lessonOver{
+        background-color: #ddf !important;
+    }
+    table.argus_uurrooster_schedule tbody td.lessonDetail{
+        background-color: #ffd;
+    }
+    
+    table.argus_uurrooster_schedule tbody td.available{
+        font-size: 2em;
+        vertical-align: middle;
+    }
+    
+    table.argus_uurrooster_schedule tbody td.period_descr{
+        vertical-align: middle;
+    }
+    
+    table.argus_uurrooster_schedule tbody .substituted{
+        color: #aaa !important;
+        background-color: #fdd;
+    }
+    table.argus_uurrooster_schedule tbody .substitutedNotOK{
+        color: #555 !important;
+        background-color: #f66;
+    }
+
+table.argus_uurrooster_schedule tbody td div.substitution{
+	color: red;
+	border: 1px red solid;
+	padding: 2px;
+	margin: 2px;
+	font-weight: bold;
+	background-color: white;
+	line-height: 1.5em;
+}
+
+table.argus_uurrooster_schedule tbody td div.supervision{
+	color: green;
+	border: 1px green solid;
+	padding: 2px;
+	margin: 2px;
+	line-height: 1.5em;
+}
+
+#argus_uurrooster_schedule_details{
+    vertical-align: top;
+    padding: 10px;
+    background-color: #ffd;
+    text-align: left;
+}
+    #argus_uurrooster_schedule_details ol{
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+.argus_uurrooster_student_list{
+    display: none;
+}
+
+.argus_uurrooster_student_toggler{
+    background-color: #ddd;
+    border: 1px solid #777;
+    cursor: pointer;
+    padding: 1px 2px;
+}

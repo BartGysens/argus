@@ -1,0 +1,298 @@
+<?php
+/**
+ * @file
+ * Code for the Absenteïsme feature.
+ */
+
+include_once 'argus_personeel_afwezigheden.features.inc';
+
+/*
+ * Copyright (C) 2015 bartgysens
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/**
+ * @file
+* Smartschool API reference, description of returnobject 'user'
+* stdClass Object
+*  (
+		*      [number] => abcd1234 (intern nummer)
+		*      [username] => janjanssen
+		*      [name] => Jan
+		*      [surname] => janssen
+		*      [email] => janjanssen@gmail.com
+		*      [role] => 1 (0 = leerkracht, 1 = leerling, 13 = andere, 30 = directie)
+		*      [accountType] => 0 (0 = hoofdaccount, 1 = co-account 1, 2 = co-account 2)
+		*  )
+*/
+
+/* Drupal Hooks */
+
+/**
+ * Implements hook_node_insert().
+ * 
+ * $currentNode object Referencing node of type 'personeel_afwezigheid'
+ */
+function argus_personeel_afwezigheden_node_insert($currentNode) {
+	if (isset($currentNode)){
+		if ($currentNode->type == 'personeel_afwezigheid'){
+			if (module_exists('argus_uurrooster_vervanging')){
+				argus_personeel_afwezigheden_insert_substitutions($currentNode);
+			}
+		}
+	}
+}
+
+/**
+ * Implements hook_node_update().
+ * 
+ * $currentNode object Referencing node of type 'personeel_afwezigheid'
+ */
+function argus_personeel_afwezigheden_node_update($currentNode) {
+	if (isset($currentNode)){
+		if ($currentNode->type == 'personeel_afwezigheid'){
+			if (module_exists('argus_uurrooster_vervanging')){
+				argus_personeel_afwezigheden_delete_substitutions($currentNode->nid);
+				argus_personeel_afwezigheden_insert_substitutions($currentNode);
+			}
+		}
+	}
+}
+
+/**
+ * Implements hook_node_delete().
+ * 
+ * $currentNode object Referencing node of type 'personeel_afwezigheid'
+ */
+function argus_personeel_afwezigheden_node_delete($currentNode) {
+	if (isset($currentNode)){
+		if ($currentNode->type == 'personeel_afwezigheid'){
+			argus_personeel_afwezigheden_delete_substitutions($currentNode->nid);
+		}
+	}
+}
+
+/**
+ * Custom module functionality
+ */
+ 
+/**
+ * Add Uurrooster - Vervangingen related to this node
+ * 
+ * $currentNode object Referencing node of type 'personeel_afwezigheid'
+ */
+function argus_personeel_afwezigheden_insert_substitutions($currentNode) {
+	global $user;
+	
+	/* Fetch permanent substitute for lessons */
+	if (count($currentNode->field_pers_afwezigheid_verv_les[LANGUAGE_NONE])){
+		$subsLessons = $currentNode->field_pers_afwezigheid_verv_les[LANGUAGE_NONE][0]['target_id'];
+	}
+	
+	/* Fetch permanent substitute for substitutions */
+	if (count($currentNode->field_pers_afwezigheid_verv_perm[LANGUAGE_NONE])){
+		$subsStitutions = $currentNode->field_pers_afwezigheid_verv_perm[LANGUAGE_NONE][0]['target_id'];
+	}
+	
+	/* Fetch permanent substitute for supervisions */
+	if (count($currentNode->field_pers_afwezigheid_verv_toez[LANGUAGE_NONE])){
+		$subsSupervisions = $currentNode->field_pers_afwezigheid_verv_toez[LANGUAGE_NONE][0]['target_id'];
+	}
+		
+	$currentDate = new DateTime($currentNode->field_tijdstip[LANGUAGE_NONE][0]['value']);
+	$endDate = new DateTime($currentNode->field_tijdstip[LANGUAGE_NONE][0]['value2']);
+	$endDate->modify('+1 hour'); // TODO: set time margin in setup
+	
+	while ($currentDate <= $endDate) {
+		$dayOfWeek = $currentDate->format('N');
+		$query = 'SELECT d.entity_id AS nid, ts.field_uurrooster_periode_start_value AS start, te.field_uurrooster_periode_eind_value AS eind ' .
+				'FROM {field_data_field_uurrooster_periode_dag} AS d ' .
+				'INNER JOIN {field_data_field_uurrooster_periode_start} AS ts ON ts.entity_id = d.entity_id ' .
+				'INNER JOIN {field_data_field_uurrooster_periode_eind} AS te ON te.entity_id = d.entity_id ' .
+				'WHERE d.field_uurrooster_periode_dag_value = :day ';
+		$results = db_query($query, array(':day' => $dayOfWeek))->fetchAllAssoc('nid');
+		foreach ($results as $pid => $p){
+			$periodeStart = new DateTime($currentDate->format('Y/m/d').' '.substr($p->start,0,2).':'.substr($p->start,2,2));
+			$periodeEind = new DateTime($currentDate->format('Y/m/d').' '.substr($p->eind,0,2).':'.substr($p->eind,2,2));
+			if ($periodeStart >= $currentDate && $periodeEind <= $endDate){
+				if (module_exists('argus_uurrooster')){
+					/* Add replacements for 'uurrooster_les' */
+					$query = 'SELECT l.entity_id AS nid ' .
+							'FROM {field_data_field_uurrooster_les_leerkracht} AS l ' .
+							'INNER JOIN {field_data_field_uurrooster_les_periode} AS p ON p.entity_id = l.entity_id ' .
+							'WHERE l.field_uurrooster_les_leerkracht_target_id = :uid AND p.field_uurrooster_les_periode_target_id = :pid';
+					$results = db_query($query, array(':uid' => $currentNode->field_gebruiker[LANGUAGE_NONE][0]['target_id'], ':pid' => $pid))->fetchCol();
+					
+					if (count($results)){
+						if (isset($subsLessons)){
+							$substitute['uid'] = $subsLessons;
+						} else {
+							/* Fetch current substitute from Uurrooster - Permanentie */
+							$query = 'SELECT v.field_uurrooster_perm_vervanger_target_id AS uid ' .
+									'FROM {field_data_field_uurrooster_perm_periode} AS p ' .
+									'INNER JOIN {field_data_field_uurrooster_perm_vervanger} AS v ON v.entity_id = p.entity_id ' .
+									'WHERE p.field_uurrooster_perm_periode_target_id = :pid';
+							$substitute = db_query($query, array(':pid' => $pid))->fetchAssoc();
+						}
+						
+						foreach ($results as $nid){
+							$currentLesson = node_load($nid);
+							
+							if (array_key_exists(LANGUAGE_NONE, $currentLesson->field_uurrooster_les_klassen)){
+								$node = new stdClass();
+								$node->type = 'uurrooster_vervanging';
+								$node->language = LANGUAGE_NONE;
+								$node->uid = $user->uid;
+								$node->status = 1;
+								$node->promote = 0;
+								$node->comment = 0;
+								node_object_prepare($node);
+		
+								$node->field_gebruiker[$node->language][0]['target_id'] = 0; // default
+								if (is_array($substitute)){
+									if (key_exists('uid', $substitute)){
+										$node->field_gebruiker[$node->language][0]['target_id'] = $substitute['uid'];
+									}
+								}
+								$node->field_tijdstip[$node->language][0] = array(
+									'value' => $periodeStart->format('Y/m/d H:i:00'),
+									'value2' => $periodeEind->format('Y/m/d H:i:00'),
+								);
+								$node->field_personeel_afwezigheid[$node->language][0]['target_id'] = $currentNode->nid;
+								$node->field_uurr_vervanging_vervmoment[$node->language][0]['target_id'] = $nid;
+								
+								$node->field_klassen[$node->language] = $currentLesson->field_uurrooster_les_klassen[$node->language];
+		
+								// Save the node.
+								node_save($node);
+							}
+						}
+					}
+	
+					/* Add replacements for 'uurrooster_permanentie' */
+					$query = 'SELECT p.entity_id AS nid ' .
+							'FROM {field_data_field_uurrooster_perm_periode} AS p ' .
+							'INNER JOIN {field_data_field_uurrooster_perm_vervanger} AS v ON v.entity_id = p.entity_id ' .
+							'WHERE p.field_uurrooster_perm_periode_target_id = :pid AND v.field_uurrooster_perm_vervanger_target_id = :uid';
+					$results = db_query($query, array(':pid' => $pid, ':uid' => $currentNode->field_gebruiker[LANGUAGE_NONE][0]['target_id']))->fetchCol();
+	
+					if (count($results)){
+						foreach ($results as $nid){
+							$node = new stdClass();
+							$node->type = 'uurrooster_vervanging';
+							$node->language = LANGUAGE_NONE;
+							$node->uid = $user->uid;
+							$node->status = 1;
+							$node->promote = 0;
+							$node->comment = 0;
+							node_object_prepare($node);
+							
+							$node->field_gebruiker[$node->language][0]['target_id'] = 0;
+							if (isset($subsStitutions)){
+								$node->field_gebruiker[$node->language][0]['target_id'] = $subsStitutions;
+							}
+							$node->field_tijdstip[$node->language][0] =  array(
+								'value' => $periodeStart->format('Y/m/d H:i:00'),
+								'value2' => $periodeEind->format('Y/m/d H:i:00'),
+							);
+							$node->field_personeel_afwezigheid[$node->language][0]['target_id'] = $currentNode->nid;
+							$node->field_uurr_vervanging_vervmoment[$node->language][0]['target_id'] = $nid;
+	
+							// Save the node.
+							node_save($node);
+						}
+					}
+	
+					/* Add replacements for 'uurrooster_toezicht' */
+					$query = 'SELECT t.entity_id AS nid, tt.field_uurrooster_toez_tijdstip_value AS timeblock '
+							. 'FROM {field_data_field_uurrooster_toez_toezichter} AS t '
+							. 'INNER JOIN {field_data_field_uurrooster_toez_locatie} AS l ON t.entity_id = l.entity_id '
+							. 'INNER JOIN {field_data_field_uurrooster_toez_start} AS p ON p.entity_id = l.field_uurrooster_toez_locatie_target_id '
+							. 'INNER JOIN {field_data_field_uurrooster_toez_dag} AS d ON d.entity_id = l.entity_id '
+							. 'INNER JOIN {field_data_field_uurrooster_toez_tijdstip} AS tt ON tt.entity_id = l.field_uurrooster_toez_locatie_target_id '
+							. 'WHERE t.field_uurrooster_toez_toezichter_target_id = :uid '
+							. 'AND p.field_uurrooster_toez_start_target_id = :pid '
+							. 'AND d.field_uurrooster_toez_dag_value = :did';
+					$results = db_query($query, array(':uid' => $currentNode->field_gebruiker[LANGUAGE_NONE][0]['target_id'], ':did' => $dayOfWeek, ':pid' => $pid))->fetchAllKeyed();
+					if (count($results)){
+						foreach ($results as $nid => $timeblock){
+							$toezStart = new DateTime($currentDate->format('Y/m/d').' '.substr($timeblock,0,2).':'.substr($timeblock,3,2));
+							$toezEind = new DateTime($currentDate->format('Y/m/d').' '.substr($timeblock,8,2).':'.substr($timeblock,11,2));
+							
+							$node = new stdClass();
+							$node->type = 'uurrooster_vervanging';
+							$node->language = LANGUAGE_NONE;
+							$node->uid = $user->uid;
+							$node->status = 1;
+							$node->promote = 0;
+							$node->comment = 0;
+							node_object_prepare($node);
+	
+							$node->field_tijdstip[$node->language][0] =  array(
+								'value' => $toezStart->format('Y/m/d H:i:00'),
+								'value2' => $toezEind->format('Y/m/d H:i:00'),
+							);
+							$node->field_personeel_afwezigheid[$node->language][0]['target_id'] = $currentNode->nid;
+							$node->field_uurr_vervanging_vervmoment[$node->language][0]['target_id'] = $nid;
+							$node->field_gebruiker[$node->language][0]['target_id'] = 0; // Default
+							
+							if (isset($subsSupervisions)){
+								$node->field_gebruiker[$node->language][0]['target_id'] = $subsSupervisions;
+							} else {
+								// Fetch substitute from schedule
+								$queryS = 'SELECT t.field_uurrooster_toez_toezichter_target_id AS uid, n.title AS title '
+										. 'FROM {field_data_field_uurrooster_toez_toezichter} AS t '
+										. 'INNER JOIN {field_data_field_uurrooster_toez_locatie} AS l ON t.entity_id = l.entity_id '
+										. 'INNER JOIN {field_data_field_uurrooster_toez_start} AS p ON p.entity_id = l.field_uurrooster_toez_locatie_target_id '
+										. 'INNER JOIN {field_data_field_uurrooster_toez_dag} AS d ON d.entity_id = l.entity_id '
+										. 'INNER JOIN {field_data_field_uurrooster_toez_type} AS tt ON tt.entity_id = l.field_uurrooster_toez_locatie_target_id '
+										. 'INNER JOIN {node} AS n ON n.nid = t.entity_id '
+										. 'WHERE p.field_uurrooster_toez_start_target_id = :pid '
+										. 'AND d.field_uurrooster_toez_dag_value = :did '
+										. 'AND tt.field_uurrooster_toez_type_value = :t';
+								$supervision = db_query($queryS, array(':did' => $dayOfWeek, ':pid' => $pid, ':t' => 'vervanger'))->fetchCol();
+		
+								if (count($supervision)>0){
+									if ($supervision[0] != $currentNode->field_gebruiker[LANGUAGE_NONE][0]['target_id']){
+										$node->field_gebruiker[$node->language][0]['target_id'] = $supervision[0];
+									}
+								}
+							}
+	
+							// Save the node.
+							node_save($node);
+						}
+					}
+				}
+			}
+		}
+		$currentDate = new DateTime($currentDate->format('Y/m/d 00:00'));
+		$currentDate->modify('+1 day');
+	}
+}
+
+/**
+ * Remove Uurrooster - Vervangingen related to this node
+ * 
+ * $currentNode integer Reference node id
+ */
+function argus_personeel_afwezigheden_delete_substitutions($nid) {
+	/* Check for existing nodes */
+	$query = 'SELECT entity_id AS nid ' .
+			'FROM {field_data_field_personeel_afwezigheid} ' .
+			'WHERE field_personeel_afwezigheid_target_id = :nid AND bundle = :bundle';
+	$results = db_query($query, array(':nid' => $nid, ':bundle' => 'uurrooster_vervanging'))->fetchCol();
+	node_delete_multiple($results);
+}

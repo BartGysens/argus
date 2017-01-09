@@ -1,0 +1,13 @@
+**Releases:
+
+v7.x-1.1
+---------
+- Bugfix menu aan juiste hoofdmenu toegevoegd
+
+v7.x-1.0
+---------
+- First initial release
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

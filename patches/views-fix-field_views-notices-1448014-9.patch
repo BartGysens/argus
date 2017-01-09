@@ -1,0 +1,24 @@
+diff --git a/modules/field.views.inc b/modules/field.views.inc
+index eae7f6d..1e8e47d 100644
+--- a/modules/field.views.inc
++++ b/modules/field.views.inc
+@@ -200,6 +200,9 @@ function field_views_field_default_views_data($field) {
+     $aliases = array();
+     $also_known = array();
+     foreach ($all_labels as $entity_name => $labels) {
++      if (!isset($groups[$entity_name])) {
++        continue;
++      }
+       foreach ($labels as $label_name => $true) {
+         if ($type == FIELD_LOAD_CURRENT) {
+           if ($group_name != $groups[$entity_name] || $label != $label_name) {
+@@ -309,6 +312,9 @@ function field_views_field_default_views_data($field) {
+       $aliases = array();
+       $also_known = array();
+       foreach ($all_labels as $entity_name => $labels) {
++        if (!isset($groups[$entity_name])) {
++          continue;
++        }
+         foreach ($labels as $label_name => $true) {
+           if ($group_name != $groups[$entity_name] || $label != $label_name) {
+             if (count($field['columns']) == 1 || $column == 'value') {

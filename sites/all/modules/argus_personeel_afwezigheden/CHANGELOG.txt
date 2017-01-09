@@ -1,0 +1,14 @@
+**Releases:
+
+v7.x-1.1
+---------
+- Update Absenteïsme: insert en delete toegevoegd, update edit
+- Update css smart school: extra vast study, absence, behavior color codes
+
+v7.x-1.0
+---------
+- First initial release - featured based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

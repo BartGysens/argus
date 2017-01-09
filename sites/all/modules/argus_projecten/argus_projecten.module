@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Projecten feature.
+ */
+
+include_once 'argus_projecten.features.inc';

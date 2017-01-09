@@ -1,0 +1,112 @@
+/*
+Copyright (C) 2015 bartgysens
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/*
+    Created on : 18-jun-2015, 22:53:31
+    Author     : bartgysens
+*/
+
+#smscQuickNavDialog .column .list .module.icon_aankoopdossiers{
+    background-image:url('../images/modules/16x16/aankoopdossiers.png');
+}
+#smscQuickNavDialog .column .list .module.icon_afwezigheden{
+    background-image:url('../images/modules/16x16/afwezigheden.png');
+}
+#smscQuickNavDialog .column .list .module.icon_attesten{
+    background-image:url('../images/modules/16x16/attesten.png');
+}
+#smscQuickNavDialog .column .list .module.icon_buscheck{
+    background-image:url('../images/modules/16x16/buscheck.png');
+}
+#smscQuickNavDialog .column .list .module.icon_contracten{
+    background-image:url('../images/modules/16x16/contracten.png');
+}
+#smscQuickNavDialog .column .list .module.icon_deliberaties{
+    background-image:url('../images/modules/16x16/deliberaties.png');
+}
+#smscQuickNavDialog .column .list .module.icon_document_generator{
+    background-image:url('../images/modules/16x16/document_generator.png');
+}
+#smscQuickNavDialog .column .list .module.icon_ikz{
+    background-image:url('../images/modules/16x16/ikz.png');
+}
+#smscQuickNavDialog .column .list .module.icon_keymanagement{
+    background-image:url('../images/modules/16x16/keymanagement.png');
+}
+#smscQuickNavDialog .column .list .module.icon_klassen{
+    background-image:url('../images/modules/16x16/klassen.png');
+}
+#smscQuickNavDialog .column .list .module.icon_ktt{
+    background-image:url('../images/modules/16x16/ktt.png');
+}
+#smscQuickNavDialog .column .list .module.icon_leermoeilijkheden{
+    background-image:url('../images/modules/16x16/leermoeilijkheden.png');
+}
+#smscQuickNavDialog .column .list .module.icon_lokalen{
+    background-image:url('../images/modules/16x16/lokalen.png');
+}
+#smscQuickNavDialog .column .list .module.icon_lvs{
+    background-image:url('../images/modules/16x16/lvs.png');
+}
+#smscQuickNavDialog .column .list .module.icon_meldingen{
+    background-image:url('../images/modules/16x16/meldingen.png');
+}
+#smscQuickNavDialog .column .list .module.icon_msl{
+    background-image:url('../images/modules/16x16/msl.png');
+}
+#smscQuickNavDialog .column .list .module.icon_photobook{
+    background-image:url('../images/modules/16x16/photobook.png');
+}
+#smscQuickNavDialog .column .list .module.icon_printerbeheer{
+    background-image:url('../images/modules/16x16/printerbeheer.png');
+}
+#smscQuickNavDialog .column .list .module.icon_remediering{
+    background-image:url('../images/modules/16x16/remediering.png');
+}
+#smscQuickNavDialog .column .list .module.icon_safety{
+    background-image:url('../images/modules/16x16/safety.png');
+}
+#smscQuickNavDialog .column .list .module.icon_stickerOA{
+    background-image:url('../images/modules/16x16/stickerOA.png');
+}
+#smscQuickNavDialog .column .list .module.icon_sync{
+    background-image:url('../images/modules/16x16/sync.png');
+}
+#smscQuickNavDialog .column .list .module.icon_technische_meldingen{
+    background-image:url('../images/modules/16x16/technische_meldingen.png');
+}
+#smscQuickNavDialog .column .list .module.icon_thumb_up{
+    background-image:url('../images/modules/16x16/thumb_up.png');
+}
+#smscQuickNavDialog .column .list .module.icon_underanalysis{
+    background-image:url('../images/modules/16x16/underanalysis.png');
+}
+#smscQuickNavDialog .column .list .module.icon_uurrooster{
+    background-image:url('../images/modules/16x16/uurrooster.png');
+}
+#smscQuickNavDialog .column .list .module.icon_vakgroepen{
+    background-image:url('../images/modules/16x16/vakgroepen.png');
+}
+#smscQuickNavDialog .column .list .module.icon_vakken{
+    background-image:url('../images/modules/16x16/vakken.png');
+}
+#smscQuickNavDialog .column .list .module.icon_wie-is-wie{
+    background-image:url('../images/modules/16x16/who-is-who.png');
+}
+
+#smscQuickNavDialog .column .list .module.icon_underdevelopment{
+    background-image:url('../images/modules/16x16/underdevelopment.png');
+}

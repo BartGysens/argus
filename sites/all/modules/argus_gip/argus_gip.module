@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Geïntegreerde proef feature.
+ */
+
+include_once 'argus_gip.features.inc';

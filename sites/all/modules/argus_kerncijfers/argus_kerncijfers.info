@@ -1,0 +1,11 @@
+name = Kerncijfers
+description = Breng je leerlingen, gebruikers, afdelingen, klassen ea. in kaart aan de hand van grafische modellen en statistieken.
+package = argus - a Quality control extension
+php = 5.2
+version = 7.x-1.5
+core = 7.x
+project = argus_kerncijfers
+datestamp = 1454609719
+project status url = http://www.projectargus.be/release-history
+
+dependencies[] = argus_engine

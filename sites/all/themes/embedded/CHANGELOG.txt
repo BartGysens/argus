@@ -1,0 +1,46 @@
+**Releases:
+
+
+v7.x-5.0
+---------
+- - First initial release
+
+v7.x-4.1
+---------
+- Fix in embedding: nieuwe functienaam
+
+v7.x-4.0
+---------
+- Personeelsafwezigheden -> Uurrooster - Vervangingen: multi-embedding in argus via block
+
+v7.x-3.3
+---------
+- Fix in embedding vervangingen Skip security check localhost
+
+v7.x-3.2
+---------
+- Fix in embedding uurrooster vervangingen en css
+
+v7.x-3.1
+---------
+- Embeddings juiste url css + security
+
+v7.x-3.0
+---------
+- Embeddings systeem klaargemaakt voor diverse types Uurrooster - vervanging voor embedding in Smartschool
+
+v7.x-2.1
+---------
+- Embeddings check for Drupal security
+
+v7.x-2.0
+---------
+- Security layer for embeddings
+
+v7.x-1.0
+---------
+- Nieuw thema: Blaco - embedded - voor embedding in Smartschool Update Date iCal, Zen-theme
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

@@ -1,0 +1,191 @@
+diff --git a/fullcalendar_legend/fullcalendar_legend.module b/fullcalendar_legend/fullcalendar_legend.module
+index 2cd5953..676a33b 100644
+--- a/fullcalendar_legend/fullcalendar_legend.module
++++ b/fullcalendar_legend/fullcalendar_legend.module
+@@ -48,11 +48,35 @@ function fullcalendar_legend_block_configure($delta = '') {
+       '#default_value' => variable_get('fullcalendar_legend_type', 'bundle'),
+       '#description' => t('Select the type of legend to display.'),
+     );
++
+     $form['fullcalendar_legend_filter'] = array(
+       '#type' => 'checkbox',
+       '#title' => t('Allow to filter events by clicking on the legends.'),
+       '#default_value' => variable_get('fullcalendar_legend_filter', 0),
+     );
++
++    $legend_type_taxonomy_options = array(
++      'all' => t('All vocabularies'),
++    );
++
++    $vocabularies = taxonomy_get_vocabularies();
++    foreach ($vocabularies as $vid => $vocabulary) {
++      $legend_type_taxonomy_options[$vid] = $vocabulary->name;
++    }
++
++    $form['fullcalendar_legend_type_taxonomy'] = array(
++      '#type' => 'select',
++      '#title' => t('Legend type filter'),
++      '#options' => $legend_type_taxonomy_options,
++      '#default_value' => variable_get('fullcalendar_legend_type_taxonomy', array('all')),
++      '#description' => t('Filter the type of legend to display.'),
++      '#multiple' => TRUE,
++      '#states' => array(
++        'visible' => array(
++          ':input[name="fullcalendar_legend_type"]' => array('value' => 'taxonomy'),
++        ),
++      ),
++    );
+   }
+ 
+   return $form;
+@@ -65,6 +89,7 @@ function fullcalendar_legend_block_save($delta = '', $edit = array()) {
+   if ($delta == 'fullcalendar_legend') {
+     variable_set('fullcalendar_legend_type', $edit['fullcalendar_legend_type']);
+     variable_set('fullcalendar_legend_filter', $edit['fullcalendar_legend_filter']);
++    variable_set('fullcalendar_legend_type_taxonomy', $edit['fullcalendar_legend_type_taxonomy']);
+   }
+ }
+ 
+@@ -84,7 +109,7 @@ function fullcalendar_legend_block_view($delta = '') {
+     }
+ 
+     // Build the block structure.
+-    $block['content'] = fullcalendar_legend_build_legend($view, variable_get('fullcalendar_legend_type', 'bundle'));
++    $block['content'] = fullcalendar_legend_build_legend($view, variable_get('fullcalendar_legend_type', 'bundle'), variable_get('fullcalendar_legend_type_taxonomy', 'all'));
+ 
+     // Load the javascript for filtering by legend if needed.
+     if (variable_get('fullcalendar_legend_filter', 0)) {
+@@ -102,11 +127,14 @@ function fullcalendar_legend_block_view($delta = '') {
+  *   The View object.
+  * @param string $type
+  *   The type of legend to build, either 'bundle' or 'taxonomy'.
++ * @param array $filter
++ *   When $type is set to taxonomy, a list of taxonomy names to show a legend
++ *   for. Defaults to 'all'.
+  *
+  * @return array
+  *   The render array representing the legend.
+  */
+-function fullcalendar_legend_build_legend($view, $type) {
++function fullcalendar_legend_build_legend($view, $type, $filters) {
+   // Restrict the fields to only date fields used by the view.
+   $fields = array();
+   foreach ($view->display_handler->get_handlers('field') as $field) {
+@@ -118,7 +146,7 @@ function fullcalendar_legend_build_legend($view, $type) {
+   $function = "fullcalendar_legend_get_type_$type";
+   $element = array(
+     '#theme' => 'fullcalendar_legend',
+-    '#types' => $function($fields),
++    '#types' => $function($fields, $filters),
+   );
+   return $element;
+ }
+@@ -128,11 +156,13 @@ function fullcalendar_legend_build_legend($view, $type) {
+  *
+  * @param array $fields
+  *   An array of results from field_info_field(), keyed by field name.
++ * @param array $filter
++ *   A list of taxonomy names to show a legend for.
+  *
+  * @return array
+  *   Array of bundles.
+  */
+-function fullcalendar_legend_get_type_taxonomy($fields) {
++function fullcalendar_legend_get_type_taxonomy($fields, $filters) {
+   $types = array();
+   $use_i18n = module_exists('i18n_taxonomy');
+   $field_info = field_info_fields();
+@@ -146,15 +176,17 @@ function fullcalendar_legend_get_type_taxonomy($fields) {
+           }
+           foreach ($field_info[$taxonomy_field_name]['settings']['allowed_values'] as $vocab) {
+             $vocabulary = taxonomy_vocabulary_machine_name_load($vocab['vocabulary']);
+-            foreach (taxonomy_get_tree($vocabulary->vid) as $term) {
+-              $term->vocabulary_machine_name = $vocabulary->machine_name;
+-              $types[$term->tid]['entity_type'] = $entity_type;
+-              $types[$term->tid]['field_name'] = $field_name;
+-              $types[$term->tid]['bundle'] = $bundle;
+-              $types[$term->tid]['label'] = ($use_i18n) ? i18n_taxonomy_term_name($term) : $term->name;
+-              $types[$term->tid]['taxonomy_field'] = $taxonomy_field_name;
+-              $types[$term->tid]['tid'] = $term->tid;
+-              $types[$term->tid]['uri'] = entity_uri('taxonomy_term', $term);
++            if (!empty($filters['all']) || in_array($vocabulary->vid, $filters)) {
++              foreach (taxonomy_get_tree($vocabulary->vid) as $term) {
++                $term->vocabulary_machine_name = $vocabulary->machine_name;
++                $types[$term->tid]['entity_type'] = $entity_type;
++                $types[$term->tid]['field_name'] = $field_name;
++                $types[$term->tid]['bundle'] = $bundle;
++                $types[$term->tid]['label'] = ($use_i18n) ? i18n_taxonomy_term_name($term) : $term->name;
++                $types[$term->tid]['taxonomy_field'] = $taxonomy_field_name;
++                $types[$term->tid]['tid'] = $term->tid;
++                $types[$term->tid]['uri'] = entity_uri('taxonomy_term', $term);
++              }
+             }
+           }
+         }
+diff --git a/fullcalendar_legend/plugins/content_types/fullcalendar_legend.inc b/fullcalendar_legend/plugins/content_types/fullcalendar_legend.inc
+index a508880..ec1f3c1 100644
+--- a/fullcalendar_legend/plugins/content_types/fullcalendar_legend.inc
++++ b/fullcalendar_legend/plugins/content_types/fullcalendar_legend.inc
+@@ -36,7 +36,7 @@ function fullcalendar_legend_content_type_render($subtype, $conf, $panel_args, $
+   return (object) array(
+     'module' => 'fullcalendar_legend',
+     'delta' => 'fullcalendar_legend',
+-    'content' => fullcalendar_legend_build_legend($view, $conf['legend_type']),
++    'content' => fullcalendar_legend_build_legend($view, $conf['legend_type'], $conf['legend_type_taxonomy']),
+   );
+ }
+ 
+@@ -59,11 +59,36 @@ function fullcalendar_legend_content_type_edit_form($form, &$form_state) {
+     '#default_value' => isset($conf['legend_type']) ? $conf['legend_type'] : '',
+     '#description' => t('Select the type of legend to display.'),
+   );
++
+   $form['filter'] = array(
+     '#type' => 'checkbox',
+     '#title' => t('Allow to filter events by clicking on the legends.'),
+     '#default_value' => isset($conf['filter']) ? $conf['filter'] : 0,
+   );
++
++  $legend_type_taxonomy_options = array(
++    'all' => t('All vocabularies'),
++  );
++
++  $vocabularies = taxonomy_get_vocabularies();
++  foreach ($vocabularies as $vid => $vocabulary) {
++    $legend_type_taxonomy_options[$vid] = $vocabulary->name;
++  }
++
++  $form['legend_type_taxonomy'] = array(
++    '#type' => 'select',
++    '#title' => t('Legend type filter'),
++    '#options' => $legend_type_taxonomy_options,
++    '#default_value' => isset($conf['legend_type_taxonomy']) ? $conf['legend_type_taxonomy'] : 'all',
++    '#description' => t('Filter the type of legend to display.'),
++    '#multiple' => TRUE,
++    '#states' => array(
++      'visible' => array(
++        ':input[name="legend_type"]' => array('value' => 'taxonomy'),
++      ),
++    ),
++  );
++
+   $form['view'] = array(
+     '#type' => 'select',
+     '#title' => t('FullCalendar view'),
+@@ -71,6 +96,7 @@ function fullcalendar_legend_content_type_edit_form($form, &$form_state) {
+     '#options' => _fullcalendar_legend_get_views_panes($form_state['display']),
+     '#default_value' => isset($conf['view']) ? $conf['view'] : '',
+   );
++
+   return $form;
+ }
+ 
+@@ -78,7 +104,7 @@ function fullcalendar_legend_content_type_edit_form($form, &$form_state) {
+  * Form submission handler for fullcalendar_legend_content_type_edit_form().
+  */
+ function fullcalendar_legend_content_type_edit_form_submit($form, &$form_state) {
+-  foreach (array('view', 'legend_type', 'filter') as $key) {
++  foreach (array('view', 'legend_type', 'filter', 'legend_type_taxonomy') as $key) {
+     $form_state['conf'][$key] = $form_state['values'][$key];
+   }
+ }

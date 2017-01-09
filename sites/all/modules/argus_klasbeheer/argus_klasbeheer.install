@@ -1,0 +1,49 @@
+<?php
+/* 
+ * Copyright (C) 2015 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Install */
+
+include_once 'includes/argus_klasbeheer.field_base.inc';
+include_once 'includes/argus_klasbeheer.field_instance.inc';
+include_once 'includes/argus_klasbeheer.menu_links.inc';
+include_once 'includes/argus_klasbeheer.user_role.inc';
+
+/**
+ * Implements hook_install().
+ */
+function argus_klasbeheer_install() {
+    node_types_rebuild();
+    foreach (_argus_klasbeheer_installed_fields() as $field) {
+        field_create_field($field);
+    }
+    foreach (_argus_klasbeheer_installed_instances() as $fieldinstance) {
+        field_create_instance($fieldinstance);
+    }
+    foreach (_argus_klasbeheer_installed_user_roles() as $user_role) {
+        $role_exists = user_role_load_by_name($user_role['name']);
+        if (!$role_exists){
+            $role = new stdClass();
+            $role->name = $user_role['name'];
+            $role->weight = $user_role['weigth'];
+            user_role_save($role);
+        }
+    }
+    foreach (_argus_klasbeheer_installed_menu_links() as $menu_link) {
+        menu_link_save($menu_link);
+    }
+}

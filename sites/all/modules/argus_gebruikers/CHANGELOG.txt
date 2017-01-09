@@ -1,0 +1,42 @@
+**Releases:
+
+v7.x-6.0
+---------
+- First initial release - featured based
+
+v7.x-5.0
+---------
+- Overzichten specifiek voor leerlingen:
+  keuze van het levensbeschouwelijk vak
+  leerlingen die geweigerd werden ten gevolge van een tuchtsanctie
+
+v7.x-4.1
+---------
+- Nieuwe leerlingen in the picture (blokje onderaan, startpagina)
+- Standaard user avatar
+
+v7.x-4.0
+---------
+- Nieuwe personeelsleden in the picture (blokje linksonder)
+
+v7.x-3.0
+---------
+- Wie is wie? met filter per functie, telefoon-, email- en adresgegevens: wie is wie?
+- Mogelijkheid om te bladeren door vorige schooljaren voor leerlingen en klassen
+
+v7.x-2.0
+---------
+- Fotoboek met uitgebreidde filter op woonplaats, klas, geslacht, rol en meer: fotoboek
+- Overzicht remediëringen per klas/leerling met vermelding leerkracht: meldingen/lvs/remedieringen
+
+v7.x-1.1
+---------
+- Extra grafieken om beeld van leerlingen te verduidelijken
+
+v7.x-1.0
+---------
+- Vernieuwde user-profile pagina: Leerlingen ("http://argus.kta1-hasselt.be/users/achternaam-voornaam" > vb. http://argus.kta1-hasselt.be/users/bammens-dario)
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

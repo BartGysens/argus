@@ -1,0 +1,213 @@
+<?php
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+* De Lijn API information:
+*   iRail - API : http://api.irail.be/
+*   iRail - opendata : http://data.irail.be/#DeLijn
+*/
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_buscheck_menu().
+ */
+function argus_buscheck_menu() {
+    $items = array();
+    $items['admin/config/argus/buscheck'] = array(
+        'title' => 'Buscontrole De Lijn',
+        'description' => 'Controleer de aankomsttijden van de bussen op een bepaalde dag en uur voor vooraf ingestelde haltes.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_buscheck_setup_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 1,
+    );
+    $items['argus_buscheck'] = array(
+        'title' => 'Buscontrole De Lijn',
+        'description' => 'Controleer de aankomsttijden van de bussen op een bepaalde dag en uur voor vooraf ingestelde haltes.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_buscheck_form'),
+        'access callback' => TRUE,
+        'menu_name' => 'menu-modules',
+    );
+    return $items;
+}
+
+/**
+ * Page callback: Buscheck working form
+ *
+ * @see argus_buscheck_form()
+ */
+function argus_buscheck_form($form, &$form_state) {
+    drupal_add_css(drupal_get_path('module', 'argus_buscheck') . '/css/argus_buscheck.css');
+    
+    $options = explode(chr(13),variable_get('argus_buscheck_busstops'));
+    $form['argus_buscheck_busstop'] = array(
+        '#type' => 'select',
+        '#title' => t('Bushalte'),
+        '#description' => t('Selecteer de bushalte die je wil controleren.'),
+        '#options' => $options,
+        '#required' => true,
+    );
+    $form['argus_buscheck_datetime'] = array(
+        '#type' => 'date_select',
+        '#title' => t('Datum & uur'),
+        '#description' => t('Geef het tijdstip op vanaf wanneer je de aankomsttijden wil controleren voor de gekozen halte.'),
+        '#default_value' => date_now(),
+        '#date_increment' => 10,
+        '#required' => true,
+    );
+    $form['argus_buscheck_submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Aankomsttijden opvragen'),
+    );
+    
+    /*
+     * Process request for results consulting the De Lijn API with realtime data
+     */
+    if (isset($form_state['values']['argus_buscheck_submit'])){
+        $busstop = urlencode(trim($options[$form_state['values']['argus_buscheck_busstop']]));
+
+        $requestedDate = format_date(strtotime($form_state['values']['argus_buscheck_datetime']),'custom','Y/m/d/H/i');
+
+        $deLijnAPI = 'http://data.irail.be/DeLijn/Arrivals/' . $busstop . '/' . $requestedDate . '.json';
+        $deLijnData = json_decode(file_get_contents($deLijnAPI),true);
+
+        $deLijnDataSorted = [];
+        foreach( $deLijnData['Arrivals'] as $i => $item){
+            if (!isset($deLijnDataSorted[$item['short_name']])){
+                $deLijnDataSorted[$item['short_name']] = [
+                    'long_name' => $item['long_name'],
+                    'text_color' => $item['text_color'],
+                    'color' => $item['color'],
+                    'times' => [],
+                ];
+            }
+            $deLijnDataSorted[$item['short_name']]['times'][]=[
+                'time' => $item['time'],
+                'direction' => $item['direction'],
+            ];
+        }
+        ksort($deLijnDataSorted);
+        
+        $suffixHeader = '<div id="argus_buscheck_results_header">';
+        $suffix = '<div id="argus_buscheck_results">';
+        foreach($deLijnDataSorted as $b => $busstop){
+            $suffix .=
+                '<a name="bs'.$b.'"></a><div class="dataSet">'.
+                    '<div class="short_name" style="color: #'.$busstop['text_color'].'; background-color: #'.$busstop['color'].';">'.$b.'</div>'.
+                    '<div class="long_name">'.$busstop['long_name'].'</div><div class="times">';
+                    foreach($busstop['times'] as $t => $item){
+                        $suffix .= '<div class="stoptime">'.date('H:i',$item['time']).' '.($item['direction']?'>':'<').'</div>';
+                    }
+            $suffix .= '</div></div>';
+            $suffixHeader .= '<a href="#bs'.$b.'"><div class="short_name" style="color: #'.$busstop['text_color'].'; background-color: #'.$busstop['color'].';">'.$b.'</div></a>';
+        }
+        
+        $form['#suffix'] = $suffixHeader.'</div>'.$suffix.'</div>';
+    }
+    
+    return $form;
+}
+
+/**
+ * Form callback: Buscheck working form after submission
+ *
+ * @see argus_buscheck_form()
+ */
+function argus_buscheck_form_submit($form, &$form_state) {
+    $form_state['rebuild'] = TRUE;
+    
+    $options = explode(chr(13),variable_get('argus_buscheck_busstops'));
+    $busstop = trim($options[$form_state['values']['argus_buscheck_busstop']]);
+    drupal_set_message(
+        'Gegevens opgevraagd voor bushalte <strong>' . $busstop . '</strong> op <strong>' .
+        format_date(strtotime($form_state['values']['argus_buscheck_datetime']),'long') .
+        '</strong>'
+    );
+}
+
+/**
+ * Page callback: Buscheck instellingen
+ *
+ * @see argus_buscheck_setup_form()
+ */
+function argus_buscheck_setup_form($form, &$form_state) {
+    $form['argus_buscheck_busstops'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Bushaltes'),
+        '#default_value' => variable_get('argus_buscheck_busstops',NULL),
+        '#cols' => 70,
+        '#rows' => 10,
+        '#description' => t('Voeg de haltes toe die je wil controleren; de juiste benamingen kan je hier opvragen: <a href="http://www.delijn.be/nl/haltes/" target="_blank">bushaltes van de lijn</a>.<br />De mogelijke waarden die dit veld kan bevatten. Geef één waarde per regel.'),
+    );
+    return system_settings_form($form);
+}
+
+/**
+ * Implements argus_buscheck_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function argus_buscheck_help($path, $arg) {
+    $output = '';
+    switch ($path) {
+      case "admin/help#argus_buscheck":
+        $output =
+          '<h3>' . t('Informatie over de gebruikte databron') . '</h3>'
+        . '<p>' . t('Deze module maakt gebruik van de API van het "<a href="http://project.irail.be/wiki/API/APIv1" target="_blank">iRail-project</a>" met realtime data van openbaar vervoer maatschappij <a href="http://www.delijn.be" target="_blank">de Lijn</a>') . '</p>'
+        . '<p>' . t('De gegevens zijn open data die beschikbaar worden gesteld via de service "<a href="https://data.irail.be/#DeLijn" target="_blank">https://data.irail.be/#DeLijn</a>"') . '</p>'
+
+        . '<h3>' . t('Algemeen gebruik') . '</h3>'
+        
+        . '<h4>' . t('Instellingen') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Bushaltes selecteren') . '</strong></dt>'
+        . '<dd>' . t('Je kan uit de beschikbare lijst de halte selecteren die je wil controleren. Bij meerdere haltes wordt een keuzelijst aangeboden en kan je individuele data opvragen.') . '</dd>'
+        . '<dd>' . t('De lijst van beschikbare haltes kan je hier vinden:') . ' <a href="http://www.delijn.be/nl/haltes/" target="_blank">'.t('zoekpagina voor de bushaltes van De Lijn').'</a></dd>'
+        . '</dl>'
+
+        . '<h4>' . t('Module gebruiken') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Hoe moet je de resultaten lezen?') . '</strong></dt>'
+        . '<dd>' . t('Hieronder zie je een voorbeeld:')
+        . '<p><div id="argus_buscheck_results" style="clear:both; height: 80px; background-color:#efefef;"><div class="dataSet"><div class="short_name" style="text-align: center; width: 25px; float: left; padding: 5px; margin: 5px; color: white; background-color: green;">H1</div><div class="long_name" style="float: left; padding: 5px; margin: 5px;">A - B</div><div class="times" style="float: left; padding: 5px; margin: 5px;"><div class="stoptime" style="float: left; margin-right: 30px;">10:09 &#10095 (= richting zoals aangegeven, van A naar B)</div><br /><br /><div class="stoptime" style="float: left;">10:21 &#10094 (= omgekeerde richting, van B naar A)</div></div></div></div></p>'
+        . '<p>' . t('Bij elk blok worden de opeenvolgende uren oplopend gesorteerd en achter elkaar getoond.') . '</p></dd>'
+        . '</dl>'
+        . '<dl>'
+        . '<dt><strong>' . t('Instellen van de datum en tijd') . '</strong></dt>'
+        . '<dd>' . t('Met de datum en tijd selectie is het mogelijk om een specifieke datum met uur op te vragen.')
+        . '<p>' . t('De resultaten worden opgevraagd vanaf dat uur en lopen tot het einde van de specifieke dag.') . '</p></dd>'
+        . '</dl>'
+
+        . '<h4>' . t('Beschikbaar maken van deze module') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Als menu-item aanmaken') . '</strong></dt>'
+        . '<dd>' . t('Je verwijst naar deze module met volgende url: <strong>http://www.mijnsite.be/argus_bus_check</strong>') . '</dd>'
+        . '</dl>';
+
+        break;
+    }
+    return $output;
+}

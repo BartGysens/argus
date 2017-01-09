@@ -1,0 +1,12 @@
+diff --git a/views/includes/cache.inc b/views/includes/cache.inc
+--- a/views/includes/cache.inc	(revision 416e02c7bdc1675df6249f1187ca69a3efa17981)
++++ b/views/includes/cache.inc	(revision )
+@@ -125,7 +125,7 @@
+  */
+ function _views_fetch_plugin_data($type = NULL, $plugin = NULL, $reset = FALSE) {
+   static $cache = NULL;
+-  if (!isset($cache) || $reset) {
++  if (!isset($cache) || empty($cache) || $reset) {
+     // Load necessary code once.
+     if (!isset($cache)) {
+       views_include('plugins');

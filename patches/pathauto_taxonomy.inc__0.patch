@@ -1,0 +1,13 @@
+Index: pathauto_taxonomy.inc
+===================================================================
+--- pathauto_taxonomy.inc	(revision 335)
++++ pathauto_taxonomy.inc	(working copy)
+@@ -116,7 +116,7 @@
+     }
+   }
+   else {
+-    $src = taxonomy_term_path($category->tid);
++    $src = taxonomy_term_path($category);
+     if ($alias = pathauto_create_alias('taxonomy', $op, $placeholders, $src, $category->tid, $category->vid)) {
+       $count++;
+     }

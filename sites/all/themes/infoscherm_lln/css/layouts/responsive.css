@@ -1,0 +1,150 @@
+/* 
+ * Copyright (C) 2014 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file
+ * Positioning for a responsive layout.
+ *
+ * Define CSS classes to create a fluid grid layout with optional sidebars
+ * depending on whether blocks are placed in the left or right sidebars.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */
+
+/**
+ * Center the page.
+ *
+ * For screen sizes larger than 1200px, prevent excessively long lines of text
+ * by setting a max-width.
+ */
+#page,
+.region-bottom {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Apply the shared properties of grid items in a single, efficient ruleset. */
+#header,
+#content,
+#footer {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  *behavior: url("/path/to/boxsizing.htc");
+  _display: inline;
+  _overflow: hidden;
+  _overflow-y: visible;
+}
+
+/* Containers for grid items and flow items. */
+#header,
+#main,
+#footer {
+  *position: relative;
+  *zoom: 1;
+}
+#header:before,
+#header:after,
+#main:before,
+#main:after,
+#footer:before,
+#footer:after {
+  content: "";
+  display: table;
+}
+#header:after,
+#main:after,
+#footer:after {
+  clear: both;
+}
+
+/**
+ * Use 5 grid columns for larger screens.
+ */
+/* @media all and (min-width: 960px) { */
+@media all {
+	
+  /**
+   * The layout when there is only one sidebar, the left one.
+   */
+
+  /* Span 4 columns, starting in 2nd column from left. */
+  .sidebar-first #content {
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+  }
+
+  /* Span 1 column, starting in 1st column from left. */
+  .sidebar-first .region-sidebar-first {
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+  }
+
+  /**
+   * The layout when there is only one sidebar, the right one.
+   */
+
+  /* Span 4 columns, starting in 1st column from left. */
+  .sidebar-second #content {
+    float: left;
+    width: 50%;
+    margin-left: 0%;
+    margin-right: -50%;
+  }
+
+  /* Span 1 column, starting in 5th column from left. */
+  .sidebar-second .region-sidebar-second {
+    float: left;
+    width: 50%;
+    margin-left: 50%;
+    margin-right: -100%;
+  }
+
+  /**
+   * The layout when there are two sidebars.
+   */
+
+  /* Span 3 columns, starting in 2nd column from left. */
+  .two-sidebars #content {
+    float: left;
+    width: 34%;
+    margin-left: 33%;
+    margin-right: -68%;
+  }
+
+  /* Span 1 column, starting in 1st column from left. */
+  .two-sidebars .region-sidebar-first {
+    float: left;
+    width: 32%;
+    margin-left: 0%;
+    margin-right: -32%;
+  }
+
+  /* Span 1 column, starting in 5th column from left. */
+  .two-sidebars .region-sidebar-second {
+    float: left;
+    width: 32%;
+    margin-left: 68%;
+    margin-right: -100%;
+  }
+}

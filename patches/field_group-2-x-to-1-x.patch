@@ -1,0 +1,2086 @@
+diff --git a/README.txt b/README.txt
+index eb6efc2..a93357a 100644
+--- a/README.txt
++++ b/README.txt
+@@ -1,28 +1,39 @@
+ 
+ History:
+-  Field_group was written for Drupal 7. For drupal 6, the module is 
++  Field_group was written for Drupal 7. For drupal 6, the module is
+   located in the CCK module (http://drupal.org/project/cck).
+-  As drupal core has a fields API drupal > 6, the field_group module 
++  As drupal core has a fields API drupal > 6, the field_group module
+   is considered a contribution.
+-  
++
+ Description:
+-  field_group is a module that will group a set of fields. In Drupal7, 
++  field_group is a module that will group a set of fields. In Drupal7,
+   with fields, one means all fields that come from fieldable entities.
+   You can add fieldgroups in several types with their own format settings.
+-  field_group has API functions to add your own formatter and rendering for 
+-  it. 
++  field_group has API functions to add your own formatter and rendering for
++  it.
+   One of the biggest improvements to previous versions, is that fieldgroups
+   have unlimited nesting, better display control.
+-  Note that field_group will only group fields, it can not be used to hide 
++  Note that field_group will only group fields, it can not be used to hide
+   certain fields since this a permission matter.
+ 
+ Module project page:
+   http://drupal.org/project/field_group
+-  
+-Documentation page: 
++
++Documentation page:
+   http://drupal.org/node/1017838
+   http://drupal.org/node/1017962
+-  
++
++Available group types:
++  - Fieldsets
++  - Horizontal tabs
++  - Vertical tabs
++  - Accordions
++  - Divs
++  - HTML elements
++  - HTML5 elements
++  - Multipage steps: <strong>Note: This is only client side.
++
++
+ To submit bug reports and feature suggestions, or to track changes:
+   http://drupal.org/project/issues/field_group
+ 
+diff --git a/field_group-rtl.css b/field_group-rtl.css
+new file mode 100644
+index 0000000..26c1816
+--- /dev/null
++++ b/field_group-rtl.css
+@@ -0,0 +1,7 @@
++/**
++ * Override the accordion default style for view_modes.
++ */
++form .ui-accordion h3, form .ui-accordion h3.ui-state-active {
++  padding-left: 0;
++  padding-right: 2em;
++}
+diff --git a/field_group.api.php b/field_group.api.php
+index 2ace3ee..0c18c60 100644
+--- a/field_group.api.php
++++ b/field_group.api.php
+@@ -87,7 +87,7 @@ function hook_field_group_formatter_info() {
+     'form' => array(
+       'fieldset' => array(
+         'label' => t('Fieldset'),
+-        'description' => t('This fieldgroup renders the inner content in a fieldset with the titel as legend.'),
++        'description' => t('This fieldgroup renders the inner content in a fieldset with the title as legend.'),
+         'format_types' => array('open', 'collapsible', 'collapsed'),
+         'instance_settings' => array('classes' => ''),
+         'default_formatter' => 'collapsible',
+@@ -96,7 +96,7 @@ function hook_field_group_formatter_info() {
+     'display' => array(
+       'div' => array(
+         'label' => t('Div'),
+-        'description' => t('This fieldgroup renders the inner content in a simple div with the titel as legend.'),
++        'description' => t('This fieldgroup renders the inner content in a simple div with the title as legend.'),
+         'format_types' => array('open', 'collapsible', 'collapsed'),
+         'instance_settings' => array('effect' => 'none', 'speed' => 'fast', 'classes' => ''),
+         'default_formatter' => 'collapsible',
+@@ -346,6 +346,18 @@ function hook_field_group_info() {
+ }
+ 
+ /**
++ * Alter the field group definitions provided by other modules.
++ *
++ * @param array $groups
++ *   Reference to an array of field group definition objects.
++ */
++function hook_field_group_info_alter(&$groups) {
++  if (!empty($groups['group_issue_metadata|node|project_issue|form'])) {
++    $groups['group_issue_metadata|node|project_issue|form']->data['children'][] = 'taxonomy_vocabulary_9';
++  }
++}
++
++/**
+  * Implements hook_field_group_update_field_group().
+  *
+  * This hook is invoked by ctools export API.
+@@ -421,15 +433,28 @@ function field_group_info_groups($entity_type = NULL, $bundle = NULL, $view_mode
+  *
+  * @param Array $params
+  *   The Entity type where field groups are requested.
++ * @param $enabled
++ *   Return enabled or disabled groups.*
+  *
+  * @see field_group_info_groups()
+  * @see ctools_export_load_object()
+  */
+-function field_group_read_groups($params = array()) {
++function field_group_read_groups($conditions = array(), $enabled = TRUE) {
+   // This function loads the requested groups through ctools export api.
+ }
+ 
+ /**
++ * Hides field groups including children in a render array.
++ *
++ * @param array $element
++ *   A render array. Can be a form, node, user, ...
++ * @param array $group_names
++ *   An array of field group names that should be hidden.
++ */
++function field_group_hide_field_groups(&$element, $group_names) {
++}
++
++/**
+  * @} End of "addtogroup utility functions".
+  */
+ 
+diff --git a/field_group.css b/field_group.css
+index 7d2fdd8..d47f007 100644
+--- a/field_group.css
++++ b/field_group.css
+@@ -4,6 +4,7 @@
+  * Fix for fieldsets in vertical tabs.
+  * Note that this can only be hardcoded to the Seven theme
+  * where people who override this, are in trouble.
++ * This can be removed in next d7 release.
+  */
+ .vertical-tabs fieldset.default-fallback,
+ div.field-group-tabs-wrapper div.field-type-image fieldset,
+@@ -17,18 +18,6 @@ div.field-group-tabs-wrapper div.field-type-datetime fieldset {
+ 
+ div.field-group-tabs-wrapper div.field-type-image legend,
+ div.field-group-tabs-wrapper div.field-type-file legend,
+-div.field-group-tabs-wrapper div.field-type-datetime legend,
+-.vertical-tabs .field-group-fieldset legend {
++div.field-group-tabs-wrapper div.field-type-datetime legend {
+   display: block;
+-}
+-
+-/**
+- * Override the accordion default style for view_modes.
+- */
+-form .ui-accordion h3, form .ui-accordion h3.ui-state-active {
+-  padding-left: 2em;
+-}
+-
+-.ui-accordion h3.ui-state-active {
+-  background: url("/misc/ui/images/ui-bg_glass_75_e6e6e6_1x400.png") repeat-x scroll 50% 50% #E6E6E6;
+ }
+\ No newline at end of file
+diff --git a/field_group.features.inc b/field_group.features.inc
+index cea7833..1c219b4 100644
+--- a/field_group.features.inc
++++ b/field_group.features.inc
+@@ -9,25 +9,30 @@
+  * that are a part of this feature.
+  */
+ function field_group_features_export_alter(&$export, $module_name) {
+-  //Make sure we have fresh data by loading directly.
++  // Make sure we have fresh data by loading directly.
+   ctools_include('export');
+   $field_groups = ctools_export_load_object('field_group');
+ 
+-  //Add fieldgroups based on the fields that are present.
++  // Add fieldgroups based on the fields that are present.
+   if (!empty($export['features']['field'])) {
+     foreach ($export['features']['field'] as $field) {
+       list($entity_type, $bundle, $field_name) = explode('-', $field);
+ 
+       foreach ($field_groups as $group_id => $group) {
+         if ($group->entity_type == $entity_type && $group->bundle == $bundle
+-          && in_array($field_name, $group->data['children'])) {
+-          $export['features']['field_group'][$group_id] = $group_id;
++          && in_array($field_name, $group->data['children']) && in_array($group->identifier, $export['features']['field_group'])) {
++          if (isset($group->export_module) && $group->export_module != $module_name) {
++            $export['dependencies'][$group->export_module] = $group->export_module;
++          }
++          else {
++            $export['features']['field_group'][$group_id] = $group_id;
++          }
+         }
+       }
+     }
+   }
+ 
+-  //Add any parent field groups that haven't been selected.
++  // Add any parent field groups that haven't been selected.
+   if (!empty($export['features']['field_group'])) {
+     foreach ($export['features']['field_group'] as $id) {
+       $group = isset($field_groups[$id]) ? $field_groups[$id] : FALSE;
+@@ -37,7 +42,12 @@ function field_group_features_export_alter(&$export, $module_name) {
+         $parent_group = isset($field_groups[$parent_id]) ? $field_groups[$parent_id] : FALSE;
+ 
+         if ($parent_group && !isset($export['features']['field_group'][$parent_id])) {
+-          $export['features']['field_group'][$parent_id] = $parent_id;
++          if (isset($parent_group->export_module) && $parent_group->export_module != $module_name) {
++            $export['dependencies'][$parent_group->export_module] = $parent_group->export_module;
++          }
++          else {
++            $export['features']['field_group'][$parent_id] = $parent_id;
++          }
+         }
+       }
+     }
+diff --git a/field_group.field_ui.inc b/field_group.field_ui.inc
+index 264c4e0..31a2c26 100644
+--- a/field_group.field_ui.inc
++++ b/field_group.field_ui.inc
+@@ -18,8 +18,6 @@ function field_group_field_ui_form_params($form, $display_overview) {
+   $params->admin_path = _field_ui_bundle_admin_path($params->entity_type, $params->bundle);
+   $params->display_overview = $display_overview;
+ 
+-  $formatters = field_group_formatter_info();
+-
+   if ($display_overview) {
+     $params->region_callback = 'field_group_display_overview_row_region';
+     $params->mode = $form['#view_mode'];
+@@ -301,6 +299,41 @@ function field_group_field_ui_overview_form_alter(&$form, &$form_state, $display
+   // Create the settings for fieldgroup as vertical tabs (merged with DS).
+   field_group_field_ui_create_vertical_tabs($form, $form_state, $params);
+ 
++  // Show a warning if the user has not set up required containers
++  if ($form['#groups']) {
++
++    $parent_requirements = array(
++      'multipage' => array(
++        'parent' => 'multipage-group',
++        'message' => 'Each Multipage element needs to have a parent Multipage group element.',
++      ),
++      'htab' => array(
++        'parent' => 'htabs',
++        'message' => 'Each Horizontal tab element needs to have a parent Horizontal tabs group element.',
++      ),
++      'accordion-item' => array(
++        'parent' => 'accordion',
++        'message' => 'Each Accordion item element needs to have a parent Accordion group element.',
++      ),
++    );
++
++    // On display overview tabs need to be checked.
++    if ($display_overview) {
++      $parent_requirements['tab'] = array(
++        'parent' => 'tabs',
++        'message' => 'Each Vertical tab element needs to have a parent Vertical tabs group element.',
++      );
++    }
++
++    foreach ($form['#groups'] as $group_name) {
++      $group_check = field_group_load_field_group($group_name, $params->entity_type, $params->bundle, $params->mode);
++      if (isset($parent_requirements[$group_check->format_type])) {
++        if (!$group_check->parent_name || field_group_load_field_group($group_check->parent_name, $params->entity_type, $params->bundle, $params->mode)->format_type != $parent_requirements[$group_check->format_type]['parent']) {
++          drupal_set_message(t($parent_requirements[$group_check->format_type]['message']), 'warning', FALSE);
++        }
++      }
++    }
++  }
+ }
+ 
+ /**
+@@ -329,6 +362,8 @@ function field_group_add_row($name, $parent_options, $params) {
+     '#js_settings' => array('rowHandler' => 'group'),
+     '#region_callback' => $params->region_callback,
+     'label' => array(
++      '#title_display' => 'invisible',
++      '#title' => t('Label for new group'),
+       '#type' => 'textfield',
+       '#size' => 15,
+       '#description' => t('Label'),
+@@ -346,6 +381,8 @@ function field_group_add_row($name, $parent_options, $params) {
+     ),
+     'parent_wrapper' => array(
+       'parent' => array(
++        '#title_display' => 'invisible',
++        '#title' => t('Parent for new group'),
+         '#type' => 'select',
+         '#options' => $parent_options,
+         '#empty_value' => '',
+@@ -361,6 +398,8 @@ function field_group_add_row($name, $parent_options, $params) {
+     ),
+     'group_name' => array(
+       '#type' => 'textfield',
++      '#title_display' => 'invisible',
++      '#title' => t('Machine name for new group'),
+       // This field should stay LTR even for RTL languages.
+       '#field_prefix' => '<span dir="ltr">group_',
+       '#field_suffix' => '</span>&lrm;',
+@@ -517,10 +556,6 @@ function field_group_field_overview_validate($form, &$form_state) {
+ 
+   // Validate if any information was provided in the 'add new group' row.
+   if (array_filter(array($group['label'], $group['group_name']))) {
+-    // Missing label.
+-    if (!$group['label']) {
+-      form_set_error('fields][_add_new_group][label', t('Add new group: you need to provide a label.'));
+-    }
+ 
+     // Missing group name.
+     if (!$group['group_name']) {
+@@ -608,7 +643,10 @@ function field_group_field_overview_submit($form, &$form_state) {
+       $new_group->format_settings['instance_settings'] = $formatter['instance_settings'];
+     }
+ 
+-    // Save and enable it in ctools
++    $classes = _field_group_get_html_classes($new_group);
++    $new_group->format_settings['instance_settings']['classes'] = $classes->optional;
++
++    // Save and enable it in ctools.
+     ctools_export_crud_save('field_group', $new_group);
+     ctools_export_crud_enable('field_group', $new_group->identifier);
+ 
+@@ -662,7 +700,7 @@ function field_group_validate_css_class($element, &$form_state) {
+  */
+ function field_group_validate_id($element, &$form_state) {
+   if (!empty($form_state['values']['fields'][$form_state['formatter_settings_edit']]['format_settings']['settings']['instance_settings']['id']) && !preg_match('!^[A-Za-z0-9-_]+$!', $form_state['values']['fields'][$form_state['formatter_settings_edit']]['format_settings']['settings']['instance_settings']['id'])) {
+-    form_error($element, t('The css class must include only letters, numbers, underscores and dashes.'));
++    form_error($element, t('The id must include only letters, numbers, underscores and dashes.'));
+   }
+ }
+ 
+@@ -726,6 +764,52 @@ function field_group_delete_form_submit($form, &$form_state) {
+ }
+ 
+ /**
++ * Menu callback; present a form for re-enabling a group.
++ */
++function field_group_enable_form($form, &$form_state, $group, $view_mode = 'form') {
++
++  $form['#group'] = $group;
++  $admin_path = _field_ui_bundle_admin_path($group->entity_type, $group->bundle);
++  if ($view_mode == 'form') {
++    $admin_path .= '/fields';
++  }
++  else {
++    $admin_path .= '/display/' . $view_mode;
++  }
++  $form['#redirect'] = array($admin_path);
++  $output = confirm_form($form,
++    t('Are you sure you want to enable the group %group?', array('%group' => t($group->label))),
++    $admin_path,
++    '',
++    t('Enable'), t('Cancel'),
++    'confirm'
++  );
++  return $output;
++}
++
++/**
++ * Re-enable the group on a bundle.
++ */
++function field_group_enable_form_submit($form, &$form_state) {
++
++  $group = $form['#group'];
++  $bundle = $group->bundle;
++  $entity_type = $group->entity_type;
++  $group->mode = $form_state['build_info']['args'][1];
++
++  $bundles = field_info_bundles();
++  $bundle_label = $bundles[$entity_type][$bundle]['label'];
++
++  ctools_include('export');
++  ctools_export_crud_enable('field_group', $group->identifier);
++
++  drupal_set_message(t('The group %group has been enabled on the %type content type.', array('%group' => t($group->label), '%type' => $bundle_label)));
++
++  // Redirect.
++  $form_state['redirect'] = $form['#redirect'];
++}
++
++/**
+  * Create vertical tabs.
+  */
+ function field_group_field_ui_create_vertical_tabs(&$form, &$form_state, $params) {
+@@ -778,9 +862,66 @@ function field_group_field_ui_create_vertical_tabs(&$form, &$form_state, $params
+   $form['additional_settings']['field_group']['fieldgroup_submit'] = array(
+     '#type' => 'submit',
+     '#value' => t('Clone'),
++    '#validate' => array('field_group_field_ui_clone_field_groups_validate'),
+     '#submit' => array('field_group_field_ui_clone_field_groups')
+   );
+ 
++  $disabled_groups = field_group_read_groups(array(), FALSE);
++
++  // Show disabled fieldgroups, and make it possible to enable them again.
++  if ($disabled_groups && isset($disabled_groups[$params->entity_type][$params->bundle][$params->mode])) {
++    $form['additional_settings']['disabled_field_groups'] = array(
++
++      '#type' => 'fieldset',
++
++      '#title' => t('Disabled fieldgroups'),
++
++      '#collapsible' => TRUE,
++
++      '#collapsed' => FALSE,
++
++      '#parents' => array('additional_settings'),
++
++    );
++    $form['additional_settings']['disabled_field_groups']['overview'] = field_group_disabled_groups_overview($disabled_groups[$params->entity_type][$params->bundle][$params->mode], $entity_info, $params);
++  }
++
++}
++
++/**
++ * Validate handler to validate saving existing fieldgroups from one view mode or form to another.
++ */
++function field_group_field_ui_clone_field_groups_validate($form, &$form_state) {
++
++  $source_mode = $form_state['#source_mode'] = $form_state['values']['additional_settings']['fieldgroup_clone'] == '0' ? 'form' : $form_state['values']['additional_settings']['fieldgroup_clone'];
++  $groups_to_clone = $form_state['#groups_to_clone'] = field_group_read_groups(array('bundle' => $form_state['field_group_params']->bundle, 'entity_type' => $form_state['field_group_params']->entity_type));
++
++  $form_state['#source_groups'] = array();
++  if (!empty($groups_to_clone) && isset($groups_to_clone[$form_state['field_group_params']->entity_type], $groups_to_clone[$form_state['field_group_params']->entity_type][$form_state['field_group_params']->bundle], $groups_to_clone[$form_state['field_group_params']->entity_type][$form_state['field_group_params']->bundle][$source_mode])) {
++    $form_state['#source_groups'] = $groups_to_clone[$form_state['field_group_params']->entity_type][$form_state['field_group_params']->bundle][$source_mode];
++  }
++
++  // Check for types are not known in current mode.
++  if ($form_state['field_group_params']->mode != 'form') {
++    $non_existing_types = array('multipage', 'multipage-group');
++  }
++  else {
++    $non_existing_types = array('div');
++  }
++
++  foreach ($form_state['#source_groups'] as $key => $group) {
++    if (in_array($group->format_type, $non_existing_types)) {
++      unset($form_state['#source_groups'][$key]);
++      drupal_set_message(t('Skipping @group because this type does not exist in current mode', array('@group' => $group->label)), 'warning');
++    }
++  }
++
++  if (empty($form_state['#source_groups'])) {
++    // Report error found with selection.
++    form_set_error('additional_settings][fieldgroup_clone', t('No field groups were found in selected view mode.'));
++    return;
++  }
++
+ }
+ 
+ /**
+@@ -788,16 +929,13 @@ function field_group_field_ui_create_vertical_tabs(&$form, &$form_state, $params
+  */
+ function field_group_field_ui_clone_field_groups($form, &$form_state) {
+ 
+-  $source_mode = $form_state['values']['additional_settings']['fieldgroup_clone'] == 0 ? 'form' : $form_state['values']['additional_settings']['fieldgroup_clone'];
+-  $groups_to_clone = field_group_read_groups(array('bundle' => $form_state['field_group_params']->bundle, 'entity_type' => $form_state['field_group_params']->entity_type));
+-  $source_groups = $groups_to_clone[$form_state['field_group_params']->entity_type][$form_state['field_group_params']->bundle][$source_mode];
++  $source_mode = $form_state['#source_mode'];
++  $groups_to_clone = $form_state['#groups_to_clone'];
+ 
+   $fields = array_keys($form_state['values']['fields']);
++  if (!empty($form_state['#source_groups'])) {
+ 
+-  if (!empty($source_groups)) {
+-
+-    foreach ($source_groups as $source_group) {
+-
++    foreach ($form_state['#source_groups'] as $source_group) {
+       if (in_array($source_group->group_name, $fields)) {
+         drupal_set_message(t('Fieldgroup @group is not cloned since a group already exists with the same name.', array('@group' => $source_group->group_name)), 'warning');
+         continue;
+@@ -808,6 +946,7 @@ function field_group_field_ui_clone_field_groups($form, &$form_state) {
+       $source_group->mode = $form_state['field_group_params']->mode;
+       $source_group->identifier = $source_group->group_name . '|' . $source_group->entity_type . '|' . $source_group->bundle . '|' . $form_state['field_group_params']->mode;
+       $source_group->disabled = FALSE;
++      $source_group->children = array();
+       unset($source_group->export_type, $source_group->type, $source_group->table);
+ 
+       // Save and enable it in ctools.
+@@ -821,6 +960,49 @@ function field_group_field_ui_clone_field_groups($form, &$form_state) {
+   }
+ 
+ }
++
++/**
++ * Show an overview of all the disabled fieldgroups, and make it possible to activate them again.
++ * @param $disabled_groups Array with all disabled groups.
++ */
++function field_group_disabled_groups_overview($disabled_groups, $entity_info, $params) {
++
++  $formatter_options = field_group_field_formatter_options($params->mode != 'form' ? 'display' : 'form');
++
++  $table = array(
++    '#theme' => 'table',
++    '#header' => array(
++      t('Label'),
++      t('Machine name'),
++      t('Field'),
++      t('Widget'),
++      t('Operations'),
++    ),
++    '#attributes' => array(
++      'class' => array('field-ui-overview'),
++    ),
++    '#rows' => array(),
++  );
++
++  // Add all of the disabled groups as a row on the table.
++  foreach ($disabled_groups as $group) {
++
++    $summary = field_group_format_settings_summary($group->group_name, $group);
++
++    $row = array();
++    $row[] = $group->label;
++    $row[] = $group->group_name;
++    $row[] = $formatter_options[$group->format_type];
++    $row[] = render($summary);
++    $path = (isset($entity_info['bundles'][$params->bundle]['admin']['real path']) ? $entity_info['bundles'][$params->bundle]['admin']['real path'] : $entity_info['bundles'][$params->bundle]['admin']['path']);
++    $row[] = l(t('Enable'), $path . '/groups/' . $group->group_name . '/enable/' . $group->mode);
++
++    $table['#rows'][] = $row;
++  }
++
++  return $table;
++
++}
+ /**
+  * eof().
+- */
+\ No newline at end of file
++ */
+diff --git a/field_group.install b/field_group.install
+index b84b435..ef33b78 100644
+--- a/field_group.install
++++ b/field_group.install
+@@ -255,4 +255,42 @@ function field_group_update_7003() {
+   module_load_include('module', 'field_group');
+   _field_group_recreate_identifiers();
+ 
++}
++
++/**
++ * Update hook to make sure identifier is set as unique key.
++ */
++function field_group_update_7004() {
++  db_drop_unique_key('field_group', 'identifier');
++  db_add_unique_key('field_group', 'identifier', array('identifier'));
++}
++
++/**
++ * Checks all existing groups and removes optional HTML classes
++ * while adding them as extra classes.
++ */
++function field_group_update_7005() {
++
++  // Migrate the field groups so they have a unique identifier.
++  $result = db_select('field_group', 'fg')
++    ->fields('fg')
++    ->execute();
++  $rows = array();
++  foreach($result as $row) {
++    //$row->identifier = $row->group_name . '|' . $row->entity_type . '|' . $row->bundle . '|' . $row->mode;
++    $row->data = unserialize($row->data);
++    $classes = explode(" ", $row->data['format_settings']['instance_settings']['classes']);
++    $optional_classes = array(str_replace("_", "-", $row->group_name), 'field-group-' . $row->data['format_type']);
++    foreach ($optional_classes as $optional_class) {
++      if (!in_array($optional_class, $classes)) {
++        $classes[] = $optional_class;
++      }
++    }
++    $row->data['format_settings']['instance_settings']['classes'] = implode(" ", $classes);
++    $rows[] = $row;
++  }
++  foreach ($rows as $row) {
++    drupal_write_record('field_group', $row, array('id'));
++  }
++
+ }
+\ No newline at end of file
+diff --git a/field_group.js b/field_group.js
+index 72f3444..0824968 100644
+--- a/field_group.js
++++ b/field_group.js
+@@ -56,17 +56,29 @@ Drupal.FieldGroup.Effects.processAccordion = {
+       });
+ 
+       if (type == 'form') {
++
++        var $firstErrorItem = false;
++
+         // Add required fields mark to any element containing required fields
+-        wrapper.find('div.accordion-item').each(function(i){
++        wrapper.find('div.field-group-accordion-item').each(function(i) {
++
+           if ($(this).is('.required-fields') && $(this).find('.form-required').length > 0) {
+-            $('h3.ui-accordion-header').eq(i).append(' ').append($('.form-required').eq(0).clone());
++            $('h3.ui-accordion-header a').eq(i).append(' ').append($('.form-required').eq(0).clone());
+           }
+           if ($('.error', $(this)).length) {
++            // Save first error item, for focussing it.
++            if (!$firstErrorItem) {
++              $firstErrorItem = $(this).parent().accordion("activate" , i);
++            }
+             $('h3.ui-accordion-header').eq(i).addClass('error');
+-            var activeOne = $(this).parent().accordion("activate" , i);
+-            $('.ui-accordion-content-active', activeOne).css({height: 'auto', width: 'auto', display: 'block'});
+           }
+         });
++
++        // Save first error item, for focussing it.
++        if (!$firstErrorItem) {
++          $('.ui-accordion-content-active', $firstErrorItem).css({height: 'auto', width: 'auto', display: 'block'});
++        }
++
+       }
+     });
+   }
+@@ -189,6 +201,23 @@ Drupal.behaviors.fieldGroup = {
+     $('.fieldset-wrapper .fieldset > legend').css({display: 'block'});
+     $('.vertical-tabs fieldset.fieldset').addClass('default-fallback');
+ 
++
++    // Add a new ID to each fieldset.
++    $('.group-wrapper fieldset').each(function() {
++      // Tats bad, but we have to keep the actual id to prevent layouts to break.
++      var fieldgorupID = 'field_group-' + $(this).attr('id') + ' ' + $(this).attr('id');
++      $(this).attr('id', fieldgorupID);
++    })
++    // Set the hash in url to remember last userselection.
++    $('.group-wrapper ul li').each(function() {
++      var fieldGroupNavigationListIndex = $(this).index();
++      $(this).children('a').click(function() {
++        var fieldset = $('.group-wrapper fieldset').get(fieldGroupNavigationListIndex);
++        // Grab the first id, holding the wanted hashurl.
++        var hashUrl = $(fieldset).attr('id').replace(/^field_group-/, '').split(' ')[0];
++        window.location.hash = hashUrl;
++      });
++    });
+   }
+ };
+ 
+diff --git a/field_group.module b/field_group.module
+index 18792a6..ac9b999 100644
+--- a/field_group.module
++++ b/field_group.module
+@@ -62,6 +62,16 @@ function field_group_menu() {
+             'type' => MENU_CALLBACK,
+             'file' => 'field_group.field_ui.inc',
+           ) + $access;
++
++          $items["$path/groups/%field_group_menu/enable"] = array(
++            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
++            'title' => 'Enable',
++            'page callback' => 'drupal_get_form',
++            'page arguments' => array('field_group_enable_form', $group_position),
++            'type' => MENU_CALLBACK,
++            'file' => 'field_group.field_ui.inc',
++          ) + $access;
++
+         }
+       }
+     }
+@@ -154,6 +164,9 @@ function field_group_ctools_plugin_api($owner, $api) {
+  */
+ function field_group_theme() {
+   return array(
++    'horizontal_tabs' => array(
++      'render element' => 'element',
++    ),
+     'multipage' => array(
+       'render element' => 'element',
+     ),
+@@ -271,8 +284,13 @@ function field_group_field_attach_view_alter(&$element, $context) {
+  */
+ function field_group_field_group_formatter_info() {
+ 
+-  $info = array(
++  return array(
+     'form' => array(
++      'html-element' => array(
++        'label' => t('HTML element'),
++        'description' => t('This fieldgroup renders the inner content in a HTML element with classes and attributes.'),
++        'instance_settings' => array('element' => 'div', 'classes' => '', 'attributes' => '', 'required_fields' => 1),
++      ),
+       'div' => array(
+         'label' => t('Div'),
+         'description' => t('This fieldgroup renders the inner content in a simple div with the title as legend.'),
+@@ -304,6 +322,18 @@ function field_group_field_group_formatter_info() {
+         'instance_settings' => array('description' => '', 'classes' => '', 'required_fields' => 1),
+         'default_formatter' => 'closed',
+       ),
++      'htabs' => array(
++        'label' => ('Horizontal tabs group'),
++        'description' => t('This fieldgroup renders child groups in its own horizontal tabs wrapper.'),
++        'instance_settings' => array('classes' => ''),
++      ),
++      'htab' => array(
++        'label' => t('Horizontal tab'),
++        'format_types' => array('open', 'closed'),
++        'description' => t('This fieldgroup renders the content in a fieldset, part of horizontal tabs group.'),
++        'default_formatter' => 'closed',
++        'instance_settings' => array('description' => '', 'classes' => '', 'required_fields' => 1),
++      ),
+       'multipage-group' => array(
+         'label' => ('Multipage group'),
+         'description' => t('This fieldgroup renders groups on separate pages.'),
+@@ -330,6 +360,11 @@ function field_group_field_group_formatter_info() {
+       ),
+     ),
+     'display' => array(
++      'html-element' => array(
++        'label' => t('HTML element'),
++        'description' => t('This fieldgroup renders the inner content in a HTML element with classes and attributes.'),
++        'instance_settings' => array('element' => 'div', 'classes' => '', 'attributes' => '', 'required_fields' => 1),
++      ),
+       'div' => array(
+         'label' => t('Div'),
+         'description' => t('This fieldgroup renders the inner content in a simple div with the title as legend.'),
+@@ -361,10 +396,22 @@ function field_group_field_group_formatter_info() {
+         'instance_settings' => array('description' => '', 'classes' => ''),
+         'default_formatter' => 'closed',
+       ),
++      'htabs' => array(
++        'label' => ('Horizontal tabs group'),
++        'description' => t('This fieldgroup renders child groups in its own horizontal tabs wrapper.'),
++        'instance_settings' => array('classes' => ''),
++      ),
++      'htab' => array(
++        'label' => t('Horizontal tab item'),
++        'format_types' => array('open', 'closed'),
++        'description' => t('This fieldgroup renders the content in a fieldset, part of horizontal tabs group.'),
++        'instance_settings' => array('description' => '', 'classes' => ''),
++        'default_formatter' => 'closed',
++      ),
+       'accordion' => array(
+         'label' => t('Accordion group'),
+         'description' => t('This fieldgroup renders child groups as jQuery accordion.'),
+-        'instance_settings' => array('description' => '', 'classes' => ''),
++        'instance_settings' => array('description' => '', 'classes' => '', 'effect' => 'bounceslide'),
+       ),
+       'accordion-item' => array(
+         'label' => t('Accordion item'),
+@@ -375,38 +422,6 @@ function field_group_field_group_formatter_info() {
+       ),
+     ),
+   );
+-
+-  // Extra format types derived from elements provided by elements module.
+-  if (module_exists('elements')) {
+-
+-    $info['form']['htabs'] = array(
+-      'label' => ('Horizontal tabs group'),
+-      'description' => t('This fieldgroup renders child groups in its own horizontal tabs wrapper.'),
+-      'instance_settings' => array('classes' => ''),
+-    );
+-    $info['form']['htab'] = array(
+-      'label' => t('Horizontal tab item'),
+-      'format_types' => array('open', 'closed'),
+-      'description' => t('This fieldgroup renders the content in a fieldset, part of horizontal tabs group.'),
+-      'default_formatter' => 'closed',
+-      'instance_settings' => array('description' => '', 'classes' => '', 'required_fields' => 1),
+-    );
+-    $info['display']['htabs'] = array(
+-      'label' => ('Horizontal tabs group'),
+-      'description' => t('This fieldgroup renders child groups in its own horizontal tabs wrapper.'),
+-      'instance_settings' => array('classes' => ''),
+-    );
+-    $info['display']['htab'] = array(
+-      'label' => t('Horizontal tab item'),
+-      'format_types' => array('open', 'closed'),
+-      'description' => t('This fieldgroup renders the content in a fieldset, part of horizontal tabs group.'),
+-      'instance_settings' => array('description' => '', 'classes' => ''),
+-      'default_formatter' => 'closed',
+-    );
+-
+-  }
+-
+-  return $info;
+ }
+ 
+ /**
+@@ -478,6 +493,23 @@ function field_group_field_group_format_settings($group) {
+ 
+   // Add optional instance_settings.
+   switch ($group->format_type) {
++    case 'html-element':
++      $form['instance_settings']['element'] = array(
++        '#title' => t('Element'),
++        '#type' => 'textfield',
++        '#default_value' => isset($group->format_settings['instance_settings']['element']) ? $group->format_settings['instance_settings']['element'] : $formatter['instance_settings']['element'],
++        '#description' => t('E.g. div, section, aside etc.'),
++        '#weight' => 2,
++      );
++
++      $form['instance_settings']['attributes'] = array(
++        '#title' => t('Attributes'),
++        '#type' => 'textfield',
++        '#default_value' => isset($group->format_settings['instance_settings']['attributes']) ? $group->format_settings['instance_settings']['attributes'] : $formatter['instance_settings']['attributes'],
++        '#description' => t('E.g. name="anchor"'),
++        '#weight' => 4,
++      );
++      break;
+     case 'div':
+       $form['instance_settings']['show_label'] = array(
+         '#title' => t('Show label'),
+@@ -578,34 +610,10 @@ function field_group_field_group_format_settings($group) {
+  */
+ function field_group_pre_render_prepare(&$group) {
+ 
+-  // Prepare extra classes.
+-  $group->classes = array('field-group-' . $group->format_type, str_replace('_', '-', $group->group_name));
+-  if (isset($group->format_settings['formatter'])) {
+-    $group->collapsible = in_array($group->format_settings['formatter'], array('collapsible', 'collapsed'));
+-    // Open or closed horizontal or vertical tabs will be collapsible by default.
+-    if ($group->format_type == 'tab' || $group->format_type == 'htab') {
+-      $group->collapsible = TRUE;
+-    }
+-    $group->collapsed = in_array($group->format_settings['formatter'], array('collapsed', 'closed'));
+-    if ($group->collapsible) {
+-      $group->classes[] = 'collapsible';
+-      if ($group->collapsed) {
+-        $group->classes[] = 'collapsed';
+-      }
+-    }
+-  }
+-
+-  // Add a required-fields class to trigger the js.
+-  if (isset($group->format_settings['instance_settings']) && !empty($group->format_settings['instance_settings']['required_fields'])) {
+-    $group->classes[] = 'required-fields';
+-  }
++  $classes = _field_group_get_html_classes($group);
++  $group->classes = $classes->required . ' ' . $group->format_settings['instance_settings']['classes'];
+ 
+-  $group->classes = implode(' ', $group->classes);
+-  if (isset($group->format_settings['instance_settings'], $group->format_settings['instance_settings']['classes'])) {
+-    $group->classes .= ' ' . check_plain($group->format_settings['instance_settings']['classes']);
+-  }
+-
+-  $group->description = isset($group->format_settings['instance_settings']['description']) ? filter_xss_admin($group->format_settings['instance_settings']['description']) : '';
++  $group->description = isset($group->format_settings['instance_settings']['description']) ? filter_xss_admin(t($group->format_settings['instance_settings']['description'])) : '';
+ 
+ }
+ 
+@@ -672,6 +680,43 @@ function field_group_pre_render_fieldset(&$element, $group, &$form) {
+ 
+ /**
+  * Implements field_group_pre_render_<format-type>.
++ * Format type: HTML element.
++ *
++ * @param $element The field group form element.
++ * @param $group The Field group object prepared for pre_render.
++ * @param $form The root element or form.
++ */
++function field_group_pre_render_html_element(&$element, $group, &$form) {
++  $html_element = isset($group->format_settings['instance_settings']['element']) ? $group->format_settings['instance_settings']['element'] : 'div';
++  $attributes = isset($group->format_settings['instance_settings']['attributes']) ? ' ' . $group->format_settings['instance_settings']['attributes'] : '';
++  $group->classes = trim($group->classes);
++
++  // This regex split the attributes string so that we can pass that
++  // later to drupal_attributes().
++  preg_match_all('/([^\s=]+)="([^"]+)"/', $attributes, $matches);
++
++  $element_attributes = array();
++  // Put the attribute and the value together.
++  foreach ($matches[1] as $key => $attribute) {
++    $element_attributes[$attribute] = $matches[2][$key];
++  }
++
++  // Add the classes to the attributes array.
++  if (!isset($element_attributes['class']) && $group->classes) {
++    $element_attributes['class'] = $group->classes;
++  }
++  elseif (isset($element_attributes['class']) && $group->classes) {
++    $element_attributes['class'] .= ' ' . $group->classes;
++  }
++
++  $attributes = drupal_attributes($element_attributes);
++
++  $element['#prefix'] = '<' . $html_element . $attributes . '>';
++  $element['#suffix'] = '</' . $html_element . '>';
++}
++
++/**
++ * Implements field_group_pre_render_<format-type>.
+  * Format type: Div.
+  *
+  * @param $element The field group form element.
+@@ -689,13 +734,13 @@ function field_group_pre_render_div(&$element, $group, &$form) {
+ 
+   $group->classes .= " speed-$speed effect-$effect";
+   if ($group->format_settings['formatter'] != 'open') {
+-    $element['#prefix'] = '<div id="' . $element['#id'] . '" class="field-group-format ' . $group->classes . '">
++    $element['#prefix'] = '<div id="' . $element['#id'] . '" class="' . $group->classes . '">
+       <' . $label_element . '><span class="field-group-format-toggler">' . check_plain(t($group->label)) . '</span></' . $label_element . '>
+-      <div class="field-group-format-wrapper" style="display: ' . ($group->collapsed ? 'none' : 'block') . ';">';
++      <div class="field-group-format-wrapper" style="display: ' . (!empty($group->collapsed) ? 'none' : 'block') . ';">';
+     $element['#suffix'] = '</div></div>';
+   }
+   else {
+-    $element['#prefix'] = '<div id="' . $element['#id'] . '" class="field-group-format ' . $group->group_name . ' ' . $group->classes . '">';
++    $element['#prefix'] = '<div id="' . $element['#id'] . '" class="' . $group->group_name . ' ' . $group->classes . '">';
+     if ($show_label) {
+       $element['#prefix'] .= '<' . $label_element . '><span>' . check_plain(t($group->label)) . '</span></' . $label_element . '>';
+     }
+@@ -759,7 +804,7 @@ function field_group_pre_render_accordion_item(&$element, $group, &$form) {
+ 
+   $element += array(
+     '#type' => 'markup',
+-    '#prefix' => '<h3 class="field-group-format-toggler ' . $group->format_type . ($group->collapsed ? '' : ' field-group-accordion-active') . '">' . check_plain(t($group->label)) . '</h3>
++    '#prefix' => '<h3 class="field-group-format-toggler ' . $group->format_type . ($group->collapsed ? '' : ' field-group-accordion-active') . '"><a href="#">' . check_plain(t($group->label)) . '</a></h3>
+     <div class="field-group-format-wrapper ' . $group->classes . '">',
+     '#suffix' => '</div>',
+     //'#attributes' => array('class' => array($group->format_type)),
+@@ -789,6 +834,11 @@ function field_group_pre_render_htabs(&$element, $group, &$form) {
+     '#suffix' => '</div>',
+   );
+ 
++  // By default vertical_tabs don't have titles but you can override it in the theme.
++  if (!empty($group->label)) {
++    $element['#title'] = check_plain($group->label);
++  }
++
+ }
+ 
+ /**
+@@ -889,6 +939,12 @@ function field_group_pre_render_tabs(&$element, $group, &$form) {
+     '#prefix' => '<div class="field-group-' . $group->format_type . '-wrapper ' . $group->classes . '">',
+     '#suffix' => '</div>',
+   );
++
++  // By default vertical_tabs don't have titles but you can override it in the theme.
++  if (!empty($group->label)) {
++    $element['#title'] = check_plain($group->label);
++  }
++
+   $element[$group->group_name . '__active_tab'] = array(
+     '#type' => 'hidden',
+     '#default_value' => '',
+@@ -1137,7 +1193,12 @@ function field_group_field_group_format_summary($group) {
+       $output .= '<strong>' . $key . '</strong> ';
+ 
+       if (isset($group_form['instance_settings'], $group_form['instance_settings'][$key]['#options'])) {
+-        $value = $group_form['instance_settings'][$key]['#options'][$value];
++        if (is_array($value)) {
++          $value = implode(array_filter($value), ', ');
++        }
++        else {
++          $value = $group_form['instance_settings'][$key]['#options'][$value];
++        }
+       }
+ 
+       // Shorten the string.
+@@ -1159,7 +1220,11 @@ function field_group_field_group_format_summary($group) {
+  * Implements hook_element_info().
+  */
+ function field_group_element_info() {
+-  $types = array();
++  $types['horizontal_tabs'] = array(
++    '#theme_wrappers' => array('horizontal_tabs'),
++    '#default_tab' => '',
++    '#process' => array('form_process_horizontal_tabs'),
++  );
+   $types['multipage'] = array(
+     '#theme_wrappers' => array('multipage'),
+     '#default_tab' => '',
+@@ -1180,7 +1245,22 @@ function field_group_element_info() {
+ function field_group_library() {
+ 
+   $path = drupal_get_path('module', 'field_group');
+-
++  // Horizontal Tabs.
++  $libraries['horizontal-tabs'] = array(
++    'title' => 'Horizontal Tabs',
++    'website' => 'http://drupal.org/node/323112',
++    'version' => '1.0',
++    'js' => array(
++      $path . '/horizontal-tabs/horizontal-tabs.js' => array(),
++    ),
++    'css' => array(
++      $path . '/horizontal-tabs/horizontal-tabs.css' => array(),
++    ),
++    'dependencies' => array(
++      // Horizontal tabs relies on drupalGetSummary in form.js
++      array('system', 'drupal.form'),
++    ),
++  );
+   // Multipage Tabs.
+   $libraries['multipage'] = array(
+     'title' => 'Multipage',
+@@ -1198,8 +1278,63 @@ function field_group_library() {
+ }
+ 
+ /**
++ * Implements hook_field_extra_fields().
++ */
++function field_group_field_extra_fields() {
++  $extra = array();
++
++  $extra['user']['user'] = array('form' => array());
++
++  // User picture field to integrate with user module.
++  if (variable_get('user_pictures', 0)) {
++    $extra['user']['user']['form']['picture'] = array(
++      'label' => t('Picture'),
++      'description' => t('User picture'),
++      'weight' => 5,
++    );
++  }
++
++  // Field to itegrate with overlay module.
++  if (module_exists('overlay')) {
++    $extra['user']['user']['form']['overlay_control'] = array(
++      'label' => t('Administrative overlay'),
++      'description' => t('Administrative overlay'),
++      'weight' => 5,
++    );
++  }
++
++  // Field to itegrate with contact module.
++  if (module_exists('contact')) {
++    $extra['user']['user']['form']['contact'] = array(
++      'label' => t('Contact'),
++      'description' => t('Contact user element'),
++     'weight' => 5,
++    );
++  }
++
++  // Field to integrate with the locale module.
++  if (module_exists('locale')) {
++    $extra['user']['user']['form']['locale'] = array(
++      'label' => t('Language settings'),
++      'description' => t('Language settings for the user account.'),
++      'weight' => 5,
++    );
++  }
++
++  // Field to integrate with the wysiwyg module on user settings.
++  if (module_exists('wysiwyg')) {
++    $extra['user']['user']['form']['wysiwyg'] = array(
++      'label' => t('Wysiwyg status'),
++      'description' => t('Text formats enabled for rich-text editing'),
++      'weight' => 5,
++    );
++  }
++
++  return $extra;
++}
++
++/**
+  * Implements hook_field_attach_rename_bundle().
+- * TODO: also update identifier
+  */
+ function field_group_field_attach_rename_bundle($entity_type, $bundle_old, $bundle_new) {
+   db_query('UPDATE {field_group} SET bundle = :bundle WHERE bundle = :old_bundle AND entity_type = :entity_type', array(
+@@ -1210,6 +1345,66 @@ function field_group_field_attach_rename_bundle($entity_type, $bundle_old, $bund
+ }
+ 
+ /**
++ * Creates a group formatted as horizontal tabs.
++ * This function will never be callable from within field_group rendering. Other
++ * modules using #type horizontal_tabs will have the benefit of this processor.
++ *
++ * @param $element
++ *   An associative array containing the properties and children of the
++ *   fieldset.
++ * @param $form_state
++ *   The $form_state array for the form this horizontal tab widget belongs to.
++ * @return
++ *   The processed element.
++ */
++function form_process_horizontal_tabs($element, &$form_state) {
++  // Inject a new fieldset as child, so that form_process_fieldset() processes
++  // this fieldset like any other fieldset.
++  $element['group'] = array(
++    '#type' => 'fieldset',
++    '#theme_wrappers' => array(),
++    '#parents' => $element['#parents'],
++  );
++
++  // The JavaScript stores the currently selected tab in this hidden
++  // field so that the active tab can be restored the next time the
++  // form is rendered, e.g. on preview pages or when form validation
++  // fails.
++  $name = implode('__', $element['#parents']);
++  if (isset($form_state['values'][$name . '__active_tab'])) {
++    $element['#default_tab'] = $form_state['values'][$name . '__active_tab'];
++  }
++  $element[$name . '__active_tab'] = array(
++    '#type' => 'hidden',
++    '#default_value' => $element['#default_tab'],
++    '#attributes' => array('class' => array('horizontal-tabs-active-tab')),
++  );
++
++  return $element;
++}
++
++/**
++ * Returns HTML for an element's children fieldsets as horizontal tabs.
++ *
++ * @param $variables
++ *   An associative array containing:
++ *   - element: An associative array containing the properties and children of the
++ *     fieldset. Properties used: #children.
++ *
++ * @ingroup themeable
++ */
++function theme_horizontal_tabs($variables) {
++  $element = $variables['element'];
++  // Add required JavaScript and Stylesheet.
++  drupal_add_library('field_group', 'horizontal-tabs');
++
++  $output = '<h2 class="element-invisible">' . (!empty($element['#title']) ? $element['#title'] : t('Horizontal Tabs')) . '</h2>';
++  $output .= '<div class="horizontal-tabs-panes">' . $element['#children'] . '</div>';
++
++  return $output;
++}
++
++/**
+  * Creates a group formatted as multipage.
+  * This function will never be callable from within field_group rendering. Other
+  * modules using #type multipage will have the benefit of this processor.
+@@ -1390,32 +1585,41 @@ function field_group_info_groups($entity_type = NULL, $bundle = NULL, $view_mode
+ /**
+  * Read all groups.
+  *
+- * @param $params
++ * @param $conditions
+  *   Parameters for the query
+  *   $name The name of the entity.
+  *   $bundle The name of the bundle.
+  *   $view_mode The view mode.
++ * @param $enabled
++ *   Return enabled or disabled groups.
+  */
+-function field_group_read_groups($params = array()) {
++function field_group_read_groups($conditions = array(), $enabled = TRUE) {
+ 
+   $groups = array();
+   ctools_include('export');
+ 
+-  if (empty($params)) {
++  if (empty($conditions)) {
+     $records = ctools_export_load_object('field_group');
+   }
+   else {
+-    $records = ctools_export_load_object('field_group', 'conditions', $params);
++    $records = ctools_export_load_object('field_group', 'conditions', $conditions);
+   }
+ 
+   foreach ($records as $group) {
+-    // Deleted groups.
+-    // @TODO remove the code below and add something meaningfull for "disabled" state.
+-    if (isset($group->disabled) && $group->disabled) {
++
++    // Return only enabled groups.
++    if ($enabled && isset($group->disabled) && $group->disabled) {
+       continue;
+     }
++    // Return only disabled groups.
++    elseif (!$enabled && (!isset($group->disabled) || !$group->disabled)) {
++      continue;
++    }
++
+     $groups[$group->entity_type][$group->bundle][$group->mode][$group->group_name] = field_group_unpack($group);
++
+   }
++  drupal_alter('field_group_info', $groups);
+   return $groups;
+ 
+ }
+@@ -1584,7 +1788,7 @@ function field_group_formatter_info($display_overview = FALSE) {
+       $formatters = array();
+       $formatters += module_invoke_all('field_group_formatter_info');
+       $hidden_region = array(
+-        'label' => t('<Hidden>'),
++        'label' => '<' . t('Hidden') . '>',
+         'description' => '',
+         'format_types' => array(),
+         'instance_settings' => array(),
+@@ -1680,6 +1884,9 @@ function field_group_build_entity_groups(&$vars, $type) {
+       $vars['content'][$group->group_name] = $element[$group->group_name];
+     }
+   }
++
++  // Add new #attached items.
++  drupal_process_attached($element);
+ }
+ 
+ /**
+@@ -1781,3 +1988,72 @@ function field_group_pre_render(& $element, $group, & $form) {
+   drupal_alter('field_group_pre_render', $element, $group, $form);
+ 
+ }
++
++/**
++ * Hides field groups including children in a render array.
++ *
++ * @param array $element
++ *   A render array. Can be a form, node, user, ...
++ * @param array $group_names
++ *   An array of field group names that should be hidden.
++ */
++function field_group_hide_field_groups(&$element, $group_names) {
++  foreach ($group_names as $group_name) {
++    if (isset($element['#fieldgroups'][$group_name]) && isset($element['#group_children'])) {
++      // Hide the field group.
++      $element['#fieldgroups'][$group_name]->format_type = 'hidden';
++      // Hide the elements inside the field group.
++      foreach (array_keys($element['#group_children'], $group_name) as $field_name) {
++        $element[$field_name]['#access'] = FALSE;
++      }
++    }
++  }
++}
++
++/**
++ * Calculates html classes for a group.
++ */
++function _field_group_get_html_classes(&$group) {
++
++  if (isset($group->format_settings['formatter'])) {
++    $group->collapsible = in_array($group->format_settings['formatter'], array('collapsible', 'collapsed'));
++    // Open or closed horizontal or vertical tabs will be collapsible by default.
++    if ($group->format_type == 'tab' || $group->format_type == 'htab') {
++      $group->collapsible = TRUE;
++    }
++    $group->collapsed = in_array($group->format_settings['formatter'], array('collapsed', 'closed'));
++  }
++
++  $classes = new stdClass();
++
++  // Prepare extra classes, required and optional ones.
++  $optional = array(str_replace('_', '-', $group->group_name));
++  if ($group->format_type == 'multipage') {
++    $required = array('field-group-' . $group->format_type);
++  }
++  else {
++    $required = array();
++    $optional[] = 'field-group-' . $group->format_type;
++  }
++
++  if (isset($group->format_settings['formatter']) && $group->collapsible) {
++    $required[] = 'collapsible';
++    if ($group->collapsed) {
++      $required[] = 'collapsed';
++    }
++  }
++
++  // Add a required-fields class to trigger the js.
++  if (isset($group->format_settings['instance_settings']) && !empty($group->format_settings['instance_settings']['required_fields'])) {
++    $required[] = 'required-fields';
++  }
++
++  $classes->required = implode(' ', $required);
++  $classes->optional = implode(' ', $optional);
++  if (isset($group->format_settings['instance_settings'], $group->format_settings['instance_settings']['classes'])) {
++    $classes->optional .= ' ' . check_plain($group->format_settings['instance_settings']['classes']);
++  }
++
++  return $classes;
++
++}
+diff --git a/field_group.test b/field_group.test
+index 0375963..f99237d 100644
+--- a/field_group.test
++++ b/field_group.test
+@@ -24,6 +24,7 @@
+  * Group UI tests.
+  */
+ class GroupUITestCase extends DrupalWebTestCase {
++
+   public static function getInfo() {
+     return array(
+       'name' => 'Field group tests',
+@@ -38,52 +39,43 @@ class GroupUITestCase extends DrupalWebTestCase {
+     // Create test user.
+     $admin_user = $this->drupalCreateUser(array('administer content types', 'administer nodes', 'access administration pages', 'bypass node access'));
+     $this->drupalLogin($admin_user);
++  }
+ 
+-    // Create random group name.
+-    $this->group_label = $this->randomName(8);
+-    $this->group_name_input = drupal_strtolower($this->randomName(8));
+-    $this->group_name = 'group_' . $this->group_name_input;
++  /**
++   * Create a new group.
++   * @param array $data
++   *   Data for the field group.
++   */
++  function createGroup($mode, array $data) {
++
++    $group_name = 'group_' . drupal_strtolower($this->randomName(8));
++    $identifier = $group_name . '|node|article|' . $mode;
+ 
+-    // Create a fieldgroup.
+     $field_group = new stdClass;
+     $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+     $field_group->api_version = 1;
+-    $field_group->identifier = 'wrapper|node|article|form';
+-    $field_group->group_name = 'wrapper';
++    $field_group->identifier = $identifier;
++    $field_group->group_name = $group_name;
+     $field_group->entity_type = 'node';
+     $field_group->bundle = 'article';
+-    $field_group->mode = 'form';
++    $field_group->mode = $mode;
+     $field_group->parent_name = '';
+-    $field_group->data = array(
+-      'label' => 'Wrapper',
+-      'weight' => '1',
+-      'children' => array(
+-        0 => 'field_image',
+-      ),
+-      'format_type' => 'div',
+-      'format_settings' => array(
+-        'label' => 'Link',
+-        'instance_settings' => array(
+-          'required_fields' => 0,
+-          'id' => 'wrapper-id',
+-          'classes' => '',
+-          'description' => '',
+-          'show_label' => '0',
+-          'label_element' => 'h3',
+-          'effect' => 'none',
+-          'speed' => 'fast',
+-        ),
+-        'formatter' => 'open',
+-      ),
+-    );
++    $field_group->data = $data;
+     drupal_write_record('field_group', $field_group);
+     ctools_export_crud_enable('field_group', $field_group->identifier);
++
++    return $field_group;
+   }
+ 
+   /**
+-   * Creates a group on the article content type.
++   * Test the creation a group on the article content type.
+    */
+-  function createGroup() {
++  function createGroupTest() {
++
++    // Create random group name.
++    $this->group_label = $this->randomName(8);
++    $this->group_name_input = drupal_strtolower($this->randomName(8));
++    $this->group_name = 'group_' . $this->group_name_input;
+ 
+     // Setup new group.
+     $group = array(
+@@ -92,7 +84,8 @@ class GroupUITestCase extends DrupalWebTestCase {
+     );
+ 
+     // Add new group on the 'Manage fields' page.
+-    $this->drupalPost('admin/structure/types/manage/article/fields',  $group, t('Save'));
++    $this->drupalPost('admin/structure/types/manage/article/fields', $group, t('Save'));
++
+     $this->assertRaw(t('New group %label successfully created.', array('%label' => $this->group_label)), t('Group message displayed on screen.'));
+ 
+     // Test if group is in the $groups array.
+@@ -100,7 +93,7 @@ class GroupUITestCase extends DrupalWebTestCase {
+     $this->assertTrue(array_key_exists($this->group_name, $groups), t('Group found in groups array'));
+ 
+     // Add new group on the 'Manage display' page.
+-    $this->drupalPost('admin/structure/types/manage/article/display',  $group, t('Save'));
++    $this->drupalPost('admin/structure/types/manage/article/display', $group, t('Save'));
+     $this->assertRaw(t('New group %label successfully created.', array('%label' => $this->group_label)), t('Group message displayed on screen.'));
+ 
+     // Test if group is in the $groups array.
+@@ -111,7 +104,7 @@ class GroupUITestCase extends DrupalWebTestCase {
+   /**
+    * Delete a group.
+    */
+-  function deleteGroup() {
++  function deleteGroupTest() {
+ 
+     $this->drupalPost('admin/structure/types/manage/article/groups/' . $this->group_name . '/delete/form', array(), t('Delete'));
+     $this->assertRaw(t('The group %label has been deleted from the %article content type.', array('%label' => $this->group_label, '%article' => 'Article')), t('Group removal message displayed on screen.'));
+@@ -132,8 +125,8 @@ class GroupUITestCase extends DrupalWebTestCase {
+    * General CRUD.
+    */
+   function testCRUDGroup() {
+-    $this->createGroup();
+-    $this->deleteGroup();
++    $this->createGroupTest();
++    $this->deleteGroupTest();
+   }
+ 
+   /**
+@@ -141,11 +134,81 @@ class GroupUITestCase extends DrupalWebTestCase {
+    */
+   function testNestField() {
+ 
+-    // Test on the wrapper field.
++    $data = array(
++      'label' => 'Wrapper',
++      'weight' => '1',
++      'format_type' => 'div',
++      'children' => array(),
++      'format_settings' => array(
++        'label' => 'Link',
++        'instance_settings' => array(
++          'required_fields' => 0,
++          'id' => 'wrapper-id',
++          'classes' => '',
++          'description' => '',
++          'show_label' => '0',
++          'label_element' => 'h3',
++          'effect' => 'none',
++          'speed' => 'fast',
++        ),
++        'formatter' => 'open',
++      ),
++    );
++
++    $group = $this->createGroup('form', $data);
++
++    $edit = array(
++      'fields[field_image][parent]' => $group->group_name,
++    );
++    $this->drupalPost('admin/structure/types/manage/article/fields', $edit, t('Save'));
++    $this->assertRaw(t('Your settings have been saved.'), t('Settings saved'));
++
+     $groups = field_group_info_groups('node', 'article', 'form', TRUE);
+-    $this->assertTrue(in_array('field_image', $groups['wrapper']->children), t('Image is a child of %group', array('%group' => 'Wrapper')));
++    $this->assertTrue(in_array('field_image', $groups[$group->group_name]->children), t('Image is a child of %group', array('%group' => $group->group_name)));
++  }
++
++  function testProperties() {
++
++    $data = array(
++      'label' => 'Wrapper',
++      'weight' => '1',
++      'children' => array(
++        0 => 'field_image',
++      ),
++      'format_type' => 'div',
++      'format_settings' => array(
++        'label' => 'Link',
++        'instance_settings' => array(
++          'required_fields' => 0,
++          'id' => 'wrapper-id',
++          'classes' => 'test-class',
++          'description' => '',
++          'show_label' => FALSE,
++          'label_element' => 'h3',
++          'effect' => 'none',
++          'speed' => 'fast',
++        ),
++        'formatter' => 'open',
++      ),
++    );
++    $group = $this->createGroup('form', $data);
+ 
++    $groups = field_group_info_groups('node', 'article', 'form', TRUE);
+     $this->drupalGet('node/add/article');
++
++    // Test group ids and classes.
+     $this->assertRaw('id="wrapper-id"', t('Wrapper id set on wrapper div'));
++    $this->assertRaw('class="' . $group->group_name . ' test-class', t('Test class set on wrapper div'));
++
++    // Test group label.
++    $this->assertNoRaw('<h3><span>' . $data['label'] . '</span></h3>', t('Label is not shown'));
++
++    // Set show label to true.
++    $group->data['format_settings']['instance_settings']['show_label'] = TRUE;
++    drupal_write_record('field_group', $group, array('identifier'));
++    $groups = field_group_info_groups('node', 'article', 'form', TRUE);
++    $this->drupalGet('node/add/article');
++    $this->assertRaw('<h3><span>' . $data['label'] . '</span></h3>', t('Label is shown'));
+   }
++
+ }
+diff --git a/horizontal-tabs/horizontal-tabs-rtl.css b/horizontal-tabs/horizontal-tabs-rtl.css
+new file mode 100644
+index 0000000..e579eea
+--- /dev/null
++++ b/horizontal-tabs/horizontal-tabs-rtl.css
+@@ -0,0 +1,15 @@
++div.horizontal-tabs {
++  margin: 0 0 1em 0;
++}
++
++.horizontal-tabs ul.horizontal-tabs-list {
++  border-right: 0;
++  border-left: 1px solid #dedede;
++}
++
++/* Layout of each tab */
++.horizontal-tabs ul.horizontal-tabs-list li {
++  border-right: 0;
++  border-left: 1px solid #ccc;
++  float: right;
++}
+diff --git a/horizontal-tabs/horizontal-tabs.css b/horizontal-tabs/horizontal-tabs.css
+new file mode 100644
+index 0000000..2e1d99d
+--- /dev/null
++++ b/horizontal-tabs/horizontal-tabs.css
+@@ -0,0 +1,104 @@
++div.horizontal-tabs {
++  margin: 0 0 1em 0; /* LTR */
++  padding: 0;
++  border: 1px solid #ccc;
++  position: relative; /* IE6/7 */
++}
++
++.horizontal-tabs ul.horizontal-tabs-list {
++  display: inline-block;
++  margin: 0;
++  border: 0;
++  padding: 0px;
++  position: relative; /* IE6 */
++  list-style: none;
++  list-style-image: none; /* IE6 */
++  background-color: #dedede;
++  border-right: 1px solid #dedede; /* LTR */
++  width: 100%;
++  height: auto;
++  clear: both;
++}
++
++.horizontal-tabs fieldset.horizontal-tabs-pane {
++  padding: 0 1em;
++  border: 0;
++}
++
++fieldset.horizontal-tabs-pane legend {
++  display: none;
++}
++
++fieldset.horizontal-tabs-pane fieldset legend {
++	display: block;
++}
++
++/* Layout of each tab */
++.horizontal-tabs ul.horizontal-tabs-list li {
++  background: #eee;
++  border-right: 1px solid #ccc; /* LTR */
++  padding: 1px;
++  padding-top: 0; 
++  margin: 0;
++  min-width: 5em; /* IE7 */
++  float: left; /* LTR */
++}
++.horizontal-tabs ul.horizontal-tabs-list li.selected {
++  background-color: #fff;
++  padding: 0 0 1px 0;
++}
++.horizontal-tabs ul.horizontal-tabs-list li a {
++  display: block;
++  text-decoration: none;
++  padding: 0.5em 0.6em;
++}
++.horizontal-tabs ul.horizontal-tabs-list li a:hover {
++  outline: none;
++  background-color: #ededdd;
++}
++.horizontal-tabs ul.horizontal-tabs-list li:hover,
++.horizontal-tabs ul.horizontal-tabs-list li:focus {
++  background-color: #ddd;
++}
++.horizontal-tabs ul.horizontal-tabs-list :focus {
++  outline: none;
++}
++.horizontal-tabs ul.horizontal-tabs-list li a:focus strong,
++.horizontal-tabs ul.horizontal-tabs-list li a:active strong,
++.horizontal-tabs ul.horizontal-tabs-list li a:hover strong {
++  text-decoration: none;
++  outline: none;
++}
++.horizontal-tabs ul.horizontal-tabs-list li a,
++.horizontal-tabs ul.horizontal-tabs-list li.selected a {
++  display: block;
++  text-decoration: none;
++  padding: 0.5em 0.6em 0.3em 0.6em;
++  position:relative;
++  top: 0px;  
++}
++.horizontal-tabs ul.horizontal-tabs-list .selected strong {
++  color: #000;
++}
++.horizontal-tabs ul.horizontal-tabs-list .summary {
++  display: block;
++}
++.horizontal-tabs ul.horizontal-tabs ul.horizontal-tabs-list .summary {
++  line-height: normal;
++  margin-bottom: 0;
++}
++
++/**
++ * tab content 
++ */
++div.field-group-htabs-wrapper .field-group-format-wrapper { 
++  clear: both;
++  padding: 0 0 0.6em;
++}
++/*hide*/
++.horizontal-tabs .horizontal-tab-hidden {
++  display: block;
++  position: absolute;
++  top: -100000px;
++  width: 100%;
++}
+diff --git a/horizontal-tabs/horizontal-tabs.js b/horizontal-tabs/horizontal-tabs.js
+new file mode 100644
+index 0000000..01317db
+--- /dev/null
++++ b/horizontal-tabs/horizontal-tabs.js
+@@ -0,0 +1,195 @@
++(function ($) {
++
++/**
++ * This script transforms a set of fieldsets into a stack of horizontal
++ * tabs. Another tab pane can be selected by clicking on the respective
++ * tab.
++ *
++ * Each tab may have a summary which can be updated by another
++ * script. For that to work, each fieldset has an associated
++ * 'horizontalTabCallback' (with jQuery.data() attached to the fieldset),
++ * which is called every time the user performs an update to a form
++ * element inside the tab pane.
++ */
++Drupal.behaviors.horizontalTabs = {
++  attach: function (context) {
++    $('.horizontal-tabs-panes', context).once('horizontal-tabs', function () {
++      var focusID = $(':hidden.horizontal-tabs-active-tab', this).val();
++      var tab_focus;
++
++      // Check if there are some fieldsets that can be converted to horizontal-tabs
++      var $fieldsets = $('> fieldset', this);
++      if ($fieldsets.length == 0) {
++        return;
++      }
++
++      // Create the tab column.
++      var tab_list = $('<ul class="horizontal-tabs-list"></ul>');
++      $(this).wrap('<div class="horizontal-tabs clearfix"></div>').before(tab_list);
++
++      // Transform each fieldset into a tab.
++      $fieldsets.each(function (i) {
++        var horizontal_tab = new Drupal.horizontalTab({
++          title: $('> legend', this).text(),
++          fieldset: $(this)
++        });
++        horizontal_tab.item.addClass('horizontal-tab-button-' + i);
++        tab_list.append(horizontal_tab.item);
++        $(this)
++          .removeClass('collapsible collapsed')
++          .addClass('horizontal-tabs-pane')
++          .data('horizontalTab', horizontal_tab);
++        if (this.id == focusID) {
++          tab_focus = $(this);
++        }
++      });
++
++      $('> li:first', tab_list).addClass('first');
++      $('> li:last', tab_list).addClass('last');
++
++      if (!tab_focus) {
++        // If the current URL has a fragment and one of the tabs contains an
++        // element that matches the URL fragment, activate that tab.
++        if (window.location.hash && $(window.location.hash, this).length) {
++          tab_focus = $(window.location.hash, this).closest('.horizontal-tabs-pane');
++        }
++        else {
++          tab_focus = $('> .horizontal-tabs-pane:first', this);
++        }
++      }
++      if (tab_focus.length) {
++        tab_focus.data('horizontalTab').focus();
++      }
++    });
++  }
++};
++
++/**
++ * The horizontal tab object represents a single tab within a tab group.
++ *
++ * @param settings
++ *   An object with the following keys:
++ *   - title: The name of the tab.
++ *   - fieldset: The jQuery object of the fieldset that is the tab pane.
++ */
++Drupal.horizontalTab = function (settings) {
++  var self = this;
++  $.extend(this, settings, Drupal.theme('horizontalTab', settings));
++
++  this.link.click(function () {
++    self.focus();
++    return false;
++  });
++
++  // Keyboard events added:
++  // Pressing the Enter key will open the tab pane.
++  this.link.keydown(function(event) {
++    if (event.keyCode == 13) {
++      self.focus();
++      // Set focus on the first input field of the visible fieldset/tab pane.
++      $("fieldset.horizontal-tabs-pane :input:visible:enabled:first").focus();
++      return false;
++    }
++  });
++
++  this.fieldset
++    .bind('summaryUpdated', function () {
++      self.updateSummary();
++    })
++    .trigger('summaryUpdated');
++};
++
++Drupal.horizontalTab.prototype = {
++  /**
++   * Displays the tab's content pane.
++   */
++  focus: function () {
++    this.fieldset
++      .removeClass('horizontal-tab-hidden')
++      .siblings('fieldset.horizontal-tabs-pane')
++        .each(function () {
++          var tab = $(this).data('horizontalTab');
++          tab.fieldset.addClass('horizontal-tab-hidden');
++          tab.item.removeClass('selected');
++        })
++        .end()
++      .siblings(':hidden.horizontal-tabs-active-tab')
++        .val(this.fieldset.attr('id'));
++    this.item.addClass('selected');
++    // Mark the active tab for screen readers.
++    $('#active-horizontal-tab').remove();
++    this.link.append('<span id="active-horizontal-tab" class="element-invisible">' + Drupal.t('(active tab)') + '</span>');
++  },
++
++  /**
++   * Updates the tab's summary.
++   */
++  updateSummary: function () {
++    this.summary.html(this.fieldset.drupalGetSummary());
++  },
++
++  /**
++   * Shows a horizontal tab pane.
++   */
++  tabShow: function () {
++    // Display the tab.
++    this.item.removeClass('horizontal-tab-hidden');
++    // Update .first marker for items. We need recurse from parent to retain the
++    // actual DOM element order as jQuery implements sortOrder, but not as public
++    // method.
++    this.item.parent().children('.horizontal-tab-button').removeClass('first')
++      .filter(':visible:first').addClass('first');
++    // Display the fieldset.
++    this.fieldset.removeClass('horizontal-tab-hidden');
++    // Focus this tab.
++    this.focus();
++    return this;
++  },
++
++  /**
++   * Hides a horizontal tab pane.
++   */
++  tabHide: function () {
++    // Hide this tab.
++    this.item.addClass('horizontal-tab-hidden');
++    // Update .first marker for items. We need recurse from parent to retain the
++    // actual DOM element order as jQuery implements sortOrder, but not as public
++    // method.
++    this.item.parent().children('.horizontal-tab-button').removeClass('first')
++      .filter(':visible:first').addClass('first');
++    // Hide the fieldset.
++    this.fieldset.addClass('horizontal-tab-hidden');
++    // Focus the first visible tab (if there is one).
++    var $firstTab = this.fieldset.siblings('.horizontal-tabs-pane:not(.horizontal-tab-hidden):first');
++    if ($firstTab.length) {
++      $firstTab.data('horizontalTab').focus();
++    }
++    return this;
++  }
++};
++
++/**
++ * Theme function for a horizontal tab.
++ *
++ * @param settings
++ *   An object with the following keys:
++ *   - title: The name of the tab.
++ * @return
++ *   This function has to return an object with at least these keys:
++ *   - item: The root tab jQuery element
++ *   - link: The anchor tag that acts as the clickable area of the tab
++ *       (jQuery version)
++ *   - summary: The jQuery element that contains the tab summary
++ */
++Drupal.theme.prototype.horizontalTab = function (settings) {
++  var tab = {};
++  tab.item = $('<li class="horizontal-tab-button" tabindex="-1"></li>')
++    .append(tab.link = $('<a href="#"></a>')
++      .append(tab.title = $('<strong></strong>').text(settings.title))
++      .append(tab.summary = $('<span class="summary"></span>')
++    )
++  );
++  return tab;
++};
++
++})(jQuery);
+diff --git a/multipage/multipage-rtl.css b/multipage/multipage-rtl.css
+new file mode 100644
+index 0000000..9c79167
+--- /dev/null
++++ b/multipage/multipage-rtl.css
+@@ -0,0 +1,13 @@
++.multipage-controls-list #edit-actions {
++  float: right !important;
++}
++
++.multipage-button {    
++  float: right !important;
++}
++
++.multipage-counter{
++  float: left !important;
++  margin-right: 0 !important;
++  margin-left: 5px !important;
++}
+diff --git a/multipage/multipage.css b/multipage/multipage.css
+index c3b19fb..3e44a35 100644
+--- a/multipage/multipage.css
++++ b/multipage/multipage.css
+@@ -1,11 +1,11 @@
+ .multipage-controls-list #edit-actions {
+-  float: left;
++  float: left; /* LTR */
+ }
+ 
+ .multipage-button {    
+   margin-bottom: 1em;
+   margin-top: 0;
+-  float: left;
++  float: left; /* LTR */
+   line-height: 36px;
+ }
+ 
+@@ -13,9 +13,9 @@
+   padding-top: 10px;
+ }
+ 
+-.multipage-counter{
+-  float: right;
+-  margin-right: 5px;
++.multipage-counter {
++  float: right; /* LTR */
++  margin-right: 5px; /* LTR */
+   height: 0;
+   position: relative;
+   top: 1.8em;
+@@ -25,7 +25,7 @@
+   color:#666;
+ }
+ 
+-a.multipage-link-previous{
++a.multipage-link-previous {
+   font: 12px arial,sans-serif;
+   font-weight: bold;
+   color:#666;
+@@ -35,12 +35,12 @@ a.multipage-link-previous{
+   transition: color 218ms;
+ }
+ 
+-a.multipage-link-previous:hover{
++a.multipage-link-previous:hover {
+   text-decoration:none;
+   color: #333;
+ }
+ 
+-.multipage-controls-list input.form-submit{
++.multipage-controls-list input.form-submit {
+   background:none;
+   border: none;
+   border-radius: 2px;
+@@ -57,28 +57,31 @@ a.multipage-link-previous:hover{
+   -webkit-transition: border-color .218s;
+ }
+ 
+-.multipage-controls-list input.form-submit:hover{
++.multipage-controls-list input.form-submit:hover {
+   color:#333;
+   box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+   -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+   border-color: #939393;
+ }
+ 
+-.multipage-controls-list input.form-submit:active{
++.multipage-controls-list input.form-submit:active {
+   background: -webkit-gradient(linear,0% 40%,0% 70%,from(#F1F1F1),to(whiteSmoke));
+ }
+ 
+-.multipage-controls-list input#edit-submit{
+-  background-image: -moz-linear-gradient(top,#4d90fe,#4787ed);
++.multipage-controls-list input#edit-submit {
++  background: #4D90FE; /* for non-css3 browsers */
++  background-image: #4D90FE; /* for non-css3 browsers */
+   background-image: -o-linear-gradient(top,#4d90fe,#4787ed);
+-  background-image: -webkit-gradient(linear,left top,left bottom,from(#4d90fe),to(#4787ed));
++  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4D90FE', endColorstr='#4787ED'); /* for IE */
++  background: -webkit-gradient(linear, center top, center bottom, from(#4D90FE), to(#4787ED)); /* for webkit browsers */
++  background: -moz-linear-gradient(center top,  #4D90FE,  #4787ED); /* for firefox 3.6+ */ 
+   color: white;
+   text-shadow: none;
+   text-transform: uppercase;
+   min-width: 79px;
+ }
+ 
+-.multipage-controls-list input#edit-submit:hover{
++.multipage-controls-list input#edit-submit:hover {
+   background-image: -moz-linear-gradient(top,#4d90fe,#357ae8);
+   background-image: -o-linear-gradient(top,#4d90fe,#357ae8);
+   background-image: -webkit-gradient(linear,left top,left bottom,from(#4d90fe),to(#357ae8));
+@@ -88,12 +91,12 @@ a.multipage-link-previous:hover{
+   -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+ }
+ 
+-.multipage-controls-list input#edit-submit:active{
++.multipage-controls-list input#edit-submit:active {
+   background: #4D90FE;
+   border-color: #2F5BB7;
+ }
+ 
+-.multipage-controls-list input#edit-delete{
++.multipage-controls-list input#edit-delete {
+   background-image: -moz-linear-gradient(top,#dd4b39,#d14836);
+   background-image: -o-linear-gradient(top,#dd4b39,#d14836);
+   background-image: -webkit-gradient(linear,left top,left bottom,from(#dd4b39),to(#d14836));
+@@ -104,7 +107,7 @@ a.multipage-link-previous:hover{
+ 
+ }
+ 
+-.multipage-controls-list input#edit-delete:hover{
++.multipage-controls-list input#edit-delete:hover {
+   background-image: -moz-linear-gradient(top,#dd4b39,#c53727);
+   background-image: -o-linear-gradient(top,#dd4b39,#c53727);
+   background-image: -webkit-gradient(linear,left top,left bottom,from(#dd4b39),to(#c53727));
+@@ -115,7 +118,7 @@ a.multipage-link-previous:hover{
+   color: white;
+ }
+ 
+-.multipage-controls-list input#edit-delete:active{
++.multipage-controls-list input#edit-delete:active {
+   background-image: -moz-linear-gradient(top,#dd4b39,#b0281a);
+   background-image: -o-linear-gradient(top,#dd4b39,#b0281a);
+   background-image: -webkit-gradient(linear,left top,left bottom,from(#dd4b39),to(#b0281a));
+diff --git a/multipage/multipage.js b/multipage/multipage.js
+index 0fe476d..321d95d 100644
+--- a/multipage/multipage.js
++++ b/multipage/multipage.js
+@@ -25,8 +25,8 @@ Drupal.behaviors.MultiPage = {
+       // Transform each div.multipage-pane into a multipage with controls.
+       $panes.each(function () {
+         
+-        $controls = $('<div class="multipage-controls-list"></div>');
+-        $(this).append('<div class="multipage-controls clearfix"></div>').append($controls);
++        $controls = $('<div class="multipage-controls-list clearfix"></div>');
++        $(this).append($controls);
+         
+         // Check if the submit button needs to move to the latest pane.
+         if (Drupal.settings.field_group.multipage_move_submit && $('.form-actions').length) {
+@@ -50,8 +50,8 @@ Drupal.behaviors.MultiPage = {
+         }
+         
+       });
+-      
+-      if (!paneWithFocus) {
++
++      if (paneWithFocus === undefined) {
+         // If the current URL has a fragment and one of the tabs contains an
+         // element that matches the URL fragment, activate that tab.
+         if (window.location.hash && $(window.location.hash, this).length) {
+@@ -61,7 +61,7 @@ Drupal.behaviors.MultiPage = {
+           paneWithFocus = $('multipage-open', this).length ? $('multipage-open', this) : $('> .multipage-pane:first', this);
+         }
+       }
+-      if (paneWithFocus.length) {
++      if (paneWithFocus !== undefined) {
+         paneWithFocus.data('multipageControl').focus();
+       }
+     });
+@@ -78,7 +78,8 @@ Drupal.behaviors.MultiPage = {
+  */
+ Drupal.multipageControl = function (settings) {
+   var self = this;
+-  $.extend(this, settings, Drupal.theme('multipage', settings));
++  var controls = Drupal.theme('multipage', settings);
++  $.extend(self, settings, controls);
+ 
+   this.nextLink.click(function () {
+     self.nextPage();
+@@ -132,7 +133,7 @@ Drupal.multipageControl.prototype = {
+         .val(this.wrapper.attr('id'));
+     // Mark the active control for screen readers.
+     $('#active-multipage-control').remove();
+-    this.nextLink.append('<span id="active-multipage-control" class="element-invisible">' + Drupal.t('(active page)') + '</span>');
++    this.nextLink.after('<span id="active-multipage-control" class="element-invisible">' + Drupal.t('(active page)') + '</span>');
+   },
+   
+   /**
+@@ -140,6 +141,7 @@ Drupal.multipageControl.prototype = {
+    */
+   nextPage: function () {
+     this.wrapper.next().data('multipageControl').focus();
++    $('html, body').scrollTop(this.wrapper.parents('.field-group-multipage-group-wrapper').offset().top);
+   },
+   
+   /**
+@@ -147,6 +149,7 @@ Drupal.multipageControl.prototype = {
+    */
+   previousPage: function () {
+     this.wrapper.prev().data('multipageControl').focus();
++    $('html, body').scrollTop(this.wrapper.parents('.field-group-multipage-group-wrapper').offset().top);
+   },
+ 
+   /**
+@@ -204,16 +207,25 @@ Drupal.multipageControl.prototype = {
+  *   - previousTitle: The jQuery element that contains the group title
+  */
+ Drupal.theme.prototype.multipage = function (settings) {
++
+   var controls = {};
+   controls.item = $('<span class="multipage-button"></span>');
+-  controls.item.append(controls.nextLink = $('<input type="button" class="form-submit multipage-link-next" value="" />').val(controls.nextTitle = Drupal.t('Next page')));
+-  controls.item.append(controls.previousLink = $('<input type="button" class="form-submit multipage-link-previous" value="" />').val(controls.nextTitle = Drupal.t('Previous')));
++  
++  controls.previousLink = $('<input type="button" class="form-submit multipage-link-previous" value="" />');
++  controls.previousTitle = Drupal.t('Previous page');
++  controls.item.append(controls.previousLink.val(controls.previousTitle));  
++  
++  controls.nextLink = $('<input type="button" class="form-submit multipage-link-next" value="" />');
++  controls.nextTitle = Drupal.t('Next page');
++  controls.item.append(controls.nextLink.val(controls.nextTitle));
++  
+   if (!settings.has_next) {
+     controls.nextLink.hide();
+   }
+   if (!settings.has_previous) {
+     controls.previousLink.hide();
+   }
++  
+   return controls;
+ };
+ 
+@@ -227,13 +239,28 @@ Drupal.FieldGroup.Effects = Drupal.FieldGroup.Effects || {};
+ Drupal.FieldGroup.Effects.processMultipage = {
+   execute: function (context, settings, type) {
+     if (type == 'form') {
++      
++      var $firstErrorItem = false;
++      
+       // Add required fields mark to any element containing required fields
+       $('div.multipage-pane').each(function(i){
+         if ($('.error', $(this)).length) {
++          
++          // Save first error item, for focussing it.
++          if (!$firstErrorItem) {
++            $firstErrorItem = $(this).data('multipageControl');
++          }          
++          
+           Drupal.FieldGroup.setGroupWithfocus($(this));
+           $(this).data('multipageControl').focus();
+         }
+       });
++
++      // Focus on first multipage that has an error.
++      if ($firstErrorItem) {
++        $firstErrorItem.focus();
++      }
++      
+     }
+   }
+ }
