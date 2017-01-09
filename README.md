@@ -1,4 +1,4 @@
 argus
 =====
 
-argus - a Smartschool extension
+argus - a Quality control extension
