@@ -898,7 +898,7 @@ function argus_sms_add_user_to_smartschool($uid){
 			 * 			string $paramName: Naam parameter
 			 * 			string $paramValue: Waarde parameter (bij aanvinkvakjes dient u meerdere keuzes te scheiden met een puntkomma)
 			 */
-			//$field_items = field_info_field_map();
+			$field_items = field_info_field_map();
 			foreach($field_items as $k => $field){
 				$f = substr($k,0,15);
 				if ($f == 'field_user_sms_'){

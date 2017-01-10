@@ -27,6 +27,10 @@ class TemplateProcessor
 {
     const MAXIMUM_REPLACEMENTS_DEFAULT = -1;
 
+    // add these two properties
+    protected $_rels;
+    protected $_types;
+
     /**
      * ZipArchive object.
      *
