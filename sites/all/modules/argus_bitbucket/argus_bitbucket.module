@@ -1,0 +1,269 @@
+<?php
+/* 
+ * Copyright (C) 2017 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_bitbucket_menu().
+ */
+function argus_bitbucket_menu() {
+	$items = array();
+	
+    $items['admin/config/argus/bitbucket'] = array(
+        'title' => 'Bitbucket',
+        'description' => 'Integreer Bitbucket API in argus.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_bitbucket_setup_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 1,
+    );
+    
+    $items['bitbucket'] = array(
+        'title' => 'Bitbucket - ticket',
+        'description' => 'Maak een nieuw ticket aan.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_bitbucket_form'),
+        'access callback' => TRUE,
+        'menu_name' => 'menu-modules',
+    );
+    
+    $items['bitbucket.sendIssue/%'] = array(
+    		'page callback' => 'argus_bitbucket_sendIssue',
+    		'page arguments' => array(1),
+    		'access arguments' => array('access content'),
+    		'access callback' => TRUE,
+    );
+    return $items;
+}
+
+
+/**
+ * Page callback: Meldingsformulier
+ * 
+ * @return array
+ */
+function argus_bitbucket_form($form, &$form_state) {
+	$form['bugformtitle'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Onderwerp'),
+        '#description' => t('Geef een korte titel die je ticket omschrijft.'),
+        '#size' => 100,
+        '#required' => true,
+    );
+	
+    $form['bugformdescription'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Details'),
+        '#description' => t('Voeg zoveel mogelijk details toe aan je ticket, zodat je vraag duidelijk is.<br />Voeg als, indien van toepassing, een url of verwijzing toe, zodat het makkelijker wordt om de vraag te reproduceren.<br />In het geval van een bug, kopieer en plak dan de fout in de details.'),
+        '#size' => 100,
+        '#required' => true,
+    );
+	
+    $form['bugformcomponent'] = array(
+        '#type' => 'select',
+        '#title' => t('Onderdeel'),
+        '#description' => t('Selecteer het onderdeel waarop deze melding van toepassing is - indien mogelijk en zinvol.'),
+        '#options' => argus_bitbucket_components(),
+    );
+    
+    $form['argus_bitbucket_submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Ticket verzenden'),
+    );
+
+    /*
+     * Process request for sending issue based on new data
+     */
+    if (isset($form_state['values']['argus_bitbucket_submit'])){
+    	global $user;
+		
+    	argus_bitbucket_sendIssue(
+    			$form_state['values']['bugformtitle'],
+    			$form_state['values']['bugformdescription'],
+    			$form_state['values']['bugformcomponent'],
+    			$user->mail
+    	);
+    }
+    
+    return $form;
+}
+
+/**
+ * Form callback: Bitbucket form after submission
+ *
+ * @see argus_bitbucket_form()
+ */
+function argus_bitbucket_form_submit($form, &$form_state) {
+    $form_state['rebuild'] = TRUE;
+}
+
+
+/**
+ * Function callback: Save requested user to Smartschool
+ * 
+ * @param $issue array Contents to build your issue in Bitbucket: bugformtitle, bugformdescription, bugformuser
+ * @param $id integer Requested issue id
+ *
+ */
+function argus_bitbucket_sendIssue($bugformtitle, $bugformdescription, $bugformcomponent, $bugformuser) {
+	require_once ('includes/BitBucketPHPBugLib/bitbucket.lib.php');
+	
+	// Config Values:
+	$basicAuth = variable_get ( 'argus_bitbucket_auth' );
+	$bitBucketAccount = variable_get ( 'argus_bitbucket_account' );
+	$bitBucketRepo = variable_get ( 'argus_bitbucket_repo' );
+	$issueComponent = $bugformcomponent;
+	$companyName = variable_get ( 'argus_bitbucket_company' );
+	$fromEmail = variable_get ( 'argus_bitbucket_mailFrom' );
+	
+	// Process any POST.
+	if (isset ($bugformtitle) && isset($bugformdescription)) {
+		$status = submitBug ( $bugformtitle, $bugformdescription, $bugformuser, $bitBucketAccount, $bitBucketRepo, $basicAuth, $issueComponent );
+		if ($status === FALSE) {
+			argus_report ( 'Er heeft zich een probleem voorgedaan; contacteer de Support-afdeling als het probleem blijft bestaan.', array(), 'error' );
+		} else {
+			argus_report ( 'Bedankt voor de melding - volgnummer <b># ' . $status ['issueid'] . '</b>.' );
+			sendBugEmail ( $bugformuser, $status ['issueid'], $companyName, $fromEmail, $status ['issueurl'] );
+		}
+	}
+	
+	drupal_goto ( '/bitbucket' );
+}
+
+/**
+ * Page callback: Bitbucket instellingen
+ *
+ * @see argus_bitbucket_setup_form()
+ */
+function argus_bitbucket_setup_form($form, &$form_state) {
+    $form ['argus_bitbucket_auth'] = array (
+			'#type' => 'textfield',
+			'#required' => TRUE,
+			'#title' => t ( 'Authorisatie - Base64-encoded' ),
+			'#default_value' => variable_get ( 'argus_bitbucket_auth', NULL ),
+			'#size' => 50,
+			'#description' => t ( 'Gebruikersnaam en paswoord in Bitbucket; geëncodeerd in Base64.' ) 
+	);
+	
+	$form ['argus_bitbucket_account'] = array (
+			'#type' => 'textfield',
+			'#required' => TRUE,
+			'#title' => t ( 'Team-account' ),
+			'#default_value' => variable_get ( 'argus_bitbucket_account', NULL ),
+			'#size' => 20,
+			'#description' => t ( 'Naam van de team-account.' ) 
+	);
+	
+	$form ['argus_bitbucket_repo'] = array (
+			'#type' => 'textfield',
+			'#required' => TRUE,
+			'#title' => t ( 'Repository' ),
+			'#default_value' => variable_get ( 'argus_bitbucket_repo', NULL ),
+			'#size' => 20,
+			'#description' => t ( 'Naam van de repository.' ) 
+	);
+	
+	$form ['argus_bitbucket_company'] = array (
+			'#type' => 'textfield',
+			'#required' => TRUE,
+			'#title' => t ( 'Organisatie' ),
+			'#default_value' => variable_get ( 'argus_bitbucket_company', NULL ),
+			'#size' => 20,
+			'#description' => t ( 'Naam van de organisatie (gebruikt in de mail-bevestiging).' ) 
+	);
+	
+	$form ['argus_bitbucket_mailFrom'] = array (
+			'#type' => 'textfield',
+			'#required' => TRUE,
+			'#title' => t ( 'Afzender' ),
+			'#default_value' => variable_get ( 'argus_bitbucket_mailFrom', NULL ),
+			'#size' => 30,
+			'#description' => t ( 'Afzenderadres voor de mail-bevestiging.' ) 
+	);
+	
+	return system_settings_form ( $form );
+}
+
+/**
+ * Implements argus_bitbucket_help().
+ *
+ * Displays help and module information.
+ *
+ * @param path
+ *   Which path of the site we're using to display help
+ * @param arg
+ *   Array that holds the current path as returned from arg() function
+ */
+function argus_bitbucket_help($path, $arg) {
+    $output = '';
+    switch ($path) {
+      case "admin/help#argus_bitbucket":
+        $output =
+          '<h3>' . t('Informatie over Bibucket') . '</h3>'
+        . '<p>' . t('Bitbucket is a web-based hosting service for projects that use either the Mercurial (since launch) or Git (since October 2011) revision control systems. Bitbucket offers both commercial plans and free accounts. It offers free accounts with an unlimited number of private repositories (which can have up to five users in the case of free accounts) as of September 2010, but by inviting three users to join Bitbucket, three more users can be added, for eight users in total. Bitbucket is written in Python using the Django web framework.') . '</p>'
+        . '<p>' . t('It is similar to GitHub, which primarily uses Git. In a 2008 blog post, Bruce Eckel compared Bitbucket favorably to Launchpad, which uses Bazaar.') . '</p>'
+        . '<p><small>' . t('source') . ': <a href="https://en.wikipedia.org/wiki/Bitbucket" target="_blank">https://en.wikipedia.org/wiki/Bitbucket</a></p>'
+        
+        . '<h3>' . t('Algemeen gebruik') . '</h3>'
+        
+        . '<h4>' . t('Rules') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Integratie met andere pakketten via "rules"') . '</strong></dt>'
+        . '<dd>' . t('Deze module voorziet een extra actie die binnen de module "Rules" kan gebruikt worden voor verdere automatisering.<br />Deze actie kan je vinden onder "Systeem"-acties.').'</dd>'
+        . '</dl>'
+
+        . '<h4>' . t('Formulier') . '</h4>'
+        . '<dl>'
+        . '<dt><strong>' . t('Een ticket aanmaken en in Bitbucket opslaan') . '</strong></dt>'
+        . '<dd>' . t('Dit formulier laat je toe om snel een melding in Bitbucket te bewaren, waar je de melding onder Issues kan terug vinden en opvolgen.') . '</p></dd>'
+        . '</dl>'
+        . '<dl>';
+
+        break;
+    }
+    return $output;
+}
+
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Get components from Bitbucket - Issue tracking
+ */
+function argus_bitbucket_components(){
+	$account = variable_get ( 'argus_bitbucket_account' );
+	$repo = variable_get ( 'argus_bitbucket_repo' );
+	
+	$components = array('' => '');
+	if (isset($account) && isset($repo)){
+		$json = file_get_contents('https://api.bitbucket.org/1.0/repositories/'.$account.'/'.$repo.'/issues/components');
+		
+		if ($json){
+			$json = json_decode($json);
+			
+			foreach ($json as $key => $component){
+				$components[$component->name] = $component->name;
+			}
+		}
+	}
+	
+	return $components;
+}

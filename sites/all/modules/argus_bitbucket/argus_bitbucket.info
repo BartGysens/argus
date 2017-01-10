@@ -1,0 +1,9 @@
+name = Bitbucket
+description = Integreer argus met Bitbucket voor de opvolging van issues of code tijdens development.
+package = argus - a Quality control extension
+php = 5.2
+version = 7.x-1.0
+core = 7.x
+project = argus_bitbucket
+datestamp = 1484041585
+project status url = http://www.projectargus.be/release-history
