@@ -92,8 +92,17 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
             <?php
             if (variable_get('user_pictures', 0)){
                 if ($account->picture){
-                    if (!empty($account->picture->uri)) {
+                	if (!empty($account->picture->uri)) {
                         $filepath = $account->picture->uri;
+                        if (!file_exists($filepath)){
+                        	unset($filepath);
+                        }
+                    }
+                	if (!isset($filepath)) {
+                        $filepath = 'public://styles/square_thumbnail/public/pictures/'.$account->picture->filename;
+                        if (!file_exists($filepath)){
+                        	unset($filepath);
+                        }
                     }
                     if (isset($filepath)) {
                         $profile_url = file_create_url($filepath);
