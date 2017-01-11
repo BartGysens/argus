@@ -23,7 +23,10 @@ function drawChart() {
         var options = {
             title: 'Totalen per code',
             chartArea: {width: '80%', height: '70%'},
-            legend: 'none'
+            legend: 'none',
+            vAxis: {
+                format: '0'
+            }
         };
         var chart = new google.visualization.ColumnChart(document.getElementById('absenses_chart_totals'));
         chart.draw(dataAbsencesChart, options);
@@ -34,26 +37,52 @@ function drawChart() {
         title: 'Evolutie afwezigheden',
         colors: ['red', 'green'],
         chartArea: {width: '80%', height: '60%'},
-        legend: {position: 'bottom'}
+        legend: {position: 'bottom'},
+        vAxis: {
+            format: '0'
+        }
     };
     var chart = new google.visualization.LineChart(document.getElementById('absenses_chart_evolution'));
     chart.draw(dataAbsencesEvolutionChart, options);
-    
+
     // Absences week chart
     var options = {
         title: 'Afwezigheden per weekdag',
         chartArea: {width: '80%', height: '70%'},
-        legend: 'none'
+        legend: 'none',
+        vAxis: {
+            format: '0'
+        }
     };
     var chart = new google.visualization.ColumnChart(document.getElementById('absenses_chart_week'));
     chart.draw(dataAbsencesWeekChart, options);
+
+    // Absences period chart
+    var options = {
+        title: 'Afwezigheden per periode',
+        colors: ['green', 'red'],
+        chartArea: {width: '80%', height: '70%'},
+        legend: {position: 'bottom'},
+        vAxis: {
+            viewWindow: {
+                max: maxAbsences+1,
+                min: 0
+            },
+            format: '0'
+        }
+    };
+    var chart = new google.visualization.ColumnChart(document.getElementById('absenses_chart_periods'));
+    chart.draw(dataAbsencesPeriodsChart, options);
     
     // Late week chart
     var options = {
         title: 'Te laat komen per weekdag',
         legend: 'none',
         chartArea: {width: '80%', height: '80%'},
-        colors: ['lightsalmon']
+        colors: ['lightsalmon'],
+        vAxis: {
+            format: '0'
+        }
     };
     var chart = new google.visualization.ColumnChart(document.getElementById('late_chart_week'));
     chart.draw(dataLateWeekChart, options);
@@ -91,9 +120,7 @@ function drawChart() {
                     max: maxFails,
                     min: 0
                 },
-                gridlines: {
-                    count: maxFails+1
-                }
+                format: '0'
             }
         };
         var chart = new google.visualization.ColumnChart(document.getElementById('study_chart_fails'));

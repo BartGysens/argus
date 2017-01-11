@@ -440,16 +440,48 @@ if (count($variables['account']->field_user_sms_toelating_te_laat)){
     $variables['hotline']['late']['permission'] = $variables['account']->field_user_sms_toelating_te_laat[LANGUAGE_NONE][0]['value'];
 }
 
+/* Leerplichtbegeleiding */
+
 $variables['hotline']['absences']['leerplichtbegeleiding'] = array();
 $sj = argus_schoolyear(null,'U');
-//TODO: module aanmaken
-//if (module_exists('argus_leerplichtbegeleiding')){
+if (module_exists('argus_leerplichtbegeleiding')){
 	$query = 'SELECT n.nid AS id, n.created AS datum '
 			. 'FROM {field_data_field_leerling} AS u '
 			. 'INNER JOIN {node} AS n ON n.nid = u.entity_id '
 			. 'WHERE u.field_leerling_target_id = :uid AND n.type = :type AND n.created BETWEEN :startdate AND :enddate';
 	$variables['hotline']['absences']['leerplichtbegeleiding'] = db_query($query, array(':uid' => $account->uid, ':type' => 'lvs_leerplichtbegeleiding', ':startdate' => $sj['start'], ':enddate' => $sj['end']))->fetchAllKeyed();
-//}
+}
+
+/* Afwezigheden per periode */
+
+$variables['hotline']['absences']['periodgraph'] = array();
+$variables['hotline']['absences']['periodgraph'][0] = array('Periode', 'Gewettigd', array('role' => 'annotation'), 'Ongewettigd', array('role' => 'annotation'));
+$maxAbsences = 0;
+for ($x = 1; $x < 11; $x++){
+	if (variable_get('period_'.$x.'_shortname') && variable_get('period_'.$x.'_startdate') && variable_get('period_'.$x.'_enddate') && (variable_get('period_'.$x.'_type') == 'dagelijks werk')){
+		$query = 'SELECT id '
+				. 'FROM {argus_lvs_afwezigheden} AS a '
+				. 'WHERE a.leerling = :uid AND a.am NOT IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+		$result = db_query($query, array(':uid' => $account->uid, ':code' => array('-','B'), ':startdate' => variable_get('period_'.$x.'_startdate'), ':enddate' => variable_get('period_'.$x.'_enddate')));
+		$total_gewettigd = $result->rowCount();
+		if ($total_gewettigd > $maxAbsences) {
+			$maxAbsences = $total_gewettigd;
+		}
+		
+		$query = 'SELECT id '
+				. 'FROM {argus_lvs_afwezigheden} AS a '
+				. 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+		$result = db_query($query, array(':uid' => $account->uid, ':code' => array('-','B'), ':startdate' => variable_get('period_'.$x.'_startdate'), ':enddate' => variable_get('period_'.$x.'_enddate')));
+		$total_ongewettigd = $result->rowCount();
+		if ($total_ongewettigd > $maxAbsences) {
+			$maxAbsences = $total_ongewettigd;
+		}
+		
+		$variables['hotline']['absences']['periodgraph'][$x] = array( variable_get('period_'.$x.'_shortname'), $total_gewettigd, $total_gewettigd, $total_ongewettigd, $total_ongewettigd );
+	}
+	$variables['hotline']['absences']['periodgraph_maxAbsences'] = $maxAbsences;
+}
+
 
 /**
  * -----------------------------------------------------------------------------
@@ -676,26 +708,64 @@ foreach ($deliberations as $did){
 }
 
 // Get precense at PTA meetings
- $variables['study']['ptas'] = array();
- $query = 'SELECT t.entity_id AS id, '
- . 't.field_tijdstip_value AS time '
- . 'FROM {field_data_field_tijdstip} AS t '
- . 'WHERE t.bundle = :type '
- . 'AND t.field_tijdstip_value BETWEEN :startdate AND :enddate '
- . 'ORDER BY t.field_tijdstip_value DESC';
- $ptas = db_query($query, array(':type' => 'oudercontact', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAllAssoc('id');
- foreach($ptas as $id => $pta){
- 	$variables['study']['ptas'][$id]['tijdstip'] = $pta->time;
- 	
- 	$query = 'SELECT l.entity_id AS id '
- 			. 'FROM {field_data_field_leerlingen} AS l '
- 			. 'WHERE l.bundle = :type '
- 			. 'AND l.field_leerlingen_target_id = :uid '
- 			. 'AND l.entity_id = :nid';
- 	$status = db_query($query, array(':uid' => $account->uid, ':nid' => $id, ':type' => 'oudercontact'))->fetchAssoc();
- 	
- 	$variables['study']['ptas'][$id]['status'] = $status;
- }
+$variables ['study'] ['ptas'] = array ();
+$query = 'SELECT t.entity_id AS id, ' . 
+		't.field_tijdstip_value AS time ' . 
+		'FROM {field_data_field_tijdstip} AS t ' . 
+		'WHERE t.bundle = :type AND ' . 
+		't.field_tijdstip_value BETWEEN :startdate AND :enddate ' . 
+		'ORDER BY t.field_tijdstip_value DESC';
+$ptas = db_query ( $query, array (
+		':type' => 'oudercontact',
+		':startdate' => $schoolyear ['start'],
+		':enddate' => $schoolyear ['end'] 
+) )->fetchAllAssoc ( 'id' );
+foreach ( $ptas as $id => $pta ) {
+	$variables ['study'] ['ptas'] [$id] ['tijdstip'] = $pta->time;
+	
+	$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_leerlingen} AS l ' . 'WHERE l.bundle = :type ' . 'AND l.field_leerlingen_target_id = :uid ' . 'AND l.entity_id = :nid';
+	$status = db_query ( $query, array (
+			':uid' => $account->uid,
+			':nid' => $id,
+			':type' => 'oudercontact' 
+	) )->fetchAssoc ();
+	
+	$variables ['study'] ['ptas'] [$id] ['status'] = $status;
+}
+
+// Get all remediation tasks
+$variables ['study'] ['remediations'] = array ();
+$query = 'SELECT t.entity_id AS id, ' .
+		't.field_lvs_melding_datum_feit_value AS time, ' .
+		'n.uid AS author, ' .
+		'r.field_lvs_melding_verslag_value AS report, ' .
+		'o.field_lvs_melding_onderwerp_value AS item, ' .
+		'p.field_lvs_melding_prive_value AS private ' .
+		'FROM {field_data_field_lvs_melding_datum_feit} AS t ' .
+		'JOIN {field_data_field_lvs_melding_leerling} AS l ON l.entity_id = t.entity_id ' .
+		'JOIN {field_data_field_lvs_melding_onderwerp} AS o ON o.entity_id = t.entity_id ' .
+		'JOIN {field_data_field_lvs_melding_studie} AS s ON s.entity_id = t.entity_id ' .
+		'JOIN {field_data_field_lvs_melding_prive} AS p ON p.entity_id = t.entity_id ' .
+		'JOIN {node} AS n ON n.nid = t.entity_id ' .
+		'JOIN {field_data_field_lvs_melding_verslag} AS r ON r.entity_id = t.entity_id ' .
+		'WHERE t.bundle = :type ' .
+		'AND t.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' .
+		'AND l.field_lvs_melding_leerling_target_id = :uid ' .
+		'AND s.field_lvs_melding_studie_target_id ' .
+		'ORDER BY t.field_lvs_melding_datum_feit_value';
+$remediations = db_query ( $query, array (
+		':type' => 'lvs_melding',
+		':uid' => $account->uid,
+		':startdate' => $schoolyear ['start'],
+		':enddate' => $schoolyear ['end']
+) )->fetchAllAssoc ( 'id' );
+foreach ( $remediations as $id => $remediation ) {
+	$variables ['study'] ['remediations'] [$id] ['tijdstip'] = $remediation->time;
+	$variables ['study'] ['remediations'] [$id] ['onderwerp'] = $remediation->item;
+	$variables ['study'] ['remediations'] [$id] ['author'] = $remediation->author;
+	$variables ['study'] ['remediations'] [$id] ['report'] = $remediation->report;
+}
+
 
 // Preprocess fields.
 field_attach_preprocess('user', $account, $variables['elements'], $variables);

@@ -27,6 +27,7 @@ if (array_key_exists('schooljaar', $params)){
 var dataAbsencesChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['absences']['graph']); ?>);
 var dataAbsencesEvolutionChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['absences']['evolutiongraph']); ?>);
 var dataAbsencesWeekChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['absences']['weekgraph']); ?>);
+var dataAbsencesPeriodsChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['absences']['periodgraph']); ?>);
 
 var dataLateWeekChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['late']['weekgraph']); ?>);
 
@@ -126,6 +127,11 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
             </div>
 
             <hr />
+            
+            <div style="font-size: 8px; color: red; text-align: center;"><u>Opgelet</u>: de vermelde getallen zijn telkens <strong>halve dagen</strong>!</div>
+
+            <hr />
+            
 
             <div class="field field-label-inline clearfix">
                 <div class="field-label">Status:&nbsp;</div>
@@ -135,7 +141,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
             <hr />
 
             <?php
-            //TODO: if (module_exists('argus_leerplichtbegeleiding')){
+            if (module_exists('argus_leerplichtbegeleiding')){
                 if (count($hotline['absences']['leerplichtbegeleiding'])){ ?>
                     <div class="field clearfix">
                         <div class="field-label">Leerplichtbegeleiding:&nbsp;</div>
@@ -152,7 +158,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
                     
                     <hr />
                 <?php }
-            //TODO: }
+            }
             ?>
 
             <?php if ($hotline['absences']['totals']['B']>11){ ?>
@@ -219,6 +225,11 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
             <!-- mogelijkheid toevoegen doktersattesten + motivatie in argus? oplijsting dokters die attest schrijven! //-->
             <?php if (count($hotline['absences']['graph'])>1){ ?>
                 <div id="absenses_chart_totals" style="width: 98%; height: 200px;"></div>
+            <?php } ?>
+            
+            <?php if (count($hotline['absences']['periodgraph'])>1){ ?>
+                <div id="absenses_chart_periods" style="width: 98%; height: 200px;"></div>
+                <script text="text/javascript">maxAbsences = <?php print $hotline['absences']['periodgraph_maxAbsences']; ?>;</script>
             <?php } ?>
 
             <div id="absenses_chart_evolution" style="width: 98%; height: 200px;"></div>
@@ -395,7 +406,39 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 
                 <hr />
             <?php } ?>
+			
+            <?php if (array_key_exists('fails', $study['results'])){ ?>
+                <div class="field clearfix">
+                    <div class="field-label">Tekorten per periode:&nbsp;</div>
+                    <div class="field-items">
+                        <div id="study_chart_fails" style="width: 98%; height: 200px;"></div>
+                        <ul>
+                            <?php
+                            foreach ($study['results']['fails']['periods'] as $p => $fails){
+                                print '<li><h5>'.$p.'</h5><ol class="detailList">';
+                                foreach ($fails as $f => $result){
+                                    print '<li>'.$result['vak'].': <span style="color: red;">'.$result['behaald'].'/'.$result['max'].'</span></li>';
+                                }
+                                print '</ol></li>';
+                            }
+                            ?>
+                        </ul>
+                    </div>
+                </div>
+                <script text="text/javascript">maxFails = <?php print $study['results']['maxCourses']; ?>;</script>
 
+                <hr />
+
+                <div class="field clearfix">
+                    <div class="field-label">Tekorten per lesgedeelte (op jaarbasis):&nbsp;</div>
+                    <div class="field-items">
+                        <div id="study_chart_course_type" style="width: 98%; height: 200px;"></div>
+                    </div>
+                </div>
+
+                <hr />
+            <?php } ?>
+            
             <?php if (count($hotline['study']['measure'])){ ?>
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Maatregelen:&nbsp;</div>
@@ -413,6 +456,25 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
                             }
                         } ?>
                     </div>
+                </div>
+                <hr />
+            <?php } ?>
+
+            <?php
+            if (count($study['remediations'])){ ?>
+                <div class="field clearfix">
+                    <div class="field-label">Remediëringstraject:&nbsp;</div>
+                    <div class="field-items"><ol>
+                    <?php foreach ($study['remediations'] as $remediation) {
+                        	print '<li>'.format_date(strtotime($remediation['tijdstip']), 'custom', 'd/m/y').' : <a class="behaviourReportTitle" title="Melding van '.argus_get_user_realname($remediation['author']).'&#13;--------------------------------&#13;'.  htmlentities(str_replace('<br />',chr(13),nl2br($remediation['report']))).'">';
+			                    if ($report['private']){
+			                    	print '<i>'.t('privé-melding').'</i>';
+			                    } else {
+			                    	print $remediation['onderwerp'];
+			                    }
+			                    print '</a></li>';
+                        } ?>
+                    </ol></div>
                 </div>
                 <hr />
             <?php } ?>
@@ -484,39 +546,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
                 </div>
                 <hr />
             <?php } ?>
-
-            <?php if (array_key_exists('fails', $study['results'])){ ?>
-                <div class="field clearfix">
-                    <div class="field-label">Tekorten per periode:&nbsp;</div>
-                    <div class="field-items">
-                        <div id="study_chart_fails" style="width: 98%; height: 200px;"></div>
-                        <ul>
-                            <?php
-                            foreach ($study['results']['fails']['periods'] as $p => $fails){
-                                print '<li><h5>'.$p.'</h5><ol class="detailList">';
-                                foreach ($fails as $f => $result){
-                                    print '<li>'.$result['vak'].': <span style="color: red;">'.$result['behaald'].'/'.$result['max'].'</span></li>';
-                                }
-                                print '</ol></li>';
-                            }
-                            ?>
-                        </ul>
-                    </div>
-                </div>
-                <script text="text/javascript">maxFails = <?php print $study['results']['maxCourses']; ?>;</script>
-
-                <hr />
-
-                <div class="field clearfix">
-                    <div class="field-label">Tekorten per lesgedeelte (op jaarbasis):&nbsp;</div>
-                    <div class="field-items">
-                        <div id="study_chart_course_type" style="width: 98%; height: 200px;"></div>
-                    </div>
-                </div>
-
-                <hr />
-            <?php } ?>
-
+            
             <?php
             if (count($study['ptas'])){ ?>
                 <div class="field clearfix">
