@@ -41,11 +41,79 @@ function argus_engine_menu() {
  * @see argus_engine_menu()
  */
 function argus_engine_form($form, &$form_state) {
+    
+    /* PERIODEN */
+	
+	$form['periods'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Periodes definiëren'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+    );
+	
+		for ($x = 1; $x < 11; $x++){
+			$form['periods'][$x] = array(
+		        '#type' => 'fieldset',
+		        '#title' => t('Periode ' . $x),
+		        '#collapsible' => TRUE,
+		        '#collapsed' => TRUE,
+		    );
+
+				$form['periods'][$x]['period_'.$x.'_shortname'] = array(
+						'#type' => 'textfield',
+						'#title' => t('Afkorting'),
+						'#default_value' => variable_get('period_'.$x.'_shortname', NULL),
+						'#description' => t('Geef de korte naam op die gebruikt wordt om deze periode te benoemen.'),
+						'#size' => 10,
+				);
+				
+				$form['periods'][$x]['period_'.$x.'_fullname'] = array(
+						'#type' => 'textfield',
+						'#title' => t('Volledige benaming'),
+						'#default_value' => variable_get('period_'.$x.'_fullname', NULL),
+						'#description' => t('Geef de volledige naam op die gebruikt wordt om deze periode te benoemen.'),
+						'#size' => 100,
+				);
+				
+				$form['periods'][$x]['period_'.$x.'_type'] = array(
+						'#type' => 'select',
+						'#title' => t('Type'),
+						'#options' => array(
+								0 => '-', 
+								'dagelijks werk' => 'dagelijks werk', 
+								'examen' => 'examen', 
+								'geïntegreerde werkperiode' => 'geïntegreerde werkperiode', 
+								'permanente evalutie' => 'permanente evalutie',
+						),
+						'#default_value' => variable_get('period_'.$x.'_type', NULL),
+						'#description' => t('Geef aan over welk soort periode het gaat, dit is nodig voor het opmaken van lijsten.'),
+				);
+				
+				$form['periods'][$x]['period_'.$x.'_startdate'] = array(
+						'#type' => 'date_popup',
+						'#date_format' => 'd/m/Y',
+						'#title' => t('Startdatum'),
+						'#default_value' => variable_get('period_'.$x.'_startdate', NULL),
+						'#description' => t('Geef de datum op wanneer deze periode start.'),
+				);
+				
+				$form['periods'][$x]['period_'.$x.'_enddate'] = array(
+						'#type' => 'date_popup',
+						'#date_format' => 'd/m/Y',
+						'#title' => t('Einddatum'),
+						'#default_value' => variable_get('period_'.$x.'_enddate', NULL),
+						'#description' => t('Geef de datum op tot wanneer deze periode loopt.'),
+				);
+		}
+    
+    
+    /* ROLLEN */
+    
     $form['roles'] = array(
         '#type' => 'fieldset',
         '#title' => t('Instellen van de rollen'),
         '#collapsible' => TRUE,
-        '#collapsed' => FALSE,
+        '#collapsed' => TRUE,
     );
   
     /*
