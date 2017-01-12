@@ -361,7 +361,26 @@ function argus_klasbeheer_theme() {
             ),
             'template' => 'templates/argus_klasbeheer--LST_block',
         ),
+    	'node__klas' => array(
+    				'render element' => 'content',
+    				'base hook' => 'node',
+    				'template' => 'node--klas',
+    				'path' => drupal_get_path('module', 'argus_klasbeheer') . '/templates',
+    		),
     );
+}
+
+/**
+ * Hook preprocess for node
+ *
+ * @param type $variables
+ */
+function argus_klasbeheer_preprocess_node(&$variables) {
+	switch ($variables['node']->type){
+		case 'klas':
+			include_once 'includes/node--klas--preprocessor.inc.php';
+			break;
+	}
 }
 
 /**
