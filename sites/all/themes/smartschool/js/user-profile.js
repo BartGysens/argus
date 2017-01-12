@@ -90,7 +90,7 @@ function drawChart() {
     // Behaviour evolution chart
     var options = {
         title: 'Status van de meldingen',
-        legend: {position: 'right'},
+        legend: {position: 'bottom'},
         colors: ['green', 'red'],
         chartArea: {width: '80%', height: '75%'},
         pointSize: 2,

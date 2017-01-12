@@ -101,7 +101,7 @@ for ($x = 1; $x < 3; $x++){ //TODO: more then 2 coaccounts?
  * Data about BEHAVIOUR / ATTITUDE
  * -----------------------------------------------------------------------------
  */
-$variables['hotline']['behaviour']['graph'] = array([t('Maand'), '+', array('role' => 'certainty'), '-', array('role' => 'certainty')]);
+$variables['hotline']['behaviour']['graph'] = array([t('Maand'), 'positief', array('role' => 'certainty'), 'negatief', array('role' => 'certainty')]);
 
 $query = 'SELECT l.entity_id AS id, '
       . 'o.field_lvs_melding_onderwerp_value AS title, '
@@ -461,9 +461,14 @@ for ($x = 1; $x < 11; $x++){
 	if (variable_get('period_'.$x.'_shortname') && variable_get('period_'.$x.'_startdate') && variable_get('period_'.$x.'_enddate') && (variable_get('period_'.$x.'_type') == 'dagelijks werk')){
 		$query = 'SELECT id '
 				. 'FROM {argus_lvs_afwezigheden} AS a '
-				. 'WHERE a.leerling = :uid AND a.am NOT IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
-		$result = db_query($query, array(':uid' => $account->uid, ':code' => array('-','B'), ':startdate' => variable_get('period_'.$x.'_startdate'), ':enddate' => variable_get('period_'.$x.'_enddate')));
+				. 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+		$result = db_query($query, array(':uid' => $account->uid, ':code' => array('D','Z','G','C','H','R','Q','P','J'), ':startdate' => variable_get('period_'.$x.'_startdate'), ':enddate' => variable_get('period_'.$x.'_enddate')));
 		$total_gewettigd = $result->rowCount();
+		$query = 'SELECT id '
+				. 'FROM {argus_lvs_afwezigheden} AS a '
+				. 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+		$result = db_query($query, array(':uid' => $account->uid, ':code' => array('D','Z','G','C','H','R','Q','P','J'), ':startdate' => variable_get('period_'.$x.'_startdate'), ':enddate' => variable_get('period_'.$x.'_enddate')));
+		$total_gewettigd += $result->rowCount();
 		if ($total_gewettigd > $maxAbsences) {
 			$maxAbsences = $total_gewettigd;
 		}
@@ -471,8 +476,13 @@ for ($x = 1; $x < 11; $x++){
 		$query = 'SELECT id '
 				. 'FROM {argus_lvs_afwezigheden} AS a '
 				. 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
-		$result = db_query($query, array(':uid' => $account->uid, ':code' => array('-','B'), ':startdate' => variable_get('period_'.$x.'_startdate'), ':enddate' => variable_get('period_'.$x.'_enddate')));
+		$result = db_query($query, array(':uid' => $account->uid, ':code' => array('B'), ':startdate' => variable_get('period_'.$x.'_startdate'), ':enddate' => variable_get('period_'.$x.'_enddate')));
 		$total_ongewettigd = $result->rowCount();
+		$query = 'SELECT id '
+				. 'FROM {argus_lvs_afwezigheden} AS a '
+				. 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+		$result = db_query($query, array(':uid' => $account->uid, ':code' => array('B'), ':startdate' => variable_get('period_'.$x.'_startdate'), ':enddate' => variable_get('period_'.$x.'_enddate')));
+		$total_ongewettigd += $result->rowCount();
 		if ($total_ongewettigd > $maxAbsences) {
 			$maxAbsences = $total_ongewettigd;
 		}

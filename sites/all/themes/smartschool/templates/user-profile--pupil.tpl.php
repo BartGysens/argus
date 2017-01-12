@@ -117,21 +117,18 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
     </div>
 
     <hr />
-
+    
     <div class="clearfix">
         <fieldset id="panel-afwezigheden">
             <legend>Afwezigheden</legend>
             <div class="field field-label-inline clearfix">
+	            <div style="font-size: 8px; color: red; position: relative; float: right;">(eenheden in <strong>halve dagen</strong>)</div>
+	            
                 <div class="field-label">Meldingen:&nbsp;</div>
                 <div class="field-items"><?php print $hotline['absences']['total']; ?></div>
             </div>
-
-            <hr />
             
-            <div style="font-size: 8px; color: red; text-align: center;"><u>Opgelet</u>: de vermelde getallen zijn telkens <strong>halve dagen</strong>!</div>
-
             <hr />
-            
 
             <div class="field field-label-inline clearfix">
                 <div class="field-label">Status:&nbsp;</div>
@@ -206,7 +203,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
                                     print t('namiddag');
                                 }
                                 if (isset($dates['back']) && isset($status['diff'])){
-                                    print ' (+'.$status['diff'].' dagen)';
+                                    print ' ('.$status['diff'].' dagen te laat)';
                                 }
                                 print '</li>';
                             }
@@ -229,7 +226,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
             
             <?php if (count($hotline['absences']['periodgraph'])>1){ ?>
                 <div id="absenses_chart_periods" style="width: 98%; height: 200px;"></div>
-                <script text="text/javascript">maxAbsences = <?php print $hotline['absences']['periodgraph_maxAbsences']; ?>;</script>
+                <script>maxAbsences = <?php print $hotline['absences']['periodgraph_maxAbsences']; ?>;</script>
             <?php } ?>
 
             <div id="absenses_chart_evolution" style="width: 98%; height: 200px;"></div>
@@ -275,7 +272,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
                 <hr />
             <?php } ?>
 
-            <script text="text/javascript">maxReportsBehaviour = <?php print $hotline['behaviour']['maxReports']; ?>;</script>
+            <script>maxReportsBehaviour = <?php print $hotline['behaviour']['maxReports']; ?>;</script>
             <div id="behaviour_chart_evolution" style="width: 98%; height: 200px;"></div>
 
             <?php if (count($hotline['behaviour']['measure'])>4){ ?>
@@ -425,7 +422,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
                         </ul>
                     </div>
                 </div>
-                <script text="text/javascript">maxFails = <?php print $study['results']['maxCourses']; ?>;</script>
+                <script>maxFails = <?php print $study['results']['maxCourses']; ?>;</script>
 
                 <hr />
 
@@ -569,7 +566,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 
             <?php if (count($study['deliberations']) || count($study['results'])){ ?>
                 <div class="field clearfix">
-                    <div class="field-label">Rapporten, deliberaties & adviezen:&nbsp;</div>
+                    <div class="field-label">Rapporten, deliberaties &amp; adviezen:&nbsp;</div>
                     <div class="field-items">
                         <div id="resultsSelect">
                             <select id="selectResults">
