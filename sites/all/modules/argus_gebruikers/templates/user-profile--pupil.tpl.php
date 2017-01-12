@@ -464,7 +464,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
                     <div class="field-items"><ol>
                     <?php foreach ($study['remediations'] as $remediation) {
                         	print '<li>'.format_date(strtotime($remediation['tijdstip']), 'custom', 'd/m/y').' : <a class="behaviourReportTitle" title="Melding van '.argus_get_user_realname($remediation['author']).'&#13;--------------------------------&#13;'.  htmlentities(str_replace('<br />',chr(13),nl2br($remediation['report']))).'">';
-			                    if ($report['private']){
+			                    if ($remediation['private']){
 			                    	print '<i>'.t('privé-melding').'</i>';
 			                    } else {
 			                    	print $remediation['onderwerp'];
