@@ -3,5 +3,29 @@
  * @file
  * Code for the Gebruikers feature.
  */
-
 include_once 'argus_gebruikers.features.inc';
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function argus_gebruikers_theme_registry_alter(&$theme_registry) {
+	$theme_registry['user_profile']['template'] = drupal_get_path('module', 'argus_gebruikers') . '/templates/user-profile';
+	$theme_registry['user_profile']['theme path'] = drupal_get_path('module', 'argus_gebruikers');
+}
+
+/**
+ * Hook preprocess for user_profile
+ *
+ * @param type $variables        	
+ */
+function argus_gebruikers_preprocess_user_profile(&$variables) {
+	$account = $variables ['elements'] ['#account'];
+	switch ($account->field_user_sms_basisrol [LANGUAGE_NONE] [0] ['value']) {
+		case 1 : // leerling
+			require_once 'includes/user-profile--preprocessor-pupil.inc.php';
+			break;
+		default :
+			require_once 'includes/user-profile--preprocessor-other.inc.php';
+			break;
+	}
+}

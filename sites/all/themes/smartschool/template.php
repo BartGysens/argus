@@ -176,36 +176,6 @@ function smartschool_theme() {
 }
 
 /**
- * Hook preprocess for user_profile
- * 
- * @param type $variables
- */
-function smartschool_preprocess_user_profile(&$variables) {
-	$account = $variables['elements']['#account'];
-	switch ($account->field_user_sms_basisrol[LANGUAGE_NONE][0]['value']){
-		case 1: // leerling
-			require_once 'includes/user-profile--preprocessor-pupil.inc.php';
-			break;
-		default:
-			require_once 'includes/user-profile--preprocessor-other.inc.php';
-			break;
-	}
-}
-
-/**
- * Hook preprocess for node
- * 
- * @param type $variables
- */
-function smartschool_preprocess_node(&$variables) {
-    switch ($variables['node']->type){
-        case 'klas':
-            include_once 'includes/node--klas--preprocessor.inc.php';
-            break;
-    }
-}
-
-/**
  * Check if given date is in schoolyear
  * 
  * @param type $y
