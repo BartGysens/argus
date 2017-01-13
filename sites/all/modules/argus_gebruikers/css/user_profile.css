@@ -1,28 +1,5 @@
 @CHARSET "UTF-8";
 
-.container > div {
-    display: inline-block;
-    vertical-align: top;
-    width: 33%;
-    box-sizing: border-box;
-}
-@media (max-width: 480px) { /*breakpoint*/
-    .container > div {
-        display: block;
-        width: 100%;
-    }
-}
-
-.profile menu,
-.profile ol,
-.profile ul,
-.profile dl {
-    padding: 0px;
-    margin: 0em;
-    margin-left: 20px;
-
-}
-
 .profile hr{
     background-color: #d4d4d4;
     height: 1px;

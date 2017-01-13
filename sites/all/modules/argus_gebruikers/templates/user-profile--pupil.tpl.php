@@ -408,6 +408,8 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 							<legend>Stages</legend>
 					            
 				            <div class="field field-label-inline clearfix">
+					            <div style="font-size: 8px; color: red; position: relative; float: right;">(eenheden in <strong>halve dagen</strong>)</div>
+					            
 				                <div class="field-label">Aantal stageplaatsen:&nbsp;</div>
 				                <div class="field-items"><?php print $hotline['stage']['total']; ?></div>
 				            </div>
@@ -446,8 +448,6 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 										</ul>
 									</div>
 					            </div>
-					
-					            <hr />
 					            
 				            <?php } ?>
 				        
