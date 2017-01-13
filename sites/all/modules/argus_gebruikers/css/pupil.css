@@ -1,0 +1,52 @@
+@CHARSET "UTF-8";
+
+.profile #panel-afwezigheden,
+.profile #panel-gedrag,
+.profile #panel-studiebegeleiding,
+.profile #panel-stages{
+	border: 1px solid;
+    border-radius: 5px;
+    padding: 0px 10px 5px 10px;
+}
+
+.profile #panel-afwezigheden{
+    border-color: #B00057;
+}
+    .profile #panel-afwezigheden legend{
+        color: #B00057;
+    }
+    .profile #panel-afwezigheden hr{
+        background-color: #B00057;
+    }
+
+.profile #panel-gedrag{
+    border-color: #006A32;
+}
+    .profile #panel-gedrag legend{
+        color: #006A32;
+    }
+    .profile #panel-gedrag hr{
+        background-color: #006A32;
+    }
+
+.profile #panel-studiebegeleiding{
+    border-color: #006CB7;
+    margin-right: 0px;
+}
+    .profile #panel-studiebegeleiding legend{
+        color: #006CB7;
+    }
+    .profile #panel-studiebegeleiding hr{
+        background-color: #006CB7;
+    }
+
+.profile #panel-stages{
+    border-color: #b89f16;
+    margin-right: 0px;
+}
+    .profile #panel-stages legend{
+        color: #b89f16;
+    }
+    .profile #panel-stages hr{
+        background-color: #b89f16;
+    }

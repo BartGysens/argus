@@ -24,6 +24,9 @@
 drupal_add_js("https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}");
 drupal_add_js(drupal_get_path('module', 'argus_gebruikers').'/js/user-profile.js');
 
+drupal_add_css(drupal_get_path('module', 'argus_gebruikers').'/css/user_profile.css');
+drupal_add_css(drupal_get_path('module', 'argus_gebruikers').'/css/pupil.css');
+
 $today = new DateTime('NOW');
 
 /* Filter data only for this schoolyear (active schoolyear) */
@@ -498,6 +501,8 @@ for ($x = 1; $x < 11; $x++){
  * Data about STUDY / RESULTS
  * -----------------------------------------------------------------------------
  */
+
+
 $query = 'SELECT l.entity_id AS id '
       . 'FROM {field_data_field_lvs_melding_leerling} AS l '
       . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
@@ -617,9 +622,6 @@ foreach ($periods as $p){
     if ($maxCourses < $fails + $success){
         $maxCourses = $fails + $success;
     }
-}
-if (count($missingCourses)){
-    //argus_engine_mail('Vak niet gevonden', implode(' - ', $missingCourses), 'bart.gysens@gmail.com');
 }
 $variables['study']['results']['maxCourses'] = $maxCourses;
 
@@ -772,10 +774,101 @@ $remediations = db_query ( $query, array (
 foreach ( $remediations as $id => $remediation ) {
 	$variables ['study'] ['remediations'] [$id] ['tijdstip'] = $remediation->time;
 	$variables ['study'] ['remediations'] [$id] ['onderwerp'] = $remediation->item;
+	$variables ['study'] ['remediations'] [$id] ['prive'] = $remediation->private;
 	$variables ['study'] ['remediations'] [$id] ['author'] = $remediation->author;
 	$variables ['study'] ['remediations'] [$id] ['report'] = $remediation->report;
 }
 
+
+/**
+ * -----------------------------------------------------------------------------
+ * Data about STAGES
+ * -----------------------------------------------------------------------------
+ */
+
+if (module_exists('argus_stages')){
+	
+	// Get all stage periods
+	$query = 'SELECT l.entity_id AS stage, sp.field_stage_periode_target_id AS stageperiode, sg.field_stagegever_target_id AS stagegever, sb.field_leerkracht_target_id AS stagebegeleider '
+	      . 'FROM {field_data_field_leerling} AS l '
+	      . 'JOIN {field_data_field_stage_periode} AS sp ON sp.entity_id = l.entity_id '
+	      . 'JOIN {field_data_field_stagegever} AS sg ON sg.entity_id = l.entity_id '
+	      . 'JOIN {field_data_field_leerkracht} AS sb ON sb.entity_id = l.entity_id '
+	      . 'JOIN {field_data_field_tijdstip} AS t ON t.entity_id = sp.field_stage_periode_target_id '
+	      . 'WHERE l.field_leerling_target_id = :uid '
+	      . 'AND t.field_tijdstip_value BETWEEN :startdate AND :enddate '
+	      . 'AND l.bundle = :bundle '
+	      . 'ORDER BY t.field_tijdstip_value';
+	$stages = db_query($query, array(':uid' => $account->uid, ':bundle' => 'stage', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAllAssoc('stage');
+	$variables['hotline']['stage']['total'] = count($stages);
+	
+	// Get data about stages
+	$variables['hotline']['stage']['gevers'] = 0;
+	$variables['hotline']['stage']['stageperiodes'] = array();
+
+	$variables['hotline']['stage']['periodgraph'] = array();
+	$variables['hotline']['stage']['periodgraph'][0] = array('Periode', 'Gewettigd', array('role' => 'annotation'), 'Ongewettigd', array('role' => 'annotation'));
+	$maxAbsences = 0;
+	
+	foreach ($stages as $id => $stage){
+		$stageperiode = node_load($stage->stageperiode);
+		if (!array_key_exists($stage->stageperiode, $variables['hotline']['stage']['stageperiodes'])){
+			$variables['hotline']['stage']['stageperiodes'][$stage->stageperiode] = array( 'data' => $stageperiode, 'gevers' => array(), 'absences' => array());
+		}
+		
+		// Get stagegever(s) per period
+		$stagegever = node_load($stage->stagegever);
+		$variables['hotline']['stage']['stageperiodes'][$stage->stageperiode]['gevers'][$stage->stagegever] = $stagegever->title;
+		$variables['hotline']['stage']['gevers']++;
+		
+		// Get absences per period
+		$query = 'SELECT sd.delta, sd.field_stagedagen_value AS day '
+				. 'FROM {field_data_field_stagedagen} AS sd '
+				. 'WHERE sd.entity_id = :spid';
+		$stagedagen = db_query($query, array(':spid' => $stage->stageperiode))->fetchAllKeyed();
+		
+		if (!array_key_exists($stageperiode->nid, $variables['hotline']['stage']['periodgraph'])){
+			$total_gewettigd = 0;
+			$total_ongewettigd = 0;
+			foreach ($stagedagen as $stagedag){
+				$query = 'SELECT id '
+						. 'FROM {argus_lvs_afwezigheden} AS a '
+						. 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum = :stagedate';
+				$result = db_query($query, array(':uid' => $account->uid, ':code' => array('D','Z','G','C','H','R','Q','P','J'), ':stagedate' => format_date(strtotime($stagedag), 'custom', 'Y-m-d')));
+				$total_gewettigd += $result->rowCount();
+				$query = 'SELECT id '
+						. 'FROM {argus_lvs_afwezigheden} AS a '
+						. 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum = :stagedate';
+				$result = db_query($query, array(':uid' => $account->uid, ':code' => array('D','Z','G','C','H','R','Q','P','J'), ':stagedate' => format_date(strtotime($stagedag), 'custom', 'Y-m-d')));
+				$total_gewettigd += $result->rowCount();
+	
+				$query = 'SELECT id '
+						. 'FROM {argus_lvs_afwezigheden} AS a '
+						. 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum = :stagedate';
+				$result = db_query($query, array(':uid' => $account->uid, ':code' => array('B'), ':stagedate' => format_date(strtotime($stagedag), 'custom', 'Y-m-d')));
+				$total_ongewettigd += $result->rowCount();
+				$query = 'SELECT id '
+						. 'FROM {argus_lvs_afwezigheden} AS a '
+						. 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum = :stagedate';
+				$result = db_query($query, array(':uid' => $account->uid, ':code' => array('B'), ':stagedate' => format_date(strtotime($stagedag), 'custom', 'Y-m-d')));
+				$total_ongewettigd += $result->rowCount();
+			}
+	
+			$variables['hotline']['stage']['periodgraph'][$stageperiode->nid] = array( format_date(strtotime($stageperiode->field_tijdstip[LANGUAGE_NONE][0]['value']), 'custom', 'd/m').'-'.format_date(strtotime($stageperiode->field_tijdstip[LANGUAGE_NONE][0]['value2']), 'custom', 'd/m'), $total_gewettigd, $total_gewettigd, $total_ongewettigd, $total_ongewettigd );
+	
+			if ($total_gewettigd > $maxAbsences) {
+				$maxAbsences = $total_gewettigd;
+			}
+			if ($total_ongewettigd > $maxAbsences) {
+				$maxAbsences = $total_ongewettigd;
+			}
+		}
+		
+	}
+	$variables['hotline']['stage']['periodgraph'] = array_values($variables['hotline']['stage']['periodgraph']);
+	$variables['hotline']['stage']['periodgraph_maxAbsences'] = $maxAbsences;
+	
+}
 
 // Preprocess fields.
 field_attach_preprocess('user', $account, $variables['elements'], $variables);

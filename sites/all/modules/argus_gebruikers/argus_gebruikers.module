@@ -20,11 +20,20 @@ function argus_gebruikers_theme_registry_alter(&$theme_registry) {
  */
 function argus_gebruikers_preprocess_user_profile(&$variables) {
 	$account = $variables ['elements'] ['#account'];
-	switch ($account->field_user_sms_basisrol [LANGUAGE_NONE] [0] ['value']) {
+	
+	$current_user_roles = -1;
+	if (count($account->field_user_sms_basisrol)){
+		$current_user_roles = $account->field_user_sms_basisrol [LANGUAGE_NONE] [0] ['value'];
+	}
+	switch ($current_user_roles) {
 		case 1 : // leerling
 			require_once 'includes/user-profile--preprocessor-pupil.inc.php';
 			break;
-		default :
+		case 0 : // leerkracht
+		case 30 : // directie
+			require_once 'includes/user-profile--preprocessor-employee.inc.php';
+			break;
+		default : // andere (13)
 			require_once 'includes/user-profile--preprocessor-other.inc.php';
 			break;
 	}

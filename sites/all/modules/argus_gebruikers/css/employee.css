@@ -1,0 +1,74 @@
+@CHARSET "UTF-8";
+
+.profile #panel-opdracht,
+.profile #panel-inzet,
+.profile #panel-absenteisme,
+.profile #panel-nascholingen,
+.profile #panel-emaima,
+.profile #panel-ktt,
+.profile #panel-infra,
+.profile #panel-links{
+    float: left;
+    width: 46%;
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 0px 10px 5px 10px;
+}
+    .profile #panel-opdracht,
+    .profile #panel-absenteisme,
+    .profile #panel-emaima,
+    .profile #panel-infra{
+        margin-right: 1%;
+    }
+
+.profile #panel-opdracht,
+.profile #panel-inzet{
+    border-color: #B00057;
+}
+    .profile #panel-opdracht legend,
+    .profile #panel-inzet legend{
+        color: #B00057;
+    }
+    .profile #panel-opdracht hr,
+    .profile #panel-inzet hr{
+        background-color: #B00057;
+    }
+
+.profile #panel-absenteisme,
+.profile #panel-nascholingen{
+    border-color: #006A32;
+}
+    .profile #panel-absenteisme legend,
+    .profile #panel-nascholingen legend{
+        color: #006A32;
+    }
+    .profile #panel-absenteisme hr,
+    .profile #panel-nascholingen hr{
+        background-color: #006A32;
+    }
+
+.profile #panel-emaima,
+.profile #panel-ktt{
+    border-color: #006CB7;
+}
+    .profile #panel-emaima legend,
+    .profile #panel-ktt legend{
+        color: #006CB7;
+    }
+    .profile #panel-emaima hr,
+    .profile #panel-ktt hr{
+        background-color: #006CB7;
+    }
+
+.profile #panel-infra,
+.profile #panel-links{
+    border-color: #c7c013;
+}
+    .profile #panel-infra legend,
+    .profile #panel-links legend{
+        color: #c7c013;
+    }
+    .profile #panel-infra hr,
+    .profile #panel-links hr{
+        background-color: #c7c013;
+    }
