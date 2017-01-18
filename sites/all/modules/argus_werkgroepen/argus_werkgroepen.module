@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Werkgroepen feature.
+ */
+
+include_once 'argus_werkgroepen.features.inc';

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Projectgroepen feature.
+ */
+
+include_once 'argus_projectgroepen.features.inc';

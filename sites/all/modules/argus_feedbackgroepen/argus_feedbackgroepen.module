@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Feedbackgroepen feature.
+ */
+
+include_once 'argus_feedbackgroepen.features.inc';
