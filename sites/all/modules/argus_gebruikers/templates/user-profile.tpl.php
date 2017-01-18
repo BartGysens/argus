@@ -24,11 +24,12 @@ if ($modus == 'administratief'){
 		case 1 : // leerling
 			include('user-profile--pupil.tpl.php');
 			break;
-		case 0 : // leerkracht
-		case 30 : // directie
+		case 30 : // directie (30)
+		case 0 : // leerkracht (0)
+		case 13 : // andere (13)
 			include('user-profile--employee.tpl.php');
 			break;
-		default : // andere (13)
+		default :
 			include('user-profile--other.tpl.php');
 			break;
 	}

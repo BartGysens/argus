@@ -80,3 +80,7 @@
     cursor: context-menu;
     color: inherit;
 }
+
+.profile fieldset{
+    margin-bottom: 10px;
+}

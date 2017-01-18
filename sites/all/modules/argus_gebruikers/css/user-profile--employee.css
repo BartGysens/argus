@@ -1,25 +1,40 @@
 @CHARSET "UTF-8";
 
+.container > div {
+    display: inline-block;
+    vertical-align: top;
+    width: 49.5%;
+    box-sizing: border-box;
+}
+@media (max-width: 480px) { /*breakpoint*/
+    .container > div {
+        display: block;
+        width: 100%;
+    }
+}
+
+.profile menu,
+.profile ol,
+.profile ul,
+.profile dl {
+    padding: 0px;
+    margin: 0em;
+    margin-left: 20px;
+
+}
+
 .profile #panel-opdracht,
 .profile #panel-inzet,
 .profile #panel-absenteisme,
 .profile #panel-nascholingen,
 .profile #panel-emaima,
-.profile #panel-ktt,
+.profile #panel-extra,
 .profile #panel-infra,
 .profile #panel-links{
-    float: left;
-    width: 46%;
     border: 1px solid;
     border-radius: 5px;
     padding: 0px 10px 5px 10px;
 }
-    .profile #panel-opdracht,
-    .profile #panel-absenteisme,
-    .profile #panel-emaima,
-    .profile #panel-infra{
-        margin-right: 1%;
-    }
 
 .profile #panel-opdracht,
 .profile #panel-inzet{
@@ -48,15 +63,15 @@
     }
 
 .profile #panel-emaima,
-.profile #panel-ktt{
+.profile #panel-extra{
     border-color: #006CB7;
 }
     .profile #panel-emaima legend,
-    .profile #panel-ktt legend{
+    .profile #panel-extra legend{
         color: #006CB7;
     }
     .profile #panel-emaima hr,
-    .profile #panel-ktt hr{
+    .profile #panel-extra hr{
         background-color: #006CB7;
     }
 

@@ -37,11 +37,14 @@ var dataStudyCourseTypeChart = google.visualization.arrayToDataTable(<?php print
 var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print json_encode($study['results']['graph']['birdseye']); ?>);
 </script>
 
-<div class="view">
-    <div class="view-header profile-top">
-    <p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
-    </div>
-</div>
+<?php if (user_access('access user profiles')){ ?>
+	<div class="view">
+	    <div class="view-header profile-top">
+	    <p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
+	    </div>
+	</div>
+<?php } ?>
+
 <div class="profile"<?php print $attributes; ?>>
     <div class="profile-admin">
         <div id="profile-admin" class="clearfix">
@@ -870,8 +873,10 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
     </div>
 </div>
 
-<div class="view">
-    <div class="view-header">
-    	<p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
-    </div>
-</div>
+<?php if (user_access('access user profiles')){ ?>
+	<div class="view">
+	    <div class="view-header">
+	    	<p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
+	    </div>
+	</div>
+<?php } ?>

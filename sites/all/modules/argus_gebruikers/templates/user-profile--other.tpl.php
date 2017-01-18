@@ -15,11 +15,13 @@ if (count($account->field_user_sms_geboortedatum)){
 
 ?>
 
-<div class="view">
-    <div class="view-header profile-top">
-    <p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a></p>
-    </div>
-</div>
+<?php if (user_access('access user profiles')){ ?>
+	<div class="view">
+	    <div class="view-header profile-top">
+	    <p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a></p>
+	    </div>
+	</div>
+<?php } ?>
 
 <div class="profile"<?php print $attributes; ?>>
     <div class="profile-admin">
@@ -71,8 +73,10 @@ if (count($account->field_user_sms_geboortedatum)){
     </div>
 </div>
 
-<div class="view">
-    <div class="view-header">
-    	<p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a></p>
-    </div>
-</div>
+<?php if (user_access('access user profiles')){ ?>
+	<div class="view">
+	    <div class="view-header">
+	    	<p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a></p>
+	    </div>
+	</div>
+<?php } ?>

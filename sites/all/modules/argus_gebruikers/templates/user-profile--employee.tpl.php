@@ -15,14 +15,14 @@ if (count($account->field_user_sms_geboortedatum)){
 
 ?>
 
-<script type="text/javascript">
-</script>
+<?php if (user_access('access user profiles')){ ?>
+	<div class="view">
+	    <div class="view-header profile-top">
+	    <p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a></p>
+	    </div>
+	</div>
+<?php } ?>
 
-<div class="view">
-    <div class="view-header profile-top">
-    <p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a></p>
-    </div>
-</div>
 <div class="profile"<?php print $attributes; ?>>
     <div class="profile-admin">
         <div id="profile-admin" class="clearfix">
@@ -71,359 +71,604 @@ if (count($account->field_user_sms_geboortedatum)){
             ?>
         </div>
     </div>
-
+    
     <hr />
 
     <div class="clearfix">
-        <fieldset id="panel-opdracht">
-            <legend>Opdracht</legend>
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Basisrol:&nbsp;</div>
-                <div class="field-items"><?php print $baserole['title']; ?></div>
-	        </div>
-            
-            <?php if (module_exists('argus_uurrooster') && $baserole['id'] == 0){
-            
-            	$assignment = argus_uurrooster_get_assignment($user_id);
-            	$opdracht = array();
-            	foreach($assignment['factor'] as $f => $t){
-            		if ($t){
-            			$opdracht[] = $t . '/' . $f;
-            		}
-            	}
-            	
-            	?>
-	            <div class="field field-label-inline clearfix">
-	                <div class="field-label">Ambtsbevoegdheid:&nbsp;</div>
-	                <div class="field-items"><?php print implode(' + ', $opdracht); ?> (volgens uurrooster)</div>
-	            </div>
-	            
-	            <hr />
-	            
-	            <div class="field field-label-inline clearfix">
-	                <div class="field-label">Uurrooster:&nbsp;</div>
-	                <div class="field-items"><span style="color: red">
-					<?php
-					if (count($current_lesson)){
-						print implode(', ', $current_lesson['group']).' in '.$current_lesson['room'];
-					} else {
-						print "momenteel geen les";
-					}
-					?></span>
-					 - <a href="<?php print base_path().'uurrooster/leerkracht/'.$user_id; ?>">rooster raadplegen</a></div>
-	            </div>
-	            
-	            <hr />
+    	
+    	<div class="container">
+
+		    <!-- ------------------------------ LEFT COLUMN ------------------------------ -->
+
+		    <div>
+			
+				<fieldset id="panel-opdracht">
+		            <legend>Opdracht</legend>
+		            
+		            <div class="field field-label-inline clearfix">
+		                <div class="field-label">Basisrol:&nbsp;</div>
+		                <div class="field-items"><?php print $baserole['title']; ?></div>
+			        </div>
+		            
+		            <?php if (module_exists('argus_uurrooster') && $baserole['id'] == 0){
+		            
+		            	$assignment = argus_uurrooster_get_assignment($user_id);
+		            	$opdracht = array();
+		            	foreach($assignment['factor'] as $f => $t){
+		            		if ($t){
+		            			$opdracht[] = $t . '/' . $f;
+		            		}
+		            	}
+		            	
+		            	?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Ambtsbevoegdheid:&nbsp;</div>
+			                <div class="field-items"><?php print implode(' + ', $opdracht); ?> (volgens uurrooster)</div>
+			            </div>
+			            
+			            <hr />
+			            
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Uurrooster:&nbsp;</div>
+			                <div class="field-items"><span style="color: red">
+							<?php
+							if (count($current_lesson)){
+								print implode(', ', $current_lesson['group']).' in '.$current_lesson['room'];
+							} else {
+								print "momenteel geen les";
+							}
+							?></span>
+							 - <a href="<?php print base_path().'uurrooster/leerkracht/'.$user_id; ?>">rooster raadplegen</a></div>
+			            </div>
+			            
+			            <hr />
+						
+						<?php if (count($courses)){ ?>
+			                <div class="field field-label-inline clearfix">
+			                    <div class="field-label">Vakken:&nbsp;</div>
+			                    <div class="field-items"><ul>
+			                    <?php foreach($courses as $cid => $course){
+		            				print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$cid).'">'.$course.'</a></li>';
+			                    }
+		            			?></ul></div>
+			                </div>
+			                
+			                <hr />
+		                <?php } ?>
+						
+						
+						<?php if (count($groups)){ ?>
+			                <div class="field field-label-inline clearfix">
+			                    <div class="field-label">Klassen:&nbsp;</div>
+			                    <div class="field-items">
+			                    <?php
+			                    $data = array();
+			                    foreach($groups as $gid => $group){ $data[] = '<a href="'.base_path().drupal_get_path_alias('node/'.$gid).'">'.$group.'</a>'; }
+			                    print implode(', ', $data);
+		            			?>
+		            			</div>
+			                </div>
+			                
+			                <hr />
+		                <?php } ?>
+						
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Toezichten:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($supervisions)){
+								print '<ul>';
+								foreach($supervisions as $sid => $s){
+									print '<li>'.$s->title.'</li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen vaste toezichten ingepland";
+							}
+							?>
+							</div>
+				        </div>
+				        
+				        <hr />
+				        
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Permanenties:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($substitutions)){
+								print implode(', ', $substitutions);
+							} else {
+								print "geen vaste permanenties ingepland";
+							}
+							?>
+							</div>
+				        </div>
+		            <?php } ?>
+		                        
+		        </fieldset>
 				
-				<?php if (count($courses)){ ?>
-	                <div class="field field-label-inline clearfix">
-	                    <div class="field-label">Vakken:&nbsp;</div>
-	                    <div class="field-items"><ul>
-	                    <?php foreach($courses as $cid => $course){
-            				print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$cid).'">'.$course.'</a></li>';
-	                    }
-            			?></ul></div>
-	                </div>
-	                
-	                <hr />
-                <?php } ?>
-				
-				
-				<?php if (count($groups)){ ?>
-	                <div class="field field-label-inline clearfix">
-	                    <div class="field-label">Klassen:&nbsp;</div>
-		                    <div class="field-items"><ul>
-		                    <?php foreach($groups as $gid => $group){
-	            				print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$gid).'">'.$group.'</a></li>';
-		                    }
-	            			?></ul></div>
-	                </div>
-	                
-	                <hr />
-                <?php } ?>
-				
-	            <div class="field field-label-inline clearfix">
-	                <div class="field-label">Toezichten:&nbsp;</div>
-	                <div class="field-items">
-					<?php
-					if (count($supervisions)){
-						print '<ul>';
-						foreach($supervisions as $sid => $s){
-							print '<li>'.$s->title.'</li>';
-						}
-						print '</ul>';
-					} else {
-						print "geen vaste toezichten ingepland";
-					}
-					?>
-					</div>
-		        </div>
+		        <fieldset id="panel-absenteisme">
+		            <?php if (module_exists('argus_personeel_afwezigheden')){ ?>
+		            	<div class="field field-label-inline clearfix">
+			                <div class="field-label">Absenteïsme:&nbsp;</div>
+			                <div class="field-items"><?php print $absences['total']; ?> dag(en)</div>
+				        </div>
+		            	
+		            	<?php if (count($absences['graph'])>1){ ?>
+			                <div id="absences_reports_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataAbsencesReportsChart = google.visualization.arrayToDataTable(<?php print json_encode($absences['graph']); ?>);
+			                	maxAbsencesReports = <?php print $absences['max']; ?>;
+			                </script>
+				        <?php } ?>
+			        	
+				        <hr />
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_uurrooster_vervanging')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Vervangingen:&nbsp;</div>
+			                <div class="field-items"><?php print $substitutions_executed['total']; ?> in totaal</div>
+				        </div>
+		            	
+		            	<?php if (count($substitutions_executed['graph'])>1){ ?>
+			                <div id="substitutions_executed_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataSubstitutionsChart = google.visualization.arrayToDataTable(<?php print json_encode($substitutions_executed['graph']); ?>);
+			                	maxSubstitutions = <?php print $substitutions_executed['max']; ?>;
+			                </script>
+			            <?php } ?>
+			            
+			            <hr />
+		                
+		            <?php } ?>
+		            
+		            <?php if (module_exists('argus_nascholingen')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Nascholingen:&nbsp;</div>
+			                <div class="field-items"><?php print $cvt['total']; ?> in totaal (<a href="<?php print base_path(); ?>events/nascholing?realname=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">overzicht</a>)</div>
+				        </div>
+		            	
+		            	<?php if (count($cvt['graph'])>1){ ?>
+			                <div id="cvt_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataCVTChart = google.visualization.arrayToDataTable(<?php print json_encode($cvt['graph']); ?>);
+			                	maxCVT = <?php print $cvt['max']; ?>;
+			                </script>
+			            <?php } ?>
+			            
+			            <hr />
+		                
+		            <?php } ?>
+		                        
+		        </fieldset>
 		        
-		        <hr />
+		        <fieldset id="panel-emaima">
+		            <legend>Pedagogische rol</legend>
+		        	
+			        <?php if (module_exists('argus_klasbeheer')){ ?>
+			            
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Klastitularis:&nbsp;</div>
+			                <div class="field-items"><ul>
+				                <?php
+				                if (count($ktt)){
+				                	foreach ($ktt as $gid => $group){
+				                		print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$gid).'">'.$group.'</a></li>';
+				                	}
+					            } else {
+					               	print 'geen klastitularis';
+			            		}
+			                	?>
+				            </ul></div>
+				        </div>
+			            
+			            <hr />
+			            
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Hulpklastitularis:&nbsp;</div>
+			                <div class="field-items"><ul>
+				                <?php
+				                if (count($hktt)){
+				                	foreach ($hktt as $gid => $group){
+				                		print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$gid).'">'.$group.'</a></li>';
+				                	}
+					            } else {
+					               	print 'geen hulpklastitularis';
+			            		}
+			                	?>
+				            </ul></div>
+				        </div>
+			            
+			            <hr />
+			            
+				    <?php } ?>
+				    
+		            <?php if (module_exists('argus_pedagogische_activiteiten')){ ?>
+		            	<div class="field field-label-inline clearfix">
+			                <div class="field-label">Pedagogische activiteiten:&nbsp;</div>
+			                <div class="field-items"><?php print $emaima['total']; ?> in totaal (<a href="<?php print base_path(); ?>events/pedagogische_activiteit?realname=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">overzicht</a>)</div>
+				        </div>
+		            	
+		            	<?php if (count($emaima['graph'])>1){ ?>
+			                <div id="emaima_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataEMAIMAChart = google.visualization.arrayToDataTable(<?php print json_encode($emaima['graph']); ?>);
+			                	maxEMAIMA = <?php print $emaima['max']; ?>;
+			                </script>
+				        <?php } ?>
+				        
+				        <hr />
+				        
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_meldingen') && count($pupil_reports['graph'])>1){ ?>
+		            	<div class="field field-label-inline clearfix">
+			                <div class="field-label">Pedagogische meldingen:&nbsp;</div>
+			                <div class="field-items"><?php print $pupil_reports['total']; ?> in totaal (<a href="<?php print base_path(); ?>meldingen/lvs/overzicht?name_1=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">overzicht</a>)</div>
+				        </div>
+		            	
+		            	<?php if (count($pupil_reports['graph'])>1){ ?>
+			                <div id="pupil_reports_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataPupilReportsChart = google.visualization.arrayToDataTable(<?php print json_encode($pupil_reports['graph']); ?>);
+			                	maxPupilReports = <?php print $pupil_reports['max']; ?>;
+			                </script>
+				        <?php } ?>
+				        
+				        <hr />
+				        
+			        <?php } ?>
+			        
+		        </fieldset>
 		        
-	            <div class="field field-label-inline clearfix">
-	                <div class="field-label">Permanenties:&nbsp;</div>
-	                <div class="field-items">
-					<?php
-					if (count($substitutions)){
-						print implode(', ', $substitutions);
-					} else {
-						print "geen vaste permanenties ingepland";
-					}
-					?>
-					</div>
-		        </div>
-            <?php } ?>
-                        
-        </fieldset>
+		        <fieldset id="panel-infra">
+		            <legend>Infrastructuur</legend>
+		            
+		            <?php if (module_exists('argus_sleutelbeheer')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Sleutels:&nbsp;</div>
+			                <div class="field-items"><ul>
+				                <?php
+				                if (count($keys)){
+				                	foreach ($keys as $id => $key){
+				                		print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.$key->omschrijving.' - nr. '.$key->nummer.'</a></li>';
+				                	}
+					            } else {
+					               	print 'geen sleutels geregistreerd';
+			            		}
+			                	?>
+				            </ul></div>
+				        </div>
+				        
+				        <hr />
+				        
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_ontleningen')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Ontleningen:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($ontleningen)){
+								print '<ul>';
+								foreach($ontleningen as $id => $r){
+									if ($r->status){
+										$color = 'green';
+									} else {
+										$color = 'red';
+									}
+									print '<li style="color: '.$color.'">'.$r->materiaal.' (inventarisnr. '.$r->inventarisnummer.')</li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen ontleningen gevonden";
+			            	} ?>
+							</div>
+				        </div>
+				        
+				        <hr />
+				        
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_technische_meldingen') && count($technical_reports['graph'])>1){ ?>
+		            	<div class="field field-label-inline clearfix">
+			                <div class="field-label">Technische meldingen:&nbsp;</div>
+			                <div class="field-items"><?php print $technical_reports['total']; ?> in totaal (<a href="<?php print base_path(); ?>technische-meldingen?realname=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">overzicht</a>)</div>
+				        </div>
+		            	
+		            	<?php if (count($technical_reports['graph'])>1){ ?>
+			                <div id="technical_reports_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataTechnicalReportsChart = google.visualization.arrayToDataTable(<?php print json_encode($technical_reports['graph']); ?>);
+			                	maxTechnicalReports = <?php print $technical_reports['max']; ?>;
+			                </script>
+				        <?php } ?>
+			                
+			        <?php } ?>
+			        
+		        </fieldset>
+			
+			</div>
 
-        <fieldset id="panel-inzet">
-            <legend>Inzet voor de school</legend>
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Rollen:&nbsp;</div>
-                <div class="field-items">
-	            <?php if (count($user_roles)){
-	            	print implode(', ', $user_roles);
-	            } else {
-	        		print "geen rollen gevonden";
-            	} ?>
-				</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Vakgroepen:&nbsp;</div>
-                <div class="field-items">
-				<?php
-				if (count($vgwg)){
-					print '<ul>';
-					foreach($vgwg as $vid => $v){
-						print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$vid).'">'.$v.'</a></li>';
-					}
-					print '</ul>';
-				} else {
-					print "geen vakgroepen gevonden";
-            	} ?>
-				</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Projectgroepen:&nbsp;</div>
-                <div class="field-items">(lijst van de projecten)</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Werkgroepen:&nbsp;</div>
-                <div class="field-items">(lijst van de werkgroepen)</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Feedbackgroepen:&nbsp;</div>
-                <div class="field-items">(lijst van de projecten)</div>
-	        </div>
-	        
-        </fieldset>
+		    <!-- ------------------------------ RIGHT COLUMN ------------------------------ -->
 
-    </div>
-
-    <hr />
-
-    <div class="clearfix">
-        <fieldset id="panel-absenteisme">
-            <legend>Afwezigheden</legend>
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Absenteïsme:&nbsp;</div>
-                <div class="field-items">(lijst van afwezigheden)</div>
-	        </div>
-	        
-	        <hr />
-            
-            <?php if (module_exists('argus_uurrooster_vervanging')){ ?>
-	            <div class="field field-label-inline clearfix">
-	                <div class="field-label">Vervangingen:&nbsp;</div>
-	                <div class="field-items">(totaal + lijst van de uitgevoerde vervangingen)</div>
-	            </div>
-	            
-	            <hr />
-                
-            <?php } ?>
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Nascholingen:&nbsp;</div>
-                <div class="field-items">(lijst van de nascholingen)</div>
-	        </div>
-                        
-        </fieldset>
-
-        <fieldset id="panel-nascholingen">
-            <legend>HRM</legend>
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Planningsgesprekken:&nbsp;</div>
-                <div class="field-items">(lijst van de gesprekken, uitnodiging + verslag)</div>
-	        </div>
-	        
-	        <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Flitsbezoeken:&nbsp;</div>
-                <div class="field-items">(lijst van de verslagen)</div>
-	        </div>
-	        
-	        <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Klasbezoeken:&nbsp;</div>
-                <div class="field-items">(lijst van de verslagen)</div>
-	        </div>
-	        
-	        <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Functioneringsgesprekken:&nbsp;</div>
-                <div class="field-items">(lijst van de gesprekken, uitnodiging + verslag)</div>
-	        </div>
-	        
-	        <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Evaluatiegesprekken:&nbsp;</div>
-                <div class="field-items">(lijst van de gesprekken, uitnodiging + verslag)</div>
-	        </div>
-	        
-	        <hr />
-	        
-        </fieldset>
-
-    </div>
-
-    <hr />
-
-    <div class="clearfix">
-        <fieldset id="panel-emaima">
-            <legend>Pedagogische activiteiten</legend>
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">EMA's / IMA's:&nbsp;</div>
-                <div class="field-items">(lijst van de uitstappen)</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Begeleider:&nbsp;</div>
-                <div class="field-items">(lijst van de begeleider)</div>
-	        </div>
-	        
-        </fieldset>
-
-		<?php if (module_exists('argus_klasbeheer')){ ?>
-	        <fieldset id="panel-ktt">
-	            <legend>Klasbeheer</legend>
-	            
-	            <div class="field field-label-inline clearfix">
-	                <div class="field-label">Klastitularis:&nbsp;</div>
-	                <div class="field-items"><ul>
-		                <?php
-		                if (count($ktt)){
-		                	foreach ($ktt as $gid => $group){
-		                		print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$gid).'">'.$group.'</a></li>';
-		                	}
+		    <div>
+			
+				<fieldset id="panel-inzet">
+		            <legend>Inzet voor de school</legend>
+		            
+		            <div class="field field-label-inline clearfix">
+		                <div class="field-label">Rollen:&nbsp;</div>
+		                <div class="field-items">
+			            <?php if (count($user_roles)){
+			            	print implode(', ', $user_roles);
 			            } else {
-			               	print 'geen klastitularis';
-	            		}
-	                	?>
-		            </ul></div>
-		        </div>
-	            
-	            <hr />
-	            
-	            <div class="field field-label-inline clearfix">
-	                <div class="field-label">Hulpklastitularis:&nbsp;</div>
-	                <div class="field-items"><ul>
-		                <?php
-		                if (count($hktt)){
-		                	foreach ($hktt as $gid => $group){
-		                		print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$gid).'">'.$group.'</a></li>';
-		                	}
-			            } else {
-			               	print 'geen hulpklastitularis';
-	            		}
-	                	?>
-		            </ul></div>
-		        </div>
+			        		print "geen rollen gevonden";
+		            	} ?>
+						</div>
+			        </div>
+		            
+		            <?php if (module_exists('argus_vakgroepen')){ ?>
+			            
+			            <hr />
+			            
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Vakgroepen:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($vgwg)){
+								print '<ul>';
+								foreach($vgwg as $vid => $v){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$vid).'">'.$v.'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen vakgroepen gevonden";
+			            	} ?>
+							</div>
+				        </div>
+			            
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_projectgroepen')){ ?>
+			            
+			            <hr />
+			            
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Projectgroepen:&nbsp;</div>
+			                <div class="field-items">(lijst van de groepen)</div>
+				        </div>
+			            
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_werkgroepen')){ ?>
+			            
+			            <hr />
+			            
+				        <div class="field field-label-inline clearfix">
+			                <div class="field-label">Werkgroepen:&nbsp;</div>
+			                <div class="field-items">(lijst van de groepen)</div>
+				        </div>
+			            
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_feedbackgroepen')){ ?>
+			            
+			            <hr />
+			            
+				        <div class="field field-label-inline clearfix">
+			                <div class="field-label">Feedbackgroepen:&nbsp;</div>
+			                <div class="field-items">(lijst van de groepen)</div>
+				        </div>
+			            
+			        <?php } ?>
+			        
+		        </fieldset>
 		        
-	        </fieldset>
-	    <?php } ?>
-
-    </div>
-
-    <hr />
-
-    <div class="clearfix">
-        <fieldset id="panel-infra">
-            <legend>Infrastructuur</legend>
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Sleutels:&nbsp;</div>
-                <div class="field-items">(lijst van de uitgeleende sleutels)</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Uitleningen:&nbsp;</div>
-                <div class="field-items">(lijst van de uitleningen)</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Technische meldingen:&nbsp;</div>
-                <div class="field-items">(lijst van de meldingen)</div>
-	        </div>
+		        <fieldset id="panel-nascholingen">
+		            <legend>HRM</legend>
+		            
+		            <?php if (module_exists('argus_hrm')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Planningsgesprekken:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($hrm['planningsgesprekken'])){
+								print '<ul>';
+								foreach($hrm['planningsgesprekken'] as $id => $r){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.format_date(strtotime($r), 'long').'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen planningsgesprekken gevonden";
+			            	} ?>
+							</div>
+				        </div>
+				        
+				        <hr />
+			        
+			        <?php } ?>
+			        
+		            <div class="field field-label-inline clearfix">
+		                <div class="field-label">Flitsbezoeken:&nbsp;</div>
+		                <div class="field-items">(lijst van de verslagen)</div>
+			        </div>
+			        
+			        <hr />
+		            
+		            <div class="field field-label-inline clearfix">
+		                <div class="field-label">Klasbezoeken:&nbsp;</div>
+		                <div class="field-items">(lijst van de verslagen)</div>
+			        </div>
+			        
+			        <hr />
+		            
+			        <?php if (module_exists('argus_hrm')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Functioneringsgesprekken:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($hrm['functioneringsgesprekken'])){
+								print '<ul>';
+								foreach($hrm['functioneringsgesprekken'] as $id => $r){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.format_date(strtotime($r), 'long').'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen functioneringsgesprekken gevonden";
+			            	} ?>
+							</div>
+				        </div>
+				        
+				        <hr />
+			        
+			        <?php } ?>
+		            
+			        <?php if (module_exists('argus_hrm')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Evaluatiegesprekken:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($hrm['evaluatiegesprekken'])){
+								print '<ul>';
+								foreach($hrm['evaluatiegesprekken'] as $id => $r){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.format_date(strtotime($r), 'long').'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen evaluatiegesprekken gevonden";
+			            	} ?>
+							</div>
+				        </div>
+				        
+				        <hr />
+			        
+			        <?php } ?>
+			        
+		        </fieldset>
+		        
+		        <fieldset id="panel-extra">
+		            <legend>Extra inspanningen</legend>
+		            
+		            <?php if (module_exists('argus_projecten')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Projecten:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($projects)){
+								print '<ul>';
+								foreach($projects as $pid => $p){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$pid).'">'.$p.'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen projecten gevonden";
+			            	} ?>
+							</div>
+				        </div>
+				        
+				        <hr />
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_werken_voor_derden')){ ?>
+		            	<div class="field field-label-inline clearfix">
+			                <div class="field-label">Werken voor derden:&nbsp;</div>
+			                <div class="field-items"><?php print $works['total']; ?> in totaal</div>
+				        </div>
+		            	
+		            	<?php if (count($works['graph'])>1){ ?>
+			                <div id="works_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataWorksChart = google.visualization.arrayToDataTable(<?php print json_encode($works['graph']); ?>);
+			                	maxWorks = <?php print $works['max']; ?>;
+			                </script>
+				        <?php } ?>
+						
+			        <?php } ?>
+			        
+		        </fieldset>
+			
+				<fieldset id="panel-links">
+		            <legend>Snelle links - "Mijn werkruimte"</legend>
+		            
+		            <?php if (module_exists('argus_stages')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Stages:&nbsp;</div>
+			                <div class="field-items">
+			                	<a href="<?php print base_path(); ?>stages?realname_1=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">stagedossiers</a>, 
+			                	<a href="<?php print base_path(); ?>stages/bezoeken?realname_1=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">stagebezoeken</a>
+			                </div>
+				        </div>
+		            <?php } ?>
+		            
+		            <?php if (module_exists('argus_meldingen')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Pedagogische meldingen:&nbsp;</div>
+			                <div class="field-items">
+			                	<a href="<?php print base_path(); ?>meldingen/lvs/overzicht?name_1=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">persoonlijk overzicht</a>
+			                </div>
+				        </div>
+		            <?php } ?>
+		            
+		            <?php if (module_exists('argus_technische-meldingen')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Technische meldingen:&nbsp;</div>
+			                <div class="field-items">
+			                	<a href="<?php print base_path(); ?>technische-meldingen?realname=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">mijn meldingen</a>
+			                </div>
+				        </div>
+		            <?php } ?>
+		            
+		            <?php if (module_exists('argus_examens')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Examens:&nbsp;</div>
+			                <div class="field-items">
+			                	<a href="<?php print base_path(); ?>evaluatie/examens/beheer?name=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">beheerscherm</a>
+			                </div>
+				        </div>
+		            <?php } ?>
+		            
+		            <?php if (module_exists('argus_nascholingen')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Nascholingen:&nbsp;</div>
+			                <div class="field-items">
+			                	<a href="<?php print base_path(); ?>events/nascholing?realname=<?php print argus_get_user_realname($account->uid); ?>" target="_blank">mijn gevolgde nascholingen</a>
+			                </div>
+				        </div>
+		            <?php } ?>
+		            
+		            <?php if (module_exists('argus_gip')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">GIP:&nbsp;</div>
+			                <div class="field-items">
+			                	<a href="<?php print base_path(); ?>GIP" target="_blank">overzicht (status)</a>
+			                </div>
+				        </div>
+		            <?php } ?>
+		            
+		            <?php if (module_exists('argus_werken_voor_derden')){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Werken voor derden:&nbsp;</div>
+			                <div class="field-items">
+			                	<a href="<?php print base_path(); ?>werken-voor-derden" target="_blank">overzicht (alle werken)</a>
+			                </div>
+				        </div>
+		            <?php } ?>
+			        
+		        </fieldset>
 	        
-        </fieldset>
+			</div>
 
-        <fieldset id="panel-links">
-            <legend>Snelle links</legend>
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Stages:&nbsp;</div>
-                <div class="field-items">gegevens, stagebezoeken</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Meldingen:&nbsp;</div>
-                <div class="field-items">pedagogisch, technisch</div>
-	        </div>
-            
-            <hr />
-            
-            <div class="field field-label-inline clearfix">
-                <div class="field-label">Lijsten:&nbsp;</div>
-                <div class="field-items">examens, GIP, werken voor derden</div>
-	        </div>
-	        
-        </fieldset>
+	    </div>
 
     </div>
 </div>
 
-<div class="view">
-    <div class="view-header">
-    	<p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a></p>
-    </div>
-</div>
+<?php if (user_access('access user profiles')){ ?>
+	<div class="view">
+	    <div class="view-header">
+	    	<p><a href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk de administratieve fiche</a></p>
+	    </div>
+	</div>
+<?php } ?>

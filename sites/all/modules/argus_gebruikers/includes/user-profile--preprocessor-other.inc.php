@@ -23,7 +23,7 @@
 
 drupal_add_js(drupal_get_path('module', 'argus_gebruikers').'/js/user-profile.js');
 
-drupal_add_css(drupal_get_path('module', 'argus_gebruikers').'/css/user_profile.css');
+drupal_add_css(drupal_get_path('module', 'argus_gebruikers').'/css/user-profile.css');
 
 $today = new DateTime('NOW');
 
@@ -44,11 +44,5 @@ sort($variables['roles']);
  * -----------------------------------------------------------------------------
  */
 
-
-
 // Preprocess fields.
-if ($_SERVER['HTTP_HOST'] == 'localhost'){
-	dpm($variables);
-	print theme('status_messages');
-}
 field_attach_preprocess('user', $account, $variables['elements'], $variables);

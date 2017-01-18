@@ -23,9 +23,10 @@
 
 drupal_add_js("https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}");
 drupal_add_js(drupal_get_path('module', 'argus_gebruikers').'/js/user-profile.js');
+drupal_add_js(drupal_get_path('module', 'argus_gebruikers').'/js/user-profile--pupil.js');
 
-drupal_add_css(drupal_get_path('module', 'argus_gebruikers').'/css/user_profile.css');
-drupal_add_css(drupal_get_path('module', 'argus_gebruikers').'/css/pupil.css');
+drupal_add_css(drupal_get_path('module', 'argus_gebruikers').'/css/user-profile.css');
+drupal_add_css(drupal_get_path('module', 'argus_gebruikers').'/css/user-profile--pupil.css');
 
 $today = new DateTime('NOW');
 

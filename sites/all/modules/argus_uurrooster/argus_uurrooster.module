@@ -2193,6 +2193,7 @@ function argus_uurrooster_get_current_lesson($uid){
 			. 'LEFT JOIN {field_data_field_uurrooster_les_lokaal} AS ll ON l.entity_id = ll.entity_id '
 			. 'LEFT JOIN {field_data_field_uurrooster_les_klassen} AS lk ON l.entity_id = lk.entity_id '
 			. 'WHERE l.field_uurrooster_les_leerkracht_target_id = :uid '
+			. 'AND l.entity_id != NULL '
 			. 'AND lp.field_uurrooster_les_periode_target_id = :period '
 			. 'GROUP BY l.field_uurrooster_les_leerkracht_target_id';
 	$result = db_query($query, array(':uid' => $uid, ':glue' => ',', ':period' => key(argus_uurrooster_get_current_period())))->fetchAllAssoc('lid', PDO::FETCH_ASSOC);

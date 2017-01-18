@@ -25,16 +25,68 @@ function argus_gebruikers_preprocess_user_profile(&$variables) {
 	if (count($account->field_user_sms_basisrol)){
 		$current_user_roles = $account->field_user_sms_basisrol [LANGUAGE_NONE] [0] ['value'];
 	}
-	switch ($current_user_roles) {
-		case 1 : // leerling
-			require_once 'includes/user-profile--preprocessor-pupil.inc.php';
-			break;
-		case 0 : // leerkracht
-		case 30 : // directie
-			require_once 'includes/user-profile--preprocessor-employee.inc.php';
-			break;
-		default : // andere (13)
-			require_once 'includes/user-profile--preprocessor-other.inc.php';
-			break;
+	
+	// Check and set permissions
+	global $user;
+	$access_granted = false;
+	if (user_access('access all profile')){
+		$access_granted = true;
+	} elseif (user_access('access own profile') && $account->uid == $user->uid) {
+		$access_granted = true;
+	} elseif (user_access('access pupils profile') && $current_user_roles == 1) {
+		$access_granted = true;
+	} elseif (user_access('access employee profile') && $current_user_roles == 0) {
+		$access_granted = true;
+	} elseif (user_access('access directie profile') && $current_user_roles == 30) {
+		$access_granted = true;
+	} elseif (user_access('access other profile') && (!in_array($current_user_roles, array( 0, 1, 30 )))) {
+		$access_granted = true;
 	}
+	
+	if ($access_granted){
+		switch ($current_user_roles) {
+			case 1 : // leerling
+				require_once 'includes/user-profile--preprocessor-pupil.inc.php';
+				break;
+			case 30 : // directie (30)
+			case 0 : // leerkracht (0)
+			case 13 : // andere (13)
+				require_once 'includes/user-profile--preprocessor-employee.inc.php';
+				break;
+			default :
+				require_once 'includes/user-profile--preprocessor-other.inc.php';
+				break;
+		}
+	} else {
+		// No access
+		drupal_set_message(t('Je hebt geen toegang tot deze profielpagina.'), 'error');
+		drupal_goto('/');
+		exit;
+	}
+}
+
+/**
+ * Implements hook_permission().
+ */
+function argus_gebruikers_permission() {
+	return array(
+			'access own profile' => array(
+					'title' => t('Toon eigen profielpagina'),
+			),
+			'access pupils profile' => array(
+					'title' => t('Toon profielpagina van leerlingen'),
+			),
+			'access employee profile' => array(
+					'title' => t('Toon profielpagina van personeelsleden'),
+			),
+			'access directie profile' => array(
+					'title' => t('Toon profielpagina van directieleden'),
+			),
+			'access other profile' => array(
+					'title' => t('Toon profielpagina van "andere" gebruikers'),
+			),
+			'access all profile' => array(
+					'title' => t('Toon alle profielpagina&#39;s'),
+			),
+	);
 }
