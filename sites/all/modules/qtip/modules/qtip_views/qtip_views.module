@@ -73,34 +73,36 @@ function qtip_views_form_alter(&$form, &$form_state, $form_id) {
  */
 function qtip_views_form_views_ui_config_item_form_submit($form, &$form_state) {
   // We need to check for dropdown, it will not exist if the user is on the Master display
-  $display_id = $form_state['values']['override']['dropdown'] ? $form_state['values']['override']['dropdown'] : 'default';
-  $options = $form_state['values']['options'];
-  $tooltips = $form_state['tooltips'];
-  $form_state['view']->set_display($display_id);
-  $id = $form_state['id'];
-
-  // Handle the submission for the label tooltip
-  if ($options['element_label_tooltip_show']
-    && !empty($options['element_label_tooltip'])) {
-    $tooltips[$id]['show'] = $options['element_label_tooltip_show'];
-    $tooltips[$id]['tooltip'] = $options['element_label_tooltip'];
+  if (array_key_exists('override', $form_state['values'])){
+  	  $display_id = $form_state['values']['override']['dropdown'] ? $form_state['values']['override']['dropdown'] : 'default';
+	  $options = $form_state['values']['options'];
+	  $tooltips = $form_state['tooltips'];
+	  $form_state['view']->set_display($display_id);
+	  $id = $form_state['id'];
+	  
+	  // Handle the submission for the label tooltip
+	  if ($options['element_label_tooltip_show']
+	    && !empty($options['element_label_tooltip'])) {
+	    $tooltips[$id]['show'] = $options['element_label_tooltip_show'];
+	    $tooltips[$id]['tooltip'] = $options['element_label_tooltip'];
+	  }
+	  else {
+	    unset($tooltips[$id]);
+	  }
+	  $form_state['view']->display_handler->set_option('qtip_tooltips', $tooltips);
+	
+	  // Handle the submission for the element tooltip
+	  $item = $form_state['view']->get_item($display_id, 'field', $id);
+	
+	  $item['element_qtip'] = $options['element_qtip'];
+	  $item['qtip_title'] = $options['qtip_title'];
+	  $item['qtip_text'] = $options['qtip_text'];
+	  $item['qtip_hide_if_equal'] = isset($options['qtip_hide_if_equal']) ? $options['qtip_hide_if_equal'] : 0;
+	  $item['qtip_instance'] = $options['qtip_instance'];
+	
+	  $form_state['view']->set_item($display_id, 'field', $id, $item);
   }
-  else {
-    unset($tooltips[$id]);
-  }
-  $form_state['view']->display_handler->set_option('qtip_tooltips', $tooltips);
-
-  // Handle the submission for the element tooltip
-  $item = $form_state['view']->get_item($display_id, 'field', $id);
-
-  $item['element_qtip'] = $options['element_qtip'];
-  $item['qtip_title'] = $options['qtip_title'];
-  $item['qtip_text'] = $options['qtip_text'];
-  $item['qtip_hide_if_equal'] = isset($options['qtip_hide_if_equal']) ? $options['qtip_hide_if_equal'] : 0;
-  $item['qtip_instance'] = $options['qtip_instance'];
-
-  $form_state['view']->set_item($display_id, 'field', $id, $item);
-
+  
   // Write to cache.
   views_ui_cache_set($form_state['view']);
 }
