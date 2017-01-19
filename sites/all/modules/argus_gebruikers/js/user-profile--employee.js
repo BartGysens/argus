@@ -172,6 +172,44 @@ if (typeof google != "undefined"){
 		    var chart = new google.visualization.ColumnChart(document.getElementById('works_chart'));
 		    chart.draw(dataWorksChart, options);
 	    }
+	    
+	    // Stages - attendant period chart
+	    if (document.getElementById('stages_attendant_chart')){
+		    var options = {
+		        title: 'Aantal stagedossiers',
+		        colors: ['#006CB7'],
+		        chartArea: {width: '90%', height: '70%'},
+		        legend: 'none',
+		        vAxis: {
+		            viewWindow: {
+		                max: maxStagesAttendant+1,
+		                min: 0
+		            },
+		            format: '0'
+		        }
+		    };
+		    var chart = new google.visualization.ColumnChart(document.getElementById('stages_attendant_chart'));
+		    chart.draw(dataStagesAttendantChart, options);
+	    }
+	    
+	    // Stages - visits period chart
+	    if (document.getElementById('stages_visits_chart')){
+		    var options = {
+		        title: 'Stagebezoeken per maand (laatste 12 maanden)',
+		        colors: ['#006CB7'],
+		        chartArea: {width: '90%', height: '70%'},
+		        legend: 'none',
+		        vAxis: {
+		            viewWindow: {
+		                max: maxStagesVisits+1,
+		                min: 0
+		            },
+		            format: '0'
+		        }
+		    };
+		    var chart = new google.visualization.ColumnChart(document.getElementById('stages_visits_chart'));
+		    chart.draw(dataStagesVisitsChart, options);
+	    }
 	}
 	
 	function resizeChart () {

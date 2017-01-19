@@ -236,8 +236,6 @@ if (count($account->field_user_sms_geboortedatum)){
 			                	maxCVT = <?php print $cvt['max']; ?>;
 			                </script>
 			            <?php } ?>
-			            
-			            <hr />
 		                
 		            <?php } ?>
 		                        
@@ -246,7 +244,7 @@ if (count($account->field_user_sms_geboortedatum)){
 		        <fieldset id="panel-emaima">
 		            <legend>Pedagogische rol</legend>
 		        	
-			        <?php if (module_exists('argus_klasbeheer')){ ?>
+			        <?php if (module_exists('argus_klasbeheer') && $baserole['id'] == 0){ ?>
 			            
 			            <div class="field field-label-inline clearfix">
 			                <div class="field-label">Klastitularis:&nbsp;</div>
@@ -315,8 +313,6 @@ if (count($account->field_user_sms_geboortedatum)){
 			                	maxPupilReports = <?php print $pupil_reports['max']; ?>;
 			                </script>
 				        <?php } ?>
-				        
-				        <hr />
 				        
 			        <?php } ?>
 			        
@@ -437,7 +433,18 @@ if (count($account->field_user_sms_geboortedatum)){
 			            
 			            <div class="field field-label-inline clearfix">
 			                <div class="field-label">Projectgroepen:&nbsp;</div>
-			                <div class="field-items">(lijst van de groepen)</div>
+			                <div class="field-items">
+			                <?php
+							if (count($projectgroups)){
+								print '<ul>';
+								foreach($projectgroups as $id => $r){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.$r.'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen lid van een projectgroep";
+			            	} ?>
+			            	</div>
 				        </div>
 			            
 			        <?php } ?>
@@ -448,7 +455,18 @@ if (count($account->field_user_sms_geboortedatum)){
 			            
 				        <div class="field field-label-inline clearfix">
 			                <div class="field-label">Werkgroepen:&nbsp;</div>
-			                <div class="field-items">(lijst van de groepen)</div>
+			                <div class="field-items">
+			                <?php
+							if (count($workgroups)){
+								print '<ul>';
+								foreach($workgroups as $id => $r){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.$r.'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen lid van een werkgroep";
+			            	} ?>
+			            	</div>
 				        </div>
 			            
 			        <?php } ?>
@@ -459,7 +477,18 @@ if (count($account->field_user_sms_geboortedatum)){
 			            
 				        <div class="field field-label-inline clearfix">
 			                <div class="field-label">Feedbackgroepen:&nbsp;</div>
-			                <div class="field-items">(lijst van de groepen)</div>
+			                <div class="field-items">
+			                <?php
+							if (count($feedbackgroups)){
+								print '<ul>';
+								foreach($feedbackgroups as $id => $r){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.$r.'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen lid van een feedbackgroep";
+			            	} ?>
+			            	</div>
 				        </div>
 			            
 			        <?php } ?>
@@ -490,19 +519,47 @@ if (count($account->field_user_sms_geboortedatum)){
 			        
 			        <?php } ?>
 			        
-		            <div class="field field-label-inline clearfix">
-		                <div class="field-label">Flitsbezoeken:&nbsp;</div>
-		                <div class="field-items">(lijst van de verslagen)</div>
-			        </div>
+		            <?php if (module_exists('argus_hrm') && $baserole['id'] == 0){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Flitsbezoeken:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($hrm['flitsbezoeken'])){
+								print '<ul>';
+								foreach($hrm['flitsbezoeken'] as $id => $r){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.format_date(strtotime($r), 'long').'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen flitsbezoeken gevonden";
+			            	} ?>
+							</div>
+				        </div>
+				        
+				        <hr />
 			        
-			        <hr />
-		            
-		            <div class="field field-label-inline clearfix">
-		                <div class="field-label">Klasbezoeken:&nbsp;</div>
-		                <div class="field-items">(lijst van de verslagen)</div>
-			        </div>
+			        <?php } ?>
 			        
-			        <hr />
+		            <?php if (module_exists('argus_hrm') && $baserole['id'] == 0){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Klasbezoeken:&nbsp;</div>
+			                <div class="field-items">
+							<?php
+							if (count($hrm['klasbezoeken'])){
+								print '<ul>';
+								foreach($hrm['klasbezoeken'] as $id => $r){
+									print '<li><a href="'.base_path().drupal_get_path_alias('node/'.$id).'">'.format_date(strtotime($r), 'long').'</a></li>';
+								}
+								print '</ul>';
+							} else {
+								print "geen klasbezoeken gevonden";
+			            	} ?>
+							</div>
+				        </div>
+				        
+				        <hr />
+			        
+			        <?php } ?>
 		            
 			        <?php if (module_exists('argus_hrm')){ ?>
 			            <div class="field field-label-inline clearfix">
@@ -541,8 +598,6 @@ if (count($account->field_user_sms_geboortedatum)){
 			            	} ?>
 							</div>
 				        </div>
-				        
-				        <hr />
 			        
 			        <?php } ?>
 			        
@@ -571,7 +626,7 @@ if (count($account->field_user_sms_geboortedatum)){
 				        <hr />
 			        <?php } ?>
 		            
-		            <?php if (module_exists('argus_werken_voor_derden')){ ?>
+		            <?php if (module_exists('argus_werken_voor_derden') && $baserole['id'] == 0){ ?>
 		            	<div class="field field-label-inline clearfix">
 			                <div class="field-label">Werken voor derden:&nbsp;</div>
 			                <div class="field-items"><?php print $works['total']; ?> in totaal</div>
@@ -584,7 +639,32 @@ if (count($account->field_user_sms_geboortedatum)){
 			                	maxWorks = <?php print $works['max']; ?>;
 			                </script>
 				        <?php } ?>
+				        
+				        <hr />
 						
+			        <?php } ?>
+		            
+		            <?php if (module_exists('argus_stages') && $baserole['id'] == 0){ ?>
+			            <div class="field field-label-inline clearfix">
+			                <div class="field-label">Stages:&nbsp;</div>
+			                <div class="field-items"><?php print $stages['attendant']['total']; ?> stagedossiers als begeleider en <?php print $stages['visits']['total']; ?> bezoeken in totaal</div>
+				        </div>
+		            	
+		            	<?php if (count($stages['attendant']['graph'])>1){ ?>
+			                <div id="stages_attendant_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataStagesAttendantChart = google.visualization.arrayToDataTable(<?php print json_encode($stages['attendant']['graph']); ?>);
+			                	maxStagesAttendant = <?php print $stages['attendant']['max']; ?>;
+			                </script>
+				        <?php } ?>
+		            	
+		            	<?php if (count($stages['visits']['graph'])>1){ ?>
+			                <div id="stages_visits_chart" style="width: 98%; height: 200px;"></div>
+			                <script>
+			                	var dataStagesVisitsChart = google.visualization.arrayToDataTable(<?php print json_encode($stages['visits']['graph']); ?>);
+			                	maxStagesVisits = <?php print $stages['visits']['max']; ?>;
+			                </script>
+				        <?php } ?>
 			        <?php } ?>
 			        
 		        </fieldset>
@@ -592,7 +672,7 @@ if (count($account->field_user_sms_geboortedatum)){
 				<fieldset id="panel-links">
 		            <legend>Snelle links - "Mijn werkruimte"</legend>
 		            
-		            <?php if (module_exists('argus_stages')){ ?>
+		            <?php if (module_exists('argus_stages') && $baserole['id'] == 0){ ?>
 			            <div class="field field-label-inline clearfix">
 			                <div class="field-label">Stages:&nbsp;</div>
 			                <div class="field-items">
@@ -620,7 +700,7 @@ if (count($account->field_user_sms_geboortedatum)){
 				        </div>
 		            <?php } ?>
 		            
-		            <?php if (module_exists('argus_examens')){ ?>
+		            <?php if (module_exists('argus_examens') && $baserole['id'] == 0){ ?>
 			            <div class="field field-label-inline clearfix">
 			                <div class="field-label">Examens:&nbsp;</div>
 			                <div class="field-items">
@@ -638,7 +718,7 @@ if (count($account->field_user_sms_geboortedatum)){
 				        </div>
 		            <?php } ?>
 		            
-		            <?php if (module_exists('argus_gip')){ ?>
+		            <?php if (module_exists('argus_gip') && $baserole['id'] == 0){ ?>
 			            <div class="field field-label-inline clearfix">
 			                <div class="field-label">GIP:&nbsp;</div>
 			                <div class="field-items">
@@ -647,7 +727,7 @@ if (count($account->field_user_sms_geboortedatum)){
 				        </div>
 		            <?php } ?>
 		            
-		            <?php if (module_exists('argus_werken_voor_derden')){ ?>
+		            <?php if (module_exists('argus_werken_voor_derden') && $baserole['id'] == 0){ ?>
 			            <div class="field field-label-inline clearfix">
 			                <div class="field-label">Werken voor derden:&nbsp;</div>
 			                <div class="field-items">

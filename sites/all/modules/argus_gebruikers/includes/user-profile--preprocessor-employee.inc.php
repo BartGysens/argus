@@ -45,6 +45,8 @@ $variables ['account'] = $account;
 $uid = $account->uid;
 $variables ['user_id'] = $uid;
 
+$variables ['baserole'] ['id'] = $account->field_user_sms_basisrol [LANGUAGE_NONE] [0] ['value'];
+
 /**
  * -----------------------------------------------------------------------------
  * Data about ASSIGNEMENT
@@ -53,7 +55,7 @@ $variables ['user_id'] = $uid;
 
 /* ---------- FETCH STATUS UURROOSTER ---------- */
 
-if (module_exists ( 'argus_uurrooster' )) {
+if (module_exists ( 'argus_uurrooster' ) && $variables ['baserole'] ['id'] == 0) {
 	$variables ['current_lesson'] = argus_uurrooster_get_current_lesson ( $uid );
 	// Only fetch the first of the array
 	if (count ( $variables ['current_lesson'] )) {
@@ -356,7 +358,7 @@ if (module_exists ( 'argus_nascholingen' )) {
 
 /* ---------- FETCH STATUS KTT/HKTT ---------- */
 
-if (module_exists ( 'argus_klasbeheer' )) {
+if (module_exists ( 'argus_klasbeheer' ) && $variables ['baserole'] ['id'] == 0) {
 	$query = 'SELECT n.nid AS id, t.field_klas_omschrijving_value AS name ' . 'FROM {field_data_field_klas_klastitularis} AS ktt ' . 'INNER JOIN {node} AS n ON ktt.entity_id = n.nid ' . 'RIGHT JOIN {field_data_field_klas_leerlingen} AS lln ON lln.entity_id = n.nid ' . 'INNER JOIN {field_data_field_klas_omschrijving} AS t ON t.entity_id = n.nid ' . 'WHERE ktt.field_klas_klastitularis_target_id = :uid AND n.status=1';
 	$variables ['ktt'] = db_query ( $query, array (
 			':uid' => $uid 
@@ -628,7 +630,8 @@ if (module_exists ( 'argus_technische_meldingen' )) {
 	for($x = 0; $x < 12; $x ++) {
 		$date = new DateTime ( '-' . $x . ' months' );
 		
-		$query = 'SELECT nid ' . 'FROM {node} AS n ' . 'WHERE n.uid = :uid AND n.type = :bundle AND MONTH(FROM_UNIXTIME(n.created)) = :month AND YEAR(FROM_UNIXTIME(n.created)) = :year';
+		$query = 'SELECT nid ' . 'FROM {node} AS n ' 
+				. 'WHERE n.uid = :uid AND n.type = :bundle AND MONTH(FROM_UNIXTIME(n.created)) = :month AND YEAR(FROM_UNIXTIME(n.created)) = :year';
 		$result = db_query ( $query, array (
 				':uid' => $uid,
 				':bundle' => 'technische_melding',
@@ -659,7 +662,6 @@ if (module_exists ( 'argus_technische_meldingen' )) {
 $variables ['user_roles'] = $account->roles;
 sort ( $variables ['user_roles'] );
 
-$variables ['baserole'] ['id'] = $account->field_user_sms_basisrol [LANGUAGE_NONE] [0] ['value'];
 $f = field_info_field ( 'field_user_sms_basisrol' );
 $variables ['baserole'] ['title'] = $f ['settings'] ['allowed_values'] [$variables ['baserole'] ['id']];
 
@@ -669,29 +671,55 @@ if (module_exists ( 'argus_vakgroepen' )) {
 	$query = 'SELECT n.entity_id AS id, n.field_vgwg_naam_value AS name ' 
 			. 'FROM {field_data_field_vgwg_leden} AS l ' 
 			. 'INNER JOIN {field_data_field_vgwg_naam} AS n ON l.entity_id = n.entity_id ' 
-			. 'INNER JOIN {field_data_field_voorzitter} AS v ON l.entity_id = v.entity_id ' 
-			. 'WHERE l.field_vgwg_leden_target_id = :uid OR v.field_voorzitter_target_id = :uid';
+			. 'INNER JOIN {field_data_field_voorzitter} AS v ON l.entity_id = v.entity_id '
+			. 'WHERE n.bundle = :bundle AND (l.field_vgwg_leden_target_id = :uid OR v.field_voorzitter_target_id = :uid)';
 	$variables ['vgwg'] = db_query ( $query, array (
-			':uid' => $uid 
+			':uid' => $uid,
+			':bundle' => 'vakgroep'
 	) )->fetchAllKeyed ();
 }
 
 /* ---------- FETCH STATUS PROJECTGROEPEN ---------- */
 
 if (module_exists ( 'argus_projectgroepen' )) {
-	$query = 'SELECT n.entity_id AS id, n.field_vgwg_naam_value AS name ' 
+	$query = 'SELECT n.nid AS id, n.title AS name ' 
 			. 'FROM {node} AS n ' 
 			. 'LEFT JOIN {field_data_field_personeelsleden} AS p ON p.entity_id = n.nid ' 
 			. 'LEFT JOIN {field_data_field_voorzitter} AS v ON v.entity_id = n.nid ' 
-			. 'WHERE p.field_personelleden_target_id = :uid OR v.field_voorzitter_target_id = :uid';
-	$variables ['vgwg'] = db_query ( $query, array (
-			':uid' => $uid 
+			. 'WHERE n.type = :bundle AND (p.field_personeelsleden_target_id = :uid OR v.field_voorzitter_target_id = :uid)';
+	$variables ['projectgroups'] = db_query ( $query, array (
+			':uid' => $uid,
+			':bundle' => 'projectgroep'
 	) )->fetchAllKeyed ();
 }
 
 /* ---------- FETCH STATUS WERKGROEPEN ---------- */
 
+if (module_exists ( 'argus_werkgroepen' )) {
+	$query = 'SELECT n.nid AS id, n.title AS name '
+			. 'FROM {node} AS n '
+			. 'LEFT JOIN {field_data_field_personeelsleden} AS p ON p.entity_id = n.nid '
+			. 'LEFT JOIN {field_data_field_voorzitter} AS v ON v.entity_id = n.nid '
+			. 'WHERE n.type = :bundle AND (p.field_personeelsleden_target_id = :uid OR v.field_voorzitter_target_id = :uid)';
+	$variables ['workgroups'] = db_query ( $query, array (
+			':uid' => $uid,
+			':bundle' => 'werkgroep'
+	) )->fetchAllKeyed ();
+}
+
 /* ---------- FETCH STATUS FEEDBACKGROEPEN ---------- */
+
+if (module_exists ( 'argus_feedbackgroepen' )) {
+	$query = 'SELECT n.nid AS id, n.title AS name '
+			. 'FROM {node} AS n '
+			. 'LEFT JOIN {field_data_field_personeelsleden} AS p ON p.entity_id = n.nid '
+			. 'LEFT JOIN {field_data_field_voorzitter} AS v ON v.entity_id = n.nid '
+			. 'WHERE n.type = :bundle AND (p.field_personeelsleden_target_id = :uid OR v.field_voorzitter_target_id = :uid)';
+	$variables ['feedbackgroups'] = db_query ( $query, array (
+			':uid' => $uid,
+			':bundle' => 'feedbackgroep'
+	) )->fetchAllKeyed ();
+}
 
 /**
  * -----------------------------------------------------------------------------
@@ -716,7 +744,33 @@ if (module_exists ( 'argus_hrm' )) {
 
 /* ---------- FETCH STATUS FLITSBEZOEKEN ---------- */
 
+if (module_exists ( 'argus_hrm' ) && $variables ['baserole'] ['id'] == 0) {
+	$query = 'SELECT n.nid AS id, t.field_tijdstip_value AS datum '
+			. 'FROM {node} AS n '
+			. 'LEFT JOIN {field_data_field_personeelslid} AS p ON p.entity_id = n.nid '
+			. 'LEFT JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid '
+			. 'WHERE n.type = :bundle AND p.field_personeelslid_target_id = :uid '
+			. 'ORDER BY t.field_tijdstip_value DESC';
+	$variables ['hrm']['flitsbezoeken'] = db_query ( $query, array (
+			':bundle' => 'hrm_flitsbezoek',
+			':uid' => $uid
+	) )->fetchAllKeyed ();
+}
+
 /* ---------- FETCH STATUS KLASBEZOEKEN ---------- */
+
+if (module_exists ( 'argus_hrm' ) && $variables ['baserole'] ['id'] == 0) {
+	$query = 'SELECT n.nid AS id, t.field_tijdstip_value AS datum '
+			. 'FROM {node} AS n '
+			. 'LEFT JOIN {field_data_field_personeelslid} AS p ON p.entity_id = n.nid '
+			. 'LEFT JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid '
+			. 'WHERE n.type = :bundle AND p.field_personeelslid_target_id = :uid '
+			. 'ORDER BY t.field_tijdstip_value DESC';
+	$variables ['hrm']['klasbezoeken'] = db_query ( $query, array (
+			':bundle' => 'hrm_klasbezoek',
+			':uid' => $uid
+	) )->fetchAllKeyed ();
+}
 
 /* ---------- FETCH STATUS FUNCTIONERINGSGESPREKKEN ---------- */
 
@@ -772,7 +826,7 @@ if (module_exists ( 'argus_projecten' )) {
 
 /* ---------- FETCH STATUS WERKEN VOOR DERDEN ---------- */
 
-if (module_exists ( 'argus_werken_voor_derden' )) {
+if (module_exists ( 'argus_werken_voor_derden' ) && $variables ['baserole'] ['id'] == 0) {
 	$variables ['works'] = array (
 			'graph' => array (
 					array (
@@ -836,6 +890,131 @@ if (module_exists ( 'argus_werken_voor_derden' )) {
 		}
 	}
 	$variables ['works'] ['total'] = $total;
+}
+
+/* ---------- FETCH STATUS STAGES ---------- */
+
+
+if (module_exists ( 'argus_stages' ) && $variables ['baserole'] ['id'] == 0) {
+	$variables ['stages'] = array (
+			'attendant' => array (
+				'graph' => array (
+						array (
+								'Schooljaar',
+								'Leerlingen',
+								array (
+										'role' => 'annotation'
+								)
+						)
+				),
+				'max' => 0,
+				'total' => 0
+			),
+			'visits' => array (
+				'graph' => array (
+						array (
+								'Maand',
+								'Bezoeken',
+								array (
+										'role' => 'annotation'
+								)
+						)
+				),
+				'max' => 0,
+				'total' => 0
+			),
+	);
+	
+	// Get data for ATTENDANT
+	$query = 'SELECT n.nid AS id, t.field_tijdstip_value AS firstdate '
+			. 'FROM {node} AS n '
+			. 'JOIN {field_data_field_leerkracht} AS l ON l.entity_id = n.nid '
+			. 'JOIN {field_data_field_stage_periode} AS p ON p.entity_id = n.nid '
+			. 'JOIN {field_data_field_tijdstip} AS t ON t.entity_id = p.field_stage_periode_target_id '
+			. 'WHERE l.field_leerkracht_target_id = :uid AND n.type = :bundle '
+			. 'ORDER BY t.field_tijdstip_value ASC';
+	$firstdate = db_query ( $query, array (
+			':uid' => $uid,
+			':bundle' => 'stage'
+	) )->fetchField ( 1 );
+
+	$total = 0;
+	if ($firstdate) {
+		$d = new DateTime( argus_schoolyear( 0, 'Y-m-d', $firstdate )['start'] );
+		$now = new DateTime ();
+		while ( $d < $now ) {
+			$this_sy = argus_schoolyear ( 0, 'Y-m-d', $d->format ( 'Y-m-d' ) );
+			
+			$query = 'SELECT n.nid AS id '
+					. 'FROM {node} AS n '
+					. 'JOIN {field_data_field_leerkracht} AS l ON l.entity_id = n.nid '
+					. 'JOIN {field_data_field_stage_periode} AS p ON p.entity_id = n.nid '
+					. 'JOIN {field_data_field_tijdstip} AS t ON t.entity_id = p.field_stage_periode_target_id '
+					. 'WHERE l.field_leerkracht_target_id = :uid AND n.type = :bundle '
+					. 'AND t.field_tijdstip_value BETWEEN :startdate AND :enddate';
+			$result = db_query ( $query, array (
+					':uid' => $uid,
+					':bundle' => 'stage',
+					':startdate' => $this_sy ['start'],
+					':enddate' => $this_sy ['end']
+			) )->rowCount();
+			
+			if ($result > $variables ['stages'] ['attendant'] ['max']) {
+				$variables ['stages'] ['attendant'] ['max'] = $result;
+			}
+			
+			// Set graph
+			$label = argus_schoolyear ( 0, 'y', $d->format ( 'Y-m-d' ) );
+			$variables ['stages'] ['attendant'] ['graph'] [] = array (
+					implode ( '-', $label ),
+					$result,
+					$result
+			);
+
+			$total += $result;
+				
+			$d->modify ( '+ 1 year' );
+		}
+	}
+	$variables ['stages'] ['attendant'] ['total'] = $total;
+	
+	// Get data for VISITS
+	$query = 'SELECT n.nid AS id, t.field_tijdstip_value AS firstdate '
+			. 'FROM {node} AS n '
+			. 'JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid '
+			. 'WHERE n.uid = :uid AND n.type = :bundle '
+			. 'ORDER BY t.field_tijdstip_value ASC';
+	$variables ['stages'] ['visits'] ['total'] = db_query ( $query, array (
+			':uid' => $uid,
+			':bundle' => 'stagebezoek'
+	) )->rowCount ();
+	
+	for($x = 0; $x < 12; $x ++) {
+		$date = new DateTime ( '-' . $x . ' months' );
+	
+		$query = 'SELECT n.nid AS id '
+				. 'FROM {node} AS n '
+				. 'JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid '
+				. 'WHERE n.uid = :uid AND n.type = :bundle '
+				. 'AND MONTH(t.field_tijdstip_value) = :month AND YEAR(t.field_tijdstip_value) = :year';
+		$result = db_query ( $query, array (
+				':uid' => $uid,
+				':bundle' => 'stagebezoek',
+				':month' => $date->format ( 'n' ),
+				':year' => $date->format ( 'Y' )
+		) )->rowCount ();
+		
+		if ($result > $variables ['stages'] ['visits'] ['max']) {
+			$variables ['stages'] ['visits'] ['max'] = $result;
+		}
+		
+		// Set graph
+		$variables ['stages'] ['visits'] ['graph'] [] = array (
+				t ( $date->format ( 'M' ) ),
+				$result,
+				$result
+		);
+	}
 }
 
 // Preprocess fields.
