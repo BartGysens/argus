@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.4
+---------
+- Update setup pagina: mogelijkheid om periodes te definiëren
+
 v7.x-1.3
 ---------
 - Update argus_engine: mail logging
