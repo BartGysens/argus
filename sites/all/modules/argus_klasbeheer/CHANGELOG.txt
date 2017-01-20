@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-3.0
+---------
+- Thema Smartschool ontkoppeld; templates en preprocessors opgenomen in module
+
 v7.x-2.6-3
 ---------
 - Klassen die niet actief zijn niet tonen
