@@ -210,6 +210,25 @@ if (typeof google != "undefined"){
 		    var chart = new google.visualization.ColumnChart(document.getElementById('stages_visits_chart'));
 		    chart.draw(dataStagesVisitsChart, options);
 	    }
+
+	    // argus period chart
+	    if (document.getElementById('argus_chart')){
+		    var options = {
+		        title: 'Bezoeken / bijdragen',
+		        colors: ['#006A32', '#ff0000'],
+		        chartArea: {width: '90%', height: '60%'},
+		        legend: 'bottom',
+		        vAxis: {
+		            viewWindow: {
+		                max: maxargus+1,
+		                min: 0
+		            },
+		            format: '0'
+		        }
+		    };
+		    var chart = new google.visualization.ColumnChart(document.getElementById('argus_chart'));
+		    chart.draw(dataargusChart, options);
+	    }
 	}
 	
 	function resizeChart () {

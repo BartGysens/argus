@@ -670,7 +670,20 @@ if (count($account->field_user_sms_geboortedatum)){
 		        </fieldset>
 			
 				<fieldset id="panel-links">
-		            <legend>Snelle links - "Mijn werkruimte"</legend>
+		            <legend>Snelle links - "Mijn werkruimte" & argus</legend>
+		            
+		            <div class="field field-label-inline clearfix">
+		                <div class="field-label">argus:&nbsp;</div>
+		                <div class="field-items"><?php print $argus['total']['visits']; ?> pagina's bezocht en <?php print $argus['total']['publications']; ?> bijdragen toegevoegd</div>
+			        </div>
+			        
+		            <div id="argus_chart" style="width: 98%; height: 200px;"></div>
+		            <script>
+	                	var dataargusChart = google.visualization.arrayToDataTable(<?php print json_encode($argus['graph']); ?>);
+	                	maxargus = <?php print $argus['max']; ?>;
+	                </script>
+	                
+	                <hr />
 		            
 		            <?php if (module_exists('argus_stages') && $baserole['id'] == 0){ ?>
 			            <div class="field field-label-inline clearfix">

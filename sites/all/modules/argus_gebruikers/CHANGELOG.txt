@@ -1,5 +1,13 @@
 **Releases:
 
+v7.x-6.1
+---------
+- Gebruikersprofiel LKR: volledige update met nieuwe features en grafieken
+- Gebruikersprofiel andere: basic profiel voor niet-medewerkers
+- Gebruikersprofiel LLN: Halfjes uit grafieken verwijderd
+- Gebruikersprofiel LLN: Leerplichtbegeleiding toegevoegd
+- Gebruikersprofiel LLN: Nieuwe grafiek Afwezigheden per periode
+
 v7.x-6.0
 ---------
 - First initial release - featured based

@@ -1017,9 +1017,85 @@ if (module_exists ( 'argus_stages' ) && $variables ['baserole'] ['id'] == 0) {
 	}
 }
 
-// Preprocess fields.
-if ($_SERVER ['HTTP_HOST'] == 'localhost') {
-	dpm ( $variables );
-	print theme ( 'status_messages' );
+
+/**
+ * -----------------------------------------------------------------------------
+ * Data about QUICK LINKS / argus
+ * -----------------------------------------------------------------------------
+ */
+
+/* ---------- FETCH STATUS argus ---------- */
+
+$variables ['argus'] = array (
+		'graph' => array (
+				array (
+						'Maand',
+						'pagina\'s bezocht (laatste periode)',
+						'eigen bijdrage(n)'
+				)
+		),
+		'max' => 0,
+		'total' => array(
+				'visits' => 0,
+				'publications' => 0,
+		),
+);
+
+$query = 'SELECT h.nid AS id '
+		. 'FROM {history} AS h '
+		. 'WHERE h.uid = :uid';
+$variables ['argus'] ['total'] ['visits'] = db_query ( $query, array (
+		':uid' => $uid
+) )->rowCount ();
+
+$query = 'SELECT n.nid AS id '
+		. 'FROM {node} AS n '
+		. 'WHERE n.uid = :uid';
+$variables ['argus'] ['total'] ['publications'] = db_query ( $query, array (
+		':uid' => $uid
+) )->rowCount ();
+
+for($x = 0; $x < 12; $x ++) {
+	$date = new DateTime ( '-' . $x . ' months' );
+
+	// Get data about VISITS
+	$query = 'SELECT h.nid AS id '
+			. 'FROM {history} AS h '
+			. 'WHERE h.uid = :uid '
+			. 'AND MONTH(FROM_UNIXTIME(h.timestamp)) = :month AND YEAR(FROM_UNIXTIME(h.timestamp)) = :year';
+	$result_visits = db_query ( $query, array (
+			':uid' => $uid,
+			':month' => $date->format ( 'n' ),
+			':year' => $date->format ( 'Y' )
+	) )->rowCount ();
+
+	if ($result_visits > $variables ['argus'] ['max']) {
+		$variables ['argus'] ['max'] = $result_visits;
+	}
+
+	// Get data about NODES
+	$query = 'SELECT n.nid AS id '
+			. 'FROM {node} AS n '
+			. 'WHERE n.uid = :uid '
+			. 'AND MONTH(FROM_UNIXTIME(n.created)) = :month AND YEAR(FROM_UNIXTIME(n.created)) = :year';
+	$result_publications = db_query ( $query, array (
+			':uid' => $uid,
+			':month' => $date->format ( 'n' ),
+			':year' => $date->format ( 'Y' )
+	) )->rowCount ();
+
+	if ($result_publications > $variables ['argus'] ['max']) {
+		$variables ['argus'] ['max'] = $result_publications;
+	}
+
+	// Set graph
+	$variables ['argus'] ['graph'] [] = array (
+			t ( $date->format ( 'M' ) ),
+			$result_visits,
+			$result_publications
+	);
 }
+
+
+// Preprocess fields.
 field_attach_preprocess ( 'user', $account, $variables ['elements'], $variables );
