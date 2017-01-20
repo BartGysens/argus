@@ -1,9 +1,14 @@
 **Releases:
 
+v7.x-4.0
+---------
+- Templates van user_profile en node-klas naar resp modules Klasbeheer en Gebruikers overgebracht
+- Clean up code
+
 v7.x-3.1
 ---------
 - First initial release - featured based
-- Fix in css back to Smartschool	
+- Fix in css back to Smartschool
 
 v7.x-3.0
 ---------
