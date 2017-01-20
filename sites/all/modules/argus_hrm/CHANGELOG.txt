@@ -1,6 +1,10 @@
 **Releases:
 
 
+v7.x-3.0
+---------
+- Uitbreiding Flitsbezoeken en Klasbezoeken
+
 v7.x-2.0
 ---------
 - Extra functionaliteiten toegevoegd: workload, plageuren

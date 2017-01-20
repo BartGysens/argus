@@ -13,6 +13,97 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_focus|node|hrm_klasbezoek|default';
+  $field_group->group_name = 'group_focus';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_klasbezoek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Focus',
+    'weight' => '4',
+    'children' => array(
+      0 => 'field_klasbezoek_ped_comp',
+      1 => 'field_klasbezoek_did_comp',
+      2 => 'field_klasbezoek_taalcomp',
+      3 => 'field_klasbezoek_org_comp',
+      4 => 'field_klasbezoek_andere_focus',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-focus field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_focus|node|hrm_klasbezoek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_focus|node|hrm_klasbezoek|form';
+  $field_group->group_name = 'group_focus';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_klasbezoek';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Focus',
+    'weight' => '4',
+    'children' => array(
+      0 => 'field_klasbezoek_ped_comp',
+      1 => 'field_klasbezoek_did_comp',
+      2 => 'field_klasbezoek_taalcomp',
+      3 => 'field_klasbezoek_org_comp',
+      4 => 'field_klasbezoek_andere_focus',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-focus field-group-fieldset',
+        'required_fields' => 1,
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_focus|node|hrm_klasbezoek|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_g1|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g1';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '1. Plannen en voorbereiden van de lessen',
+    'weight' => '3',
+    'children' => array(
+      0 => 'field_eg1_positieve_observaties',
+      1 => 'field_eg1_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g1 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g1|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g1|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g1';
   $field_group->entity_type = 'node';
@@ -21,7 +112,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '1. Plannen en voorbereiden van de lessen',
-    'weight' => '3',
+    'weight' => '4',
     'children' => array(
       0 => 'field_eg1_positieve_observaties',
       1 => 'field_eg1_werkpunten_afspraken',
@@ -42,6 +133,34 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_g2|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g2';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '2. Efficiënt en leerlinggericht lesgeven',
+    'weight' => '4',
+    'children' => array(
+      0 => 'field_eg2_positieve_observaties',
+      1 => 'field_eg2_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g2 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g2|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g2|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g2';
   $field_group->entity_type = 'node';
@@ -50,7 +169,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '2. Efficiënt en leerlinggericht lesgeven',
-    'weight' => '4',
+    'weight' => '5',
     'children' => array(
       0 => 'field_eg2_positieve_observaties',
       1 => 'field_eg2_werkpunten_afspraken',
@@ -71,6 +190,34 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_g3|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g3';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '3. Begeleiden van de leerlingen',
+    'weight' => '5',
+    'children' => array(
+      0 => 'field_eg3_positieve_observaties',
+      1 => 'field_eg3_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g3 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g3|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g3|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g3';
   $field_group->entity_type = 'node';
@@ -79,7 +226,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '3. Begeleiden van de leerlingen',
-    'weight' => '5',
+    'weight' => '6',
     'children' => array(
       0 => 'field_eg3_positieve_observaties',
       1 => 'field_eg3_werkpunten_afspraken',
@@ -100,6 +247,34 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_g4|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g4';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '4. Evalueren van de leerlingen',
+    'weight' => '6',
+    'children' => array(
+      0 => 'field_eg4_positieve_observaties',
+      1 => 'field_eg4_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g4 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g4|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g4|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g4';
   $field_group->entity_type = 'node';
@@ -108,7 +283,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '4. Evalueren van de leerlingen',
-    'weight' => '6',
+    'weight' => '7',
     'children' => array(
       0 => 'field_eg4_positieve_observaties',
       1 => 'field_eg4_werkpunten_afspraken',
@@ -129,6 +304,34 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_g5|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g5';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '5. Opvoeden van de leerlingen',
+    'weight' => '7',
+    'children' => array(
+      0 => 'field_eg5_positieve_observaties',
+      1 => 'field_eg5_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g5 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g5|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g5|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g5';
   $field_group->entity_type = 'node';
@@ -137,7 +340,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '5. Opvoeden van de leerlingen',
-    'weight' => '7',
+    'weight' => '8',
     'children' => array(
       0 => 'field_eg5_positieve_observaties',
       1 => 'field_eg5_werkpunten_afspraken',
@@ -158,6 +361,34 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_g6|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g6';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '6. Meewerken aan de uitbouw van de school als organisatie',
+    'weight' => '8',
+    'children' => array(
+      0 => 'field_eg6_positieve_observaties',
+      1 => 'field_eg6_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g6 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g6|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g6|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g6';
   $field_group->entity_type = 'node';
@@ -166,7 +397,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '6. Meewerken aan de uitbouw van de school als organisatie',
-    'weight' => '8',
+    'weight' => '9',
     'children' => array(
       0 => 'field_eg6_positieve_observaties',
       1 => 'field_eg6_werkpunten_afspraken',
@@ -187,6 +418,34 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_g7|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g7';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '7. Overleggen en samenwerken',
+    'weight' => '9',
+    'children' => array(
+      0 => 'field_eg7_positieve_observaties',
+      1 => 'field_eg7_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g7 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g7|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g7|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g7';
   $field_group->entity_type = 'node';
@@ -195,7 +454,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '7. Overleggen en samenwerken',
-    'weight' => '9',
+    'weight' => '10',
     'children' => array(
       0 => 'field_eg7_positieve_observaties',
       1 => 'field_eg7_werkpunten_afspraken',
@@ -216,6 +475,34 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_g8|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g8';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '8. Uitvoeren van administratieve taken',
+    'weight' => '10',
+    'children' => array(
+      0 => 'field_eg8_positieve_observaties',
+      1 => 'field_eg8_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g8 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g8|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g8|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g8';
   $field_group->entity_type = 'node';
@@ -224,7 +511,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '8. Uitvoeren van administratieve taken',
-    'weight' => '10',
+    'weight' => '11',
     'children' => array(
       0 => 'field_eg8_positieve_observaties',
       1 => 'field_eg8_werkpunten_afspraken',
@@ -245,6 +532,34 @@ function argus_hrm_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_g9|node|hrm_evaluatiegesprek|default';
+  $field_group->group_name = 'group_g9';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_evaluatiegesprek';
+  $field_group->mode = 'default';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => '9. Nascholing',
+    'weight' => '11',
+    'children' => array(
+      0 => 'field_eg9_positieve_observaties',
+      1 => 'field_eg9_werkpunten_afspraken',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-g9 field-group-fieldset',
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_g9|node|hrm_evaluatiegesprek|default'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_g9|node|hrm_evaluatiegesprek|form';
   $field_group->group_name = 'group_g9';
   $field_group->entity_type = 'node';
@@ -253,7 +568,7 @@ function argus_hrm_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => '9. Nascholing',
-    'weight' => '11',
+    'weight' => '12',
     'children' => array(
       0 => 'field_eg9_positieve_observaties',
       1 => 'field_eg9_werkpunten_afspraken',
@@ -271,6 +586,35 @@ function argus_hrm_field_group_info() {
   );
   $field_groups['group_g9|node|hrm_evaluatiegesprek|form'] = $field_group;
 
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
+  $field_group->identifier = 'group_problemen_medewerker|node|planningsgesprek|form';
+  $field_group->group_name = 'group_problemen_medewerker';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'hrm_planningsgesprek';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Problemen medewerker',
+    'weight' => '6',
+    'children' => array(
+      0 => 'field_pg_probleemidentificatie',
+      1 => 'field_pg_eventuele_oplossing',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-problemen-medewerker field-group-fieldset',
+        'required_fields' => 1,
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_problemen_medewerker|node|planningsgesprek|form'] = $field_group;
+
   // Translatables
   // Included for use with string extractors like potx.
   t('1. Plannen en voorbereiden van de lessen');
@@ -282,6 +626,8 @@ function argus_hrm_field_group_info() {
   t('7. Overleggen en samenwerken');
   t('8. Uitvoeren van administratieve taken');
   t('9. Nascholing');
+  t('Focus');
+  t('Problemen medewerker');
 
   return $field_groups;
 }
