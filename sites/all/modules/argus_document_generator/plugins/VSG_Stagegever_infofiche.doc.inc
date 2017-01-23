@@ -22,7 +22,7 @@
  *
  * @return array
  */
-function argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving_form($form, &$form_state) {    
+function argus_document_generator_VSG_Stagegever_infofiche_form($form, &$form_state) {    
     $form['leerling'] = array(
         '#type' => 'select',
         '#title' => t('Leerling'),
@@ -30,16 +30,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_insch
         '#options' => argus_get_user_select_options('leerling'),
         '#required' => true,
     );
-    $form['datum_inschrijving'] = array(
-        '#type' => 'date_select',
-        '#title' => t('Datum van de inschrijving'),
-        '#description' => t('Geef het tijdstip dat deze leerling werd ingeschreven (LSEC).'),
-        '#date_increment' => 10,
-        '#default_value' => date_now(),
-        '#required' => true,
-        '#date_year_range' => '-1:+1',
-        '#date_format' => 'd/m/Y',
-    );
+    
     $form['submit'] = array(
         '#type' => 'submit',
         '#value' => t('Document downloaden (Word-formaat)'),
@@ -52,21 +43,21 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_insch
  *
  * @return array
  */
-function argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving_form_submit($form, &$form_state) {
-    argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving_document($form_state);
+function argus_document_generator_VSG_Stagegever_infofiche_form_submit($form, &$form_state) {
+    argus_document_generator_VSG_Stagegever_infofiche_document($form_state);
 }
 
 /**
  * Generator requested document and make available for downloading
  */
-function argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving_document($args) {
+function argus_document_generator_VSG_Stagegever_infofiche_document($args) {
     require_once drupal_get_path('module','argus_document_generator').'/includes/PHPWord_0.6.2_Beta/PHPWord.php';
     
     /* New Word-document */
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving.docx');
+    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Stagegever_infofiche.docx');
     
     /* Load user (student/pupil) */
     $uid = $args['values']['leerling'];
@@ -83,21 +74,8 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_insch
     $document->setValue('leerling', argus_get_user_realname($uid));
     $document->setValue('klas', argus_get_user_class($uid, 'title'));
     
-    if ($age > 17){
-        $document->setValue('ouders', '');
-    } else {
-        $document->setValue('ouders', '- De ouders:');
-    }
-    
-    if ($args['values']['datum_inschrijving']){
-    	$d = strtotime($args['values']['datum_inschrijving']);
-    } else {
-    	$d = $u->created;
-    }
-    $document->setValue('datum_inschrijving', date('d/m/Y', $d));
-    
     /* Generate the document and initiate download */
-    $filename = '/tmp/CNT Begeleidingsovereenkomst Laattijdige inschrijving '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_get_user_class($uid, 'title').' '.date('dmY').'.docx';
+    $filename = '/tmp/VSG Stagegever infofiche '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_get_user_class($uid, 'title').' '.date('dmY').'.docx';
     $document->save($filename);
     
     header("Pragma: public");

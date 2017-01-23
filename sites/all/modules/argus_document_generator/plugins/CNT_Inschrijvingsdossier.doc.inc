@@ -878,6 +878,7 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 		}
 	}
 	$document->setValue('gon_begeleider', $value);
+	$document->setValue('gon_begeleiding__', $value);
 	
 	$value_school = '';
 	$value_periode = '';
@@ -914,6 +915,18 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 		} else {
 			$document->setValue('verslag_clb_ja', 'o');
 			$document->setValue('verslag_clb_nee', 'x');
+		}
+	}
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $u->field_user_sms_inschrijvin)){
+		$value = $u->field_user_sms_inschrijvin[LANGUAGE_NONE][0]['value'];
+		if ($value == 'Ja'){
+			$document->setValue('inschrijving_onde_ja', 'x');
+			$document->setValue('inschrijving_onde_nee', 'o');
+		} else {
+			$document->setValue('inschrijving_onde_ja', 'o');
+			$document->setValue('inschrijving_onde_nee', 'x');
 		}
 	}
 	

@@ -1051,17 +1051,28 @@ Buitengewoon secundair onderwijs komt hiervoor niet in aanmerking.</li><li>Hoger
 					'#default_value' => t('Nee'),
 					'#required' => FALSE,
 			);
-			$form['beginsituatie']['leermoeilijkheden']['gon_begeleider'] = array(
-					'#title' => t('Naam van de GON-begeleider'),
-					'#type' => 'textfield',
-					'#required' => FALSE,
-					'#size' => 100,
-					'#states' => array(
-							'visible' => array(
-									':input[name="gon"]' => array('value' => t('Ja')),
-							),
-					),
-			);
+				$form['beginsituatie']['leermoeilijkheden']['gon_ja']['gon_begeleiding__'] = array(
+						'#title' => t('Aantal jaren GON-begeleiding gehad'),
+						'#type' => 'textfield',
+						'#required' => FALSE,
+						'#size' => 100,
+						'#states' => array(
+								'visible' => array(
+										':input[name="gon"]' => array('value' => t('Ja')),
+								),
+						),
+				);
+				$form['beginsituatie']['leermoeilijkheden']['gon_begeleider'] = array(
+						'#title' => t('Naam van de GON-begeleider'),
+						'#type' => 'textfield',
+						'#required' => FALSE,
+						'#size' => 100,
+						'#states' => array(
+								'visible' => array(
+										':input[name="gon"]' => array('value' => t('Ja')),
+								),
+						),
+				);
 			
 			$form['beginsituatie']['leermoeilijkheden']['buitengewoon_onde'] = array(
 					'#title' => t('Heeft de leerling ooit BuSO gevolgd?'),
@@ -1121,9 +1132,19 @@ Buitengewoon secundair onderwijs komt hiervoor niet in aanmerking.</li><li>Hoger
 							'#default_value' => t('Nee'),
 							'#required' => FALSE,
 					);
-
-					
-
+					$form['beginsituatie']['leermoeilijkheden']['buso']['inschrijving_onde'] = array(
+							'#title' => t('Is dit een inschrijving onder ontbindende voorwaarden?'),
+							'#type' => 'radios',
+							'#options' => array( t('Ja') => t('Ja'), t('Nee') => t('Nee') ),
+							'#default_value' => t('Nee'),
+							'#required' => FALSE,
+							'#states' => array(
+									'visible' => array(
+											':input[name="verslag_clb"]' => array('value' => t('Ja')),
+									),
+							),
+					);
+						
 		$form['beginsituatie']['ready'] = array(
 				'#type' => 'button',
 				'#attributes' => array(
@@ -1544,6 +1565,17 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 	$user_data['field_user_tmp_reg_payment'][LANGUAGE_NONE][0]['value'] = $form_state['values']['Betaalwijze'];
 	$user_data['field_user_tmp_reg_smartschool'][LANGUAGE_NONE][0]['value'] = 'unregistered';
 	
+	// Get class for registration
+	$result = db_query('SELECT n.nid FROM {node} n WHERE n.title = :title AND n.type = :type', array(':title' => $user_data['field_user_tmp_reg_class'][LANGUAGE_NONE][0]['value'], ':type' => 'klas'));
+	$currentClass = $result->fetchField();
+	if ($currentClass){
+		$currentClass = node_load($currentClass);
+		$cc['year'] = $currentClass->field_klas_leerjaar[$currentClass->language][0]['value'];
+		$cc['grade'] = $currentClass->field_klas_graad[$currentClass->language][0]['value'];
+		$cc['form'] = $currentClass->field_klas_onderwijsvorm[LANGUAGE_NONE][0]['value'];
+		$cc['structure'] = $currentClass->field_klas_structuuronderdeel[LANGUAGE_NONE][0]['value'];
+	}
+	
 	// Get initials
 	$user_data['field_user_sms_initialen'][LANGUAGE_NONE][0]['value'] = '';
 	
@@ -1646,6 +1678,7 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 	
 	
 	try {
+		$user_data['name'] = $user_data['name'].time();
 		$u = user_save($user, $user_data);
 		if ($u){
 			argus_report('De gebruiker "%accountname" werd succesvol toegevoegd.', array('%accountname' => $account), 'status', 'argus');
@@ -1655,10 +1688,24 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 			}
 			
 			if ($form_state['values']['generateDocuments'] == TRUE){
-				drupal_set_message('<a href="'.base_path().'documenten_generator.get/CNT_Inschrijvingsdossier/leerling='.$u->uid.'">Klik hier om het dossier te downloaden en af te drukken</a>', 'status');
+				drupal_set_message('<a style="color: lime;" href="'.base_path().'documenten_generator.get/CNT_Inschrijvingsdossier/leerling='.$u->uid.'">Klik hier om het dossier te downloaden en af te drukken</a>', 'status');
 			}
 			
-			drupal_set_message('Nog enkele aandachtspunten:<ul><li>inlichtingen over de eerste schooldagen</li><li>informatie over de studietoelage</li></ul>', 'status');
+			$status = 'Nog enkele aandachtspunten:<ul>';
+			
+			// HANDLE REGISTRATION LATER THEN START OF SCHOOLYEAR
+			
+			if ($u->created > strtotime(argus_schoolyear()['start'])){
+				$status .= '<li><a style="color: yellow;" href="'.base_path().'documenten_generator.get/CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving/leerling='.$u->uid.'">begeleidingsovereenkomst LAATTIJDIGE INSCHRIJVING - klik hier</a></li>';
+			}
+			
+			// HANDLE INTERNSHIPMENT
+			
+			if (($cc['form'] == 'B.S.O.' && $cc['grade'] == 3) || ($cc['form'] == 'T.S.O.' && ($cc['grade'] == 6 || $cc['grade'] == 7))){
+				$status .= '<li><a style="color: gold;" href="'.base_path().'documenten_generator.get/VSG_Stagegever_infofiche/leerling='.$u->uid.'">infofiche STAGEGEVER - klik hier</a></li>';
+			}
+			
+			drupal_set_message($status.'<li>inlichtingen over de eerste schooldagen</li><li>informatie over de studietoelage</li></ul>', 'status');
 		}
 	} catch (PDOException $e) {
 		argus_report('De gebruiker "%accountname" kon niet worden toegevoegd.<br />'.$e->getMessage(), array('%accountname' => $account), 'error', 'argus');

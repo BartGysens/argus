@@ -85,6 +85,7 @@ function argus_document_generator_overview() {
             array('ref' => 'VSG_BBKR', 'title' => 'Verslag - (Bijzondere) Begeleidende Klassenraad - ILB'),
             array('ref' => 'VSG_Melding_Definitieve_verwijdering', 'title' => 'Verslag - Melding Definitieve verwijdering - LSEC'),
             array('ref' => 'VSG_Leerplichtbegeleidingsfiche', 'title' => 'Verslag - Leerplichtbegeleidingsfiche - ILB'),
+        	array('ref' => 'VSG_Stagegever_infofiche', 'title' => 'Verslag - Stagegever (infofiche) - TA'),
         	array('ref' => 'VSG_Stageschrift_Individueel', 'title' => 'Verslag - Stageschrift (individueel) - TA'),
         	array('ref' => 'VSG_Stageverslag', 'title' => 'Verslag - Stagebezoek - LKR/STAGEBEGELEIDER/TA'),
         	array('ref' => 'VSG_Verslag_Hoor_en_inzagerecht', 'title' => 'Verslag - Hoor- en inzagerecht tuchtdossier - ILB'),
