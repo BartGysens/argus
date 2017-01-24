@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-4.9
+---------
+- Nieuw automatisch document Stagegever infofiche
+
 v7.x-4.8
 ---------
 - Nieuw automatisch document Leerplichtbegeleiding
