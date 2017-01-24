@@ -27,25 +27,37 @@ function argus_document_generator_menu() {
         'title' => t('Documenten aanmaken'),
         'page callback' => 'argus_document_generator_overview',
     	'page arguments' => array('get',1,2),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_document_generator content'),
         'menu_name' => 'menu-modules',
     );
     $items['documenten_generator.get/%/%'] = array(
         'page callback' => 'argus_document_generator_get',
     	'page arguments' => array(1,2),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_document_generator content'),
     	'type' => MENU_CALLBACK,
     );
     $items['documenten_generator/%'] = array(
         'title' => t('Automatische documenten: aanmaken & downloaden'),
         'page callback' => 'drupal_get_form',
         'page arguments' => array('argus_document_generator_form', 1),
-        'access callback' => TRUE,
-        'access arguments' => array('access content'),
+        'access arguments' => array('access argus_document_generator content'),
         'type' => MENU_CALLBACK,
     );
     return $items;
 }
+
+
+/**
+ * Implements hook_permission().
+ */
+function argus_buscheck_permission() {
+	return array(
+			'access argus_document_generator content' => array(
+					'title' => t('Mag automatische documenten genereren'),
+			),
+	);
+}
+
 
 /**
  * Implement hook_theme()

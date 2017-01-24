@@ -3,6 +3,7 @@
 v7.x-4.9
 ---------
 - Nieuw automatisch document Stagegever infofiche
+- Security update: permissions
 
 v7.x-4.8
 ---------
