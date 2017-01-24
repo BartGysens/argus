@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.6
+---------
+- Security update: permissions
+
 v7.x-1.5
 ---------
 - Nieuw systeem om grafieken aan te maken met filter

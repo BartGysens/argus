@@ -31,19 +31,29 @@ function argus_kerncijfers_menu() {
         'title' => t('Kerncijfers'),
         'description' => 'Bekijk je gegevens in grafieken en statistieken.',
         'page callback' => 'argus_kerncijfers_overview',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_kerncijfers content'),
         'menu_name' => 'menu-modules',
     );
     $items['kerncijfers/%/%'] = array(
         'title' => t('Kerncijfers: details'),
         'page callback' => 'argus_kerncijfers_detail',
         'page arguments' => array(1,2),
-        'access callback' => TRUE,
-        'access arguments' => array('access content'),
+        'access arguments' => array('access argus_kerncijfers content'),
         'type' => MENU_CALLBACK,
     );
     return $items;
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function argus_kerncijfers_permission() {
+	return array(
+			'access argus_kerncijfers content' => array(
+					'title' => t('De grafieken en tabellen raadplegen'),
+			),
+	);
 }
 
 
