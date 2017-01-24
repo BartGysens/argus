@@ -5,7 +5,7 @@ core = 7.x
 php = 5.2
 configure = admin/config/argus/buscheck
 
-version = 7.x-1.1
+version = 7.x-1.2
 project = argus_buscheck
 datestamp = 1400618928
 project status url = http://www.projectargus.be/release-history

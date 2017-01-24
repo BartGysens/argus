@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.2
+---------
+- Security fix: permissions added
+
 v7.x-1.1
 ---------
 - Bugfix menu aan juiste hoofdmenu toegevoegd

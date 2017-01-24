@@ -43,11 +43,24 @@ function argus_buscheck_menu() {
         'description' => 'Controleer de aankomsttijden van de bussen op een bepaalde dag en uur voor vooraf ingestelde haltes.',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('argus_buscheck_form'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_buscheck content'),
         'menu_name' => 'menu-modules',
     );
     return $items;
 }
+
+
+/**
+ * Implements hook_permission().
+ */
+function argus_buscheck_permission() {
+	return array(
+			'access argus_buscheck content' => array(
+					'title' => t('Controle van de bussen raadplegen'),
+			),
+	);
+}
+
 
 /**
  * Page callback: Buscheck working form
