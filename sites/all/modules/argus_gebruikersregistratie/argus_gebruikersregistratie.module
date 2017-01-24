@@ -31,8 +31,7 @@ function argus_gebruikersregistratie_menu() {
         'title' => t('Een nieuwe persoon toevoegen'),
         'description' => 'Voeg op een procedurematige manier een gebruiker (leerling of personeelslid) toe.',
         'page callback' => 'argus_gebruikersregistratie_overview',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_gebruikersregistratie content'),
         'menu_name' => 'navigation',
     );
     
@@ -40,17 +39,27 @@ function argus_gebruikersregistratie_menu() {
         'title' => t('Een nieuwe persoon toevoegen'),
     	'page callback' => 'argus_gebruikersregistratie_form',
         'page arguments' => array(1,2),
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_gebruikersregistratie content'),
     );
 
     $items['gebruikersregistratie.saveToSmartschool/%'] = array(
     		'page callback' => 'argus_gebruikersregistratie_saveToSmartschool',
     		'page arguments' => array(1),
-    		'access arguments' => array('access content'),
-    		'access callback' => TRUE,
+    		'access arguments' => array('access argus_gebruikersregistratie content'),
     );
     return $items;
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function argus_gebruikersregistratie_permission() {
+	return array(
+			'access argus_gebruikersregistratie content' => array(
+					'title' => t('Een nieuwe persoon toevoegen'),
+			),
+	);
 }
 
 

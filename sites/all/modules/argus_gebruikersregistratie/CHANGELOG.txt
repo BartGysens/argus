@@ -1,5 +1,11 @@
 **Releases:
 
+v7.x-2.2
+---------
+- Integratie Stagegever infofiche bij nieuwe registratie Leerling laattijdig
+- Integratie BO Laattijdige inschrijving bij nieuwe registratie Leerling laattijdig
+- Security fix: nieuwe permissies
+
 v7.x-2.1
 ---------
 - Betere verwerking van eerdere registraties
