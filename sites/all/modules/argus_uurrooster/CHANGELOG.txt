@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-9.2
+---------
+- Security update: nieuwe rules
+
 v7.x-9.1
 ---------
 - Fix when no users in config form

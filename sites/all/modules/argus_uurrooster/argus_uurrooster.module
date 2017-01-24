@@ -62,78 +62,68 @@ function argus_uurrooster_menu() {
     $items['uurrooster'] = array(
         'title' => t('Uurroosters'),
         'page callback' => 'argus_uurrooster_overview',
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'menu_name' => 'menu-modules',
     );
     $items['uurrooster/klas'] = array(
         'title' => t('Uurrooster').' - '.t('Klas'),
         'page callback' => 'argus_uurrooster_schedule_classes',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/leerkracht'] = array(
         'title' => t('Uurrooster').' - '.t('Leerkracht / opvoeder'),
         'page callback' => 'argus_uurrooster_schedule_lkr',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/beschikbare-leerkrachten'] = array(
         'title' => t('Beschikbare leerkrachten'),
         'page callback' => 'argus_uurrooster_schedule_lkr_available',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_available_lkr_schedule content'),
         'menu_name' => array('menu-modules', 'uurrooster'),
     );
     $items['uurrooster/leerling'] = array(
         'title' => t('Uurrooster').' - '.t('Leerling'),
         'page callback' => 'argus_uurrooster_schedule_lln',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/lokaal'] = array(
         'title' => t('Uurrooster').' - '.t('Lokaal'),
         'page callback' => 'argus_uurrooster_schedule_rooms',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/beschikbare-lokalen'] = array(
         'title' => t('Beschikbare lokalen'),
         'page callback' => 'argus_uurrooster_schedule_rooms_available',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_available_rooms_schedule content'),
         'menu_name' => array('menu-modules', 'uurrooster'),
     );
     $items['uurrooster/lokaalbezetting'] = array(
         'title' => t('Lokaalbezetting'),
         'page callback' => 'argus_uurrooster_schedule_rooms_occupied',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_room_occupation_schedule content'),
         'menu_name' => array('menu-modules', 'uurrooster'),
     );
     $items['uurrooster/capaciteit-lokalen'] = array(
         'title' => t('Capaciteit lokalen'),
         'page callback' => 'argus_uurrooster_schedule_rooms_capacity',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_room_capacity_schedule content'),
         'menu_name' => array('menu-modules', 'uurrooster'),
     );
     
     $items['uurrooster/permanentierooster'] = array(
         'title' => t('Permanentierooster'),
         'page callback' => 'argus_uurrooster_substitutes',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_substitution_schedule content'),
         'menu_name' => array('menu-modules', 'uurrooster'),
     );
     $items['uurrooster/toezichtenrooster'] = array(
         'title' => t('Toezichtenrooster'),
         'page callback' => 'argus_uurrooster_supervisions',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_supervision_schedule content'),
         'menu_name' => array('menu-modules', 'uurrooster'),
     );
     $items['uurrooster/overzicht-toezichten-permanenties'] = array(
@@ -161,32 +151,27 @@ function argus_uurrooster_menu() {
     /* Call back for retrieving details on front side by AJAX-request*/
     $items['uurrooster/lesson.retrieve'] = array(
         'page callback' => 'argus_uurrooster_lesson_retrieve',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/freeRooms.retrieve'] = array(
         'page callback' => 'argus_uurrooster_freeRooms_retrieve',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/occupiedRooms.retrieve'] = array(
         'page callback' => 'argus_uurrooster_occupiedRooms_retrieve',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/freeTeachers.retrieve'] = array(
         'page callback' => 'argus_uurrooster_freeTeachers_retrieve',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/supervision.retrieve'] = array(
         'page callback' => 'argus_uurrooster_supervision_retrieve',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     
@@ -194,27 +179,23 @@ function argus_uurrooster_menu() {
     $items['uurrooster/substitution.create'] = array(
         'page callback' => 'argus_uurrooster_substitution_create',
         'access arguments' => array('access content'),
-        'access callback' => TRUE,
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/substitution.delete'] = array(
         'page callback' => 'argus_uurrooster_substitution_delete',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     
     /* Call back for editing supervisions on front side by AJAX-request*/
     $items['uurrooster/supervision.create'] = array(
         'page callback' => 'argus_uurrooster_supervision_create',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     $items['uurrooster/supervision.delete'] = array(
         'page callback' => 'argus_uurrooster_supervision_delete',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_uurrooster_schedules content'),
         'type' => MENU_CALLBACK,
     );
     return $items;
@@ -536,8 +517,8 @@ function argus_uurrooster_theme() {
  */
 function argus_uurrooster_permission() {
 	return array(
-		'access argus_uurrooster_overview_substitutions_supervisions content' => array(
-			'title' => t('Overzicht van de toezichten en permanenties bekijken'),
+		'access argus_uurrooster_schedules content' => array(
+			'title' => t('Uurroosters bekijken'),
 		),
 		'access argus_uurrooster_assignments content' => array(
 			'title' => t('Ambtsbevoegdheden bekijken'),
@@ -545,9 +526,29 @@ function argus_uurrooster_permission() {
 		'access argus_uurrooster_check_groups content' => array(
 			'title' => t('Controle uitvoeren van de leerkrachten van de klas vs. uurroosteropdracht van de leerkracht'),
 		),
+		'access argus_uurrooster_supervision_schedule content' => array(
+			'title' => t('Toezichtenrooster bekijken'),
+		),
+		'access argus_uurrooster_substitution_schedule content' => array(
+			'title' => t('Permanentierooster bekijken'),
+		),
+		'access argus_uurrooster_overview_substitutions_supervisions content' => array(
+			'title' => t('Overzicht van de toezichten en permanenties bekijken'),
+		),
+		'access argus_uurrooster_available_lkr_schedule content' => array(
+			'title' => t('Beschikbare leerkrachten bekijken'),
+		),
+		'access argus_uurrooster_available_rooms_schedule content' => array(
+			'title' => t('Beschikbare lokalen bekijken'),
+		),
+		'access argus_uurrooster_room_occupation_schedule content' => array(
+			'title' => t('Lokaalbezetting bekijken'),
+		),
+		'access argus_uurrooster_room_capacity_schedule content' => array(
+			'title' => t('Capaciteit lokalen bekijken'),
+		),
 	);
 }
-
 
 /**
  * Catch form actions after submission of content editing
