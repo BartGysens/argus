@@ -64,7 +64,7 @@ function argus_personeel_afwezigheden_node_update($currentNode) {
 	if (isset($currentNode)){
 		if ($currentNode->type == 'personeel_afwezigheid'){
 			if (module_exists('argus_uurrooster_vervanging')){
-				argus_personeel_afwezigheden_delete_substitutions($currentNode->nid);
+				argus_personeel_afwezigheden_delete_substitutions($currentNode->nid, time());
 				argus_personeel_afwezigheden_insert_substitutions($currentNode);
 			}
 		}
@@ -110,8 +110,13 @@ function argus_personeel_afwezigheden_insert_substitutions($currentNode) {
 	if (count($currentNode->field_pers_afwezigheid_verv_toez[LANGUAGE_NONE])){
 		$subsSupervisions = $currentNode->field_pers_afwezigheid_verv_toez[LANGUAGE_NONE][0]['target_id'];
 	}
-		
-	$currentDate = new DateTime($currentNode->field_tijdstip[LANGUAGE_NONE][0]['value']);
+	
+	$start = $currentNode->field_tijdstip[LANGUAGE_NONE][0]['value'];
+	if (strtotime($start) <= time()){
+		$start = date('Y-m-d H:i:s');
+	}
+	
+	$currentDate = new DateTime($start);
 	$endDate = new DateTime($currentNode->field_tijdstip[LANGUAGE_NONE][0]['value2']);
 	$endDate->modify('+1 hour'); // TODO: set time margin in setup
 	
@@ -286,13 +291,20 @@ function argus_personeel_afwezigheden_insert_substitutions($currentNode) {
 /**
  * Remove Uurrooster - Vervangingen related to this node
  * 
- * $currentNode integer Reference node id
+ * $nid integer Reference node id
+ * $start timestamp Unix timestamp to start deleting from
  */
-function argus_personeel_afwezigheden_delete_substitutions($nid) {
+function argus_personeel_afwezigheden_delete_substitutions($nid, $start = NULL) {
 	/* Check for existing nodes */
-	$query = 'SELECT entity_id AS nid ' .
-			'FROM {field_data_field_personeel_afwezigheid} ' .
-			'WHERE field_personeel_afwezigheid_target_id = :nid AND bundle = :bundle';
-	$results = db_query($query, array(':nid' => $nid, ':bundle' => 'uurrooster_vervanging'))->fetchCol();
+	$query = 'SELECT pa.entity_id AS nid '
+			. 'FROM {field_data_field_personeel_afwezigheid} AS pa '
+			. 'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = pa.entity_id '
+			. 'WHERE pa.field_personeel_afwezigheid_target_id = :nid AND pa.bundle = :bundle';
+	$options = array(':nid' => $nid, ':bundle' => 'uurrooster_vervanging');
+	if ($start){
+		$query .= ' AND t.field_tijdstip_value >= :start';
+		$options[':start'] = date('Y-m-d H:i:s', $start);
+	}
+	$results = db_query($query, $options)->fetchCol();
 	node_delete_multiple($results);
 }

@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.2
+---------
+- Update Absenteïsme: enkel vervanging aanpassen vanaf datum dat nodig is; oude vervangingen behouden
+
 v7.x-1.1
 ---------
 - Update Absenteïsme: insert en delete toegevoegd, update edit
