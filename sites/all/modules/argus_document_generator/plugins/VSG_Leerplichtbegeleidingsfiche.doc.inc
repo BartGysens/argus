@@ -19,6 +19,20 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_VSG_Leerplichtbegeleidingsfiche_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'VSG',
+			'title' => t('Verslag - Leerplichtbegeleidingsfiche - ILB'),
+			'dependencies' => array(
+					'argus_leerplichtbegeleiding',
+			),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -69,7 +83,7 @@ function argus_document_generator_VSG_Leerplichtbegeleidingsfiche_document($args
     $u = user_load($uid);
     
     /* Load template */
-	$document = new TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Leerplichtbegeleidingsfiche.docx');
+	$document = new TemplateProcessor(argus_document_generator_get_plugin_template('VSG_Leerplichtbegeleidingsfiche'));
 	
 	/* Start replacing values in template */
 	$document->setValue('naam', argus_get_user_realname($uid));

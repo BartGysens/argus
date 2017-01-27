@@ -19,6 +19,20 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_BRF_HRM_Functioneringsgesprek_uitnodiging_init() {
+	return array(
+			'cat' => 'PERS',
+			'subcat' => 'BRF',
+			'title' => t('Brief - Uitnodiging functioneringsgesprek - PSEC/DIR'),
+			'dependencies' => array(
+					'argus_hrm',
+			),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -69,7 +83,7 @@ function argus_document_generator_BRF_HRM_Functioneringsgesprek_uitnodiging_docu
     $u = user_load($uid);
     
     /* Load template */
-	$document = new TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/BRF_HRM_Functioneringsgesprek_uitnodiging.docx');
+	$document = new TemplateProcessor(argus_document_generator_get_plugin_template('BRF_HRM_Functioneringsgesprek_uitnodiging'));
 	
 	/* Start replacing values in template */
 	$document->setValue('evaluator', argus_get_user_realname($node->uid));

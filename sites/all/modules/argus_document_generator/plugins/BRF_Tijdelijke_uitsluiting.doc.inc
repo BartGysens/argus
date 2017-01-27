@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_BRF_Tijdelijke_uitsluiting_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'BRF',
+			'title' => t('Brief - Tijdelijke uitsluiting - ILB'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -108,7 +119,7 @@ function argus_document_generator_BRF_Tijdelijke_uitsluiting_form_submit($form, 
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/BRF_Tijdelijke_uitsluiting.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('BRF_Tijdelijke_uitsluiting'));
     
     /* Load user (student/pupil) */
     $uid = $form_state['values']['leerling'];

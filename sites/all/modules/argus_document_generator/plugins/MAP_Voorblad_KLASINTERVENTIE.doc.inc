@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_MAP_Voorblad_KLASINTERVENTIE_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'ALG',
+			'title' => t('Voorblad map Klasinterventie - ILB'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -79,7 +90,7 @@ function argus_document_generator_MAP_Voorblad_KLASINTERVENTIE_form_submit($form
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/MAP_Voorblad_KLASINTERVENTIE.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('MAP_Voorblad_KLASINTERVENTIE'));
     
     /* Load class */
     $class = node_load($form_state['values']['klas']);

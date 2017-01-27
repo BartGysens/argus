@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_MAP_Voorblad_TUCHTDOSSIER_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'ALG',
+			'title' => t('Voorblad map Tuchtdossier / leerling - ILB'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -60,7 +71,7 @@ function argus_document_generator_MAP_Voorblad_TUCHTDOSSIER_form_submit($form, &
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/MAP_Voorblad_TUCHTDOSSIER.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('MAP_Voorblad_TUCHTDOSSIER'));
     
     /* Load user (student/pupil) */
     $uid = $form_state['values']['leerling'];

@@ -20,6 +20,17 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_ATT_Bewijs_van_nascholing_init() {
+	return array(
+			'cat' => 'PERS',
+			'subcat' => 'ALG',
+			'title' => t('Bewijs van nascholing'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -82,7 +93,7 @@ function argus_document_generator_ATT_Bewijs_van_nascholing_form_submit($form, &
 	\PhpOffice\PhpWord\Autoloader::register();
 	
 	/* Load template */
-    $document = new TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/ATT_Bewijs_van_nascholing.docx');
+    $document = new TemplateProcessor(argus_document_generator_get_plugin_template('ATT_Bewijs_van_nascholing'));
     
     /* Load user */
     $uid = $form_state['values']['personeelslid'];

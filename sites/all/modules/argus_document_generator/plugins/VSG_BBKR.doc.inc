@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_VSG_BBKR_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'VSG',
+			'title' => t('Verslag - (Bijzondere) Begeleidende Klassenraad - ILB'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -63,7 +74,7 @@ function argus_document_generator_VSG_BBKR_form_submit($form, &$form_state) {
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_BBKR.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('VSG_BBKR'));
     
     /* Load user (student/pupil) */
     $uid = $form_state['values']['leerling'];

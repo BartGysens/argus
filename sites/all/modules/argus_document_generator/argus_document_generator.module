@@ -1,6 +1,6 @@
 <?php
 /*
- * Copyright (C) 2015 bartgysens
+ * Copyright (C) 2017 bartgysens
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,11 +9,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* Drupal Hooks */
@@ -22,52 +22,188 @@
  * Implements argus_document_generator_menu().
  */
 function argus_document_generator_menu() {
-    $items = array();
-    $items['documenten_generator'] = array(
-        'title' => t('Documenten aanmaken'),
-        'page callback' => 'argus_document_generator_overview',
-    	'page arguments' => array('get',1,2),
-        'access arguments' => array('access argus_document_generator content'),
-        'menu_name' => 'menu-modules',
-    );
-    $items['documenten_generator.get/%/%'] = array(
-        'page callback' => 'argus_document_generator_get',
-    	'page arguments' => array(1,2),
-        'access arguments' => array('access argus_document_generator content'),
-    	'type' => MENU_CALLBACK,
-    );
-    $items['documenten_generator/%'] = array(
-        'title' => t('Automatische documenten: aanmaken & downloaden'),
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('argus_document_generator_form', 1),
-        'access arguments' => array('access argus_document_generator content'),
-        'type' => MENU_CALLBACK,
-    );
-    return $items;
+	$items = array ();
+	
+	// Setup
+	$items ['admin/config/argus/document_generator'] = array (
+			'title' => 'Automatische documenten',
+			'description' => 'Genereer automatische documenten met templates en gegevens van jouw systeem.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'argus_document_generator_setup_form' 
+			),
+			'access arguments' => array (
+					'access administration pages' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 1 
+	);
+	
+	// Menu-items
+	$items ['documenten_generator'] = array (
+			'title' => t ( 'Documenten aanmaken' ),
+			'page callback' => 'argus_document_generator_overview',
+			'page arguments' => array (
+					'get',
+					1,
+					2 
+			),
+			'access arguments' => array (
+					'access argus_document_generator content' 
+			),
+			'menu_name' => 'menu-modules' 
+	);
+	
+	// AJAX-calls
+	$items ['documenten_generator.get/%/%'] = array (
+			'page callback' => 'argus_document_generator_get',
+			'page arguments' => array (
+					1,
+					2 
+			),
+			'access arguments' => array (
+					'access argus_document_generator content' 
+			),
+			'type' => MENU_CALLBACK 
+	);
+	$items ['documenten_generator/%'] = array (
+			'title' => t ( 'Automatische documenten: aanmaken & downloaden' ),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'argus_document_generator_form',
+					1 
+			),
+			'access arguments' => array (
+					'access argus_document_generator content' 
+			),
+			'type' => MENU_CALLBACK 
+	);
+	return $items;
 }
-
 
 /**
  * Implements hook_permission().
  */
 function argus_document_generator_permission() {
-	return array(
-			'access argus_document_generator content' => array(
-					'title' => t('Mag automatische documenten genereren'),
-			),
+	return array (
+			'access argus_document_generator content' => array (
+					'title' => t ( 'Mag automatische documenten genereren' ) 
+			) 
 	);
 }
-
 
 /**
  * Implement hook_theme()
  */
 function argus_document_generator_theme() {
-    return array(
-        'argus_document_generator_overview' => array(
-            'template' => 'templates/argus_document_generator--overview',
-        ),
-      );
+	return array (
+			'argus_document_generator_overview' => array (
+					'template' => 'templates/argus_document_generator--overview' 
+			) 
+	);
+}
+
+/**
+ * Page callback: Document generatos instellingen
+ *
+ * @see argus_document_generator_setup_form()
+ */
+function argus_document_generator_setup_form($form, &$form_state) {
+	$plugins = file_scan_directory(drupal_get_path('module', 'argus_document_generator').'/plugins', '/.*\.inc$/');
+	
+	$form['#submit'][] = 'argus_document_generator_setup_submit';
+	
+	$form ['templates'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Templates en andere bestanden' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => FALSE
+	);
+	foreach ($plugins as $plugin){
+		require_once 'plugins/'.$plugin->filename;
+	
+		$ref = substr($plugin->filename, 0, -8);
+		$f = 'argus_document_generator_'.$ref.'_init';
+	
+		if (function_exists($f)){
+			$detail = $f();
+				
+			$dependencies = true;
+			if (array_key_exists('dependencies', $detail)){
+				foreach($detail['dependencies'] as $dependency){
+					if (!module_exists($dependency)){
+						$dependencies = false;
+					}
+				}
+			}
+				
+			if ($dependencies){
+				$form ['templates'] ['template_'.$ref] = array (
+						'#type' => 'fieldset',
+						'#description' => t ( '<em><small>Plugin: <strong>' . $ref . '</strong></small></em><hr /><br />' ),
+						'#title' => t ( $detail['title'] ),
+						'#collapsible' => TRUE,
+						'#collapsed' => TRUE
+				);
+					$form ['templates'] ['template_'.$ref] ['argus_document_generator_template_'.$ref.'/'] = array (
+							'#type' => 'checkbox',
+							'#title' => t ( 'Standaardtemplate gebruiken' ),
+							'#default_value' => variable_get('argus_document_generator_template_'.$ref.'/', true),
+							'#description' => t ( 'Gebruik de bijgeleverde template om je document aan te maken.<br /><br /><small>Download de standaardtemplate om als voorbeeld te gebruiken: <a target="_blank" href="'.base_path().drupal_get_path('module', 'argus_document_generator').'/plugins/docs/'.$ref.'.docx">template downloaden</a></small>' ),
+					);
+					$form ['templates'] ['template_'.$ref] ['argus_document_generator_template_'.$ref.'//file'] = array(
+							'#type' => 'managed_file',
+							'#upload_location' => 'public://argus_document_generator/',
+							'#title' => t('Alternatief bestand om te gebruiken als template'),
+							'#description' => t('Het bestand moet in Word-formaat zijn (extensie ".docx").'),
+        					'#default_value' => variable_get('argus_document_generator_template_'.$ref.'//file', null),
+							'#upload_validators' => array(
+									'file_validate_extensions' => array('docx'),
+							),
+					);
+				
+				if (array_key_exists('files', $detail)){
+					foreach($detail['files'] as $fid => $f){
+						$form ['templates'] ['template_'.$ref] ['argus_document_generator_template_'.$ref.'/'.$fid.'/file'] = array(
+								'#type' => 'managed_file',
+								'#upload_location' => 'public://argus_document_generator/',
+								'#title' => t('Alternatief bestand om te gebruiken als template: '.$f[1]),
+								'#description' => t('Het bestand moet de extensie ".'.$f[0].'" hebben.<br /><br /><small>Download de standaardtemplate om als voorbeeld te gebruiken: <a target="_blank" href="'.base_path().drupal_get_path('module', 'argus_document_generator').'/plugins/docs/'.$ref.'/'.$fid.'.'.$f[0].'">template downloaden</a></small>'),
+	        					'#default_value' => variable_get('argus_document_generator_template_'.$ref.'/'.$fid.'/file', null),
+								'#upload_validators' => array(
+										'file_validate_extensions' => array($f[0]),
+								),
+						);
+					}
+				}
+			} else {
+				argus_report('De plugin ":plugin" kan niet worden geactiveerd. Error: missing dependent module (:deps)', array(':plugin' => $ref, ':deps' => implode(', ', $detail['dependencies'])), 'error');
+			}
+		} else {
+			argus_report('De plugin ":plugin" werd niet correct gecodeerd - gelieve de handleiding te raadplegen. Error: missing function ..._init()', array(':plugin' => $ref), 'error');
+		}
+	}
+	
+	return system_settings_form ( $form );
+}
+
+
+/**
+ * Form callback saving files
+ *
+ * @return array
+ */
+function argus_document_generator_setup_submit($form, &$form_state) {
+	foreach ($form_state['values'] as $field => $value){
+		if (substr($field, -4) == 'file'){
+			if ($value){
+				$file = file_load($value);
+				$file->status = FILE_STATUS_PERMANENT;
+				file_usage_add($file,'argus_document_generator','template',0,1);
+				file_save($file);
+			}
+		}
+	}
 }
 
 /**
@@ -76,51 +212,9 @@ function argus_document_generator_theme() {
  * @return array
  */
 function argus_document_generator_overview() {
-    /* Define structure for each plugin */
-    $argus_document_generator_plugins = array(
-        'LLN-BRF' => array(
-            array('ref' => 'BRF_Definitieve_uitsluiting', 'title' => 'Brief - Definitieve uitsluiting (fase 1 met uitnodiging voor het Hoor- en inzagerecht) - ILB'),
-            array('ref' => 'BRF_Definitieve_uitsluiting_na_hoor_en_inzagerecht', 'title' => 'Brief - Definitieve uitsluiting (fase 2 na het Hoor- en inzagerecht) - ILB'),
-            array('ref' => 'BRF_Preventieve_schorsing', 'title' => 'Brief - Preventieve schorsing - ILB'),
-            array('ref' => 'BRF_Tijdelijke_uitsluiting', 'title' => 'Brief - Tijdelijke uitsluiting - ILB'),
-        ),
-        'LLN-CNT' => array(
-            array('ref' => 'CNT_Begeleidingsovereenkomst_Afwezigheden', 'title' => 'Begeleidingsovereenkomst - Afwezigheden - ILB'),
-            array('ref' => 'CNT_Begeleidingsovereenkomst_Gedrag', 'title' => 'Begeleidingsovereenkomst - Gedrag - ILB'),
-            array('ref' => 'CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving', 'title' => 'Begeleidingsovereenkomst - Laattijdige inschrijving - ILB'),
-        	array('ref' => 'CNT_Intentieverklaring', 'title' => 'Contract - Intentieverklaring - ILB'),
-        	array('ref' => 'CNT_Inschrijvingsdossier', 'title' => 'Contract - Inschrijvingsdossier - LSEC'),
-        	array('ref' => 'CNT_Stagedossier_Individueel', 'title' => 'Contract - Stagedossier (individueel) - TA'),
-        	array('ref' => 'CNT_Voorinschrijvingsdossier', 'title' => 'Contract - Voorinschrijvingsdossier - LSEC'),
-        ),
-        'LLN-VSG' => array(
-            array('ref' => 'VSG_BBKR', 'title' => 'Verslag - (Bijzondere) Begeleidende Klassenraad - ILB'),
-            array('ref' => 'VSG_Melding_Definitieve_verwijdering', 'title' => 'Verslag - Melding Definitieve verwijdering - LSEC'),
-            array('ref' => 'VSG_Leerplichtbegeleidingsfiche', 'title' => 'Verslag - Leerplichtbegeleidingsfiche - ILB'),
-        	array('ref' => 'VSG_Stagegever_infofiche', 'title' => 'Verslag - Stagegever (infofiche) - TA'),
-        	array('ref' => 'VSG_Stageschrift_Individueel', 'title' => 'Verslag - Stageschrift (individueel) - TA'),
-        	array('ref' => 'VSG_Stageverslag', 'title' => 'Verslag - Stagebezoek - LKR/STAGEBEGELEIDER/TA'),
-        	array('ref' => 'VSG_Verslag_Hoor_en_inzagerecht', 'title' => 'Verslag - Hoor- en inzagerecht tuchtdossier - ILB'),
-        ),
-        'LLN-DIV' => array(
-            array('ref' => 'MAP_Voorblad_KLASINTERVENTIE', 'title' => 'Voorblad map Klasinterventie - ILB'),
-            array('ref' => 'MAP_Voorblad_TUCHTDOSSIER', 'title' => 'Voorblad map Tuchtdossier / leerling - ILB'),
-        ),
-        'PERS-ATT' => array(
-            array('ref' => 'ATT_Bewijs_van_nascholing', 'title' => 'Attest - Bewijs van nascholing - PSEC/DIR'),
-        ),
-        'PERS-BRF' => array(
-            array('ref' => 'BRF_HRM_Evaluatiegesprek_uitnodiging', 'title' => 'Brief - Uitnodiging evaluatiegesprek - PSEC/DIR'),
-            array('ref' => 'BRF_HRM_Functioneringsgesprek_uitnodiging', 'title' => 'Brief - Uitnodiging functioneringsgesprek - PSEC/DIR'),
-            array('ref' => 'BRF_HRM_Planningsgesprek_uitnodiging', 'title' => 'Brief - Uitnodiging planningsgesprek - PSEC/DIR'),
-        ),
-        'PERS-VSG' => array(
-            array('ref' => 'VSG_HRM_Evaluatiegesprek', 'title' => 'Verslag - Evaluatiegesprek - PSEC/DIR'),
-            array('ref' => 'VSG_HRM_Functioneringsgesprek', 'title' => 'Verslag - Functioneringsgesprek - PSEC/DIR'),
-            array('ref' => 'VSG_HRM_Planningsgesprek', 'title' => 'Verslag - Planningsgesprek - PSEC/DIR'),
-        ),
-    );
-    return theme('argus_document_generator_overview', array('plugins' => $argus_document_generator_plugins));
+	return theme ( 'argus_document_generator_overview', array (
+			'structures' => argus_document_generator_get_plugins () 
+	) );
 }
 
 /**
@@ -129,10 +223,13 @@ function argus_document_generator_overview() {
  * @return array
  */
 function argus_document_generator_form($form, &$form_state, $plugin) {
-    require_once 'plugins/'.$plugin.'.doc.inc';
-    $form['#prefix'] = '<p>Document: <strong>'.$plugin.'</strong></p>';
-    $form['#submit'][] = 'argus_document_generator_'.$plugin.'_form_submit';
-    return call_user_func_array('argus_document_generator_'.$plugin.'_form', array($form, $form_state));
+	require_once 'plugins/' . $plugin . '.doc.inc';
+	$form ['#prefix'] = '<p>Document: <strong>' . $plugin . '</strong></p>';
+	$form ['#submit'] [] = 'argus_document_generator_' . $plugin . '_form_submit';
+	return call_user_func_array ( 'argus_document_generator_' . $plugin . '_form', array (
+			$form,
+			$form_state 
+	) );
 }
 
 /**
@@ -141,16 +238,132 @@ function argus_document_generator_form($form, &$form_state, $plugin) {
  * @return array
  */
 function argus_document_generator_get($plugin, $args) {
-    require_once 'plugins/'.$plugin.'.doc.inc';
-    
-    $params = array( 'values' => array() );
-    $args = explode(',',$args);
-    foreach ($args as $arg){
-    	$parts = explode('=', $arg);
-    	if (count($parts) == 2){
-	    	$params['values'][$parts[0]] = $parts[1];
-    	}
-    }
-    
-    call_user_func_array('argus_document_generator_'.$plugin.'_document', array($params));
+	require_once 'plugins/' . $plugin . '.doc.inc';
+	
+	$params = array (
+			'values' => array () 
+	);
+	$args = explode ( ',', $args );
+	foreach ( $args as $arg ) {
+		$parts = explode ( '=', $arg );
+		if (count ( $parts ) == 2) {
+			$params ['values'] [$parts [0]] = $parts [1];
+		}
+	}
+	
+	call_user_func_array ( 'argus_document_generator_' . $plugin . '_document', array (
+			$params 
+	) );
+}
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Retrieve structure for each plugin
+ *        	
+ * @return array
+ */
+function argus_document_generator_get_plugins() {
+	$structure = array(
+			'LLN' => array(
+					'title' => t('Formulieren met betrekking tot de <u>leerling</u>enpopulatie'),
+					'elements' => array(
+							'ALG' => array(
+									'title' => 'Algemene administratie: mappen (MAP), stickers (STK), lijsten (LST)',
+									'plugins' => array(),
+							),
+							'BRF' => array(
+									'title' => 'Brieven (BRF)',
+									'plugins' => array(),
+							),
+							'CNT' => array(
+									'title' => 'Contracten / begeleidingsovereenkomsten (CNT)',
+									'plugins' => array(),
+							),
+							'VSG' => array(
+									'title' => 'Verslagen (VSG)',
+									'plugins' => array(),
+							),
+					),
+			),
+			'PERS' => array(
+					'title' => t('<u>Personeel</u>sadministratie'),
+					'elements' => array(
+							'ALG' => array(
+									'title' => 'Algemene administratie: attesten (ATT)',
+									'plugins' => array(),
+							),
+							'BRF' => array(
+									'title' => 'Brieven (BRF)',
+									'plugins' => array(),
+							),
+							'VSG' => array(
+									'title' => 'Verslagen (VSG)',
+									'plugins' => array(),
+							),
+					),
+			),
+	);
+	
+	$plugins = file_scan_directory(drupal_get_path('module', 'argus_document_generator').'/plugins', '/.*\.inc$/');
+	foreach ($plugins as $plugin){
+		require_once 'plugins/'.$plugin->filename;
+		
+		$ref = substr($plugin->filename, 0, -8);
+		$f = 'argus_document_generator_'.$ref.'_init';
+		
+		if (function_exists($f)){
+			$detail = $f();
+			
+			$dependencies = true;
+			if (array_key_exists('dependencies', $detail)){
+				foreach($detail['dependencies'] as $dependency){
+					if (!module_exists($dependency)){
+						$dependencies = false;
+					}
+				}
+			}
+			
+			if ($dependencies){
+				$structure[$detail['cat']]['elements'][$detail['subcat']]['plugins'][$ref] = $detail['title'];
+			}
+		}
+	}
+	
+	return $structure;
+}
+
+
+/**
+ * Get template for selected plugin
+ *
+ * @param plugin string String representing the plugin by name
+ * @param extra string Filename of extra asset for loading
+ * @param extension string Extension for loading file
+ *
+ * @return string
+ */
+function argus_document_generator_get_plugin_template($plugin, $extra = null, $extension = 'docx') {
+	$basic_template = variable_get('argus_document_generator_template_'.$plugin.'/');
+	
+	$path = $plugin;
+	if ($extra){
+		$path .= '/'.$extra;
+	}
+	
+	$template = drupal_get_path('module', 'argus_document_generator').'/plugins/docs/'.$path.'.'.$extension;
+	
+	if (!$basic_template){
+		$f = variable_get('argus_document_generator_template_'.$plugin.'/'.$extra.'/file');
+		if ($f){
+			$template_alt = drupal_realpath(file_load($f)->uri);
+			if (isset($template_alt) || file_exists($template_alt)){
+				$template = $template_alt;
+			}
+		}
+	}
+	
+	return $template;
 }

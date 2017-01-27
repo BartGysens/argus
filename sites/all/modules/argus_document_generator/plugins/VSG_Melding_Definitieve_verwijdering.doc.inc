@@ -17,6 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_VSG_Melding_definitieve_verwijdering_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'BRF',
+			'title' => t('Verslag - Melding Definitieve verwijdering - LSEC'),
+	);
+}
+
 
 /**
  * Page callback: Generate Word-document
@@ -137,7 +148,7 @@ function argus_document_generator_VSG_Melding_definitieve_verwijdering_form_subm
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Melding_Definitieve_verwijdering.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('VSG_Melding_definitieve_verwijdering'));
     
     /* Load user (student/pupil) */
     $uid = $form_state['values']['leerling'];

@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_VSG_Verslag_Hoor_en_inzagerecht_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'VSG',
+			'title' => t('Verslag - Hoor- en inzagerecht tuchtdossier - ILB'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -66,7 +77,7 @@ function argus_document_generator_VSG_Verslag_Hoor_en_inzagerecht_form_submit($f
     $PHPWord = new \PhpOffice\PhpWord\PhpWord();
     
     /* Load template */
-    $document = new \PhpOffice\PhpWord\TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Verslag_Hoor_en_inzagerecht.docx');
+    $document = new \PhpOffice\PhpWord\TemplateProcessor(argus_document_generator_get_plugin_template('VSG_Verslag_Hoor_en_inzagerecht'));
     
     /* Load user (student/pupil) */
     $uid = $form_state['values']['leerling'];

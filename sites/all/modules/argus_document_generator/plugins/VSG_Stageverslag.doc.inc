@@ -19,6 +19,20 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_VSG_Stageverslag_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'VSG',
+			'title' => t('Verslag - Stagebezoek - LKR/STAGEBEGELEIDER/TA'),
+			'dependencies' => array(
+					'argus_hrm',
+			),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -76,7 +90,7 @@ function argus_document_generator_VSG_Stageverslag_document($args) {
 	$u = user_load($uid);
 	
 	/* Load template */
-	$document = new TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Stageverslag.docx');
+	$document = new TemplateProcessor(argus_document_generator_get_plugin_template('VSG_Stageverslag'));
 	
 	/* Start replacing values in template */
 	$document->setValue('naam', argus_get_user_realname($uid));

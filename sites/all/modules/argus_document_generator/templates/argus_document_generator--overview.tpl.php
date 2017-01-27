@@ -25,84 +25,22 @@
 <p>Volgende documenten zijn beschikbaar:</p>
 
 <ul>
-    <li>
-        <h3>Formulieren met betrekking tot de <u>leerling</u>enpopulatie</h3>
-        
-        <ul>
-            <li>
-            <h4>Brieven (BRF)</h4>
-                <ol>
-                    <?php $index = 'LLN-BRF';
-                    foreach ($plugins[$index] as $plugin){
-                        print '<li><a href="'.base_path().'documenten_generator/'.$plugin['ref'].'">'.$plugin['title'].'</a></li>';
-                    } ?>
-                </ol>
-            </li>
-            <li>
-            <h4>Contracten / begeleidingsovereenkomsten (CNT)</h4>
-                <ol>
-                    <?php $index = 'LLN-CNT';
-                    foreach ($plugins[$index] as $plugin){
-                        print '<li><a href="'.base_path().'documenten_generator/'.$plugin['ref'].'">'.$plugin['title'].'</a></li>';
-                    } ?>
-                </ol>
-            </li>
-            <li>
-            <h4>Verslagen (VSG)</h4>
-                <ol>
-                    <?php $index = 'LLN-VSG';
-                    foreach ($plugins[$index] as $plugin){
-                        print '<li><a href="'.base_path().'documenten_generator/'.$plugin['ref'].'">'.$plugin['title'].'</a></li>';
-                    } ?>
-                </ol>
-            </li>
-            <li>
-            <h4>Algemene administratie: mappen (MAP), stickers (STK), lijsten (LST)</h4>
-                <ol>
-                    <?php $index = 'LLN-DIV';
-                    foreach ($plugins[$index] as $plugin){
-                        print '<li><a href="'.base_path().'documenten_generator/'.$plugin['ref'].'">'.$plugin['title'].'</a></li>';
-                    } ?>
-                </ol>
-            </li>
-        </ul>
-    </li>
-    <li>
-        <h3><u>Personeel</u>sadministratie</h3>
-        
-        <ul>
-            <li>
-            <h4>Algemene administratie: attesten (ATT)</h4>
-                <ol>
-                    <?php $index = 'PERS-ATT';
-                    foreach ($plugins[$index] as $plugin){
-                        print '<li><a href="'.base_path().'documenten_generator/'.$plugin['ref'].'">'.$plugin['title'].'</a></li>';
-                    } ?>
-                </ol>
-            </li>
-            <li>
-            <h4>Brieven (BRF)</h4>
-                <ol>
-                    <?php $index = 'PERS-BRF';
-                    foreach ($plugins[$index] as $plugin){
-                        print '<li><a href="'.base_path().'documenten_generator/'.$plugin['ref'].'">'.$plugin['title'].'</a></li>';
-                    } ?>
-                </ol>
-            </li>
-            <li>
-            <h4>Verslagen (VSG)</h4>
-                <ol>
-                    <?php $index = 'PERS-VSG';
-                    foreach ($plugins[$index] as $plugin){
-                        print '<li><a href="'.base_path().'documenten_generator/'.$plugin['ref'].'">'.$plugin['title'].'</a></li>';
-                    } ?>
-                </ol>
-            </li>
-        </ul>
-        
-    </li>
-    <li>
-        <h3>Algemene formulieren</h3>
-        
-    </li>
+	<?php foreach ($structures as $structure): ?>
+	    <li>
+	        <h3><?php print $structure['title']; ?></h3>
+	        
+	        <ul>
+	        	<?php foreach ($structure['elements'] as $element): ?>
+		            <li>
+		            <h4><?php print $element['title']; ?></h4>
+		                <ol>
+		                    <?php foreach ($element['plugins'] as $ref => $title){
+		                        print '<li><a href="'.base_path().'documenten_generator/'.$ref.'">'.$title.'</a></li>';
+		                    } ?>
+		                </ol>
+		            </li>
+			    <?php endforeach; ?>
+	        </ul>
+	    </li>
+    <?php endforeach; ?>
 </ul>

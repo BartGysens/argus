@@ -19,6 +19,20 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_VSG_HRM_Evaluatiegesprek_init() {
+	return array(
+			'cat' => 'PERS',
+			'subcat' => 'VSG',
+			'title' => t('Verslag - Evaluatiegesprek - PSEC/DIR'),
+			'dependencies' => array(
+					'argus_hrm',
+			),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -69,7 +83,7 @@ function argus_document_generator_VSG_HRM_Evaluatiegesprek_document($args) {
     $u = user_load($uid);
     
     /* Load template */
-	$document = new TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_HRM_Evaluatiegesprek.docx');
+	$document = new TemplateProcessor(argus_document_generator_get_plugin_template('VSG_HRM_Evaluatiegesprek'));
 	
 	/* Start replacing values in template */
 	$document->setValue('evaluator', argus_get_user_realname($node['uid']));

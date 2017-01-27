@@ -19,11 +19,29 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_VSG_Stageschrift_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'VSG',
+			'title' => t('Verslag - Stageschrift - TA'),
+			'dependencies' => array(
+					'argus_stages',
+			),
+			'files' => array(
+					'stageverslag' => array('docx', 'stageverslag (enkelvoudige template)'),
+					'eindverslag' => array('docx', 'eindverslag'),
+			),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
  */
-function argus_document_generator_VSG_Stageschrift_Individueel_form($form, &$form_state) {
+function argus_document_generator_VSG_Stageschrift_form($form, &$form_state) {
 	$query = 'SELECT n.nid AS id, n.title AS title ';
 	$query .= 'FROM {node} AS n ';
 	$query .= 'INNER JOIN {field_data_field_leerling} AS l ON l.entity_id = n.nid ';
@@ -55,14 +73,14 @@ function argus_document_generator_VSG_Stageschrift_Individueel_form($form, &$for
  *
  * @return array
  */
-function argus_document_generator_VSG_Stageschrift_Individueel_form_submit($form, &$form_state) {
-    argus_document_generator_VSG_Stageschrift_Individueel_document($form_state);
+function argus_document_generator_VSG_Stageschrift_form_submit($form, &$form_state) {
+    argus_document_generator_VSG_Stageschrift_document($form_state);
 }
 
 /**
  * Generator requested document and make available for downloading
  */
-function argus_document_generator_VSG_Stageschrift_Individueel_document($args) {
+function argus_document_generator_VSG_Stageschrift_document($args) {
 	require_once drupal_get_path('module','argus_document_generator').'/includes/PHPWord-0.12.1/src/PhpWord/Autoloader.php';
 	\PhpOffice\PhpWord\Autoloader::register();
 	
@@ -82,7 +100,7 @@ function argus_document_generator_VSG_Stageschrift_Individueel_document($args) {
 	$u = user_load($uid);
 	
 	/* Load template */
-	$document = new TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Stageschrift.docx');
+	$document = new TemplateProcessor(argus_document_generator_get_plugin_template('VSG_Stageschrift'));
 	
 	/* Start replacing values in template */
 	$document->setValue('naam', argus_get_user_realname($uid));
@@ -214,7 +232,7 @@ function argus_document_generator_VSG_Stageschrift_Individueel_document($args) {
 		$value .= $prefixList.$stagedatum.$suffixList;
 		
 		/* Process documents: 'stageverslag' */
-		$zip->Open(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Stageschrift/stageverslag.docx');
+		$zip->Open(argus_document_generator_get_plugin_template('VSG_Stageschrift', 'stageverslag'));
 		$docStageverslag = $zip->FileRead('word/document.xml');
 		$zip->Close();
 		
@@ -233,7 +251,7 @@ function argus_document_generator_VSG_Stageschrift_Individueel_document($args) {
 	$document->setValue('stagerooster', $value);
 	
 	/* Process documents: 'eindverslag' */
-	$zip->Open(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Stageschrift/eindverslag.docx');
+	$zip->Open(argus_document_generator_get_plugin_template('VSG_Stageschrift', 'eindverslag'));
 	$docEindverslag = $zip->FileRead('word/document.xml');
 	$zip->Close();
 	

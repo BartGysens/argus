@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'CNT',
+			'title' => t('Begeleidingsovereenkomst - Laattijdige inschrijving - ILB'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -66,7 +77,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Laattijdige_insch
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('CNT_Begeleidingsovereenkomst_Laattijdige_inschrijving'));
     
     /* Load user (student/pupil) */
     $uid = $args['values']['leerling'];

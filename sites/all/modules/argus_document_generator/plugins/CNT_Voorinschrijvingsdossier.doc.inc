@@ -19,6 +19,17 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_CNT_Voorinschrijvingsdossier_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'CNT',
+			'title' => t('Contract - Voorinschrijvingsdossier - LSEC'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -60,7 +71,7 @@ function argus_document_generator_CNT_Voorinschrijvingsdossier_document($args) {
     $u = user_load($uid);
     
     /* Load template */
-	$document = new TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Voorinschrijvingsdossier.docx');
+	$document = new TemplateProcessor(argus_document_generator_get_plugin_template('CNT_Voorinschrijvingsdossier'));
 	
 	/* Start replacing values in template */
 	$document->setValue('naam', argus_get_user_realname($uid));

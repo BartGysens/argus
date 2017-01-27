@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_VSG_Stagegever_infofiche_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'VSG',
+			'title' => t('Verslag - Stagegever (infofiche) - TA'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -57,7 +68,7 @@ function argus_document_generator_VSG_Stagegever_infofiche_document($args) {
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/VSG_Stagegever_infofiche.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('VSG_Stagegever_infofiche'));
     
     /* Load user (student/pupil) */
     $uid = $args['values']['leerling'];

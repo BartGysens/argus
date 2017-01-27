@@ -19,11 +19,53 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_CNT_Stagedossier_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'CNT',
+			'title' => t('Contract - Stagedossier - TA'),
+			'dependencies' => array(
+					'argus_stages',
+					'argus_klasbeheer',
+			),
+			'files' => array(
+					'handtekening_arbeidsgeneesheer' => array('png', 'handtekening arbeidsgeneesheer'),
+					'handtekening_interne_preventie_adviseur' => array('png', 'handtekening interne preventie adviseur'),
+					'logo_GO' => array('png', 'logo onderwijskoepel'),
+					'risicoanalyse_Auto' => array('docx', 'risicoanalyse: afdeling Auto'),
+					'risicoanalyse_Carrosserie' => array('docx', 'risicoanalyse: afdeling Carrosserie'),
+					'risicoanalyse_Drukken en Afwerken' => array('docx', 'risicoanalyse: afdeling Drukken en Afwerken'),
+					'risicoanalyse_Elektrische installaties' => array('docx', 'risicoanalyse: afdeling Elektrische installaties'),
+					'risicoanalyse_Elektromechanica' => array('docx', 'risicoanalyse: afdeling Elektromechanica'),
+					'risicoanalyse_Grafische Communicatie en Media' => array('docx', 'risicoanalyse: afdeling Grafische communicatie en media'),
+					'risicoanalyse_Hout' => array('docx', 'risicoanalyse: afdeling Hout'),
+					'risicoanalyse_Industriële wetenschappen' => array('docx', 'risicoanalyse: afdeling Industriële wetenschappen'),
+					'risicoanalyse_Informaticabeheer' => array('docx', 'risicoanalyse: afdeling Informaticabeheer'),
+					'risicoanalyse_Multimedia' => array('docx', 'risicoanalyse: afdeling Multimedia'),
+					'risicoanalyse_Werktuigmachines' => array('docx', 'risicoanalyse: afdeling Werktuigmachines'),
+					'werkpostfiche_Auto' => array('docx', 'werkpostfiche: afdeling Auto'),
+					'werkpostfiche_Carrosserie' => array('docx', 'werkpostfiche: afdeling Carrosserie'),
+					'werkpostfiche_Drukken en Afwerken' => array('docx', 'werkpostfiche: afdeling Drukken en Afwerken'),
+					'werkpostfiche_Elektrische installaties' => array('docx', 'werkpostfiche: afdeling Elektrische installaties'),
+					'werkpostfiche_Elektromechanica' => array('docx', 'werkpostfiche: afdeling Elektromechanica'),
+					'werkpostfiche_Grafische Communicatie en Media' => array('docx', 'werkpostfiche: afdeling Grafische communicatie en media'),
+					'werkpostfiche_Hout' => array('docx', 'werkpostfiche: afdeling Hout'),
+					'werkpostfiche_Industriële wetenschappen' => array('docx', 'werkpostfiche: afdeling Industriële wetenschappen'),
+					'werkpostfiche_Informaticabeheer' => array('docx', 'werkpostfiche: afdeling Informaticabeheer'),
+					'werkpostfiche_Multimedia' => array('docx', 'werkpostfiche: afdeling Multimedia'),
+					'werkpostfiche_Werktuigmachines' => array('docx', 'werkpostfiche: afdeling Werktuigmachines'),
+			),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
  */
-function argus_document_generator_CNT_Stagedossier_Individueel_form($form, &$form_state) {
+function argus_document_generator_CNT_Stagedossier_form($form, &$form_state) {
 	$query = 'SELECT n.nid AS id, n.title AS title ';
 	$query .= 'FROM {node} AS n ';
 	$query .= 'INNER JOIN {field_data_field_leerling} AS l ON l.entity_id = n.nid ';
@@ -55,14 +97,14 @@ function argus_document_generator_CNT_Stagedossier_Individueel_form($form, &$for
  *
  * @return array
  */
-function argus_document_generator_CNT_Stagedossier_Individueel_form_submit($form, &$form_state) {
-    argus_document_generator_CNT_Stagedossier_Individueel_document($form_state);
+function argus_document_generator_CNT_Stagedossier_form_submit($form, &$form_state) {
+    argus_document_generator_CNT_Stagedossier_document($form_state);
 }
 
 /**
  * Generator requested document and make available for downloading
  */
-function argus_document_generator_CNT_Stagedossier_Individueel_document($args) {
+function argus_document_generator_CNT_Stagedossier_document($args) {
 	require_once drupal_get_path('module','argus_document_generator').'/includes/PHPWord-0.12.1/src/PhpWord/Autoloader.php';
 	\PhpOffice\PhpWord\Autoloader::register();
 	
@@ -79,13 +121,13 @@ function argus_document_generator_CNT_Stagedossier_Individueel_document($args) {
 	$u = user_load($uid);
 	
 	/* Load template */
-	$document = new TemplateProcessor(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Stagedossier.docx');
+	$document = new TemplateProcessor(argus_document_generator_get_plugin_template('CNT_Stagedossier'));
 	
 	/* Process different parts of this document (located in separate files) */
 	$zip = new clsTbsZip();
 	
 	/* Process document 1: 'risicoanalyse' */
-	$zip->Open(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Stagedossier/risicoanalyse_'.argus_get_user_class($uid, 'structuuronderdeel').'.docx');
+	$zip->Open(argus_document_generator_get_plugin_template('CNT_Stagedossier', 'risicoanalyse_'.argus_get_user_class($uid, 'structuuronderdeel')));
 	$docRisicoanalyse = $zip->FileRead('word/document.xml');
 	$zip->Close();
 	 
@@ -99,12 +141,12 @@ function argus_document_generator_CNT_Stagedossier_Individueel_document($args) {
 	
 	$document->setValue('risicoanalyse', $docRisicoanalyse);
 	 
-	$document->setImg('logo_GO',array('src' => drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Stagedossier/logo_GO.png', 'swh' => '125'));
-	$document->setImg('handtekening_arbeidsgeneesheer',array('src' => drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Stagedossier/handtekening_arbeidsgeneesheer.png', 'swh' => '125'));
-	$document->setImg('handtekening_interne_preventie_adviseur',array('src' => drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Stagedossier/handtekening_interne_preventie_adviseur.png', 'swh' => '125'));
+	$document->setImg('logo_GO',array('src' => argus_document_generator_get_plugin_template('CNT_Stagedossier', 'logo_GO', 'png'), 'swh' => '125'));
+	$document->setImg('handtekening_arbeidsgeneesheer',array('src' => argus_document_generator_get_plugin_template('CNT_Stagedossier', 'handtekening_arbeidsgeneesheer', 'png'), 'swh' => '125'));
+	$document->setImg('handtekening_interne_preventie_adviseur',array('src' => argus_document_generator_get_plugin_template('CNT_Stagedossier', 'handtekening_interne_preventie_adviseur', 'png'), 'swh' => '125'));
 	 
 	/* Process document 2: 'werkpostfiche' */
-	$zip->Open(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Stagedossier/werkpostfiche_'.argus_get_user_class($uid, 'structuuronderdeel').'.docx');
+	$zip->Open(argus_document_generator_get_plugin_template('CNT_Stagedossier', 'werkpostfiche_'.argus_get_user_class($uid, 'structuuronderdeel')));
 	$docWerkpostfiche = $zip->FileRead('word/document.xml');
 	$zip->Close();
 	
@@ -118,8 +160,8 @@ function argus_document_generator_CNT_Stagedossier_Individueel_document($args) {
 	 
 	$document->setValue('werkpostfiche', $docWerkpostfiche);
 	 
-	$document->setImg('logo_GO',array('src' => drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Stagedossier/logo_GO.png', 'swh' => '90'));
-	$document->setImg('handtekening_arbeidsgeneesheer',array('src' => drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Stagedossier/handtekening_arbeidsgeneesheer.png', 'swh' => '125'));
+	$document->setImg('logo_GO',array('src' => argus_document_generator_get_plugin_template('CNT_Stagedossier', 'logo_GO', 'png'), 'swh' => '90'));
+	$document->setImg('handtekening_arbeidsgeneesheer',array('src' => argus_document_generator_get_plugin_template('CNT_Stagedossier', 'handtekening_arbeidsgeneesheer', 'png'), 'swh' => '125'));
 	
 	/* Start replacing values in template */
 	$document->setValue('naam', htmlspecialchars(argus_get_user_realname($uid)));

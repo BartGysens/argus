@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_BRF_Definitieve_uitsluiting_na_hoor_en_inzagerecht_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'BRF',
+			'title' => t('Brief - Definitieve uitsluiting (fase 2 na het Hoor- en inzagerecht) - ILB'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -84,7 +95,7 @@ function argus_document_generator_BRF_Definitieve_uitsluiting_na_hoor_en_inzager
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/BRF_Definitieve_uitsluiting_na_hoor_en_inzagerecht.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('BRF_Definitieve_uitsluiting_na_hoor_en_inzagerecht'));
     
     /* Load user (student/pupil) */
     $uid = $form_state['values']['leerling'];

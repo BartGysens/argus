@@ -18,6 +18,17 @@
  */
 
 /**
+ * Plugin definition -- REQUIRED --
+ */
+function argus_document_generator_CNT_Begeleidingsovereenkomst_Afwezigheden_init() {
+	return array(
+			'cat' => 'LLN',
+			'subcat' => 'CNT',
+			'title' => t('Begeleidingsovereenkomst - Afwezigheden - ILB'),
+	);
+}
+
+/**
  * Page callback: Generate Word-document
  *
  * @return array
@@ -49,7 +60,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Afwezigheden_form
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(drupal_get_path('module', 'argus_document_generator') . '/plugins/docs/CNT_Begeleidingsovereenkomst_Afwezigheden.docx');
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('CNT_Begeleidingsovereenkomst_Afwezigheden'));
     
     /* Load user (student/pupil) */
     $uid = $form_state['values']['leerling'];
