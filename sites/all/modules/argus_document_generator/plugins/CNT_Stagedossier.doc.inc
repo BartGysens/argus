@@ -223,15 +223,59 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	$document->setValue('datum_eind', htmlspecialchars(format_date(strtotime($stageperiode->field_tijdstip[LANGUAGE_NONE][0]['value2']), 'custom', 'l, j F Y')));
 	
 	$document->setValue('organisatie_naam', htmlspecialchars($stagegever->title));
-	$document->setValue('organisatie_straat_huisnummer', htmlspecialchars($stagegever->field_straat[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_huisnummer[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_busnummer[LANGUAGE_NONE][0]['value']));
-	$document->setValue('organisatie_postcode_gemeente', htmlspecialchars($stagegever->field_postcode[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_gemeente[LANGUAGE_NONE][0]['value']));
-	$document->setValue('organisatie_adres', htmlspecialchars($stagegever->field_straat[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_huisnummer[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_busnummer[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_postcode[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_gemeente[LANGUAGE_NONE][0]['value']));
 	
-	$document->setValue('organisatie_telefoonnummer', htmlspecialchars($stagegever->field_telefoonnummer[LANGUAGE_NONE][0]['value']));
-	$document->setValue('organisatie_faxnummer', htmlspecialchars($stagegever->field_faxnummer[LANGUAGE_NONE][0]['value']));
-	$document->setValue('organisatie_email', htmlspecialchars($stagegever->field_email[LANGUAGE_NONE][0]['value']));
-	$document->setValue('organisatie_kbonummer', htmlspecialchars($stagegever->field_kbo_nummer[LANGUAGE_NONE][0]['value']));
-	$document->setValue('organisatie_paritair_comite', htmlspecialchars($stagegever->field_paritair_comit_[LANGUAGE_NONE][0]['value']));
+	$value_adres1 = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_straat)){
+		$value_adres1 .= $stagegever->field_straat[LANGUAGE_NONE][0]['value'].' ';
+	}
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_huisnummer)){
+		$value_adres1 .= $stagegever->field_huisnummer[LANGUAGE_NONE][0]['value'].' ';
+	}
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_busnummer)){
+		$value_adres1 .= $stagegever->field_busnummer[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_straat_huisnummer', htmlspecialchars($value_adres1));
+	
+	$value_adres2 = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_postcode)){
+		$value_adres2 .= $stagegever->field_postcode[LANGUAGE_NONE][0]['value'].' ';
+	}
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_huisnummer)){
+		$value_adres2 .= $stagegever->field_gemeente[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_postcode_gemeente', htmlspecialchars($value_adres2));
+	
+	$document->setValue('organisatie_adres', htmlspecialchars($value_adres1.' '.$value_adres2));
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_telefoonnummer)){
+		$value .= $stagegever->field_telefoonnummer[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_telefoonnummer', htmlspecialchars($value));
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_faxnummer)){
+		$value .= $stagegever->field_faxnummer[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_faxnummer', htmlspecialchars($value));
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_email)){
+		$value .= $stagegever->field_email[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_email', htmlspecialchars($value));
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_kbo_nummer)){
+		$value .= $stagegever->field_kbo_nummer[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_kbonummer', htmlspecialchars($value));
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_paritair_comit_)){
+		$value .= $stagegever->field_paritair_comit_[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_paritair_comite', htmlspecialchars($value));
 	
 	$contact = '';
 	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_org_contact_naam)){
