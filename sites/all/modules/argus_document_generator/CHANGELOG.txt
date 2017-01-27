@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-4.10
+---------
+- Update templatingssysteem: mogelijkheid om templates te uploaden via de Setup pagina
+- Standaard templates neutraal gemaakt
+
 v7.x-4.9
 ---------
 - Nieuw automatisch document Stagegever infofiche
