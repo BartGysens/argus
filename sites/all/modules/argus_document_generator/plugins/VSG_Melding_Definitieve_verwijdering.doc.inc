@@ -20,10 +20,10 @@
 /**
  * Plugin definition -- REQUIRED --
  */
-function argus_document_generator_VSG_Melding_definitieve_verwijdering_init() {
+function argus_document_generator_VSG_Melding_Definitieve_verwijdering_init() {
 	return array(
 			'cat' => 'LLN',
-			'subcat' => 'BRF',
+			'subcat' => 'VSG',
 			'title' => t('Verslag - Melding Definitieve verwijdering - LSEC'),
 	);
 }
@@ -34,7 +34,7 @@ function argus_document_generator_VSG_Melding_definitieve_verwijdering_init() {
  *
  * @return array
  */
-function argus_document_generator_VSG_Melding_definitieve_verwijdering_form($form, &$form_state) {    
+function argus_document_generator_VSG_Melding_Definitieve_verwijdering_form($form, &$form_state) {    
     $form['leerling'] = array(
         '#type' => 'select',
         '#title' => t('Leerling'),
@@ -141,14 +141,14 @@ function argus_document_generator_VSG_Melding_definitieve_verwijdering_form($for
  *
  * @return array
  */
-function argus_document_generator_VSG_Melding_definitieve_verwijdering_form_submit($form, &$form_state) {
+function argus_document_generator_VSG_Melding_Definitieve_verwijdering_form_submit($form, &$form_state) {
     require_once drupal_get_path('module','argus_document_generator').'/includes/PHPWord_0.6.2_Beta/PHPWord.php';
     
     /* New Word-document */
     $PHPWord = new PHPWord();
     
     /* Load template */
-    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('VSG_Melding_definitieve_verwijdering'));
+    $document = $PHPWord->loadTemplate(argus_document_generator_get_plugin_template('VSG_Melding_Definitieve_verwijdering'));
     
     /* Load user (student/pupil) */
     $uid = $form_state['values']['leerling'];
@@ -164,7 +164,7 @@ function argus_document_generator_VSG_Melding_definitieve_verwijdering_form_subm
     /* Handle details about: causes */
     $cid = 0;
     $causes = '';
-    foreach (argus_document_generator_VSG_Melding_definitieve_verwijdering_causes() as $cause){
+    foreach (argus_document_generator_VSG_Melding_Definitieve_verwijdering_causes() as $cause){
         if ($form_state['values']['cause'.$cid++]){
             $causes .= '- '.t($cause).'<w:br/>';
         }
@@ -177,7 +177,7 @@ function argus_document_generator_VSG_Melding_definitieve_verwijdering_form_subm
     /* Handle details about: externals */
     $eid = 0;
     $externals = '';
-    foreach (argus_document_generator_VSG_Melding_definitieve_verwijdering_externals() as $external){
+    foreach (argus_document_generator_VSG_Melding_Definitieve_verwijdering_externals() as $external){
         if ($form_state['values']['external'.$eid++]){
             $externals .= '- '.t($external).'<w:br/>';
         }
@@ -214,7 +214,7 @@ function argus_document_generator_VSG_Melding_definitieve_verwijdering_form_subm
     exit;
 }
 
-function argus_document_generator_VSG_Melding_definitieve_verwijdering_causes(){
+function argus_document_generator_VSG_Melding_Definitieve_verwijdering_causes(){
     return array(
         'Zwakke motivatie',
         'Laag schools welbevinden van de leerling',
@@ -239,7 +239,7 @@ function argus_document_generator_VSG_Melding_definitieve_verwijdering_causes(){
     );
 }
 
-function argus_document_generator_VSG_Melding_definitieve_verwijdering_externals(){
+function argus_document_generator_VSG_Melding_Definitieve_verwijdering_externals(){
     return array(
         'CLB',
         'Samenwerkingsverbanden of overkoepelende structuren voor spijbelopvolging',
