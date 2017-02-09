@@ -393,6 +393,7 @@ function argus_klasbeheer_preprocess_node(&$variables) {
 				include_once 'includes/node--klas--preprocessor.inc.php';
 			} else {
 				drupal_access_denied();
+				exit;
 			}
 			break;
 	}
