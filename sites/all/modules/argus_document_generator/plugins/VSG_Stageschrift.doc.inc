@@ -47,10 +47,11 @@ function argus_document_generator_VSG_Stageschrift_form($form, &$form_state) {
 	$query .= 'INNER JOIN {field_data_field_leerling} AS l ON l.entity_id = n.nid ';
 	$query .= 'INNER JOIN {users} AS u ON u.uid = l.field_leerling_target_id ';
 	$query .= 'INNER JOIN {field_data_field_stage_periode} AS sp ON l.entity_id = sp.entity_id ';
+    $query .= 'RIGHT JOIN {field_data_field_stagegever} AS sg ON l.entity_id = sg.entity_id ';
     $query .= 'INNER JOIN {field_data_field_user_sms_naam} AS an ON u.uid = an.entity_id ';
     $query .= 'INNER JOIN {field_data_field_user_sms_voornaam} AS vn ON u.uid = vn.entity_id ';
-	$query .= 'WHERE u.status = 1 ';
-	$query .= 'ORDER BY sp.field_stage_periode_target_id DESC, an.field_user_sms_naam_value ASC, vn.field_user_sms_voornaam_value ASC ';
+	$query .= 'WHERE u.status = 1 AND sg.field_stagegever_target_id ';
+	$query .= 'ORDER BY an.field_user_sms_naam_value ASC, vn.field_user_sms_voornaam_value ASC, sp.field_stage_periode_target_id DESC';
 	$items = db_query($query, array())->fetchAllKeyed();
 	
     $form['stage'] = array(
@@ -150,14 +151,55 @@ function argus_document_generator_VSG_Stageschrift_document($args) {
 	$document->setValue('datum_eind', format_date(strtotime($stageperiode->field_tijdstip[LANGUAGE_NONE][0]['value2']), 'custom', 'l, j F Y'));
 	
 	$document->setValue('organisatie_naam', $stagegever->title);
-	$document->setValue('organisatie_straat_huisnummer', $stagegever->field_straat[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_huisnummer[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_busnummer[LANGUAGE_NONE][0]['value']);
-	$document->setValue('organisatie_postcode_gemeente', $stagegever->field_postcode[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_gemeente[LANGUAGE_NONE][0]['value']);
-	$document->setValue('organisatie_adres', $stagegever->field_straat[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_huisnummer[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_busnummer[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_postcode[LANGUAGE_NONE][0]['value'].' '.$stagegever->field_gemeente[LANGUAGE_NONE][0]['value']);
-	$document->setValue('organisatie_telefoonnummer', $stagegever->field_telefoonnummer[LANGUAGE_NONE][0]['value']);
-	$document->setValue('organisatie_faxnummer', $stagegever->field_faxnummer[LANGUAGE_NONE][0]['value']);
-	$document->setValue('organisatie_email', $stagegever->field_email[LANGUAGE_NONE][0]['value']);
-	$document->setValue('organisatie_kbonummer', $stagegever->field_kbo_nummer[LANGUAGE_NONE][0]['value']);
-	$document->setValue('organisatie_paritair_comite', $stagegever->field_paritair_comit_[LANGUAGE_NONE][0]['value']);
+	
+	$value1 = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_straat)){
+		$value1 = $stagegever->field_straat[LANGUAGE_NONE][0]['value'].' ';
+	}
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_huisnummer)){
+		$value1 .= $stagegever->field_huisnummer[LANGUAGE_NONE][0]['value'].' ';
+	}
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_busnummer)){
+		$value1 .= $stagegever->field_busnummer[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_straat_huisnummer', $value1);
+	
+	$value2 = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_postcode)){
+		$value2 = $stagegever->field_postcode[LANGUAGE_NONE][0]['value'].' ';
+	}
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_gemeente)){
+		$value2 .= $stagegever->field_gemeente[LANGUAGE_NONE][0]['value'].' ';
+	}
+	$document->setValue('organisatie_postcode_gemeente', $value2);
+	
+	$document->setValue('organisatie_adres', $value1.' '.$value2);
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_telefoonnummer)){
+		$value = $stagegever->field_telefoonnummer[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_telefoonnummer', $value);
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_faxnummer)){
+		$value = $stagegever->field_faxnummer[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_faxnummer', $value);
+	
+	$document->setValue('organisatie_email', $stagegever->field_email['email']);
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_kbo_nummer)){
+		$value = $stagegever->field_kbo_nummer[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_kbonummer', $value);
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_paritair_comit_)){
+		$value = $stagegever->field_paritair_comit_[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('organisatie_paritair_comite', $value);
 	
 	$contact = '';
 	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_org_contact_naam)){
@@ -180,7 +222,12 @@ function argus_document_generator_VSG_Stageschrift_document($args) {
 		$mentor = $contact;
 	}
 	$document->setValue('mentor_naam', $mentor);
-	$document->setValue('mentor_functie', $stagegever->field_org_stagementor_functie[LANGUAGE_NONE][0]['value']);
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_org_stagementor_functie)){
+		$value = $stagegever->field_org_stagementor_functie[LANGUAGE_NONE][0]['value'];
+	}
+	$document->setValue('mentor_functie', $value);
 	
 	$telefoonnummer = '';
 	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_org_stagementor_telefoon)){

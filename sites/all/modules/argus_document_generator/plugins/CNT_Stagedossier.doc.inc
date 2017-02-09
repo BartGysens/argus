@@ -71,10 +71,11 @@ function argus_document_generator_CNT_Stagedossier_form($form, &$form_state) {
 	$query .= 'INNER JOIN {field_data_field_leerling} AS l ON l.entity_id = n.nid ';
 	$query .= 'INNER JOIN {users} AS u ON u.uid = l.field_leerling_target_id ';
 	$query .= 'INNER JOIN {field_data_field_stage_periode} AS sp ON l.entity_id = sp.entity_id ';
-    $query .= 'INNER JOIN {field_data_field_user_sms_naam} AS an ON u.uid = an.entity_id ';
+    $query .= 'RIGHT JOIN {field_data_field_stagegever} AS sg ON l.entity_id = sg.entity_id ';
+	$query .= 'INNER JOIN {field_data_field_user_sms_naam} AS an ON u.uid = an.entity_id ';
     $query .= 'INNER JOIN {field_data_field_user_sms_voornaam} AS vn ON u.uid = vn.entity_id ';
-	$query .= 'WHERE u.status = 1 ';
-	$query .= 'ORDER BY sp.field_stage_periode_target_id DESC, an.field_user_sms_naam_value ASC, vn.field_user_sms_voornaam_value ASC ';
+	$query .= 'WHERE u.status = 1 AND sg.field_stagegever_target_id ';
+	$query .= 'ORDER BY an.field_user_sms_naam_value ASC, vn.field_user_sms_voornaam_value ASC, sp.field_stage_periode_target_id DESC';
 	$items = db_query($query, array())->fetchAllKeyed();
 	
     $form['stage'] = array(
@@ -261,7 +262,7 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	
 	$value = '';
 	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_email)){
-		$value .= $stagegever->field_email[LANGUAGE_NONE][0]['value'];
+		$value .= $stagegever->field_email[LANGUAGE_NONE][0]['email'];
 	}
 	$document->setValue('organisatie_email', htmlspecialchars($value));
 	
@@ -298,7 +299,12 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 		$mentor = $contact;
 	}
 	$document->setValue('mentor_naam', htmlspecialchars($mentor));
-	$document->setValue('mentor_functie', htmlspecialchars($stagegever->field_org_stagementor_functie[LANGUAGE_NONE][0]['value']));
+	
+	$value = '';
+	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_org_stagementor_functie)){
+		$value = htmlspecialchars($stagegever->field_org_stagementor_functie[LANGUAGE_NONE][0]['value']);
+	}
+	$document->setValue('mentor_functie', $value);
 	
 	$telefoonnummer = '';
 	if (array_key_exists(LANGUAGE_NONE, $stagegever->field_org_stagementor_telefoon)){

@@ -31,8 +31,7 @@ function argus_afwezigheden_menu() {
         'title' => t('Afwezigheden'),
         'description' => 'Overzicht van de afwezigheden per leerling.',
         'page callback' => 'argus_afwezigheden_overview',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_absences_overview content'),
         'menu_name' => 'menu-modules',
     );
     $items['afwezigheden-bcodes'] = array(
@@ -40,39 +39,54 @@ function argus_afwezigheden_menu() {
         'description' => 'Controlelijst van de B-codes.',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('argus_afwezigheden_bcodes_form'),
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_absences_bcodes content'),
         'menu_name' => 'menu-modules',
     );
     $items['afwezigheden-omzetting'] = array(
         'title' => t('Wettiging afwezigheden'),
         'description' => 'Controlelijst om afwezigheden te wettigen.',
         'page callback' => 'argus_afwezigheden_justification',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_absences_justify content'),
         'menu_name' => 'menu-modules',
     );
     $items['telaatkomers'] = array(
         'title' => t('Telaatkomers'),
         'description' => 'Controlelijst om het te laat komen te beheren.',
         'page callback' => 'argus_afwezigheden_latecomers',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_absences_latecomers content'),
         'menu_name' => 'menu-modules',
     );
     $items['telaatkomers-wettiging.create'] = array(
         'page callback' => 'argus_afwezigheden_latecomers_rectification_create',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_absences_latecomers content'),
         'type' => MENU_CALLBACK,
     );
     $items['telaatkomers-wettiging.delete'] = array(
         'page callback' => 'argus_afwezigheden_latecomers_rectification_delete',
-        'access arguments' => array('access content'),
-        'access callback' => TRUE,
+        'access arguments' => array('access argus_absences_latecomers content'),
         'type' => MENU_CALLBACK,
     );
     return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function argus_afwezigheden_permission() {
+	return array (
+			'access argus_absences_overview content' => array (
+					'title' => t ( 'Overzicht bekijken van de afwezigheden per leerling' ),
+			),
+			'access argus_absences_bcodes content' => array (
+					'title' => t ( 'Controlelijst B-codes bekijken' ),
+			),
+			'access argus_absences_justify content' => array (
+					'title' => t ( 'Afwezigheden wettigen' ),
+			),
+			'access argus_absences_latecomers content' => array (
+					'title' => t ( 'Te laat komen beheren' ),
+			),
+	);
 }
 
 
