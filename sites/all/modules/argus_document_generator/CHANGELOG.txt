@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-4.12
+---------
+- Nieuw automatisch document Contract Ontlening - huurovereenkomst
+
 v7.x-4.11
 ---------
 - Nieuw automatisch document Verslag inventaris

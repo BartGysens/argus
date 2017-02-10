@@ -305,6 +305,23 @@ function argus_document_generator_get_plugins() {
 							),
 					),
 			),
+			'ALG' => array(
+					'title' => t('<u>Algemene</u> administratie'),
+					'elements' => array(
+							'BRF' => array(
+									'title' => 'Brieven (BRF)',
+									'plugins' => array(),
+							),
+							'CNT' => array(
+									'title' => 'Contracten / overeenkomsten (CNT)',
+									'plugins' => array(),
+							),
+							'VSG' => array(
+									'title' => 'Verslagen (VSG)',
+									'plugins' => array(),
+							),
+					),
+			),
 	);
 	
 	$plugins = file_scan_directory(drupal_get_path('module', 'argus_document_generator').'/plugins', '/.*\.inc$/');
