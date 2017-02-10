@@ -1,0 +1,353 @@
+<?php
+/**
+ * @file
+ * Code for the Inventaris feature.
+ */
+
+include_once 'argus_inventaris.features.inc';
+
+/* Drupal Hooks */
+
+/**
+ * Implements argus_inventaris_menu().
+ */
+function argus_inventaris_menu() {
+    $items = array();
+    $items['admin/config/argus/inventaris'] = array(
+        'title' => 'Inventaris',
+        'description' => 'Beheer het materiaal en de infrastructuur van je organisatie.',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('argus_inventaris_setup_form'),
+        'access arguments' => array('access administration pages'),
+        'type' => MENU_NORMAL_ITEM,
+        'weight' => 1,
+    );
+    
+    $items['inventaris-beheren'] = array(
+        'title' => t('Inventaris beheren'),
+        'page callback' => 'argus_inventaris_maintenance',
+        'access arguments' => array('edit own inventaris content'),
+        'menu_name' => 'menu-modules',
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['inventaris-beheren/status.edit'] = array(
+        'page callback' => 'argus_inventaris_status_edit',
+        'access arguments' => array('edit own inventaris content'),
+        'type' => MENU_CALLBACK,
+    );
+
+    $items['inventaris-workflow'] = array(
+    		'title' => t('Inventaris verwerken'),
+    		'page callback' => 'argus_inventaris_workflow',
+    		'access arguments' => array('edit any inventaris content'),
+    		'menu_name' => 'menu-modules',
+    		'type' => MENU_NORMAL_ITEM,
+    );
+    $items['inventaris-workflow.inactive-delete'] = array(
+        'page callback' => 'argus_inventaris_workflow_inactive_delete',
+        'access arguments' => array('edit any inventaris content'),
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+/**
+ * Page callback: Inventaris instellingen
+ *
+ * @see argus_inventaris_setup_form()
+ */
+function argus_inventaris_setup_form($form, &$form_state) {
+	//argus_inventaris_import();
+    $form['argus_inventaris_maintenance'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Onderhoud'),
+        '#default_value' => variable_get('argus_inventaris_maintenance',NULL),
+        '#description' => t('De inventaris kan momenteel worden bijgewerkt.'),
+    );
+    return system_settings_form($form);
+}
+
+
+/** 
+ * Implement hook_theme()
+ */
+function argus_inventaris_theme() {
+    return array(
+        'maintenance' => array(
+            'template' => 'templates/argus_inventaris--maintenance',
+        ),
+        'maintenance_block' => array(
+            'template' => 'templates/argus_inventaris--maintenance_block',
+        ),
+        'workflow' => array(
+            'template' => 'templates/argus_inventaris--workflow',
+        ),
+      );
+}
+
+
+/**
+ * Page callback: Onderhoudsmodus voor de verantwoordelijken
+ *
+ * @return array
+ */
+function argus_inventaris_maintenance() {
+	$data = array('maintenance' => '', 'items' => array());
+	
+	// Get status of maintenance
+	if (variable_get('argus_inventaris_maintenance')){
+		$data['maintenance'] = ' (onderhoudsmodus)';
+	}
+
+	global $user;
+	$uid = $user->uid;
+	if (array_key_exists('uid', $_GET)){
+		if (is_numeric($_GET['uid'])){
+			if ($_GET['uid'] == $user->uid || user_access('edit any inventaris content')){
+				$uid = $_GET['uid'];
+			}
+		}
+	}
+	
+	$query = 'SELECT n.nid AS nid, n.title AS title, f.field_inventaris_fir_value AS fir, l.title AS location, field_inventaris_status_value AS status '
+			. 'FROM {node} AS n '
+			. 'LEFT JOIN {field_data_field_inventaris_fir} AS f ON f.entity_id = n.nid '
+			. 'LEFT JOIN {field_data_field_lokaal} AS il ON il.entity_id = n.nid '
+			. 'LEFT JOIN {node} AS l ON l.nid = il.field_lokaal_target_id '
+			. 'LEFT JOIN {field_data_field_inventaris_status} AS s ON s.entity_id = n.nid '
+			. 'WHERE n.type = :bundle AND n.uid = :uid AND s.field_inventaris_status_value != :state ';
+	$options = array(':bundle' => 'inventaris', ':state' => 'verwijderd', ':uid' => $uid);
+	
+	if (array_key_exists('item', $_GET)){
+		$query .= 'AND n.title LIKE :item ';
+		$options[':item'] = '%' . $_GET['item'] . '%';
+	}
+	
+	if (array_key_exists('fir', $_GET)){
+		$query .= 'AND f.field_inventaris_fir_value LIKE :fir ';
+		$options[':fir'] = '%' . $_GET['fir'] . '%';
+	}
+	
+	$query .= 'ORDER BY field_inventaris_fir_value ASC';
+	
+	$data['items'] = db_query($query, $options)->fetchAllAssoc('nid');
+
+	drupal_add_js(drupal_get_path('module', 'argus_inventaris') . '/js/argus_inventaris--maintenance.js');
+	drupal_add_css(drupal_get_path('module', 'argus_inventaris') . '/css/argus_inventaris--maintenance.css');
+	
+	return theme('maintenance', array( 'data' => $data ));
+}
+
+
+/**
+ * Page callback: Beheerspagina
+ *
+ * @return array
+ */
+function argus_inventaris_workflow() {
+	$data = array('maintenance' => '', 'users' => array());
+	
+	// Get status of maintenance
+	if (variable_get('argus_inventaris_maintenance')){
+		$data['maintenance'] = ' (onderhoudsmodus)';
+	}
+	
+	$query = 'SELECT DISTINCT(n.uid) AS uid '
+			. 'FROM {node} AS n '
+			. 'WHERE n.type = :bundle';
+	$results = db_query($query, array(':bundle' => 'inventaris'))->fetchCol();
+	foreach ($results as $uid){
+		$data['users'][$uid] = array(
+				'name' => argus_get_user_realname($uid),
+				'actions' => array(),
+		);
+		
+		$data['users'][$uid]['actions'][9] = '<a href="'.base_path().'inventaris-beheren/?uid='.$uid.'">beheren</a>';
+		if (module_exists('argus_document_generator')){
+			$data['users'][$uid]['actions'][10] = '<a href="'.base_path().'documenten_generator.get/VSG_Inventaris_verantwoordelijke/personeelslid='.$uid.'">verslag afdrukken</a>';
+		}
+		
+		$query = 'SELECT n.nid AS nid '
+				. 'FROM {node} AS n '
+				. 'LEFT JOIN {field_data_field_inventaris_status} AS s ON s.entity_id = n.nid '
+				. 'WHERE n.type = :bundle AND n.uid = :uid AND s.field_inventaris_status_value = :status';
+		$data['users'][$uid]['status']['new'] = db_query($query, array(':bundle' => 'inventaris', ':uid' => $uid, ':status' => 'Nieuw'))->rowCount();
+		
+		$query = 'SELECT n.nid AS nid '
+				. 'FROM {node} AS n '
+				. 'LEFT JOIN {field_data_field_inventaris_status} AS s ON s.entity_id = n.nid '
+				. 'WHERE n.type = :bundle AND n.uid = :uid AND s.field_inventaris_status_value = :status';
+		$data['users'][$uid]['status']['active'] = db_query($query, array(':bundle' => 'inventaris', ':uid' => $uid, ':status' => 'Actief'))->rowCount();
+		
+		$query = 'SELECT n.nid AS nid '
+				. 'FROM {node} AS n '
+				. 'LEFT JOIN {field_data_field_inventaris_status} AS s ON s.entity_id = n.nid '
+				. 'WHERE n.type = :bundle AND n.uid = :uid AND s.field_inventaris_status_value = :status';
+		$data['users'][$uid]['status']['inactive'] = db_query($query, array(':bundle' => 'inventaris', ':uid' => $uid, ':status' => 'Inactief'))->rowCount();
+		
+		if ($data['users'][$uid]['status']['inactive'] > 0){
+			$data['users'][$uid]['actions'][0] = '<a href="'.base_path().'inventaris-workflow.inactive-delete?uid='.$uid.'">inactief > verwijderen</a>';
+		}
+		
+		$query = 'SELECT n.nid AS nid '
+				. 'FROM {node} AS n '
+				. 'LEFT JOIN {field_data_field_inventaris_status} AS s ON s.entity_id = n.nid '
+				. 'WHERE n.type = :bundle AND n.uid = :uid AND s.field_inventaris_status_value = :status';
+		$data['users'][$uid]['status']['deleted'] = db_query($query, array(':bundle' => 'inventaris', ':uid' => $uid, ':status' => 'Verwijderd'))->rowCount();
+		
+		ksort($data['users'][$uid]['actions']);
+	}
+	asort($data['users']);
+	
+	return theme('workflow', array( 'data' => $data ));
+}
+
+
+/** 
+ * Implement hook_block_info().
+ */
+function argus_inventaris_block_info() {
+    $blocks = array(
+	    'maintenance_block' => array(
+	        'info' => t('Inventaris: filter'),
+	        'title' => t('Filter'),
+	    ),
+    );
+
+    return $blocks;
+}
+
+/**
+ * Implement hook_block_view().
+ */
+function argus_inventaris_block_view($delta='') {
+	$block = array();
+	$variables = array();
+	switch ($delta) {
+		case 'maintenance_block':
+			$query = 'SELECT DISTINCT(n.uid) AS uid '
+					. 'FROM {node} AS n '
+					. 'LEFT JOIN {field_data_field_inventaris_status} AS s ON s.entity_id = n.nid '
+					. 'WHERE n.type = :bundle AND s.field_inventaris_status_value != :state';
+			$results = db_query($query, array(':state' => 'verwijderd', ':bundle' => 'inventaris'))->fetchCol();
+			foreach ($results as $uid){
+				$variables['users'][$uid] = argus_get_user_realname($uid);
+			}
+			asort($variables['users']);
+			
+			$block['title'] = 'Filter';
+			$block['subject'] = 'Inventaris: filter';
+			$block['content'] = theme('maintenance_block', $variables);
+			
+			drupal_add_js(drupal_get_path('module', 'argus_inventaris') . '/js/argus_inventaris--maintenance_block.js');
+			break;
+	}
+	return $block;
+}
+
+
+
+/* Custom functions */
+
+/* TEMPORARY CODE */
+function argus_inventaris_import() {
+	$csv_uri = 'sites/all/modules/argus_inventaris/INVENTARIS.txt';
+
+	$line = file_get_contents($csv_uri);
+	$rows = explode(chr(13), $line);
+
+	$errors = '';
+	foreach($rows as $id => $csv) {
+		$csv = preg_split('/[\t]/', $csv);
+		
+		$node = new stdClass();
+		$node->type = 'inventaris';
+		node_object_prepare($node);
+		$node->language = LANGUAGE_NONE;
+		$node->promote = 0;
+		$node->comment = 0;
+		$node->status = 1;
+
+		$node->title = ucwords(strtolower(trim(utf8_encode($csv[0]))));
+		$node->field_inventaris_categorie[LANGUAGE_NONE][0]['value'] = trim(utf8_encode($csv[1]));
+
+		if ($csv[2] < 20){
+			$jaar = $csv[2] + 2000;
+		} else {
+			$jaar = $csv[2] + 1900;
+		}
+		$node->field_jaar[LANGUAGE_NONE][0]['value'] = $jaar;
+
+		$node->field_inventaris_fir[LANGUAGE_NONE][0]['value'] = trim(utf8_encode($csv[3]));
+		$node->field_factuurnummer[LANGUAGE_NONE][0]['value'] = trim(utf8_encode($csv[4]));
+		$node->body = ucwords(strtolower(trim(utf8_encode($csv[5]))));
+		$node->field_opmerkingen[LANGUAGE_NONE][0]['value'] = ucwords(strtolower(trim(utf8_encode($csv[6]))));
+
+		$node->field_klas_structuuronderdeel[LANGUAGE_NONE][0]['value'] = trim(utf8_encode($csv[8]));
+
+		$node->field_inventaris_bir[LANGUAGE_NONE][0]['value'] = trim(utf8_encode($csv[9]));
+		// factuurbedrag $csv[10];
+
+		$query = 'SELECT n.entity_id AS nid FROM {field_data_field_lokaal_afkorting} AS n WHERE UPPER(n.field_lokaal_afkorting_value) = :name';
+		$result_lok = db_query($query, array(':name' => strtoupper(trim(utf8_encode($csv[11])))))->fetchField();
+		if ($result_lok){
+			$node->field_lokaal[LANGUAGE_NONE][0]['target_id'] = $result_lok;
+		}
+		$query = 'SELECT u.uid AS uid FROM {users} AS u WHERE name = :name';
+		$result_uid = db_query($query, array(':name' => strtoupper(trim(utf8_encode($csv[7])))))->fetchField();
+		if ($result_uid){
+			$node->uid = $result_uid;
+			dpm($node);
+			//node_save($node);
+		} else {
+			//dpm(($id+1).' '.trim(utf8_encode($csv[0]));
+				
+			$errors .= implode(';',$csv).chr(13);
+		}
+
+		if ($id>100) break;
+	}
+	dpm($errors);
+
+	//dpm($csv);
+}
+
+/**
+ * Change status of item.
+ */
+function argus_inventaris_status_edit(){
+    $id = $_POST['pid'];
+    if ($id && (user_access('edit own inventaris content')) || user_access('edit any inventaris content')) {
+    	$node = node_load($id);
+    	$node->field_inventaris_status[LANGUAGE_NONE][0]['value'] = $_POST['state'];
+    	node_save($node);
+		print true;
+    } else {
+    	print 0;
+    }
+    exit;
+}
+
+/**
+ * Bulk edit items from inactive to deleted.
+ */
+function argus_inventaris_workflow_inactive_delete(){
+    $id = $_GET['uid'];
+    if ($id && user_access('edit any inventaris content')) {
+    	$query = 'SELECT n.nid AS nid '
+    			. 'FROM {node} AS n '
+    			. 'LEFT JOIN {field_data_field_inventaris_status} AS s ON s.entity_id = n.nid '
+    			. 'WHERE n.type = :bundle AND n.uid = :uid AND s.field_inventaris_status_value = :status';
+    	$result = db_query($query, array(':bundle' => 'inventaris', ':uid' => $id, ':status' => 'Inactief'))->fetchCol();
+    	foreach ($result as $k => $id){
+	    	$node = node_load($id);
+	    	$node->field_inventaris_status[LANGUAGE_NONE][0]['value'] = 'Verwijderd';
+	    	node_save($node);
+    	}
+    	drupal_goto(base_path().'inventaris-workflow');
+    	exit;
+    } else {
+    	print 0;
+    }
+    exit;
+}

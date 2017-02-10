@@ -1,0 +1,14 @@
+**Releases:
+
+v7.x-1.1
+---------
+- Full release
+- Complete workflow foor inventaris beheer opgenomen
+
+v7.x-1.0
+---------
+- First initial sandbox release - featured based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)
