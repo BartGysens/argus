@@ -92,29 +92,9 @@ function uuid_node_features_export_render($module, $data) {
     if (empty($node)) {
       continue;
     }
-    
-    // Add path and pathauto settings
-    if (!property_exists($node, 'path')) {
-    	$node->path = array();
+    if (!empty($node->path)) {
+      $node->pathauto_perform_alias = FALSE;
     }
-
-	// If pathauto is set to 0, don't override it.
-	$uri = entity_uri('node', $node);
-	$path = drupal_get_path_alias($uri['path']);
-
-	if (module_exists('pathauto')) {
-		// If we're not using pathauto, ensure it is disabled.
-      	if (!isset($node->path['pathauto']) || $node->path['pathauto'] == 0) {
-      		$node->path['pathauto'] = FALSE;
-      		$node->path['alias'] = $path;
-      	}
-      	else {
-      		$node->path['pathauto'] = TRUE;
-      	}
-	}
-	else {
-		$node->path['alias'] = $path;
-	}
     // Clone entity to avoid changes by reference.
     $export = clone $node;
 

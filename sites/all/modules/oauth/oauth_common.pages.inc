@@ -300,9 +300,6 @@ function oauth_common_form_authorize_submit(&$form, &$form_state) {
     $token->services = array();
   }
 
-  // Generate oauth_verifier according to the spec 6.2.3 for OAuth 1.0a.
-  $token->verifier = hash('sha1', $token->created . rand());
-  
   $token->write(TRUE);
 
   if (!empty($consumer->callback_url) && $consumer->callback_url !== 'oob') {
@@ -313,7 +310,7 @@ function oauth_common_form_authorize_submit(&$form, &$form_state) {
       parse_str($callback['query'], $query);
     }
     $query['oauth_token'] = $token->key;
-    $query['oauth_verifier'] = $token->verifier;
+    $query['oauth_verifier'] = hash('sha1', $token->expires);
 
     // Append Consumer provided query parameters according to the spec 6.2.3 for OAuth 1.0a.
     $oauth_query = array();
