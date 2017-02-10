@@ -30,7 +30,6 @@ function argus_ontleningen_menu_default_menu_links() {
     'expanded' => 0,
     'weight' => -31,
     'customized' => 1,
-    'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );
 
   // Translatables

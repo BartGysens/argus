@@ -45,6 +45,92 @@ function argus_ontleningen_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-ontlening-field_gebruiker'.
+  $field_instances['node-ontlening-field_gebruiker'] = array(
+    'bundle' => 'ontlening',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 9,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_gebruiker',
+    'label' => 'Ontlener',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 9,
+    ),
+  );
+
+  // Exported field_instance: 'node-ontlening-field_inventarisitem'.
+  $field_instances['node-ontlening-field_inventarisitem'] = array(
+    'bundle' => 'ontlening',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 3,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_inventarisitem',
+    'label' => 'Inventarisitem',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'multiple_selects',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'multiple_selects',
+      'weight' => 12,
+    ),
+  );
+
   // Exported field_instance: 'node-ontlening-field_ontleen_inventarisnummer'.
   $field_instances['node-ontlening-field_ontleen_inventarisnummer'] = array(
     'bundle' => 'ontlening',
@@ -53,13 +139,13 @@ function argus_ontleningen_field_default_field_instances() {
     'description' => 'Als het toestel/apparaat over een inventarisnummer beschikt, geef het dan hier in',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'text',
         'settings' => array(
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -88,7 +174,7 @@ function argus_ontleningen_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 5,
+      'weight' => 14,
     ),
   );
 
@@ -100,13 +186,13 @@ function argus_ontleningen_field_default_field_instances() {
     'description' => 'Om welk toestel of apparaat gaat het?',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'text',
         'settings' => array(
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -135,51 +221,7 @@ function argus_ontleningen_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance: 'node-ontlening-field_ontleen_ontlener'.
-  $field_instances['node-ontlening-field_ontleen_ontlener'] = array(
-    'bundle' => 'ontlening',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'conditions' => array(),
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 1,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_ontleen_ontlener',
-    'label' => 'Ontlener',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'entityreference',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'path' => '',
-        'size' => 60,
-      ),
-      'type' => 'entityreference_autocomplete',
-      'weight' => 2,
+      'weight' => 13,
     ),
   );
 
@@ -190,7 +232,7 @@ function argus_ontleningen_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'date',
         'settings' => array(
           'conditions' => array(),
@@ -238,7 +280,7 @@ function argus_ontleningen_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_popup',
-      'weight' => 3,
+      'weight' => 11,
     ),
   );
 
@@ -250,13 +292,13 @@ function argus_ontleningen_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'list',
         'settings' => array(
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 6,
+        'weight' => 7,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -288,7 +330,7 @@ function argus_ontleningen_field_default_field_instances() {
     'description' => 'De <em>datum</em> waarop het ontleende materiaal weer binnengebracht is',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'inline',
         'module' => 'date',
         'settings' => array(
           'conditions' => array(),
@@ -301,7 +343,7 @@ function argus_ontleningen_field_default_field_instances() {
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -345,6 +387,7 @@ function argus_ontleningen_field_default_field_instances() {
   t('Als het toestel/apparaat over een inventarisnummer beschikt, geef het dan hier in');
   t('Comment');
   t('De <em>datum</em> waarop het ontleende materiaal weer binnengebracht is');
+  t('Inventarisitem');
   t('Inventarisnummer');
   t('Materiaal');
   t('Om welk toestel of apparaat gaat het?');

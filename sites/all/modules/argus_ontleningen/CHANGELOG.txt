@@ -1,6 +1,10 @@
 **Releases:
 
 
+v7.x-1.1
+---------
+- First initial release - featured based
+
 v7.x-1.0-beta1
 ---------
 - First initial beta-release - featured based
