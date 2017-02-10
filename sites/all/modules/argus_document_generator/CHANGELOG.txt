@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-4.11
+---------
+- Nieuw automatisch document Verslag inventaris
+- Update Stagedocs (controle data)
+
 v7.x-4.10
 ---------
 - Update templatingssysteem: mogelijkheid om templates te uploaden via de Setup pagina
