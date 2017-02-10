@@ -208,7 +208,7 @@ class DrupalOAuthClient {
    *     - 'get' (default FALSE)
    *       Whether to use GET as the HTTP-method instead of POST.
    *     - 'verifier'
-   *       A string containing a verifier for the user from the provider.
+   *       A string containing a verifier for he user from the provider.
    *       Only used by versions higher than OAUTH_COMMON_VERSION_1.
    * @return DrupalOAuthToken
    *  The access token.
@@ -233,13 +233,8 @@ class DrupalOAuthClient {
         $endpoint = '/oauth/access_token';
       }
     }
-    if ($this->version > OAUTH_COMMON_VERSION_1) {
-      if($options['verifier'] !== NULL && $options['verifier'] !== "") {
-	    $options['params']['oauth_verifier'] = $options['verifier'];
-	  }
-	  else {
-	    throw new OAuthException('Parameter oauth_verifier is missing');
-	  }
+    if ($this->version > OAUTH_COMMON_VERSION_1 && $options['verifier'] !== NULL) {
+      $options['params']['oauth_verifier'] = $options['verifier'];
     }
 
     $response = $this->get($endpoint, array(

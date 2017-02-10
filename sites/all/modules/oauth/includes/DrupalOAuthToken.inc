@@ -11,7 +11,6 @@ class DrupalOAuthToken extends OAuthToken {
   public $changed = 0;
   public $services = array();
   public $authorized = 0;
-  public $verifier = "";
 
   public $in_database = FALSE;
 
@@ -60,7 +59,6 @@ class DrupalOAuthToken extends OAuthToken {
         'changed'    => $this->changed,
         'services'   => json_encode($this->services),
         'authorized' => $this->authorized,
-		'verifier'   => $this->verifier,
       );
 
       if ($update) {
@@ -178,7 +176,7 @@ class DrupalOAuthToken extends OAuthToken {
 
     if (!$consumer || is_object($consumer) && $consumer->provider_consumer) {
       $query->join('oauth_common_provider_token', 'pt', 'pt.tid = t.tid');
-      $query->fields('pt', array('created', 'changed', 'services', 'authorized', 'verifier'));
+      $query->fields('pt', array('created', 'changed', 'services', 'authorized'));
     }
 
     // Only fetch non-provider tokens - needed for backwards compatibility with deprecated DrupalOAuthToken::load() from 6.x-3.0-beta3

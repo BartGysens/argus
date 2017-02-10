@@ -4,15 +4,10 @@
  * Database abstraction class
  */
 class DrupalOAuthDataStore extends OAuthDataStore {
-  public $version = OAUTH_COMMON_VERSION_1_RFC;
   private $context;
 
-  public function __construct($context, $version = NULL) {
+  public function __construct($context) {
     $this->context = $context;
-	
-	if ($version) {
-      $this->version = $version;
-    }
   }
 
   /**
@@ -130,13 +125,6 @@ class DrupalOAuthDataStore extends OAuthDataStore {
   function new_access_token($token_old, $consumer, $verifier = NULL) {
     module_load_include('inc', 'oauth_common');
 
-	if ($this->version > OAUTH_COMMON_VERSION_1) {
-	  // Check if the passed oauth_verifier matches our own verifier.
-	  if($verifier === NULL || $verifier === "" || $verifier !== $token_old->verifier) {
-	    throw new OAuthException('Parameter oauth_verifier incorrect or not present');
-	  }
-    }
-	
     if ($token_old && $token_old->authorized) {
       $token_new = new DrupalOAuthToken(user_password(32), user_password(32), $consumer, array(
         'type'       => OAUTH_COMMON_TOKEN_TYPE_ACCESS,
