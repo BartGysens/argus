@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.3
+---------
+- Update request system for bigger data strings
+
 v7.x-1.2
 ---------
 - Security fix: permissions added
