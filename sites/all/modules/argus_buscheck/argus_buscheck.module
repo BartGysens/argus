@@ -99,24 +99,36 @@ function argus_buscheck_form($form, &$form_state) {
 
         $requestedDate = format_date(strtotime($form_state['values']['argus_buscheck_datetime']),'custom','Y/m/d/H/i');
 
-        $deLijnAPI = 'http://data.irail.be/DeLijn/Arrivals/' . $busstop . '/' . $requestedDate . '.json';
-        $deLijnData = json_decode(file_get_contents($deLijnAPI),true);
-
+        $deLijnAPI = 'https://data.irail.be/DeLijn/Arrivals/' . $busstop . '/' . $requestedDate . '/:x.json';
+        
+        // Read arrivals for next 30 minutes of requested time
+        $startTime = new DateTime($form_state['values']['argus_buscheck_datetime']);
+        $startTime->modify('+30 minutes');
+        
+        $x = 0;
         $deLijnDataSorted = [];
-        foreach( $deLijnData['Arrivals'] as $i => $item){
-            if (!isset($deLijnDataSorted[$item['short_name']])){
-                $deLijnDataSorted[$item['short_name']] = [
-                    'long_name' => $item['long_name'],
-                    'text_color' => $item['text_color'],
-                    'color' => $item['color'],
-                    'times' => [],
-                ];
-            }
-            $deLijnDataSorted[$item['short_name']]['times'][]=[
-                'time' => $item['time'],
-                'direction' => $item['direction'],
-            ];
-        }
+        while (count($item = json_decode(file_get_contents(str_replace(':x',$x,$deLijnAPI)),true))){
+        	$currentTime = new DateTime('@' . $item[$x]['time']);
+        	if ($currentTime < $startTime){
+	        	
+	        	if (!isset($deLijnDataSorted[$item[$x]['short_name']])){
+	        		$deLijnDataSorted[$item[$x]['short_name']] = [
+	        				'long_name' => $item[$x]['long_name'],
+	        				'text_color' => $item[$x]['text_color'],
+	        				'color' => $item[$x]['color'],
+	        				'times' => [],
+	        		];
+	        	}
+	        	$deLijnDataSorted[$item[$x]['short_name']]['times'][]=[
+	        			'time' => $item[$x]['time'],
+	        			'direction' => $item[$x]['direction'],
+	        	];
+	        	
+	        	$x++;
+        	} else {
+        		break;
+        	}
+        };
         ksort($deLijnDataSorted);
         
         $suffixHeader = '<div id="argus_buscheck_results_header">';
