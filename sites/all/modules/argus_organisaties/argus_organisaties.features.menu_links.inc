@@ -31,7 +31,7 @@ function argus_organisaties_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 1,
     'expanded' => 1,
-    'weight' => -40,
+    'weight' => -39,
     'customized' => 1,
     'parent_identifier' => 'menu-modules_algemeen:<nolink>',
   );
@@ -51,9 +51,9 @@ function argus_organisaties_menu_default_menu_links() {
     'module' => 'system',
     'hidden' => 0,
     'external' => 0,
-    'has_children' => 1,
+    'has_children' => 0,
     'expanded' => 0,
-    'weight' => -35,
+    'weight' => -24,
     'customized' => 1,
     'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );
