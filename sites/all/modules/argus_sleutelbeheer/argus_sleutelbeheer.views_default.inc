@@ -32,6 +32,7 @@ function argus_sleutelbeheer_views_default_views() {
     85 => '85',
     86 => '86',
     225 => '225',
+    88 => '88',
     217 => '217',
     218 => '218',
     219 => '219',
@@ -47,7 +48,10 @@ function argus_sleutelbeheer_views_default_views() {
   $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = 'Aflopend';
   $handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
   $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '0';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['pager']['options']['id'] = '0';
+  $handler->display->display_options['pager']['options']['quantity'] = '9';
   $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = 'Items per pagina';
   $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- Alle -';
   $handler->display->display_options['pager']['options']['expose']['offset_label'] = 'Startpunt';
@@ -104,7 +108,7 @@ function argus_sleutelbeheer_views_default_views() {
     'field_sleutel_omschrijving' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => 'views-align-center',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
       'has_aggr' => 0,
@@ -130,7 +134,7 @@ function argus_sleutelbeheer_views_default_views() {
       'aggr_par_column' => '',
     ),
     'field_sleutel_locatie' => array(
-      'align' => 'views-align-center',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
       'has_aggr' => 0,
@@ -145,7 +149,7 @@ function argus_sleutelbeheer_views_default_views() {
     'field_sleutel_type' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => 'views-align-center',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
       'has_aggr' => 0,
@@ -160,7 +164,7 @@ function argus_sleutelbeheer_views_default_views() {
     'field_sleutel_vrijgave' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => 'views-align-center',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
       'has_aggr' => 0,
@@ -220,7 +224,7 @@ function argus_sleutelbeheer_views_default_views() {
     'field_sleutel_kleurcode' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => 'views-align-center',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
       'has_aggr' => 0,
@@ -233,16 +237,30 @@ function argus_sleutelbeheer_views_default_views() {
       'aggr_par_column' => '',
     ),
   );
-  /* Kop: Algemeen: Samenvatting van het resultaat */
-  $handler->display->display_options['header']['result']['id'] = 'result';
-  $handler->display->display_options['header']['result']['table'] = 'views';
-  $handler->display->display_options['header']['result']['field'] = 'result';
-  $handler->display->display_options['header']['result']['content'] = 'Getoond @start - @end van @total';
+  $handler->display->display_options['style_options']['column_aggregation']['totals_per_page'] = '1';
+  $handler->display->display_options['style_options']['column_aggregation']['totals_row_position'] = array(
+    1 => 0,
+    2 => '2',
+  );
+  $handler->display->display_options['style_options']['column_aggregation']['precision'] = '2';
+  /* Kop: Algemeen: Tekstveld */
+  $handler->display->display_options['header']['area']['id'] = 'area';
+  $handler->display->display_options['header']['area']['table'] = 'views';
+  $handler->display->display_options['header']['area']['field'] = 'area';
+  $handler->display->display_options['header']['area']['empty'] = TRUE;
+  $handler->display->display_options['header']['area']['content'] = '<a href="/node/add/sleutel">Een nieuwe sleutel toevoegen</a>';
+  $handler->display->display_options['header']['area']['format'] = 'filtered_html';
   /* Voet: Algemeen: Samenvatting van het resultaat */
   $handler->display->display_options['footer']['result']['id'] = 'result';
   $handler->display->display_options['footer']['result']['table'] = 'views';
   $handler->display->display_options['footer']['result']['field'] = 'result';
   $handler->display->display_options['footer']['result']['content'] = 'Getoond @start - @end van @total';
+  /* Voet: Algemeen: Tekstveld */
+  $handler->display->display_options['footer']['area']['id'] = 'area';
+  $handler->display->display_options['footer']['area']['table'] = 'views';
+  $handler->display->display_options['footer']['area']['field'] = 'area';
+  $handler->display->display_options['footer']['area']['content'] = '<a href="/node/add/sleutel">Een nieuwe sleutel toevoegen</a>';
+  $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
   /* Relatie: Inhoud: Uitlening (field_sleutel_uitlening) */
   $handler->display->display_options['relationships']['field_sleutel_uitlening_value']['id'] = 'field_sleutel_uitlening_value';
   $handler->display->display_options['relationships']['field_sleutel_uitlening_value']['table'] = 'field_data_field_sleutel_uitlening';
@@ -253,6 +271,7 @@ function argus_sleutelbeheer_views_default_views() {
   $handler->display->display_options['relationships']['field_sleutel_uitlening_uitlener_target_id']['table'] = 'field_data_field_sleutel_uitlening_uitlener';
   $handler->display->display_options['relationships']['field_sleutel_uitlening_uitlener_target_id']['field'] = 'field_sleutel_uitlening_uitlener_target_id';
   $handler->display->display_options['relationships']['field_sleutel_uitlening_uitlener_target_id']['relationship'] = 'field_sleutel_uitlening_value';
+  $handler->display->display_options['relationships']['field_sleutel_uitlening_uitlener_target_id']['label'] = 'Gebruiker entity referenced from field_sleutel_uitlening_uitlener';
   /* Veld: Inhoud: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
@@ -265,7 +284,7 @@ function argus_sleutelbeheer_views_default_views() {
   $handler->display->display_options['fields']['field_sleutel_nummer']['id'] = 'field_sleutel_nummer';
   $handler->display->display_options['fields']['field_sleutel_nummer']['table'] = 'field_data_field_sleutel_nummer';
   $handler->display->display_options['fields']['field_sleutel_nummer']['field'] = 'field_sleutel_nummer';
-  $handler->display->display_options['fields']['field_sleutel_nummer']['label'] = 'Nummer';
+  $handler->display->display_options['fields']['field_sleutel_nummer']['label'] = 'Nr.';
   $handler->display->display_options['fields']['field_sleutel_nummer']['alter']['make_link'] = TRUE;
   $handler->display->display_options['fields']['field_sleutel_nummer']['alter']['path'] = 'node/[nid]';
   $handler->display->display_options['fields']['field_sleutel_nummer']['element_label_colon'] = FALSE;
@@ -278,13 +297,6 @@ function argus_sleutelbeheer_views_default_views() {
   $handler->display->display_options['fields']['field_sleutel_omschrijving']['table'] = 'field_data_field_sleutel_omschrijving';
   $handler->display->display_options['fields']['field_sleutel_omschrijving']['field'] = 'field_sleutel_omschrijving';
   $handler->display->display_options['fields']['field_sleutel_omschrijving']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_sleutel_omschrijving']['settings'] = array(
-    'conditions' => array(
-      0 => array(
-        'condition' => '',
-      ),
-    ),
-  );
   /* Veld: Inhoud: Uitlening */
   $handler->display->display_options['fields']['field_sleutel_uitlening_1']['id'] = 'field_sleutel_uitlening_1';
   $handler->display->display_options['fields']['field_sleutel_uitlening_1']['table'] = 'field_data_field_sleutel_uitlening';
@@ -319,14 +331,10 @@ function argus_sleutelbeheer_views_default_views() {
   $handler->display->display_options['fields']['field_sleutel_totaal_aantal']['id'] = 'field_sleutel_totaal_aantal';
   $handler->display->display_options['fields']['field_sleutel_totaal_aantal']['table'] = 'field_data_field_sleutel_totaal_aantal';
   $handler->display->display_options['fields']['field_sleutel_totaal_aantal']['field'] = 'field_sleutel_totaal_aantal';
+  $handler->display->display_options['fields']['field_sleutel_totaal_aantal']['label'] = 'Beschikbaar';
   $handler->display->display_options['fields']['field_sleutel_totaal_aantal']['settings'] = array(
     'thousand_separator' => ' ',
     'prefix_suffix' => 1,
-    'conditions' => array(
-      0 => array(
-        'condition' => '',
-      ),
-    ),
   );
   /* Veld: COUNT(DISTINCT Inhoud: Uitlening) */
   $handler->display->display_options['fields']['field_sleutel_uitlening']['id'] = 'field_sleutel_uitlening';
@@ -340,7 +348,7 @@ function argus_sleutelbeheer_views_default_views() {
   $handler->display->display_options['fields']['expression']['id'] = 'expression';
   $handler->display->display_options['fields']['expression']['table'] = 'views';
   $handler->display->display_options['fields']['expression']['field'] = 'expression';
-  $handler->display->display_options['fields']['expression']['label'] = 'Aantal in sleutelkast';
+  $handler->display->display_options['fields']['expression']['label'] = 'In sleutelkast';
   $handler->display->display_options['fields']['expression']['element_type'] = 'strong';
   $handler->display->display_options['fields']['expression']['element_class'] = 'markup-red';
   $handler->display->display_options['fields']['expression']['element_label_type'] = 'strong';
@@ -350,6 +358,7 @@ function argus_sleutelbeheer_views_default_views() {
   $handler->display->display_options['fields']['field_sleutel_kleurcode']['id'] = 'field_sleutel_kleurcode';
   $handler->display->display_options['fields']['field_sleutel_kleurcode']['table'] = 'field_data_field_sleutel_kleurcode';
   $handler->display->display_options['fields']['field_sleutel_kleurcode']['field'] = 'field_sleutel_kleurcode';
+  $handler->display->display_options['fields']['field_sleutel_kleurcode']['label'] = 'Kleur';
   $handler->display->display_options['fields']['field_sleutel_kleurcode']['type'] = 'color_field_swatch';
   $handler->display->display_options['fields']['field_sleutel_kleurcode']['settings'] = array(
     'width' => '50',
@@ -643,22 +652,23 @@ function argus_sleutelbeheer_views_default_views() {
     t('‹ vorige'),
     t('volgende ›'),
     t('laatste »'),
+    t('<a href="/node/add/sleutel">Een nieuwe sleutel toevoegen</a>'),
     t('Getoond @start - @end van @total'),
     t('field collection item from field_sleutel_uitlening'),
     t('Gebruiker entity referenced from field_sleutel_uitlening_uitlener'),
     t('[field_sleutel_nummer]'),
-    t('Nummer'),
+    t('Nr.'),
     t('Omschrijving'),
     t('Niet uitgeleend'),
     t('Locatie'),
     t('Type'),
     t('Vrijgave'),
-    t('Totaal aantal beschikbaar'),
+    t('Beschikbaar'),
     t('Uitgeleend'),
-    t('Aantal in sleutelkast'),
+    t('In sleutelkast'),
     t('.'),
     t(','),
-    t('Kleurcode'),
+    t('Kleur'),
     t('Alle'),
     t('Nummer in sleutelkast'),
     t('Uitlener'),

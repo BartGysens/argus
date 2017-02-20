@@ -18,6 +18,7 @@ function argus_wachtwoorden_menu_default_menu_links() {
     'link_title' => 'Wachtwoorden',
     'options' => array(
       'alter' => TRUE,
+      'attributes' => array(),
       'identifier' => 'menu-modules_wachtwoorden:wachtwoorden',
     ),
     'module' => 'system',
@@ -25,8 +26,9 @@ function argus_wachtwoorden_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
+    'weight' => -44,
+    'customized' => 1,
+    'parent_identifier' => 'menu-modules_infrastructuur:node/38828',
   );
   // Exported menu link: navigation_ict---account:node/add/ict-account.
   $menu_links['navigation_ict---account:node/add/ict-account'] = array(
@@ -44,7 +46,7 @@ function argus_wachtwoorden_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -37,
+    'weight' => -34,
     'customized' => 1,
     'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );

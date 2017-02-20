@@ -56,9 +56,6 @@ function argus_ontleningen_field_group_info() {
       1 => 'field_ontleen_periode',
       2 => 'field_ontleen_materiaal',
       3 => 'field_ontleen_inventarisnummer',
-      4 => 'field_inventarisitem',
-      5 => 'field_personeelslid',
-      6 => 'field_gebruiker',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

@@ -10,6 +10,42 @@
 function argus_personeel_afwezigheden_field_default_field_instances() {
   $field_instances = array();
 
+  // Exported field_instance:
+  // 'comment-comment_node_personeel_afwezigheid-comment_body'.
+  $field_instances['comment-comment_node_personeel_afwezigheid-comment_body'] = array(
+    'bundle' => 'comment_node_personeel_afwezigheid',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'comment',
+    'field_name' => 'comment_body',
+    'label' => 'Comment',
+    'required' => TRUE,
+    'settings' => array(
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 0,
+    ),
+  );
+
   // Exported field_instance: 'node-personeel_afwezigheid-field_gebruiker'.
   $field_instances['node-personeel_afwezigheid-field_gebruiker'] = array(
     'bundle' => 'personeel_afwezigheid',
@@ -21,6 +57,7 @@ function argus_personeel_afwezigheden_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -64,7 +101,9 @@ function argus_personeel_afwezigheden_field_default_field_instances() {
       'default' => array(
         'label' => 'above',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 3,
       ),
@@ -104,7 +143,9 @@ function argus_personeel_afwezigheden_field_default_field_instances() {
       'default' => array(
         'label' => 'above',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
         'weight' => 4,
       ),
@@ -151,6 +192,7 @@ function argus_personeel_afwezigheden_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -195,6 +237,7 @@ function argus_personeel_afwezigheden_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -239,6 +282,7 @@ function argus_personeel_afwezigheden_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -281,6 +325,7 @@ function argus_personeel_afwezigheden_field_default_field_instances() {
         'label' => 'above',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
@@ -331,6 +376,7 @@ function argus_personeel_afwezigheden_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Comment');
   t('Lesuren');
   t('Permanentie');
   t('Personeelslid');

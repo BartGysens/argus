@@ -26,13 +26,36 @@ function argus_projecten_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -44,
+    'weight' => -45,
     'customized' => 1,
     'parent_identifier' => 'menu-modules_pedagogischdidactisch:<nolink>',
+  );
+  // Exported menu link: navigation_project:node/add/project.
+  $menu_links['navigation_project:node/add/project'] = array(
+    'menu_name' => 'navigation',
+    'link_path' => 'node/add/project',
+    'router_path' => 'node/add/project',
+    'link_title' => 'Project',
+    'options' => array(
+      'attributes' => array(
+        'title' => 'Breng je <em>projecten</em> mooi in kaart, beheer de betrokken personen en de budgetten. Koppel eventueel de module \'Werken voor derden\' aan deze module en beheer de boekhoudkundige afhandeling van het project.',
+      ),
+      'alter' => TRUE,
+      'identifier' => 'navigation_project:node/add/project',
+    ),
+    'module' => 'system',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -20,
+    'customized' => 1,
+    'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Project');
   t('Projecten');
 
   return $menu_links;

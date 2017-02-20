@@ -10,6 +10,34 @@
 function argus_technische_meldingen_user_default_permissions() {
   $permissions = array();
 
+  // Exported permission: 'create field_tm_opgevolgd_door'.
+  $permissions['create field_tm_opgevolgd_door'] = array(
+    'name' => 'create field_tm_opgevolgd_door',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'create field_tm_status'.
+  $permissions['create field_tm_status'] = array(
+    'name' => 'create field_tm_status',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
   // Exported permission: 'create technische_melding content'.
   $permissions['create technische_melding content'] = array(
     'name' => 'create technische_melding content',
@@ -69,6 +97,62 @@ function argus_technische_meldingen_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'edit field_tm_opgevolgd_door'.
+  $permissions['edit field_tm_opgevolgd_door'] = array(
+    'name' => 'edit field_tm_opgevolgd_door',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'edit field_tm_status'.
+  $permissions['edit field_tm_status'] = array(
+    'name' => 'edit field_tm_status',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'edit own field_tm_opgevolgd_door'.
+  $permissions['edit own field_tm_opgevolgd_door'] = array(
+    'name' => 'edit own field_tm_opgevolgd_door',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'edit own field_tm_status'.
+  $permissions['edit own field_tm_status'] = array(
+    'name' => 'edit own field_tm_status',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
   // Exported permission: 'edit own technische_melding content'.
   $permissions['edit own technische_melding content'] = array(
     'name' => 'edit own technische_melding content',
@@ -84,6 +168,74 @@ function argus_technische_meldingen_user_default_permissions() {
       'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
+  );
+
+  // Exported permission: 'view field_tm_opgevolgd_door'.
+  $permissions['view field_tm_opgevolgd_door'] = array(
+    'name' => 'view field_tm_opgevolgd_door',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'personeelslid' => 'personeelslid',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'view field_tm_status'.
+  $permissions['view field_tm_status'] = array(
+    'name' => 'view field_tm_status',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'personeelslid' => 'personeelslid',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'view own field_tm_opgevolgd_door'.
+  $permissions['view own field_tm_opgevolgd_door'] = array(
+    'name' => 'view own field_tm_opgevolgd_door',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'personeelslid' => 'personeelslid',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'view own field_tm_status'.
+  $permissions['view own field_tm_status'] = array(
+    'name' => 'view own field_tm_status',
+    'roles' => array(
+      'ICT-coördinator' => 'ICT-coördinator',
+      'MVD-personeelslid' => 'MVD-personeelslid',
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
+      'personeelslid' => 'personeelslid',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
+    'module' => 'field_permissions',
   );
 
   return $permissions;

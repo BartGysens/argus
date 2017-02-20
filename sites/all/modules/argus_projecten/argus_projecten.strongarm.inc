@@ -13,6 +13,34 @@ function argus_projecten_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'additional_settings__active_tab_project';
+  $strongarm->value = 'edit-comment';
+  $export['additional_settings__active_tab_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'ant_pattern_project';
+  $strongarm->value = '';
+  $export['ant_pattern_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'ant_php_project';
+  $strongarm->value = 0;
+  $export['ant_php_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'ant_project';
+  $strongarm->value = '0';
+  $export['ant_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'comment_anonymous_project';
   $strongarm->value = 0;
   $export['comment_anonymous_project'] = $strongarm;
@@ -49,7 +77,7 @@ function argus_projecten_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'comment_project';
-  $strongarm->value = '1';
+  $strongarm->value = 1;
   $export['comment_project'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -58,6 +86,41 @@ function argus_projecten_strongarm() {
   $strongarm->name = 'comment_subject_field_project';
   $strongarm->value = '1';
   $export['comment_subject_field_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'content_access_project';
+  $strongarm->value = array(
+    'view_own' => array(
+      0 => 3,
+      1 => 86,
+      2 => 225,
+      3 => 274,
+      4 => 218,
+      5 => 219,
+    ),
+    'view' => array(
+      0 => 216,
+      1 => 3,
+      2 => 86,
+      3 => 225,
+      4 => 274,
+      5 => 218,
+      6 => 219,
+    ),
+  );
+  $export['content_access_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'domain_node_project';
+  $strongarm->value = array(
+    0 => 'DOMAIN_ALL',
+    1 => 'DOMAIN_ACTIVE',
+  );
+  $export['domain_node_project'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -143,6 +206,20 @@ function argus_projecten_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'metatag_enable_node__project';
+  $strongarm->value = TRUE;
+  $export['metatag_enable_node__project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'new_revisions_project';
+  $strongarm->value = '0';
+  $export['new_revisions_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'node_options_project';
   $strongarm->value = array(
     0 => 'status',
@@ -170,6 +247,41 @@ function argus_projecten_strongarm() {
   $strongarm->name = 'pathauto_node_project_pattern';
   $strongarm->value = 'project/[node:field_project_machine_name]';
   $export['pathauto_node_project_pattern'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'revisioning_auto_publish_project';
+  $strongarm->value = 0;
+  $export['revisioning_auto_publish_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'save_continue_project';
+  $strongarm->value = 'Opslaan en velden toevoegen';
+  $export['save_continue_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'simplify_comments_project';
+  $strongarm->value = array();
+  $export['simplify_comments_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'simplify_nodes_project';
+  $strongarm->value = array();
+  $export['simplify_nodes_project'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'webform_node_project';
+  $strongarm->value = 0;
+  $export['webform_node_project'] = $strongarm;
 
   return $export;
 }

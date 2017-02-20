@@ -36,7 +36,9 @@ function argus_uurrooster_vervanging_field_default_field_bases() {
           ),
         ),
         'sort' => array(
-          'type' => 'none',
+          'direction' => 'DESC',
+          'field' => 'field_tijdstip:value',
+          'type' => 'field',
         ),
         'target_bundles' => array(
           'personeel_afwezigheid' => 'personeel_afwezigheid',
@@ -85,6 +87,43 @@ function argus_uurrooster_vervanging_field_default_field_bases() {
         ),
       ),
       'target_type' => 'node',
+    ),
+    'translatable' => 0,
+    'type' => 'entityreference',
+  );
+
+  // Exported field_base: 'field_uurrooster_perm_vervanger'.
+  $field_bases['field_uurrooster_perm_vervanger'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_uurrooster_perm_vervanger',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'entityreference',
+    'settings' => array(
+      'handler' => 'views',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
+        ),
+        'view' => array(
+          'args' => array(),
+          'display_name' => 'users_personeel',
+          'view_name' => 'gebruikers',
+        ),
+      ),
+      'target_type' => 'user',
     ),
     'translatable' => 0,
     'type' => 'entityreference',

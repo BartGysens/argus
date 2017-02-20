@@ -25,8 +25,9 @@ function argus_projectgroepen_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
+    'weight' => -46,
+    'customized' => 1,
+    'parent_identifier' => 'menu-modules_wie-is-wie:wie-is-wie',
   );
   // Exported menu link: navigation_projectgroep:node/add/projectgroep.
   $menu_links['navigation_projectgroep:node/add/projectgroep'] = array(
@@ -46,8 +47,9 @@ function argus_projectgroepen_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
+    'weight' => -19,
+    'customized' => 1,
+    'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );
 
   // Translatables

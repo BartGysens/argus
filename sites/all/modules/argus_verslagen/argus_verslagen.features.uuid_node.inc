@@ -13,7 +13,7 @@ function argus_verslagen_uuid_features_default_content() {
   $nodes[] = array(
   'title' => 'Wekelijks overleg ICT - 21 november 2016',
   'log' => '',
-  'status' => 1,
+  'status' => 0,
   'comment' => 1,
   'promote' => 0,
   'sticky' => 0,
@@ -103,9 +103,9 @@ function argus_verslagen_uuid_features_default_content() {
     0 => 'argus',
   ),
   'num_revisions' => 1,
-  'current_revision_id' => 97250,
+  'current_revision_id' => 104437,
   'is_current' => TRUE,
-  'is_pending' => FALSE,
+  'is_pending' => TRUE,
   'revision_moderation' => TRUE,
   'body' => array(
     'und' => array(
@@ -130,19 +130,17 @@ function argus_verslagen_uuid_features_default_content() {
   'field_tags' => array(
     'und' => array(
       0 => array(
-        'tid' => '6f361db0-b2fd-418c-a7b8-8ad6b3fe1423',
-        'uuid' => '6f361db0-b2fd-418c-a7b8-8ad6b3fe1423',
+        'tid' => 376,
       ),
       1 => array(
-        'tid' => 'c9b8fd52-6147-4fe3-a7f3-161c2f4d0e54',
-        'uuid' => 'c9b8fd52-6147-4fe3-a7f3-161c2f4d0e54',
+        'tid' => 463,
       ),
     ),
   ),
   'field_image' => array(),
   'pathauto_perform_alias' => FALSE,
   'date' => '2016-11-14 13:10:36 +0100',
-  'user_uuid' => 'e67ad48d-7ef5-48fa-92fb-91903f7b4176',
+  'user_uuid' => '9718f6c5-c82f-44c0-bd7d-5b7a6e06b96c',
 );
   $nodes[] = array(
   'title' => 'Vergaderingen',
@@ -305,13 +303,13 @@ function argus_verslagen_uuid_features_default_content() {
     0 => 'argus',
   ),
   'num_revisions' => 1,
-  'current_revision_id' => 18498,
+  'current_revision_id' => 104438,
   'is_current' => TRUE,
   'is_pending' => FALSE,
   'revision_moderation' => FALSE,
   'pathauto_perform_alias' => FALSE,
   'date' => '2015-01-14 09:53:07 +0100',
-  'user_uuid' => '5e23f66a-32c6-4312-b7cc-2ce2429725c9',
+  'user_uuid' => '9718f6c5-c82f-44c0-bd7d-5b7a6e06b96c',
 );
   return $nodes;
 }

@@ -24,7 +24,16 @@ function argus_personeel_afwezigheden_views_default_views() {
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Absenteïsme';
   $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['use_more_text'] = 'meer';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    86 => '86',
+    225 => '225',
+    163 => '163',
+    217 => '217',
+    218 => '218',
+    219 => '219',
+  );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
@@ -200,11 +209,15 @@ function argus_personeel_afwezigheden_views_default_views() {
     'any_label' => NULL,
     'filter_rewrite_values' => NULL,
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required'] = 'Selecteer een van de filters en klik op \'Toepassen\' om het resultaat te zien';
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '100';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = 'Items per pagina';
+  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- Alle -';
+  $handler->display->display_options['pager']['options']['expose']['offset_label'] = 'Startpunt';
+  $handler->display->display_options['pager']['options']['tags']['first'] = '« eerste';
+  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ vorige';
+  $handler->display->display_options['pager']['options']['tags']['next'] = 'volgende ›';
+  $handler->display->display_options['pager']['options']['tags']['last'] = 'laatste »';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
     'realname' => 'realname',
@@ -213,8 +226,9 @@ function argus_personeel_afwezigheden_views_default_views() {
     'field_pers_afwezigheid_reden' => 'field_pers_afwezigheid_reden',
     'edit_node' => 'edit_node',
     'delete_node' => 'delete_node',
+    'nothing' => 'nothing',
   );
-  $handler->display->display_options['style_options']['default'] = '-1';
+  $handler->display->display_options['style_options']['default'] = 'field_tijdstip';
   $handler->display->display_options['style_options']['info'] = array(
     'realname' => array(
       'sortable' => '1',
@@ -225,7 +239,7 @@ function argus_personeel_afwezigheden_views_default_views() {
     ),
     'field_tijdstip' => array(
       'sortable' => '1',
-      'default_sort_order' => 'asc',
+      'default_sort_order' => 'desc',
       'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
@@ -245,46 +259,52 @@ function argus_personeel_afwezigheden_views_default_views() {
       'empty_column' => 0,
     ),
     'edit_node' => array(
-      'align' => 'views-align-right',
+      'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
     'delete_node' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'nothing' => array(
       'align' => 'views-align-right',
       'separator' => '',
       'empty_column' => 0,
     ),
   );
-  /* Header: Global: Text area */
+  $handler->display->display_options['style_options']['sticky'] = TRUE;
+  /* Kop: Algemeen: Tekstveld */
   $handler->display->display_options['header']['area']['id'] = 'area';
   $handler->display->display_options['header']['area']['table'] = 'views';
   $handler->display->display_options['header']['area']['field'] = 'area';
   $handler->display->display_options['header']['area']['empty'] = TRUE;
   $handler->display->display_options['header']['area']['content'] = '<a href="/node/add/personeel-afwezigheid">Een nieuwe afwezigheid toevoegen</a>';
   $handler->display->display_options['header']['area']['format'] = 'filtered_html';
-  /* Footer: Global: Result summary */
+  /* Voet: Algemeen: Samenvatting van het resultaat */
   $handler->display->display_options['footer']['result']['id'] = 'result';
   $handler->display->display_options['footer']['result']['table'] = 'views';
   $handler->display->display_options['footer']['result']['field'] = 'result';
   $handler->display->display_options['footer']['result']['content'] = 'Getoond @start - @end van @total';
-  /* Footer: Global: Text area */
+  /* Voet: Algemeen: Tekstveld */
   $handler->display->display_options['footer']['area']['id'] = 'area';
   $handler->display->display_options['footer']['area']['table'] = 'views';
   $handler->display->display_options['footer']['area']['field'] = 'area';
   $handler->display->display_options['footer']['area']['content'] = '<a href="/node/add/personeel-afwezigheid">Een nieuwe afwezigheid toevoegen</a>';
   $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
-  /* Relationship: Entity Reference: Referenced Entity */
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_gebruiker_target_id']['id'] = 'field_gebruiker_target_id';
   $handler->display->display_options['relationships']['field_gebruiker_target_id']['table'] = 'field_data_field_gebruiker';
   $handler->display->display_options['relationships']['field_gebruiker_target_id']['field'] = 'field_gebruiker_target_id';
   $handler->display->display_options['relationships']['field_gebruiker_target_id']['label'] = 'Gebruiker entity referenced from field_gebruiker';
-  /* Field: Realname: Real name */
+  /* Veld: Echte naam: Werkelijke naam */
   $handler->display->display_options['fields']['realname']['id'] = 'realname';
   $handler->display->display_options['fields']['realname']['table'] = 'realname';
   $handler->display->display_options['fields']['realname']['field'] = 'realname';
   $handler->display->display_options['fields']['realname']['relationship'] = 'field_gebruiker_target_id';
   $handler->display->display_options['fields']['realname']['label'] = 'Personeelslid';
-  /* Field: Content: Tijdstip */
+  /* Veld: Inhoud: Tijdstip */
   $handler->display->display_options['fields']['field_tijdstip']['id'] = 'field_tijdstip';
   $handler->display->display_options['fields']['field_tijdstip']['table'] = 'field_data_field_tijdstip';
   $handler->display->display_options['fields']['field_tijdstip']['field'] = 'field_tijdstip';
@@ -297,51 +317,65 @@ function argus_personeel_afwezigheden_views_default_views() {
     'show_remaining_days' => 0,
     'show_repeat_rule' => 'show',
   );
-  /* Field: Content: Reden (andere) */
+  /* Veld: Inhoud: Reden (andere) */
   $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['id'] = 'field_pers_afwezigheid_redenand';
   $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['table'] = 'field_data_field_pers_afwezigheid_redenand';
   $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['field'] = 'field_pers_afwezigheid_redenand';
   $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['label'] = '';
   $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['element_label_colon'] = FALSE;
-  /* Field: Content: Reden */
+  /* Veld: Inhoud: Reden */
   $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['id'] = 'field_pers_afwezigheid_reden';
   $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['table'] = 'field_data_field_pers_afwezigheid_reden';
   $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['field'] = 'field_pers_afwezigheid_reden';
   $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['alter']['text'] = '[field_pers_afwezigheid_reden]<br /><small>[field_pers_afwezigheid_redenand]</small>';
-  /* Field: Content: Edit link */
+  /* Veld: Inhoud: Bewerkingslink */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
   $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['label'] = '';
+  $handler->display->display_options['fields']['edit_node']['exclude'] = TRUE;
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
-  /* Field: Content: Delete link */
+  /* Veld: Inhoud: Verwijderlink */
   $handler->display->display_options['fields']['delete_node']['id'] = 'delete_node';
   $handler->display->display_options['fields']['delete_node']['table'] = 'views_entity_node';
   $handler->display->display_options['fields']['delete_node']['field'] = 'delete_node';
   $handler->display->display_options['fields']['delete_node']['label'] = '';
+  $handler->display->display_options['fields']['delete_node']['exclude'] = TRUE;
   $handler->display->display_options['fields']['delete_node']['element_label_colon'] = FALSE;
-  /* Sort criterion: Content: Post date */
-  $handler->display->display_options['sorts']['created']['id'] = 'created';
-  $handler->display->display_options['sorts']['created']['table'] = 'node';
-  $handler->display->display_options['sorts']['created']['field'] = 'created';
-  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* Filter criterion: Content: Published */
+  /* Veld: Algemeen: Aangepaste tekst */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node] - [delete_node]';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  /* Sorteercriterium: Inhoud: Tijdstip - startdatum (field_tijdstip) */
+  $handler->display->display_options['sorts']['field_tijdstip_value']['id'] = 'field_tijdstip_value';
+  $handler->display->display_options['sorts']['field_tijdstip_value']['table'] = 'field_data_field_tijdstip';
+  $handler->display->display_options['sorts']['field_tijdstip_value']['field'] = 'field_tijdstip_value';
+  $handler->display->display_options['sorts']['field_tijdstip_value']['order'] = 'DESC';
+  /* Sorteercriterium: Echte naam: Werkelijke naam */
+  $handler->display->display_options['sorts']['realname']['id'] = 'realname';
+  $handler->display->display_options['sorts']['realname']['table'] = 'realname';
+  $handler->display->display_options['sorts']['realname']['field'] = 'realname';
+  $handler->display->display_options['sorts']['realname']['relationship'] = 'field_gebruiker_target_id';
+  /* Filtercriterium: Inhoud: Gepubliceerd */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Content: Type */
+  /* Filtercriterium: Inhoud: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'personeel_afwezigheid' => 'personeel_afwezigheid',
   );
-  /* Filter criterion: Realname: Name */
+  /* Filtercriterium: Echte naam: Naam */
   $handler->display->display_options['filters']['realname']['id'] = 'realname';
   $handler->display->display_options['filters']['realname']['table'] = 'realname';
   $handler->display->display_options['filters']['realname']['field'] = 'realname';
@@ -607,7 +641,7 @@ function argus_personeel_afwezigheden_views_default_views() {
   $handler->display->display_options['filters']['realname']['expose']['autocomplete_raw_suggestion'] = '1';
   $handler->display->display_options['filters']['realname']['expose']['autocomplete_raw_dropdown'] = '1';
   $handler->display->display_options['filters']['realname']['expose']['autocomplete_dependent'] = 0;
-  /* Filter criterion: Content: Reden (field_pers_afwezigheid_reden) */
+  /* Filtercriterium: Inhoud: Reden (field_pers_afwezigheid_reden) */
   $handler->display->display_options['filters']['field_pers_afwezigheid_reden_value']['id'] = 'field_pers_afwezigheid_reden_value';
   $handler->display->display_options['filters']['field_pers_afwezigheid_reden_value']['table'] = 'field_data_field_pers_afwezigheid_reden';
   $handler->display->display_options['filters']['field_pers_afwezigheid_reden_value']['field'] = 'field_pers_afwezigheid_reden_value';
@@ -867,7 +901,7 @@ function argus_personeel_afwezigheden_views_default_views() {
     283 => 0,
   );
   $handler->display->display_options['filters']['field_pers_afwezigheid_reden_value']['reduce_duplicates'] = TRUE;
-  /* Filter criterion: Content: Tijdstip -  start date (field_tijdstip) */
+  /* Filtercriterium: Inhoud: Tijdstip - startdatum (field_tijdstip) */
   $handler->display->display_options['filters']['field_tijdstip_value']['id'] = 'field_tijdstip_value';
   $handler->display->display_options['filters']['field_tijdstip_value']['table'] = 'field_data_field_tijdstip';
   $handler->display->display_options['filters']['field_tijdstip_value']['field'] = 'field_tijdstip_value';
@@ -1132,6 +1166,74 @@ function argus_personeel_afwezigheden_views_default_views() {
   /* Display: Overzicht */
   $handler = $view->new_display('page', 'Overzicht', 'overview_personeel_afwezigheden');
   $handler->display->display_options['exposed_block'] = TRUE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Veld: Echte naam: Werkelijke naam */
+  $handler->display->display_options['fields']['realname']['id'] = 'realname';
+  $handler->display->display_options['fields']['realname']['table'] = 'realname';
+  $handler->display->display_options['fields']['realname']['field'] = 'realname';
+  $handler->display->display_options['fields']['realname']['relationship'] = 'field_gebruiker_target_id';
+  $handler->display->display_options['fields']['realname']['label'] = 'Personeelslid';
+  /* Veld: Inhoud: Tijdstip */
+  $handler->display->display_options['fields']['field_tijdstip']['id'] = 'field_tijdstip';
+  $handler->display->display_options['fields']['field_tijdstip']['table'] = 'field_data_field_tijdstip';
+  $handler->display->display_options['fields']['field_tijdstip']['field'] = 'field_tijdstip';
+  $handler->display->display_options['fields']['field_tijdstip']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+    'show_remaining_days' => 0,
+    'show_repeat_rule' => 'show',
+    'conditions' => array(
+      0 => array(
+        'condition' => '',
+      ),
+    ),
+  );
+  /* Veld: Inhoud: Reden */
+  $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['id'] = 'field_pers_afwezigheid_reden';
+  $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['table'] = 'field_data_field_pers_afwezigheid_reden';
+  $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['field'] = 'field_pers_afwezigheid_reden';
+  $handler->display->display_options['fields']['field_pers_afwezigheid_reden']['settings'] = array(
+    'conditions' => array(
+      0 => array(
+        'condition' => '',
+      ),
+    ),
+  );
+  /* Veld: Inhoud: Reden (andere) */
+  $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['id'] = 'field_pers_afwezigheid_redenand';
+  $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['table'] = 'field_data_field_pers_afwezigheid_redenand';
+  $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['field'] = 'field_pers_afwezigheid_redenand';
+  $handler->display->display_options['fields']['field_pers_afwezigheid_redenand']['settings'] = array(
+    'conditions' => array(
+      0 => array(
+        'condition' => '',
+      ),
+    ),
+  );
+  /* Veld: Inhoud: Bewerkingslink */
+  $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
+  $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
+  $handler->display->display_options['fields']['edit_node']['label'] = '';
+  $handler->display->display_options['fields']['edit_node']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
+  /* Veld: Inhoud: Verwijderlink */
+  $handler->display->display_options['fields']['delete_node']['id'] = 'delete_node';
+  $handler->display->display_options['fields']['delete_node']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['delete_node']['field'] = 'delete_node';
+  $handler->display->display_options['fields']['delete_node']['label'] = '';
+  $handler->display->display_options['fields']['delete_node']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['delete_node']['element_label_colon'] = FALSE;
+  /* Veld: Algemeen: Aangepaste tekst */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node] - [delete_node]';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   $handler->display->display_options['qtip_instance'] = 'standaard';
   $handler->display->display_options['path'] = 'absenteisme';
   $handler->display->display_options['menu']['type'] = 'normal';
@@ -1140,21 +1242,20 @@ function argus_personeel_afwezigheden_views_default_views() {
   $translatables['absenteisme'] = array(
     t('Master'),
     t('Absenteïsme'),
-    t('more'),
+    t('meer'),
     t('Toepassen'),
     t('Opnieuw instellen'),
     t('Sorteren op'),
     t('Oplopend'),
     t('Aflopend'),
     t('Uitgebreide opties'),
-    t('Selecteer een van de filters en klik op \'Toepassen\' om het resultaat te zien'),
-    t('Items per page'),
-    t('- All -'),
-    t('Offset'),
-    t('« first'),
-    t('‹ previous'),
-    t('next ›'),
-    t('last »'),
+    t('Items per pagina'),
+    t('- Alle -'),
+    t('Startpunt'),
+    t('« eerste'),
+    t('‹ vorige'),
+    t('volgende ›'),
+    t('laatste »'),
     t('<a href="/node/add/personeel-afwezigheid">Een nieuwe afwezigheid toevoegen</a>'),
     t('Getoond @start - @end van @total'),
     t('Gebruiker entity referenced from field_gebruiker'),
@@ -1162,7 +1263,9 @@ function argus_personeel_afwezigheden_views_default_views() {
     t('Tijdstip'),
     t('Reden'),
     t('[field_pers_afwezigheid_reden]<br /><small>[field_pers_afwezigheid_redenand]</small>'),
+    t('[edit_node] - [delete_node]'),
     t('Overzicht'),
+    t('Reden (andere)'),
   );
   $export['absenteisme'] = $view;
 

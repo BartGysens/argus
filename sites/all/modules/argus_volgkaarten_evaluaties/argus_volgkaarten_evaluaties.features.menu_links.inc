@@ -10,6 +10,31 @@
 function argus_volgkaarten_evaluaties_menu_default_menu_links() {
   $menu_links = array();
 
+  // Exported menu link: menu-modules_evaluaties:<nolink>.
+  $menu_links['menu-modules_evaluaties:<nolink>'] = array(
+    'menu_name' => 'menu-modules',
+    'link_path' => '<nolink>',
+    'router_path' => '<nolink>',
+    'link_title' => 'Evaluaties',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'alter' => TRUE,
+      'identifier' => 'menu-modules_evaluaties:<nolink>',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 1,
+    'expanded' => 1,
+    'weight' => -48,
+    'customized' => 1,
+    'parent_identifier' => 'menu-modules_pedagogischdidactisch:<nolink>',
+  );
   // Exported menu link: navigation_volgkaart---evaluatie:node/add/msl-volgkaart-evaluatie.
   $menu_links['navigation_volgkaart---evaluatie:node/add/msl-volgkaart-evaluatie'] = array(
     'menu_name' => 'navigation',
@@ -33,6 +58,7 @@ function argus_volgkaarten_evaluaties_menu_default_menu_links() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Evaluaties');
   t('Volgkaart - Evaluatie');
 
   return $menu_links;

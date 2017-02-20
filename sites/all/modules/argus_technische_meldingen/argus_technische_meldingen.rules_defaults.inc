@@ -69,7 +69,7 @@ function argus_technische_meldingen_default_rules_configuration() {
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
       "TAGS" : [ "technische melding" ],
-      "REQUIRES" : [ "rules", "argus_sms_api" ],
+      "REQUIRES" : [ "rules", "argus_sms_api", "argus_bitbucket" ],
       "ON" : { "node_insert--technische_melding" : { "bundle" : "technische_melding" } },
       "IF" : [
         { "data_is" : { "data" : [ "node:field-tm-categorie" ], "value" : "argus" } }
@@ -83,6 +83,12 @@ function argus_technische_meldingen_default_rules_configuration() {
             "subject" : "Nieuwe technische melding over \\u0022argus\\u0022",
             "body" : "De nieuwe technische melding kan je vinden op \\u003Ca href=\\u0022[node:url]\\u0022 target=\\u0022_blank\\u0022\\u003E[node:url]\\u003C\\/a\\u003E.",
             "attachments" : [ "" ]
+          }
+        },
+        { "argus_bitbucket_sendIssue" : {
+            "bugformtitle" : [ "node:title" ],
+            "bugformdescription" : [ "node:body:value" ],
+            "bugformuser" : [ "user:mail" ]
           }
         }
       ]

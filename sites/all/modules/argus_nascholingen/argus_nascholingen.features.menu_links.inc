@@ -10,64 +10,45 @@
 function argus_nascholingen_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-modules_attesten-nascholing:nascholingen/attesten.
-  $menu_links['menu-modules_attesten-nascholing:nascholingen/attesten'] = array(
+  // Exported menu link: menu-modules_nascholing-kwa:events/nascholing/kwa.
+  $menu_links['menu-modules_nascholing-kwa:events/nascholing/kwa'] = array(
     'menu_name' => 'menu-modules',
-    'link_path' => 'nascholingen/attesten',
-    'router_path' => 'nascholingen/attesten',
-    'link_title' => 'Attesten (nascholing)',
+    'link_path' => 'events/nascholing/kwa',
+    'router_path' => 'events/nascholing/kwa',
+    'link_title' => 'Nascholing KWA',
     'options' => array(
       'alter' => TRUE,
-      'identifier' => 'menu-modules_attesten-nascholing:nascholingen/attesten',
+      'attributes' => array(),
+      'identifier' => 'menu-modules_nascholing-kwa:events/nascholing/kwa',
     ),
     'module' => 'system',
     'hidden' => 0,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
-    'parent_identifier' => 'menu-modules_nascholing:nascholingen',
+    'weight' => -41,
+    'customized' => 1,
+    'parent_identifier' => 'menu-modules_interne-kwaliteitszorg:ikz',
   );
-  // Exported menu link: menu-modules_goedkeuringen-nascholing:nascholingen/goedkeuringen.
-  $menu_links['menu-modules_goedkeuringen-nascholing:nascholingen/goedkeuringen'] = array(
+  // Exported menu link: menu-modules_nascholing:events/nascholing.
+  $menu_links['menu-modules_nascholing:events/nascholing'] = array(
     'menu_name' => 'menu-modules',
-    'link_path' => 'nascholingen/goedkeuringen',
-    'router_path' => 'nascholingen/goedkeuringen',
-    'link_title' => 'Goedkeuringen (nascholing)',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Verlenen van goedkeuring door directie',
-      ),
-      'alter' => TRUE,
-      'identifier' => 'menu-modules_goedkeuringen-nascholing:nascholingen/goedkeuringen',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
-    'parent_identifier' => 'menu-modules_nascholing:nascholingen',
-  );
-  // Exported menu link: menu-modules_nascholing:nascholingen.
-  $menu_links['menu-modules_nascholing:nascholingen'] = array(
-    'menu_name' => 'menu-modules',
-    'link_path' => 'nascholingen',
-    'router_path' => 'nascholingen',
+    'link_path' => 'events/nascholing',
+    'router_path' => 'events/nascholing',
     'link_title' => 'Nascholing',
     'options' => array(
       'alter' => TRUE,
-      'identifier' => 'menu-modules_nascholing:nascholingen',
+      'attributes' => array(),
+      'identifier' => 'menu-modules_nascholing:events/nascholing',
     ),
     'module' => 'system',
     'hidden' => 0,
     'external' => 0,
-    'has_children' => 1,
+    'has_children' => 0,
     'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
+    'weight' => -49,
+    'customized' => 1,
+    'parent_identifier' => 'menu-modules_aanvragen:<nolink>',
   );
   // Exported menu link: navigation_nascholing:node/add/event-nascholing.
   $menu_links['navigation_nascholing:node/add/event-nascholing'] = array(
@@ -94,9 +75,8 @@ function argus_nascholingen_menu_default_menu_links() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Attesten (nascholing)');
-  t('Goedkeuringen (nascholing)');
   t('Nascholing');
+  t('Nascholing KWA');
 
   return $menu_links;
 }

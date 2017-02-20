@@ -10,7 +10,7 @@
 function argus_sleutelbeheer_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-modules_sleutelbeheer:sleutelbeheer/overzicht
+  // Exported menu link: menu-modules_sleutelbeheer:sleutelbeheer/overzicht.
   $menu_links['menu-modules_sleutelbeheer:sleutelbeheer/overzicht'] = array(
     'menu_name' => 'menu-modules',
     'link_path' => 'sleutelbeheer/overzicht',
@@ -32,7 +32,7 @@ function argus_sleutelbeheer_menu_default_menu_links() {
     'customized' => 0,
     'parent_identifier' => 'menu-modules_:sleutelbeheer',
   );
-  // Exported menu link: navigation_sleutel:node/add/sleutel
+  // Exported menu link: navigation_sleutel:node/add/sleutel.
   $menu_links['navigation_sleutel:node/add/sleutel'] = array(
     'menu_name' => 'navigation',
     'link_path' => 'node/add/sleutel',
@@ -50,15 +50,15 @@ function argus_sleutelbeheer_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -44,
+    'weight' => -16,
     'customized' => 1,
     'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Sleutel');
   t('Sleutelbeheer');
-
 
   return $menu_links;
 }

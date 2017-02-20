@@ -10,7 +10,7 @@
 function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_msl_oa_sticker_f1_datum'
+  // Exported field_base: 'field_msl_oa_sticker_f1_datum'.
   $field_bases['field_msl_oa_sticker_f1_datum'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -20,7 +20,6 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -44,7 +43,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_msl_oa_sticker_f2_datum'
+  // Exported field_base: 'field_msl_oa_sticker_f2_datum'.
   $field_bases['field_msl_oa_sticker_f2_datum'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -54,7 +53,6 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -78,7 +76,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_msl_oa_sticker_f2_m_datum'
+  // Exported field_base: 'field_msl_oa_sticker_f2_m_datum'.
   $field_bases['field_msl_oa_sticker_f2_m_datum'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -88,7 +86,6 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -112,7 +109,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_msl_oa_sticker_f2_maatreg'
+  // Exported field_base: 'field_msl_oa_sticker_f2_maatreg'.
   $field_bases['field_msl_oa_sticker_f2_maatreg'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -122,14 +119,6 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
-    ),
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -159,7 +148,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_msl_oa_sticker_f3_datum'
+  // Exported field_base: 'field_msl_oa_sticker_f3_datum'.
   $field_bases['field_msl_oa_sticker_f3_datum'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -169,7 +158,6 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -193,7 +181,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_msl_oa_sticker_f3_m_datum'
+  // Exported field_base: 'field_msl_oa_sticker_f3_m_datum'.
   $field_bases['field_msl_oa_sticker_f3_m_datum'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -203,7 +191,6 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'field_permissions' => array(
       'type' => 0,
     ),
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -227,7 +214,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_msl_oa_sticker_f3_maatreg'
+  // Exported field_base: 'field_msl_oa_sticker_f3_maatreg'.
   $field_bases['field_msl_oa_sticker_f3_maatreg'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -236,14 +223,6 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'field_name' => 'field_msl_oa_sticker_f3_maatreg',
     'field_permissions' => array(
       'type' => 0,
-    ),
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
     ),
     'indexes' => array(
       'target_id' => array(
@@ -274,7 +253,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_msl_oa_sticker_leerling'
+  // Exported field_base: 'field_msl_oa_sticker_leerling'.
   $field_bases['field_msl_oa_sticker_leerling'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -283,14 +262,6 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_bases() {
     'field_name' => 'field_msl_oa_sticker_leerling',
     'field_permissions' => array(
       'type' => 0,
-    ),
-    'foreign keys' => array(
-      'users' => array(
-        'columns' => array(
-          'target_id' => 'uid',
-        ),
-        'table' => 'users',
-      ),
     ),
     'indexes' => array(
       'target_id' => array(

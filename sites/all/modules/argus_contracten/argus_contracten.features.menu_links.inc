@@ -48,8 +48,9 @@ function argus_contracten_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -46,
+    'weight' => -45,
     'customized' => 1,
+    'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );
 
   // Translatables

@@ -427,6 +427,47 @@ function argus_ikz_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-ikz_documenten-field_tags'.
+  $field_instances['node-ikz_documenten-field_tags'] = array(
+    'bundle' => 'ikz_documenten',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 2,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_tags',
+    'label' => 'Tags',
+    'required' => FALSE,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'taxonomy',
+      'settings' => array(
+        'autocomplete_path' => 'taxonomy/autocomplete',
+        'size' => 60,
+      ),
+      'type' => 'taxonomy_autocomplete',
+      'weight' => 45,
+    ),
+  );
+
   // Exported field_instance: 'node-ikz_formulier-field_ikz_datum'.
   $field_instances['node-ikz_formulier-field_ikz_datum'] = array(
     'bundle' => 'ikz_formulier',
@@ -1458,6 +1499,7 @@ function argus_ikz_field_default_field_instances() {
   t('Revisie');
   t('Rol');
   t('Status');
+  t('Tags');
   t('Toepassingsgebied');
   t('Tot welke categorie behoort deze afkorting');
   t('Verantwoordelijkheden');

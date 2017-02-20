@@ -65,8 +65,6 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
       ),
     ),
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '50';
   $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = 'Items per pagina';
@@ -456,6 +454,7 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
   $handler->display->display_options['exposed_form']['options']['reset_button_label'] = 'Opnieuw instellen';
   $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = 'Sorteren op';
+  $handler->display->display_options['exposed_form']['options']['expose_sort_order'] = FALSE;
   $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = 'Oplopend';
   $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = 'Aflopend';
   $handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
@@ -757,6 +756,55 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
     'msl_oa_sticker' => 'msl_oa_sticker',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
+  /* Filtercriterium: Inhoud: Datum van inzending */
+  $handler->display->display_options['filters']['created']['id'] = 'created';
+  $handler->display->display_options['filters']['created']['table'] = 'node';
+  $handler->display->display_options['filters']['created']['field'] = 'created';
+  $handler->display->display_options['filters']['created']['operator'] = '>=';
+  $handler->display->display_options['filters']['created']['value']['value'] = '01-09-2015';
+  $handler->display->display_options['filters']['created']['group'] = 1;
+  $handler->display->display_options['filters']['created']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['created']['expose']['operator_id'] = 'created_op';
+  $handler->display->display_options['filters']['created']['expose']['label'] = 'Datum van inzending';
+  $handler->display->display_options['filters']['created']['expose']['operator'] = 'created_op';
+  $handler->display->display_options['filters']['created']['expose']['identifier'] = 'created';
+  $handler->display->display_options['filters']['created']['is_grouped'] = TRUE;
+  $handler->display->display_options['filters']['created']['group_info']['label'] = 'Schooljaar';
+  $handler->display->display_options['filters']['created']['group_info']['identifier'] = 'created';
+  $handler->display->display_options['filters']['created']['group_info']['optional'] = FALSE;
+  $handler->display->display_options['filters']['created']['group_info']['default_group'] = '1';
+  $handler->display->display_options['filters']['created']['group_info']['group_items'] = array(
+    1 => array(
+      'title' => '2016-2017',
+      'operator' => 'between',
+      'value' => array(
+        'type' => 'date',
+        'value' => '01-09-2015',
+        'min' => '01-09-2016',
+        'max' => '30-06-2017',
+      ),
+    ),
+    2 => array(
+      'title' => '2015-2016',
+      'operator' => 'between',
+      'value' => array(
+        'type' => 'date',
+        'value' => '01-09-2015',
+        'min' => '01-09-2015',
+        'max' => '30-06-2016',
+      ),
+    ),
+    3 => array(
+      'title' => '2014-2015',
+      'operator' => 'between',
+      'value' => array(
+        'type' => 'date',
+        'value' => '01-09-2014',
+        'min' => '01-09-2014',
+        'max' => '30-06-2015',
+      ),
+    ),
+  );
   /* Filtercriterium: Echte naam: Naam */
   $handler->display->display_options['filters']['realname']['id'] = 'realname';
   $handler->display->display_options['filters']['realname']['table'] = 'realname';
@@ -987,6 +1035,7 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
   $handler->display->display_options['filters']['field_msl_oa_sticker_f2_maatreg_target_id']['id'] = 'field_msl_oa_sticker_f2_maatreg_target_id';
   $handler->display->display_options['filters']['field_msl_oa_sticker_f2_maatreg_target_id']['table'] = 'field_data_field_msl_oa_sticker_f2_maatreg';
   $handler->display->display_options['filters']['field_msl_oa_sticker_f2_maatreg_target_id']['field'] = 'field_msl_oa_sticker_f2_maatreg_target_id';
+  $handler->display->display_options['filters']['field_msl_oa_sticker_f2_maatreg_target_id']['group'] = 1;
   $handler->display->display_options['filters']['field_msl_oa_sticker_f2_maatreg_target_id']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_msl_oa_sticker_f2_maatreg_target_id']['expose']['operator_id'] = 'field_msl_oa_sticker_f2_maatreg_target_id_op';
   $handler->display->display_options['filters']['field_msl_oa_sticker_f2_maatreg_target_id']['expose']['label'] = 'Maatregel - fase 2 (field_msl_oa_sticker_f2_maatreg)';
@@ -1012,6 +1061,7 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
   $handler->display->display_options['filters']['field_msl_oa_sticker_f3_maatreg_target_id']['id'] = 'field_msl_oa_sticker_f3_maatreg_target_id';
   $handler->display->display_options['filters']['field_msl_oa_sticker_f3_maatreg_target_id']['table'] = 'field_data_field_msl_oa_sticker_f3_maatreg';
   $handler->display->display_options['filters']['field_msl_oa_sticker_f3_maatreg_target_id']['field'] = 'field_msl_oa_sticker_f3_maatreg_target_id';
+  $handler->display->display_options['filters']['field_msl_oa_sticker_f3_maatreg_target_id']['group'] = 1;
   $handler->display->display_options['filters']['field_msl_oa_sticker_f3_maatreg_target_id']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_msl_oa_sticker_f3_maatreg_target_id']['expose']['operator_id'] = 'field_msl_oa_sticker_f3_maatreg_target_id_op';
   $handler->display->display_options['filters']['field_msl_oa_sticker_f3_maatreg_target_id']['expose']['label'] = 'Maatregel - fase 3 (field_msl_oa_sticker_f3_maatreg)';
@@ -1058,7 +1108,7 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
     t('Sorteren op'),
     t('Oplopend'),
     t('Aflopend'),
-    t('Selecteer een van de filters en klik op \'Toepassen\' om het resultaat te zien'),
+    t('Uitgebreide opties'),
     t('Items per pagina'),
     t('- Alle -'),
     t('Startpunt'),
@@ -1068,8 +1118,8 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
     t('laatste »'),
     t('Sticker toevoegen'),
     t('<a href="/node/add/msl-oa-sticker">Een nieuwe rode sticker toevoegen</a>'),
-    t('Gebruiker entity referenced from field_msl_oa_sticker_leerling'),
-    t('Inhoud entity referenced from field_msl_oa_sticker_f2_maatreg'),
+    t('Gebruiker entiteit gerefereerd vanaf field_msl_oa_sticker_leerling'),
+    t('Inhoud entiteit gerefereerd vanaf field_msl_oa_sticker_f2_maatreg'),
     t('Nr.'),
     t('Leerling'),
     t('[field_user_sms_naam], [field_user_sms_voornaam]'),
@@ -1093,6 +1143,8 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
     t('Fase 3'),
     t('[field_msl_oa_sticker_f3_datum]<br />
 <em><small>[field_msl_oa_sticker_f3_datum_2]</small></em>'),
+    t('Datum van inzending'),
+    t('Schooljaar'),
     t('Maatregel - fase 2 (field_msl_oa_sticker_f2_maatreg)'),
     t('Maatregel - fase 2'),
     t('Maatregel - fase 3 (field_msl_oa_sticker_f3_maatreg)'),

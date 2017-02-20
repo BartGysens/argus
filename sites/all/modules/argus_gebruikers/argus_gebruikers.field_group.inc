@@ -1565,6 +1565,7 @@ function argus_gebruikers_field_group_info() {
       9 => 'field_user_sms_b_naam_school',
       10 => 'field_user_sms_b_gemeente_school',
       11 => 'field_user_sms_verslag_clb',
+      12 => 'field_user_sms_inschrijving_onde',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -1765,6 +1766,7 @@ function argus_gebruikers_field_group_info() {
       14 => 'field_user_sms_andere_ls_j_n',
       15 => 'field_user_sms_attest_ingeleverd',
       16 => 'field_user_sms_gon',
+      17 => 'field_user_sms_gon_begeleiding__',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -1950,10 +1952,13 @@ function argus_gebruikers_field_group_info() {
       15 => 'field_user_sms_telefoonnummer_ve',
       16 => 'field_user_sms_soortleerling',
       17 => 'field_user_sms_hoeveelste_in_rij',
-      18 => 'domain',
-      19 => 'mimemail',
-      20 => 'realname',
-      21 => 'summary',
+      18 => 'field_user_sms_isemailverified',
+      19 => 'field_user_sms_isauthenticatorap',
+      20 => 'field_user_sms_isyubikeyenabled',
+      21 => 'domain',
+      22 => 'mimemail',
+      23 => 'realname',
+      24 => 'summary',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

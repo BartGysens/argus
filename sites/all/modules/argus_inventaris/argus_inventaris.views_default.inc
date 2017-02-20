@@ -33,12 +33,10 @@ function argus_inventaris_views_default_views() {
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['submit_button'] = 'Toepassen';
-  $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
   $handler->display->display_options['exposed_form']['options']['reset_button_label'] = 'Opnieuw instellen';
   $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = 'Sorteren op';
   $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = 'Oplopend';
   $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = 'Aflopend';
-  $handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '100';
   $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = 'Items per pagina';
@@ -53,12 +51,12 @@ function argus_inventaris_views_default_views() {
     'field_inventaris_categorie' => 'field_inventaris_categorie',
     'field_klas_structuuronderdeel' => 'field_klas_structuuronderdeel',
     'field_jaar' => 'field_jaar',
-    'body' => 'body',
-    'title' => 'title',
-    'field_lokaal' => 'field_lokaal',
-    'realname' => 'realname',
     'field_inventaris_fir' => 'field_inventaris_fir',
     'field_factuurnummer' => 'field_factuurnummer',
+    'title' => 'title',
+    'body' => 'body',
+    'realname' => 'realname',
+    'field_lokaal' => 'field_lokaal',
     'field_inventaris_bir' => 'field_inventaris_bir',
     'field_inventaris_status' => 'field_inventaris_status',
     'edit_node' => 'edit_node',
@@ -80,35 +78,7 @@ function argus_inventaris_views_default_views() {
     'field_jaar' => array(
       'sortable' => '1',
       'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'body' => array(
-      'sortable' => '1',
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'title' => array(
-      'sortable' => '1',
-      'default_sort_order' => 'asc',
-      'align' => 'views-align-left',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_lokaal' => array(
-      'sortable' => '1',
-      'default_sort_order' => 'asc',
-      'align' => 'views-align-left',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'realname' => array(
-      'sortable' => '1',
-      'default_sort_order' => 'asc',
-      'align' => 'views-align-left',
+      'align' => 'views-align-center',
       'separator' => '',
       'empty_column' => 0,
     ),
@@ -126,10 +96,38 @@ function argus_inventaris_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'field_inventaris_bir' => array(
+    'title' => array(
       'sortable' => '1',
       'default_sort_order' => 'asc',
       'align' => 'views-align-left',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'body' => array(
+      'sortable' => '1',
+      'default_sort_order' => 'asc',
+      'align' => 'views-align-left',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'realname' => array(
+      'sortable' => '1',
+      'default_sort_order' => 'asc',
+      'align' => 'views-align-left',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_lokaal' => array(
+      'sortable' => '1',
+      'default_sort_order' => 'asc',
+      'align' => 'views-align-left',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_inventaris_bir' => array(
+      'sortable' => '1',
+      'default_sort_order' => 'asc',
+      'align' => 'views-align-center',
       'separator' => '',
       'empty_column' => 0,
     ),
@@ -173,52 +171,6 @@ function argus_inventaris_views_default_views() {
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
-  /* Veld: Inhoud: Jaar */
-  $handler->display->display_options['fields']['field_jaar']['id'] = 'field_jaar';
-  $handler->display->display_options['fields']['field_jaar']['table'] = 'field_data_field_jaar';
-  $handler->display->display_options['fields']['field_jaar']['field'] = 'field_jaar';
-  $handler->display->display_options['fields']['field_jaar']['label'] = '';
-  $handler->display->display_options['fields']['field_jaar']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_jaar']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_jaar']['settings'] = array(
-    'format_type' => 'long',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-    'show_remaining_days' => 0,
-    'show_repeat_rule' => 'show',
-    'conditions' => array(
-      0 => array(
-        'condition' => '',
-      ),
-    ),
-  );
-  /* Veld: Inhoud: Body */
-  $handler->display->display_options['fields']['body']['id'] = 'body';
-  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
-  $handler->display->display_options['fields']['body']['field'] = 'body';
-  $handler->display->display_options['fields']['body']['label'] = '';
-  $handler->display->display_options['fields']['body']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['body']['settings'] = array(
-    'conditions' => array(
-      0 => array(
-        'condition' => '',
-      ),
-    ),
-  );
-  /* Veld: Inhoud: Titel */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = 'Omshrijving';
-  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['title']['alter']['text'] = '[title] ([field_jaar])<br />
-[body]';
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   /* Veld: Inhoud: Categorie */
   $handler->display->display_options['fields']['field_inventaris_categorie']['id'] = 'field_inventaris_categorie';
   $handler->display->display_options['fields']['field_inventaris_categorie']['table'] = 'field_data_field_inventaris_categorie';
@@ -249,6 +201,51 @@ function argus_inventaris_views_default_views() {
     ),
   );
   $handler->display->display_options['fields']['field_klas_structuuronderdeel']['delta_offset'] = '0';
+  /* Veld: Inhoud: Titel */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* Veld: Inhoud: Jaar */
+  $handler->display->display_options['fields']['field_jaar']['id'] = 'field_jaar';
+  $handler->display->display_options['fields']['field_jaar']['table'] = 'field_data_field_jaar';
+  $handler->display->display_options['fields']['field_jaar']['field'] = 'field_jaar';
+  $handler->display->display_options['fields']['field_jaar']['label'] = '';
+  $handler->display->display_options['fields']['field_jaar']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_jaar']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_jaar']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+    'show_remaining_days' => 0,
+    'show_repeat_rule' => 'show',
+    'conditions' => array(
+      0 => array(
+        'condition' => '',
+      ),
+    ),
+  );
+  /* Veld: Inhoud: Body */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['label'] = 'Omschrijving';
+  $handler->display->display_options['fields']['body']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['body']['alter']['text'] = '[title] ([field_jaar])<br />
+<small>[body-value]</small>';
+  $handler->display->display_options['fields']['body']['settings'] = array(
+    'conditions' => array(
+      0 => array(
+        'condition' => '',
+      ),
+    ),
+  );
   /* Veld: Veld: Lokaal */
   $handler->display->display_options['fields']['field_lokaal']['id'] = 'field_lokaal';
   $handler->display->display_options['fields']['field_lokaal']['table'] = 'field_data_field_lokaal';
@@ -279,8 +276,6 @@ function argus_inventaris_views_default_views() {
   $handler->display->display_options['fields']['field_inventaris_fir']['field'] = 'field_inventaris_fir';
   $handler->display->display_options['fields']['field_inventaris_fir']['label'] = '';
   $handler->display->display_options['fields']['field_inventaris_fir']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_inventaris_fir']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['field_inventaris_fir']['alter']['text'] = 'FIR = <strong>[field_inventaris_fir]</strong><br />';
   $handler->display->display_options['fields']['field_inventaris_fir']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_inventaris_fir']['settings'] = array(
     'conditions' => array(
@@ -295,8 +290,6 @@ function argus_inventaris_views_default_views() {
   $handler->display->display_options['fields']['field_factuurnummer']['field'] = 'field_factuurnummer';
   $handler->display->display_options['fields']['field_factuurnummer']['label'] = '';
   $handler->display->display_options['fields']['field_factuurnummer']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_factuurnummer']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['field_factuurnummer']['alter']['text'] = 'Factuurnr. = <strong>[field_factuurnummer]</strong>';
   $handler->display->display_options['fields']['field_factuurnummer']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_factuurnummer']['settings'] = array(
     'conditions' => array(
@@ -309,11 +302,11 @@ function argus_inventaris_views_default_views() {
   $handler->display->display_options['fields']['field_inventaris_bir']['id'] = 'field_inventaris_bir';
   $handler->display->display_options['fields']['field_inventaris_bir']['table'] = 'field_data_field_inventaris_bir';
   $handler->display->display_options['fields']['field_inventaris_bir']['field'] = 'field_inventaris_bir';
-  $handler->display->display_options['fields']['field_inventaris_bir']['label'] = '';
-  $handler->display->display_options['fields']['field_inventaris_bir']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_inventaris_bir']['label'] = 'Nummers';
   $handler->display->display_options['fields']['field_inventaris_bir']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['field_inventaris_bir']['alter']['text'] = 'BIR = <strong>[field_inventaris_bir]</strong><br />';
-  $handler->display->display_options['fields']['field_inventaris_bir']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_inventaris_bir']['alter']['text'] = 'FIR = [field_inventaris_fir]<br />
+BIR = [field_inventaris_bir]<br />
+Factuurnr. = [field_factuurnummer]';
   $handler->display->display_options['fields']['field_inventaris_bir']['settings'] = array(
     'conditions' => array(
       0 => array(
@@ -321,12 +314,6 @@ function argus_inventaris_views_default_views() {
       ),
     ),
   );
-  /* Veld: Algemeen: Aangepaste tekst */
-  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['table'] = 'views';
-  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
-  $handler->display->display_options['fields']['nothing']['label'] = 'Nummers';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<small>[field_inventaris_fir][field_inventaris_bir][field_factuurnummer]</small>';
   /* Veld: Inhoud: Status */
   $handler->display->display_options['fields']['field_inventaris_status']['id'] = 'field_inventaris_status';
   $handler->display->display_options['fields']['field_inventaris_status']['table'] = 'field_data_field_inventaris_status';
@@ -1436,14 +1423,18 @@ function argus_inventaris_views_default_views() {
   $handler->display->display_options['filters']['field_inventaris_fir_value']['group'] = 1;
   $handler->display->display_options['filters']['field_inventaris_fir_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['operator_id'] = 'field_inventaris_fir_value_op';
-  $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['label'] = 'Fysisch inventarisregister (FIR)';
+  $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['label'] = 'FIR';
+  $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['description'] = 'Fysisch inventarisregister';
   $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['operator'] = 'field_inventaris_fir_value_op';
   $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['identifier'] = 'field_inventaris_fir_value';
   $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['remember_roles'] = array(
     2 => '2',
+    1 => 0,
+    3 => 0,
     26 => 0,
     27 => 0,
     28 => 0,
+    245 => 0,
     246 => 0,
     29 => 0,
     30 => 0,
@@ -1510,22 +1501,12 @@ function argus_inventaris_views_default_views() {
     251 => 0,
     252 => 0,
     79 => 0,
-    3 => 0,
-    329 => 0,
-    394 => 0,
     6 => 0,
-    1 => 0,
-    396 => 0,
-    397 => 0,
     321 => 0,
     83 => 0,
     84 => 0,
-    369 => 0,
-    342 => 0,
-    326 => 0,
     85 => 0,
     80 => 0,
-    395 => 0,
     86 => 0,
     225 => 0,
     87 => 0,
@@ -1534,13 +1515,6 @@ function argus_inventaris_views_default_views() {
     243 => 0,
     81 => 0,
     319 => 0,
-    330 => 0,
-    234 => 0,
-    235 => 0,
-    236 => 0,
-    237 => 0,
-    238 => 0,
-    239 => 0,
     229 => 0,
     8 => 0,
     280 => 0,
@@ -1617,7 +1591,6 @@ function argus_inventaris_views_default_views() {
     273 => 0,
     144 => 0,
     5 => 0,
-    163 => 0,
     145 => 0,
     146 => 0,
     147 => 0,
@@ -1636,73 +1609,14 @@ function argus_inventaris_views_default_views() {
     160 => 0,
     161 => 0,
     162 => 0,
-    331 => 0,
+    163 => 0,
     164 => 0,
-    352 => 0,
-    353 => 0,
-    343 => 0,
-    344 => 0,
-    354 => 0,
-    365 => 0,
-    345 => 0,
-    346 => 0,
-    370 => 0,
-    347 => 0,
-    348 => 0,
-    355 => 0,
-    366 => 0,
-    371 => 0,
-    356 => 0,
-    357 => 0,
-    358 => 0,
-    372 => 0,
-    373 => 0,
-    368 => 0,
-    367 => 0,
-    349 => 0,
-    374 => 0,
-    350 => 0,
-    167 => 0,
-    392 => 0,
-    359 => 0,
-    360 => 0,
-    361 => 0,
-    332 => 0,
-    377 => 0,
-    376 => 0,
-    383 => 0,
-    384 => 0,
-    385 => 0,
-    386 => 0,
-    328 => 0,
-    387 => 0,
-    388 => 0,
-    389 => 0,
-    390 => 0,
-    378 => 0,
-    379 => 0,
-    351 => 0,
-    380 => 0,
-    381 => 0,
-    382 => 0,
-    333 => 0,
-    334 => 0,
-    335 => 0,
-    362 => 0,
-    336 => 0,
-    393 => 0,
-    276 => 0,
-    168 => 0,
-    363 => 0,
-    337 => 0,
-    169 => 0,
-    338 => 0,
-    364 => 0,
     165 => 0,
     166 => 0,
-    340 => 0,
-    341 => 0,
-    339 => 0,
+    167 => 0,
+    276 => 0,
+    168 => 0,
+    169 => 0,
     170 => 0,
     171 => 0,
     172 => 0,
@@ -1714,39 +1628,37 @@ function argus_inventaris_views_default_views() {
     178 => 0,
     179 => 0,
     180 => 0,
-    182 => 0,
     181 => 0,
+    182 => 0,
     183 => 0,
-    293 => 0,
     184 => 0,
     185 => 0,
     186 => 0,
-    327 => 0,
     187 => 0,
     188 => 0,
     189 => 0,
     190 => 0,
     191 => 0,
+    293 => 0,
     192 => 0,
     193 => 0,
     299 => 0,
     194 => 0,
     195 => 0,
     300 => 0,
-    375 => 0,
-    197 => 0,
     196 => 0,
+    197 => 0,
     198 => 0,
     199 => 0,
     200 => 0,
     201 => 0,
     296 => 0,
-    203 => 0,
     202 => 0,
+    203 => 0,
     204 => 0,
+    205 => 0,
     206 => 0,
     207 => 0,
-    205 => 0,
     208 => 0,
     297 => 0,
     309 => 0,
@@ -1760,9 +1672,9 @@ function argus_inventaris_views_default_views() {
     210 => 0,
     211 => 0,
     212 => 0,
-    215 => 0,
     213 => 0,
     214 => 0,
+    215 => 0,
     274 => 0,
     216 => 0,
     284 => 0,
@@ -1774,19 +1686,88 @@ function argus_inventaris_views_default_views() {
     295 => 0,
     323 => 0,
     324 => 0,
-    245 => 0,
-    476 => 0,
     325 => 0,
     218 => 0,
     219 => 0,
-    291 => 0,
     228 => 0,
-    277 => 0,
     220 => 0,
     221 => 0,
-    391 => 0,
     223 => 0,
     224 => 0,
+    277 => 0,
+    239 => 0,
+    234 => 0,
+    235 => 0,
+    236 => 0,
+    237 => 0,
+    238 => 0,
+    291 => 0,
+    326 => 0,
+    327 => 0,
+    328 => 0,
+    329 => 0,
+    330 => 0,
+    331 => 0,
+    332 => 0,
+    333 => 0,
+    334 => 0,
+    335 => 0,
+    336 => 0,
+    337 => 0,
+    338 => 0,
+    339 => 0,
+    340 => 0,
+    341 => 0,
+    342 => 0,
+    343 => 0,
+    344 => 0,
+    345 => 0,
+    346 => 0,
+    347 => 0,
+    348 => 0,
+    349 => 0,
+    350 => 0,
+    351 => 0,
+    352 => 0,
+    353 => 0,
+    354 => 0,
+    355 => 0,
+    356 => 0,
+    357 => 0,
+    358 => 0,
+    359 => 0,
+    360 => 0,
+    361 => 0,
+    362 => 0,
+    363 => 0,
+    364 => 0,
+    365 => 0,
+    366 => 0,
+    367 => 0,
+    368 => 0,
+    369 => 0,
+    370 => 0,
+    371 => 0,
+    372 => 0,
+    373 => 0,
+    374 => 0,
+    375 => 0,
+    376 => 0,
+    377 => 0,
+    378 => 0,
+    379 => 0,
+    380 => 0,
+    381 => 0,
+    382 => 0,
+    383 => 0,
+    384 => 0,
+    385 => 0,
+    386 => 0,
+    387 => 0,
+    388 => 0,
+    389 => 0,
+    390 => 0,
+    391 => 0,
   );
   $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['autocomplete_filter'] = '1';
   $handler->display->display_options['filters']['field_inventaris_fir_value']['expose']['autocomplete_items'] = '10';
@@ -2162,14 +2143,18 @@ function argus_inventaris_views_default_views() {
   $handler->display->display_options['filters']['field_inventaris_bir_value']['group'] = 1;
   $handler->display->display_options['filters']['field_inventaris_bir_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['operator_id'] = 'field_inventaris_bir_value_op';
-  $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['label'] = 'Boekhoudkundig inventarisregister (BIR)';
+  $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['label'] = 'BIR';
+  $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['description'] = 'Boekhoudkundig inventarisregister';
   $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['operator'] = 'field_inventaris_bir_value_op';
   $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['identifier'] = 'field_inventaris_bir_value';
   $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['remember_roles'] = array(
     2 => '2',
+    1 => 0,
+    3 => 0,
     26 => 0,
     27 => 0,
     28 => 0,
+    245 => 0,
     246 => 0,
     29 => 0,
     30 => 0,
@@ -2236,22 +2221,12 @@ function argus_inventaris_views_default_views() {
     251 => 0,
     252 => 0,
     79 => 0,
-    3 => 0,
-    329 => 0,
-    394 => 0,
     6 => 0,
-    1 => 0,
-    396 => 0,
-    397 => 0,
     321 => 0,
     83 => 0,
     84 => 0,
-    369 => 0,
-    342 => 0,
-    326 => 0,
     85 => 0,
     80 => 0,
-    395 => 0,
     86 => 0,
     225 => 0,
     87 => 0,
@@ -2260,13 +2235,6 @@ function argus_inventaris_views_default_views() {
     243 => 0,
     81 => 0,
     319 => 0,
-    330 => 0,
-    234 => 0,
-    235 => 0,
-    236 => 0,
-    237 => 0,
-    238 => 0,
-    239 => 0,
     229 => 0,
     8 => 0,
     280 => 0,
@@ -2343,7 +2311,6 @@ function argus_inventaris_views_default_views() {
     273 => 0,
     144 => 0,
     5 => 0,
-    163 => 0,
     145 => 0,
     146 => 0,
     147 => 0,
@@ -2362,73 +2329,14 @@ function argus_inventaris_views_default_views() {
     160 => 0,
     161 => 0,
     162 => 0,
-    331 => 0,
+    163 => 0,
     164 => 0,
-    352 => 0,
-    353 => 0,
-    343 => 0,
-    344 => 0,
-    354 => 0,
-    365 => 0,
-    345 => 0,
-    346 => 0,
-    370 => 0,
-    347 => 0,
-    348 => 0,
-    355 => 0,
-    366 => 0,
-    371 => 0,
-    356 => 0,
-    357 => 0,
-    358 => 0,
-    372 => 0,
-    373 => 0,
-    368 => 0,
-    367 => 0,
-    349 => 0,
-    374 => 0,
-    350 => 0,
-    167 => 0,
-    392 => 0,
-    359 => 0,
-    360 => 0,
-    361 => 0,
-    332 => 0,
-    377 => 0,
-    376 => 0,
-    383 => 0,
-    384 => 0,
-    385 => 0,
-    386 => 0,
-    328 => 0,
-    387 => 0,
-    388 => 0,
-    389 => 0,
-    390 => 0,
-    378 => 0,
-    379 => 0,
-    351 => 0,
-    380 => 0,
-    381 => 0,
-    382 => 0,
-    333 => 0,
-    334 => 0,
-    335 => 0,
-    362 => 0,
-    336 => 0,
-    393 => 0,
-    276 => 0,
-    168 => 0,
-    363 => 0,
-    337 => 0,
-    169 => 0,
-    338 => 0,
-    364 => 0,
     165 => 0,
     166 => 0,
-    340 => 0,
-    341 => 0,
-    339 => 0,
+    167 => 0,
+    276 => 0,
+    168 => 0,
+    169 => 0,
     170 => 0,
     171 => 0,
     172 => 0,
@@ -2440,39 +2348,37 @@ function argus_inventaris_views_default_views() {
     178 => 0,
     179 => 0,
     180 => 0,
-    182 => 0,
     181 => 0,
+    182 => 0,
     183 => 0,
-    293 => 0,
     184 => 0,
     185 => 0,
     186 => 0,
-    327 => 0,
     187 => 0,
     188 => 0,
     189 => 0,
     190 => 0,
     191 => 0,
+    293 => 0,
     192 => 0,
     193 => 0,
     299 => 0,
     194 => 0,
     195 => 0,
     300 => 0,
-    375 => 0,
-    197 => 0,
     196 => 0,
+    197 => 0,
     198 => 0,
     199 => 0,
     200 => 0,
     201 => 0,
     296 => 0,
-    203 => 0,
     202 => 0,
+    203 => 0,
     204 => 0,
+    205 => 0,
     206 => 0,
     207 => 0,
-    205 => 0,
     208 => 0,
     297 => 0,
     309 => 0,
@@ -2486,9 +2392,9 @@ function argus_inventaris_views_default_views() {
     210 => 0,
     211 => 0,
     212 => 0,
-    215 => 0,
     213 => 0,
     214 => 0,
+    215 => 0,
     274 => 0,
     216 => 0,
     284 => 0,
@@ -2500,19 +2406,88 @@ function argus_inventaris_views_default_views() {
     295 => 0,
     323 => 0,
     324 => 0,
-    245 => 0,
-    476 => 0,
     325 => 0,
     218 => 0,
     219 => 0,
-    291 => 0,
     228 => 0,
-    277 => 0,
     220 => 0,
     221 => 0,
-    391 => 0,
     223 => 0,
     224 => 0,
+    277 => 0,
+    239 => 0,
+    234 => 0,
+    235 => 0,
+    236 => 0,
+    237 => 0,
+    238 => 0,
+    291 => 0,
+    326 => 0,
+    327 => 0,
+    328 => 0,
+    329 => 0,
+    330 => 0,
+    331 => 0,
+    332 => 0,
+    333 => 0,
+    334 => 0,
+    335 => 0,
+    336 => 0,
+    337 => 0,
+    338 => 0,
+    339 => 0,
+    340 => 0,
+    341 => 0,
+    342 => 0,
+    343 => 0,
+    344 => 0,
+    345 => 0,
+    346 => 0,
+    347 => 0,
+    348 => 0,
+    349 => 0,
+    350 => 0,
+    351 => 0,
+    352 => 0,
+    353 => 0,
+    354 => 0,
+    355 => 0,
+    356 => 0,
+    357 => 0,
+    358 => 0,
+    359 => 0,
+    360 => 0,
+    361 => 0,
+    362 => 0,
+    363 => 0,
+    364 => 0,
+    365 => 0,
+    366 => 0,
+    367 => 0,
+    368 => 0,
+    369 => 0,
+    370 => 0,
+    371 => 0,
+    372 => 0,
+    373 => 0,
+    374 => 0,
+    375 => 0,
+    376 => 0,
+    377 => 0,
+    378 => 0,
+    379 => 0,
+    380 => 0,
+    381 => 0,
+    382 => 0,
+    383 => 0,
+    384 => 0,
+    385 => 0,
+    386 => 0,
+    387 => 0,
+    388 => 0,
+    389 => 0,
+    390 => 0,
+    391 => 0,
   );
   $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['autocomplete_filter'] = '1';
   $handler->display->display_options['filters']['field_inventaris_bir_value']['expose']['autocomplete_items'] = '10';
@@ -2889,101 +2864,6 @@ function argus_inventaris_views_default_views() {
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Inventaris';
   $handler->display->display_options['menu']['name'] = 'menu-modules';
-
-  /* Display: Selectielijst */
-  $handler = $view->new_display('entityreference', 'Selectielijst', 'ontleningen_selectielijst');
-  $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['pager']['type'] = 'none';
-  $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
-  $handler->display->display_options['style_plugin'] = 'entityreference_style';
-  $handler->display->display_options['style_options']['search_fields'] = array(
-    'field_inventaris_fir' => 'field_inventaris_fir',
-    'field_jaar' => 'field_jaar',
-    'title' => 'title',
-  );
-  $handler->display->display_options['defaults']['style_options'] = FALSE;
-  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
-  $handler->display->display_options['row_plugin'] = 'entityreference_fields';
-  $handler->display->display_options['defaults']['row_options'] = FALSE;
-  $handler->display->display_options['defaults']['header'] = FALSE;
-  $handler->display->display_options['defaults']['footer'] = FALSE;
-  $handler->display->display_options['defaults']['relationships'] = FALSE;
-  $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Veld: Inhoud: Nid */
-  $handler->display->display_options['fields']['nid']['id'] = 'nid';
-  $handler->display->display_options['fields']['nid']['table'] = 'node';
-  $handler->display->display_options['fields']['nid']['field'] = 'nid';
-  $handler->display->display_options['fields']['nid']['label'] = '';
-  $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
-  /* Veld: Inhoud: Titel */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = '';
-  $handler->display->display_options['fields']['title']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['title']['link_to_node'] = FALSE;
-  /* Veld: Inhoud: Jaar */
-  $handler->display->display_options['fields']['field_jaar']['id'] = 'field_jaar';
-  $handler->display->display_options['fields']['field_jaar']['table'] = 'field_data_field_jaar';
-  $handler->display->display_options['fields']['field_jaar']['field'] = 'field_jaar';
-  $handler->display->display_options['fields']['field_jaar']['label'] = '';
-  $handler->display->display_options['fields']['field_jaar']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_jaar']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_jaar']['settings'] = array(
-    'format_type' => 'long',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-    'show_remaining_days' => 0,
-    'show_repeat_rule' => 'show',
-    'conditions' => array(
-      0 => array(
-        'condition' => '',
-      ),
-    ),
-  );
-  /* Veld: Inhoud: Fysisch inventarisregister */
-  $handler->display->display_options['fields']['field_inventaris_fir']['id'] = 'field_inventaris_fir';
-  $handler->display->display_options['fields']['field_inventaris_fir']['table'] = 'field_data_field_inventaris_fir';
-  $handler->display->display_options['fields']['field_inventaris_fir']['field'] = 'field_inventaris_fir';
-  $handler->display->display_options['fields']['field_inventaris_fir']['label'] = '';
-  $handler->display->display_options['fields']['field_inventaris_fir']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['field_inventaris_fir']['alter']['text'] = '[title] - [field_jaar] ([field_inventaris_fir])';
-  $handler->display->display_options['fields']['field_inventaris_fir']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_inventaris_fir']['settings'] = array(
-    'conditions' => array(
-      0 => array(
-        'condition' => '',
-      ),
-    ),
-  );
-  $handler->display->display_options['defaults']['sorts'] = FALSE;
-  /* Sorteercriterium: Inhoud: Titel */
-  $handler->display->display_options['sorts']['title']['id'] = 'title';
-  $handler->display->display_options['sorts']['title']['table'] = 'node';
-  $handler->display->display_options['sorts']['title']['field'] = 'title';
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filtercriterium: Inhoud: Gepubliceerd */
-  $handler->display->display_options['filters']['status']['id'] = 'status';
-  $handler->display->display_options['filters']['status']['table'] = 'node';
-  $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['value'] = '1';
-  $handler->display->display_options['filters']['status']['group'] = 1;
-  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filtercriterium: Inhoud: Type */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['value'] = array(
-    'inventaris' => 'inventaris',
-  );
-  $handler->display->display_options['filters']['type']['group'] = 1;
-  $handler->display->display_options['qtip_instance'] = 'standaard';
   $translatables['inventaris'] = array(
     t('Master'),
     t('Inventaris'),
@@ -3004,30 +2884,29 @@ function argus_inventaris_views_default_views() {
     t('Getoond @start - @end van @total'),
     t('Lokaal'),
     t('auteur'),
-    t('Omshrijving'),
-    t('[title] ([field_jaar])<br />
-[body]'),
     t('Afdeling / categorie'),
     t('[field_inventaris_categorie]<br />
 <small>[field_klas_structuuronderdeel]</small>'),
+    t('Omschrijving'),
+    t('[title] ([field_jaar])<br />
+<small>[body-value]</small>'),
     t('Verantwoordelijke'),
     t('[realname]<br />
 <small>[field_lokaal]</small>'),
-    t('FIR = <strong>[field_inventaris_fir]</strong><br />'),
-    t('Factuurnr. = <strong>[field_factuurnummer]</strong>'),
-    t('BIR = <strong>[field_inventaris_bir]</strong><br />'),
     t('Nummers'),
-    t('<small>[field_inventaris_fir][field_inventaris_bir][field_factuurnummer]</small>'),
+    t('FIR = [field_inventaris_fir]<br />
+BIR = [field_inventaris_bir]<br />
+Factuurnr. = [field_factuurnummer]'),
     t('Status'),
     t('bewerken'),
     t('Categorie'),
     t('Afdeling'),
-    t('Fysisch inventarisregister (FIR)'),
+    t('FIR'),
+    t('Fysisch inventarisregister'),
     t('Factuurnummer'),
-    t('Boekhoudkundig inventarisregister (BIR)'),
+    t('BIR'),
+    t('Boekhoudkundig inventarisregister'),
     t('Overzicht'),
-    t('Selectielijst'),
-    t('[title] - [field_jaar] ([field_inventaris_fir])'),
   );
   $export['inventaris'] = $view;
 

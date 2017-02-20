@@ -24,6 +24,11 @@ function argus_vakken_user_default_permissions() {
     'name' => 'delete any vak content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -33,6 +38,11 @@ function argus_vakken_user_default_permissions() {
     'name' => 'delete own vak content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -42,6 +52,11 @@ function argus_vakken_user_default_permissions() {
     'name' => 'edit any vak content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -51,6 +66,11 @@ function argus_vakken_user_default_permissions() {
     'name' => 'edit own vak content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );

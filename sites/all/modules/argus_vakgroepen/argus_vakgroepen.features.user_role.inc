@@ -13,7 +13,7 @@ function argus_vakgroepen_user_default_roles() {
   // Exported role: voorzitter van vakgroep.
   $roles['voorzitter van vakgroep'] = array(
     'name' => 'voorzitter van vakgroep',
-    'weight' => 345,
+    'weight' => 346,
   );
 
   return $roles;

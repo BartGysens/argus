@@ -28,7 +28,7 @@ function argus_ontleningen_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'ant_pattern_ontlening';
-  $strongarm->value = 'Ontlening van [node:field_inventarisitem][node:field_ontleen_materiaal] door [node:field_gebruiker] - [node:field_ontleen_periode]';
+  $strongarm->value = '[node:field-ontleen-ontlener]-[node:field-ontleen-materiaal]';
   $export['ant_pattern_ontlening'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -146,8 +146,8 @@ function argus_ontleningen_strongarm() {
       'display' => array(
         'domain' => array(
           'default' => array(
-            'weight' => '0',
-            'visible' => FALSE,
+            'weight' => '1',
+            'visible' => TRUE,
           ),
         ),
       ),

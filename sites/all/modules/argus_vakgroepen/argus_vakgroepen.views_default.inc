@@ -26,7 +26,10 @@ function argus_vakgroepen_views_default_views() {
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = 'meer';
   $handler->display->display_options['group_by'] = TRUE;
-  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    216 => '216',
+  );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -101,6 +104,7 @@ function argus_vakgroepen_views_default_views() {
   $handler->display->display_options['relationships']['field_vgwg_vak_target_id']['id'] = 'field_vgwg_vak_target_id';
   $handler->display->display_options['relationships']['field_vgwg_vak_target_id']['table'] = 'field_data_field_vgwg_vak';
   $handler->display->display_options['relationships']['field_vgwg_vak_target_id']['field'] = 'field_vgwg_vak_target_id';
+  $handler->display->display_options['relationships']['field_vgwg_vak_target_id']['label'] = 'Inhoud entity referenced from field_vgwg_vak';
   /* Veld: Inhoud: Titel */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';

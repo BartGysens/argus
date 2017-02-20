@@ -15,6 +15,9 @@ function argus_werkgroepen_user_default_permissions() {
     'name' => 'create werkgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -24,6 +27,11 @@ function argus_werkgroepen_user_default_permissions() {
     'name' => 'delete any werkgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -33,6 +41,11 @@ function argus_werkgroepen_user_default_permissions() {
     'name' => 'delete own werkgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -42,6 +55,11 @@ function argus_werkgroepen_user_default_permissions() {
     'name' => 'edit any werkgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -51,6 +69,11 @@ function argus_werkgroepen_user_default_permissions() {
     'name' => 'edit own werkgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );

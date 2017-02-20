@@ -13,70 +13,156 @@ function argus_klassenraden_user_default_permissions() {
   // Exported permission: 'create lvs_klassenraad content'.
   $permissions['create lvs_klassenraad content'] = array(
     'name' => 'create lvs_klassenraad content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'create lvs_klassenraad_notitie content'.
   $permissions['create lvs_klassenraad_notitie content'] = array(
     'name' => 'create lvs_klassenraad_notitie content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'delete any lvs_klassenraad content'.
   $permissions['delete any lvs_klassenraad content'] = array(
     'name' => 'delete any lvs_klassenraad content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'delete any lvs_klassenraad_notitie content'.
   $permissions['delete any lvs_klassenraad_notitie content'] = array(
     'name' => 'delete any lvs_klassenraad_notitie content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'delete own lvs_klassenraad content'.
   $permissions['delete own lvs_klassenraad content'] = array(
     'name' => 'delete own lvs_klassenraad content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'delete own lvs_klassenraad_notitie content'.
   $permissions['delete own lvs_klassenraad_notitie content'] = array(
     'name' => 'delete own lvs_klassenraad_notitie content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'edit any lvs_klassenraad content'.
   $permissions['edit any lvs_klassenraad content'] = array(
     'name' => 'edit any lvs_klassenraad content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'edit any lvs_klassenraad_notitie content'.
   $permissions['edit any lvs_klassenraad_notitie content'] = array(
     'name' => 'edit any lvs_klassenraad_notitie content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'edit own lvs_klassenraad content'.
   $permissions['edit own lvs_klassenraad content'] = array(
     'name' => 'edit own lvs_klassenraad content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 
   // Exported permission: 'edit own lvs_klassenraad_notitie content'.
   $permissions['edit own lvs_klassenraad_notitie content'] = array(
     'name' => 'edit own lvs_klassenraad_notitie content',
-    'roles' => array(),
+    'roles' => array(
+      'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'interne leerlingbegeleider' => 'interne leerlingbegeleider',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
+    ),
     'module' => 'node',
   );
 

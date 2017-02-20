@@ -25,7 +25,10 @@ function argus_ikz_views_default_views() {
   $handler->display->display_options['title'] = 'Intern Kwaliteitszorgsysteem: procedures';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = 'meer';
-  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    216 => '216',
+  );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -544,8 +547,6 @@ function argus_ikz_views_default_views() {
     'any_label' => NULL,
     'filter_rewrite_values' => NULL,
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
@@ -4922,7 +4923,6 @@ function argus_ikz_views_default_views() {
     t('Intern Kwaliteitszorgsysteem (afkortingen, procedures, formulieren, documenten)'),
     t('Overzicht van alle procedures, formulieren en afkortingen.'),
     t('Uitgebreide opties'),
-    t('Selecteer een van de filters en klik op \'Toepassen\' om het resultaat te zien'),
     t('Afkorting'),
     t('Documentnaam'),
     t('Ref'),

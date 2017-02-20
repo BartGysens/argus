@@ -25,7 +25,10 @@ function argus_projectgroepen_views_default_views() {
   $handler->display->display_options['title'] = 'Projectgroepen';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = 'meer';
-  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    216 => '216',
+  );
   $handler->display->display_options['cache']['type'] = 'views_content_cache';
   $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
   $handler->display->display_options['cache']['results_max_lifespan'] = '21600';
@@ -147,6 +150,12 @@ function argus_projectgroepen_views_default_views() {
   $handler->display->display_options['footer']['area']['field'] = 'area';
   $handler->display->display_options['footer']['area']['content'] = '<a href="/node/add/projectgroep">Een nieuwe projectgroep toevoegen</a>';
   $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
+  /* Voet: Algemeen: Ongefilterde tekst */
+  $handler->display->display_options['footer']['area_text_custom']['id'] = 'area_text_custom';
+  $handler->display->display_options['footer']['area_text_custom']['table'] = 'views';
+  $handler->display->display_options['footer']['area_text_custom']['field'] = 'area_text_custom';
+  $handler->display->display_options['footer']['area_text_custom']['empty'] = TRUE;
+  $handler->display->display_options['footer']['area_text_custom']['content'] = 'Aanvullend kan je de <a href="/projecten">projecten</a> raadplegen die in sommige afdelingen lopen.';
   /* Veld: Inhoud: Titel */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -156,7 +165,7 @@ function argus_projectgroepen_views_default_views() {
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
   $handler->display->display_options['fields']['title']['element_type'] = 'h3';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  /* Veld: Inhoud: Opmerkingen */
+  /* Veld: Inhoud: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -233,6 +242,7 @@ function argus_projectgroepen_views_default_views() {
     t('Projectgroepen ontstaan als er een tijdelijk lopend project is, dat rond één bepaalde realisatie werkt.'),
     t('<a href="/node/add/projectgroep">Een nieuwe projectgroep toevoegen</a>'),
     t('Getoond @start - @end van @total'),
+    t('Aanvullend kan je de <a href="/projecten">projecten</a> raadplegen die in sommige afdelingen lopen.'),
     t('Voorzitter'),
     t('Leden'),
     t('Overzicht'),

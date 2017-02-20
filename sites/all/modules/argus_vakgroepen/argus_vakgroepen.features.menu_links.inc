@@ -53,7 +53,7 @@ function argus_vakgroepen_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -17,
+    'weight' => -10,
     'customized' => 1,
     'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );

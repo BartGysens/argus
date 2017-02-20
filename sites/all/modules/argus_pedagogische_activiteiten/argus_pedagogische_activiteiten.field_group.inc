@@ -21,7 +21,7 @@ function argus_pedagogische_activiteiten_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Vervoer',
-    'weight' => '15',
+    'weight' => '14',
     'children' => array(
       0 => 'field_ev_vervoer',
       1 => 'field_ev_kostprijs_vervoer',

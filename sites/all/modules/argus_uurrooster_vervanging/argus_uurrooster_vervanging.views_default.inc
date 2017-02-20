@@ -24,31 +24,48 @@ function argus_uurrooster_vervanging_views_default_views() {
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Uurroosters - vervangingen';
   $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['use_more_text'] = 'meer';
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
-  $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '100';
+  $handler->display->display_options['exposed_form']['options']['submit_button'] = 'Toepassen';
+  $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
+  $handler->display->display_options['exposed_form']['options']['reset_button_label'] = 'Opnieuw instellen';
+  $handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = 'Sorteren op';
+  $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = 'Oplopend';
+  $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = 'Aflopend';
+  $handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
+  $handler->display->display_options['pager']['type'] = 'date_views_pager';
+  $handler->display->display_options['pager']['options']['link_format'] = 'clean';
+  $handler->display->display_options['pager']['options']['skip_empty_pages'] = 0;
   $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['grouping'] = array(
+    0 => array(
+      'field' => 'realname_1',
+      'rendered' => '1',
+      'rendered_strip' => 0,
+    ),
+  );
   $handler->display->display_options['style_options']['columns'] = array(
-    'field_tijdstip' => 'field_tijdstip',
-    'realname' => 'realname',
+    'realname_1' => 'realname_1',
+    'field_klassen' => 'field_klassen',
     'title_1' => 'title_1',
+    'field_gebruiker_1' => 'field_gebruiker_1',
     'edit_node' => 'edit_node',
+    'delete_node' => 'delete_node',
+    'nothing' => 'nothing',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
-    'field_tijdstip' => array(
-      'sortable' => '1',
+    'realname_1' => array(
+      'sortable' => 0,
       'default_sort_order' => 'asc',
-      'align' => 'views-align-left',
+      'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'realname' => array(
-      'sortable' => '1',
-      'default_sort_order' => 'asc',
+    'field_klassen' => array(
       'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
@@ -60,90 +77,176 @@ function argus_uurrooster_vervanging_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
+    'field_gebruiker_1' => array(
+      'sortable' => '1',
+      'default_sort_order' => 'asc',
+      'align' => 'views-align-left',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
     'edit_node' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'delete_node' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'nothing' => array(
       'align' => 'views-align-right',
       'separator' => '',
       'empty_column' => 0,
     ),
   );
-  /* Header: Global: Text area */
+  $handler->display->display_options['style_options']['sticky'] = TRUE;
+  /* Kop: Algemeen: Tekstveld */
   $handler->display->display_options['header']['area']['id'] = 'area';
   $handler->display->display_options['header']['area']['table'] = 'views';
   $handler->display->display_options['header']['area']['field'] = 'area';
   $handler->display->display_options['header']['area']['content'] = '<a href="/node/add/uurrooster-vervanging">Een nieuwe vervanging toevoegen</a>';
   $handler->display->display_options['header']['area']['format'] = 'filtered_html';
-  /* Footer: Global: Result summary */
+  /* Voet: Algemeen: Samenvatting van het resultaat */
   $handler->display->display_options['footer']['result']['id'] = 'result';
   $handler->display->display_options['footer']['result']['table'] = 'views';
   $handler->display->display_options['footer']['result']['field'] = 'result';
   $handler->display->display_options['footer']['result']['content'] = 'Getoond @start - @end van @total';
-  /* Footer: Global: Text area */
+  /* Voet: Algemeen: Tekstveld */
   $handler->display->display_options['footer']['area']['id'] = 'area';
   $handler->display->display_options['footer']['area']['table'] = 'views';
   $handler->display->display_options['footer']['area']['field'] = 'area';
   $handler->display->display_options['footer']['area']['content'] = '<a href="/node/add/uurrooster-vervanging">Een nieuwe vervanging toevoegen</a>';
   $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
-  /* Relationship: Entity Reference: Referenced Entity */
-  $handler->display->display_options['relationships']['field_gebruiker_target_id']['id'] = 'field_gebruiker_target_id';
-  $handler->display->display_options['relationships']['field_gebruiker_target_id']['table'] = 'field_data_field_gebruiker';
-  $handler->display->display_options['relationships']['field_gebruiker_target_id']['field'] = 'field_gebruiker_target_id';
-  $handler->display->display_options['relationships']['field_gebruiker_target_id']['label'] = 'Gebruiker entity referenced from field_gebruiker';
-  /* Relationship: Entity Reference: Referenced Entity */
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_uurr_vervanging_vervmoment_target_id']['id'] = 'field_uurr_vervanging_vervmoment_target_id';
   $handler->display->display_options['relationships']['field_uurr_vervanging_vervmoment_target_id']['table'] = 'field_data_field_uurr_vervanging_vervmoment';
   $handler->display->display_options['relationships']['field_uurr_vervanging_vervmoment_target_id']['field'] = 'field_uurr_vervanging_vervmoment_target_id';
   $handler->display->display_options['relationships']['field_uurr_vervanging_vervmoment_target_id']['label'] = 'Inhoud entity referenced from field_uurr_vervanging_vervmoment';
-  /* Field: Content: Tijdstip */
-  $handler->display->display_options['fields']['field_tijdstip']['id'] = 'field_tijdstip';
-  $handler->display->display_options['fields']['field_tijdstip']['table'] = 'field_data_field_tijdstip';
-  $handler->display->display_options['fields']['field_tijdstip']['field'] = 'field_tijdstip';
-  $handler->display->display_options['fields']['field_tijdstip']['settings'] = array(
-    'format_type' => 'medium',
-    'fromto' => 'both',
-    'multiple_number' => '',
-    'multiple_from' => '',
-    'multiple_to' => '',
-    'show_remaining_days' => 0,
-    'show_repeat_rule' => 'show',
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+  $handler->display->display_options['relationships']['field_personeel_afwezigheid_target_id']['id'] = 'field_personeel_afwezigheid_target_id';
+  $handler->display->display_options['relationships']['field_personeel_afwezigheid_target_id']['table'] = 'field_data_field_personeel_afwezigheid';
+  $handler->display->display_options['relationships']['field_personeel_afwezigheid_target_id']['field'] = 'field_personeel_afwezigheid_target_id';
+  $handler->display->display_options['relationships']['field_personeel_afwezigheid_target_id']['label'] = 'Inhoud entity referenced from field_personeel_afwezigheid';
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+  $handler->display->display_options['relationships']['field_gebruiker_target_id']['id'] = 'field_gebruiker_target_id';
+  $handler->display->display_options['relationships']['field_gebruiker_target_id']['table'] = 'field_data_field_gebruiker';
+  $handler->display->display_options['relationships']['field_gebruiker_target_id']['field'] = 'field_gebruiker_target_id';
+  $handler->display->display_options['relationships']['field_gebruiker_target_id']['relationship'] = 'field_uurr_vervanging_vervmoment_target_id';
+  $handler->display->display_options['relationships']['field_gebruiker_target_id']['label'] = 'Gebruiker entity referenced from field_gebruiker > Vervanger';
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+  $handler->display->display_options['relationships']['field_gebruiker_target_id_1']['id'] = 'field_gebruiker_target_id_1';
+  $handler->display->display_options['relationships']['field_gebruiker_target_id_1']['table'] = 'field_data_field_gebruiker';
+  $handler->display->display_options['relationships']['field_gebruiker_target_id_1']['field'] = 'field_gebruiker_target_id';
+  $handler->display->display_options['relationships']['field_gebruiker_target_id_1']['relationship'] = 'field_personeel_afwezigheid_target_id';
+  $handler->display->display_options['relationships']['field_gebruiker_target_id_1']['label'] = 'Gebruiker entity referenced from field_gebruiker > Afwezige';
+  /* Veld: Echte naam: Werkelijke naam */
+  $handler->display->display_options['fields']['realname_1']['id'] = 'realname_1';
+  $handler->display->display_options['fields']['realname_1']['table'] = 'realname';
+  $handler->display->display_options['fields']['realname_1']['field'] = 'realname';
+  $handler->display->display_options['fields']['realname_1']['relationship'] = 'field_gebruiker_target_id_1';
+  $handler->display->display_options['fields']['realname_1']['label'] = '';
+  $handler->display->display_options['fields']['realname_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['realname_1']['alter']['text'] = '<h2>[realname_1]</h2>';
+  $handler->display->display_options['fields']['realname_1']['element_label_colon'] = FALSE;
+  /* Veld: Veld: Klassen */
+  $handler->display->display_options['fields']['field_klassen']['id'] = 'field_klassen';
+  $handler->display->display_options['fields']['field_klassen']['table'] = 'field_data_field_klassen';
+  $handler->display->display_options['fields']['field_klassen']['field'] = 'field_klassen';
+  $handler->display->display_options['fields']['field_klassen']['label'] = '';
+  $handler->display->display_options['fields']['field_klassen']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_klassen']['alter']['text'] = ': [field_klassen]';
+  $handler->display->display_options['fields']['field_klassen']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_klassen']['settings'] = array(
+    'link' => '1',
   );
-  /* Field: Realname: Real name */
-  $handler->display->display_options['fields']['realname']['id'] = 'realname';
-  $handler->display->display_options['fields']['realname']['table'] = 'realname';
-  $handler->display->display_options['fields']['realname']['field'] = 'realname';
-  $handler->display->display_options['fields']['realname']['relationship'] = 'field_gebruiker_target_id';
-  $handler->display->display_options['fields']['realname']['label'] = 'Vervanger';
-  /* Field: Content: Title */
+  $handler->display->display_options['fields']['field_klassen']['delta_offset'] = '0';
+  /* Veld: Inhoud: Titel */
   $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
   $handler->display->display_options['fields']['title_1']['table'] = 'node';
   $handler->display->display_options['fields']['title_1']['field'] = 'title';
   $handler->display->display_options['fields']['title_1']['relationship'] = 'field_uurr_vervanging_vervmoment_target_id';
   $handler->display->display_options['fields']['title_1']['label'] = 'Vervangmoment';
-  /* Field: Content: Edit link */
+  $handler->display->display_options['fields']['title_1']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['title_1']['alter']['text'] = '[title_1] [field_klassen]';
+  /* Veld: Inhoud: Vervanger */
+  $handler->display->display_options['fields']['field_gebruiker_1']['id'] = 'field_gebruiker_1';
+  $handler->display->display_options['fields']['field_gebruiker_1']['table'] = 'field_data_field_gebruiker';
+  $handler->display->display_options['fields']['field_gebruiker_1']['field'] = 'field_gebruiker';
+  $handler->display->display_options['fields']['field_gebruiker_1']['settings'] = array(
+    'link' => '1',
+  );
+  /* Veld: Inhoud: Bewerkingslink */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
   $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['label'] = '';
+  $handler->display->display_options['fields']['edit_node']['exclude'] = TRUE;
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
-  /* Sort criterion: Content: Post date */
-  $handler->display->display_options['sorts']['created']['id'] = 'created';
-  $handler->display->display_options['sorts']['created']['table'] = 'node';
-  $handler->display->display_options['sorts']['created']['field'] = 'created';
-  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* Filter criterion: Content: Published */
+  /* Veld: Inhoud: Link voor dupliceren */
+  $handler->display->display_options['fields']['clone_node']['id'] = 'clone_node';
+  $handler->display->display_options['fields']['clone_node']['table'] = 'node';
+  $handler->display->display_options['fields']['clone_node']['field'] = 'clone_node';
+  $handler->display->display_options['fields']['clone_node']['label'] = 'dupliceren';
+  $handler->display->display_options['fields']['clone_node']['exclude'] = TRUE;
+  /* Veld: Inhoud: Verwijderlink */
+  $handler->display->display_options['fields']['delete_node']['id'] = 'delete_node';
+  $handler->display->display_options['fields']['delete_node']['table'] = 'views_entity_node';
+  $handler->display->display_options['fields']['delete_node']['field'] = 'delete_node';
+  $handler->display->display_options['fields']['delete_node']['label'] = '';
+  $handler->display->display_options['fields']['delete_node']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['delete_node']['alter']['text'] = '[edit_node] - [delete_node]';
+  $handler->display->display_options['fields']['delete_node']['element_label_colon'] = FALSE;
+  /* Veld: Algemeen: Aangepaste tekst */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node]<br/>[clone_node]<br/>[delete_node]';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+  /* Sorteercriterium: Inhoud: Tijdstip - startdatum (field_tijdstip) */
+  $handler->display->display_options['sorts']['field_tijdstip_value']['id'] = 'field_tijdstip_value';
+  $handler->display->display_options['sorts']['field_tijdstip_value']['table'] = 'field_data_field_tijdstip';
+  $handler->display->display_options['sorts']['field_tijdstip_value']['field'] = 'field_tijdstip_value';
+  $handler->display->display_options['sorts']['field_tijdstip_value']['relationship'] = 'field_personeel_afwezigheid_target_id';
+  $handler->display->display_options['sorts']['field_tijdstip_value']['order'] = 'DESC';
+  /* Sorteercriterium: Echte naam: Werkelijke naam */
+  $handler->display->display_options['sorts']['realname']['id'] = 'realname';
+  $handler->display->display_options['sorts']['realname']['table'] = 'realname';
+  $handler->display->display_options['sorts']['realname']['field'] = 'realname';
+  $handler->display->display_options['sorts']['realname']['relationship'] = 'field_gebruiker_target_id_1';
+  /* Sorteercriterium: Inhoud: Titel */
+  $handler->display->display_options['sorts']['title']['id'] = 'title';
+  $handler->display->display_options['sorts']['title']['table'] = 'node';
+  $handler->display->display_options['sorts']['title']['field'] = 'title';
+  $handler->display->display_options['sorts']['title']['relationship'] = 'field_uurr_vervanging_vervmoment_target_id';
+  /* Contextueel filter: Inhoud: Tijdstip - startdatum (field_tijdstip) */
+  $handler->display->display_options['arguments']['field_tijdstip_value']['id'] = 'field_tijdstip_value';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['table'] = 'field_data_field_tijdstip';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['field'] = 'field_tijdstip_value';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['exception']['title'] = 'Alle';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['default_argument_type'] = 'date';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['granularity'] = 'day';
+  $handler->display->display_options['arguments']['field_tijdstip_value']['granularity_reset'] = 0;
+  /* Filtercriterium: Inhoud: Gepubliceerd */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Content: Type */
+  /* Filtercriterium: Inhoud: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'uurrooster_vervanging' => 'uurrooster_vervanging',
   );
-  /* Filter criterion: Realname: Name */
+  /* Filtercriterium: Echte naam: Naam */
   $handler->display->display_options['filters']['realname']['id'] = 'realname';
   $handler->display->display_options['filters']['realname']['table'] = 'realname';
   $handler->display->display_options['filters']['realname']['field'] = 'realname';
@@ -409,11 +512,10 @@ function argus_uurrooster_vervanging_views_default_views() {
   $handler->display->display_options['filters']['realname']['expose']['autocomplete_raw_suggestion'] = '1';
   $handler->display->display_options['filters']['realname']['expose']['autocomplete_raw_dropdown'] = '1';
   $handler->display->display_options['filters']['realname']['expose']['autocomplete_dependent'] = 0;
-  /* Filter criterion: Content: Tijdstip -  start date (field_tijdstip) */
+  /* Filtercriterium: Inhoud: Tijdstip - startdatum (field_tijdstip) */
   $handler->display->display_options['filters']['field_tijdstip_value']['id'] = 'field_tijdstip_value';
   $handler->display->display_options['filters']['field_tijdstip_value']['table'] = 'field_data_field_tijdstip';
   $handler->display->display_options['filters']['field_tijdstip_value']['field'] = 'field_tijdstip_value';
-  $handler->display->display_options['filters']['field_tijdstip_value']['operator'] = 'between';
   $handler->display->display_options['filters']['field_tijdstip_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_tijdstip_value']['expose']['operator_id'] = 'field_tijdstip_value_op';
   $handler->display->display_options['filters']['field_tijdstip_value']['expose']['label'] = 'Tijdstip';
@@ -500,6 +602,8 @@ function argus_uurrooster_vervanging_views_default_views() {
     81 => 0,
     229 => 0,
     8 => 0,
+    280 => 0,
+    279 => 0,
     88 => 0,
     89 => 0,
     90 => 0,
@@ -587,6 +691,7 @@ function argus_uurrooster_vervanging_views_default_views() {
     161 => 0,
     162 => 0,
     163 => 0,
+    278 => 0,
     164 => 0,
     165 => 0,
     166 => 0,
@@ -635,6 +740,7 @@ function argus_uurrooster_vervanging_views_default_views() {
     208 => 0,
     209 => 0,
     82 => 0,
+    283 => 0,
     210 => 0,
     211 => 0,
     212 => 0,
@@ -643,7 +749,9 @@ function argus_uurrooster_vervanging_views_default_views() {
     215 => 0,
     274 => 0,
     216 => 0,
+    284 => 0,
     217 => 0,
+    285 => 0,
     227 => 0,
     242 => 0,
     218 => 0,
@@ -661,15 +769,12 @@ function argus_uurrooster_vervanging_views_default_views() {
     236 => 0,
     237 => 0,
     238 => 0,
-    278 => 0,
-    279 => 0,
-    280 => 0,
-    281 => 0,
-    282 => 0,
-    283 => 0,
+    286 => 0,
+    287 => 0,
+    288 => 0,
   );
   $handler->display->display_options['filters']['field_tijdstip_value']['form_type'] = 'date_popup';
-  /* Filter criterion: Content: Title */
+  /* Filtercriterium: Inhoud: Titel */
   $handler->display->display_options['filters']['title']['id'] = 'title';
   $handler->display->display_options['filters']['title']['table'] = 'node';
   $handler->display->display_options['filters']['title']['field'] = 'title';
@@ -935,11 +1040,281 @@ function argus_uurrooster_vervanging_views_default_views() {
   $handler->display->display_options['filters']['title']['expose']['autocomplete_raw_suggestion'] = '1';
   $handler->display->display_options['filters']['title']['expose']['autocomplete_raw_dropdown'] = '1';
   $handler->display->display_options['filters']['title']['expose']['autocomplete_dependent'] = 0;
+  /* Filtercriterium: Echte naam: Naam */
+  $handler->display->display_options['filters']['realname_1']['id'] = 'realname_1';
+  $handler->display->display_options['filters']['realname_1']['table'] = 'realname';
+  $handler->display->display_options['filters']['realname_1']['field'] = 'realname';
+  $handler->display->display_options['filters']['realname_1']['relationship'] = 'field_gebruiker_target_id_1';
+  $handler->display->display_options['filters']['realname_1']['operator'] = 'contains';
+  $handler->display->display_options['filters']['realname_1']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['realname_1']['expose']['operator_id'] = 'realname_1_op';
+  $handler->display->display_options['filters']['realname_1']['expose']['label'] = 'Afwezige';
+  $handler->display->display_options['filters']['realname_1']['expose']['operator'] = 'realname_1_op';
+  $handler->display->display_options['filters']['realname_1']['expose']['identifier'] = 'realname_1';
+  $handler->display->display_options['filters']['realname_1']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    26 => 0,
+    27 => 0,
+    28 => 0,
+    245 => 0,
+    246 => 0,
+    29 => 0,
+    30 => 0,
+    31 => 0,
+    32 => 0,
+    33 => 0,
+    34 => 0,
+    35 => 0,
+    36 => 0,
+    37 => 0,
+    247 => 0,
+    38 => 0,
+    39 => 0,
+    40 => 0,
+    41 => 0,
+    42 => 0,
+    43 => 0,
+    44 => 0,
+    45 => 0,
+    46 => 0,
+    47 => 0,
+    48 => 0,
+    49 => 0,
+    248 => 0,
+    50 => 0,
+    51 => 0,
+    52 => 0,
+    53 => 0,
+    54 => 0,
+    55 => 0,
+    56 => 0,
+    57 => 0,
+    58 => 0,
+    59 => 0,
+    60 => 0,
+    269 => 0,
+    61 => 0,
+    62 => 0,
+    63 => 0,
+    64 => 0,
+    249 => 0,
+    250 => 0,
+    65 => 0,
+    66 => 0,
+    67 => 0,
+    68 => 0,
+    69 => 0,
+    70 => 0,
+    71 => 0,
+    270 => 0,
+    72 => 0,
+    73 => 0,
+    74 => 0,
+    75 => 0,
+    76 => 0,
+    77 => 0,
+    78 => 0,
+    251 => 0,
+    252 => 0,
+    79 => 0,
+    6 => 0,
+    83 => 0,
+    84 => 0,
+    85 => 0,
+    80 => 0,
+    86 => 0,
+    225 => 0,
+    87 => 0,
+    226 => 0,
+    243 => 0,
+    81 => 0,
+    229 => 0,
+    8 => 0,
+    280 => 0,
+    279 => 0,
+    88 => 0,
+    89 => 0,
+    90 => 0,
+    4 => 0,
+    91 => 0,
+    92 => 0,
+    93 => 0,
+    264 => 0,
+    94 => 0,
+    95 => 0,
+    96 => 0,
+    97 => 0,
+    98 => 0,
+    99 => 0,
+    100 => 0,
+    101 => 0,
+    102 => 0,
+    103 => 0,
+    104 => 0,
+    105 => 0,
+    106 => 0,
+    107 => 0,
+    108 => 0,
+    109 => 0,
+    110 => 0,
+    111 => 0,
+    112 => 0,
+    113 => 0,
+    114 => 0,
+    265 => 0,
+    115 => 0,
+    116 => 0,
+    117 => 0,
+    118 => 0,
+    119 => 0,
+    120 => 0,
+    121 => 0,
+    122 => 0,
+    123 => 0,
+    124 => 0,
+    125 => 0,
+    271 => 0,
+    126 => 0,
+    127 => 0,
+    128 => 0,
+    129 => 0,
+    266 => 0,
+    267 => 0,
+    130 => 0,
+    131 => 0,
+    132 => 0,
+    133 => 0,
+    134 => 0,
+    135 => 0,
+    136 => 0,
+    268 => 0,
+    137 => 0,
+    138 => 0,
+    139 => 0,
+    140 => 0,
+    141 => 0,
+    142 => 0,
+    143 => 0,
+    230 => 0,
+    272 => 0,
+    273 => 0,
+    144 => 0,
+    5 => 0,
+    145 => 0,
+    146 => 0,
+    147 => 0,
+    148 => 0,
+    149 => 0,
+    150 => 0,
+    151 => 0,
+    152 => 0,
+    153 => 0,
+    154 => 0,
+    155 => 0,
+    156 => 0,
+    157 => 0,
+    158 => 0,
+    159 => 0,
+    160 => 0,
+    161 => 0,
+    162 => 0,
+    163 => 0,
+    278 => 0,
+    164 => 0,
+    165 => 0,
+    166 => 0,
+    167 => 0,
+    276 => 0,
+    168 => 0,
+    169 => 0,
+    170 => 0,
+    171 => 0,
+    172 => 0,
+    173 => 0,
+    174 => 0,
+    175 => 0,
+    176 => 0,
+    177 => 0,
+    178 => 0,
+    179 => 0,
+    180 => 0,
+    181 => 0,
+    182 => 0,
+    183 => 0,
+    184 => 0,
+    185 => 0,
+    186 => 0,
+    187 => 0,
+    188 => 0,
+    189 => 0,
+    190 => 0,
+    191 => 0,
+    192 => 0,
+    193 => 0,
+    194 => 0,
+    195 => 0,
+    196 => 0,
+    197 => 0,
+    198 => 0,
+    199 => 0,
+    200 => 0,
+    201 => 0,
+    202 => 0,
+    203 => 0,
+    204 => 0,
+    205 => 0,
+    206 => 0,
+    207 => 0,
+    208 => 0,
+    209 => 0,
+    82 => 0,
+    283 => 0,
+    210 => 0,
+    211 => 0,
+    212 => 0,
+    213 => 0,
+    214 => 0,
+    215 => 0,
+    274 => 0,
+    216 => 0,
+    284 => 0,
+    217 => 0,
+    285 => 0,
+    227 => 0,
+    242 => 0,
+    218 => 0,
+    219 => 0,
+    228 => 0,
+    220 => 0,
+    221 => 0,
+    222 => 0,
+    223 => 0,
+    224 => 0,
+    277 => 0,
+    239 => 0,
+    234 => 0,
+    235 => 0,
+    236 => 0,
+    237 => 0,
+    238 => 0,
+    286 => 0,
+    287 => 0,
+    288 => 0,
+  );
+  $handler->display->display_options['filters']['realname_1']['expose']['autocomplete_items'] = '10';
+  $handler->display->display_options['filters']['realname_1']['expose']['autocomplete_min_chars'] = '0';
+  $handler->display->display_options['filters']['realname_1']['expose']['autocomplete_field'] = 'realname_1';
+  $handler->display->display_options['filters']['realname_1']['expose']['autocomplete_raw_suggestion'] = '1';
+  $handler->display->display_options['filters']['realname_1']['expose']['autocomplete_raw_dropdown'] = '1';
+  $handler->display->display_options['filters']['realname_1']['expose']['autocomplete_dependent'] = 0;
   $handler->display->display_options['qtip_instance'] = 'standaard';
 
   /* Display: Overzicht */
   $handler = $view->new_display('page', 'Overzicht', 'overview_uurrooster_vervangingen');
   $handler->display->display_options['exposed_block'] = TRUE;
+  $handler->display->display_options['qtip_instance'] = 'standaard';
   $handler->display->display_options['path'] = 'uurrooster/vervangingen';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Vervangingen';
@@ -947,26 +1322,29 @@ function argus_uurrooster_vervanging_views_default_views() {
   $translatables['uurroosters_vervangingen'] = array(
     t('Master'),
     t('Uurroosters - vervangingen'),
-    t('more'),
-    t('Apply'),
-    t('Reset'),
-    t('Sort by'),
-    t('Asc'),
-    t('Desc'),
-    t('Items per page'),
-    t('- All -'),
-    t('Offset'),
-    t('« first'),
-    t('‹ previous'),
-    t('next ›'),
-    t('last »'),
+    t('meer'),
+    t('Toepassen'),
+    t('Opnieuw instellen'),
+    t('Sorteren op'),
+    t('Oplopend'),
+    t('Aflopend'),
     t('<a href="/node/add/uurrooster-vervanging">Een nieuwe vervanging toevoegen</a>'),
     t('Getoond @start - @end van @total'),
-    t('Gebruiker entity referenced from field_gebruiker'),
     t('Inhoud entity referenced from field_uurr_vervanging_vervmoment'),
-    t('Tijdstip'),
-    t('Vervanger'),
+    t('Inhoud entity referenced from field_personeel_afwezigheid'),
+    t('Gebruiker entity referenced from field_gebruiker > Vervanger'),
+    t('Gebruiker entity referenced from field_gebruiker > Afwezige'),
+    t('<h2>[realname_1]</h2>'),
+    t(': [field_klassen]'),
     t('Vervangmoment'),
+    t('[title_1] [field_klassen]'),
+    t('Vervanger'),
+    t('dupliceren'),
+    t('[edit_node] - [delete_node]'),
+    t('[edit_node]<br/>[clone_node]<br/>[delete_node]'),
+    t('Alle'),
+    t('Tijdstip'),
+    t('Afwezige'),
     t('Overzicht'),
   );
   $export['uurroosters_vervangingen'] = $view;

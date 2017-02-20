@@ -90,7 +90,7 @@ function argus_pedagogische_activiteiten_field_default_field_instances() {
       'module' => 'number',
       'settings' => array(),
       'type' => 'number',
-      'weight' => 11,
+      'weight' => 10,
     ),
   );
 
@@ -178,7 +178,7 @@ function argus_pedagogische_activiteiten_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 7,
+      'weight' => 6,
     ),
   );
 
@@ -235,7 +235,7 @@ function argus_pedagogische_activiteiten_field_default_field_instances() {
         'size' => 200,
       ),
       'type' => 'text_textfield',
-      'weight' => 6,
+      'weight' => 5,
     ),
   );
 
@@ -289,111 +289,6 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
       'settings' => array(),
       'type' => 'number',
       'weight' => 54,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'node-event_pedagogische_activiteit-field_ev_begeleiders'.
-  $field_instances['node-event_pedagogische_activiteit-field_ev_begeleiders'] = array(
-    'bundle' => 'event_pedagogische_activiteit',
-    'deleted' => 0,
-    'description' => 'Stel zelf begeleiders voor (aantal en namen). Dit kan worden aangepast door de directie bij goedkeuring.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'conditions' => array(),
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 9,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_ev_begeleiders',
-    'label' => 'Begeleiders',
-    'required' => 1,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'multiselect',
-      'settings' => array(),
-      'type' => 'multiselect',
-      'weight' => 12,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'node-event_pedagogische_activiteit-field_ev_bijlage'.
-  $field_instances['node-event_pedagogische_activiteit-field_ev_bijlage'] = array(
-    'bundle' => 'event_pedagogische_activiteit',
-    'deleted' => 0,
-    'description' => 'Upload je verwerkingsopdracht, uitnodiging, flyer en/of andere bestanden die betrekking hebben op de activiteit.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'file',
-        'settings' => array(
-          'conditions' => array(),
-        ),
-        'type' => 'file_default',
-        'weight' => 12,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_ev_bijlage',
-    'label' => 'Bijlage',
-    'required' => 0,
-    'settings' => array(
-      'description_field' => 1,
-      'file_directory' => 'event/pedagogische_activiteit',
-      'file_extensions' => 'txt doc docx xls xlsx pdf ppt pptx jpg jpeg png',
-      'max_filesize' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'file',
-      'settings' => array(
-        'filefield_sources' => array(
-          'filefield_sources' => array(
-            'attach' => 0,
-            'clipboard' => 0,
-            'reference' => 0,
-            'remote' => 0,
-            'upload' => 'upload',
-          ),
-          'source_attach' => array(
-            'absolute' => 0,
-            'attach_mode' => 'move',
-            'path' => 'file_attach',
-          ),
-          'source_imce' => array(
-            'imce_mode' => 0,
-          ),
-          'source_reference' => array(
-            'autocomplete' => 0,
-          ),
-        ),
-        'progress_indicator' => 'throbber',
-      ),
-      'type' => 'file_generic',
-      'weight' => 16,
     ),
   );
 
@@ -452,153 +347,6 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
   );
 
   // Exported field_instance:
-  // 'node-event_pedagogische_activiteit-field_ev_datum'.
-  $field_instances['node-event_pedagogische_activiteit-field_ev_datum'] = array(
-    'bundle' => 'event_pedagogische_activiteit',
-    'deleted' => 0,
-    'description' => 'Geef hier het moment van vertrek en eventueel van terugkomst aan.',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'date',
-        'settings' => array(
-          'conditions' => array(),
-          'format_type' => 'long',
-          'fromto' => 'both',
-          'multiple_from' => '',
-          'multiple_number' => '',
-          'multiple_to' => '',
-          'show_remaining_days' => FALSE,
-          'show_repeat_rule' => 'hide',
-        ),
-        'type' => 'date_default',
-        'weight' => 6,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_ev_datum',
-    'label' => 'Tijdstip',
-    'required' => 0,
-    'settings' => array(
-      'default_value' => 'now',
-      'default_value2' => 'same',
-      'default_value_code' => '',
-      'default_value_code2' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'date',
-      'settings' => array(
-        'display_all_day' => 0,
-        'increment' => 15,
-        'input_format' => 'd/m/Y - H:i:s',
-        'input_format_custom' => '',
-        'label_position' => 'above',
-        'repeat_collapsed' => 1,
-        'text_parts' => array(),
-        'year_range' => '-3:+3',
-      ),
-      'type' => 'date_popup',
-      'weight' => 9,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'node-event_pedagogische_activiteit-field_ev_deelnemende_klassen'.
-  $field_instances['node-event_pedagogische_activiteit-field_ev_deelnemende_klassen'] = array(
-    'bundle' => 'event_pedagogische_activiteit',
-    'deleted' => 0,
-    'description' => 'Selecteer alle klassen die zullen deelnemen aan de pedagogische activiteit.',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'entityreference',
-        'settings' => array(
-          'conditions' => array(),
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 7,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_ev_deelnemende_klassen',
-    'label' => 'Deelnemende klassen',
-    'required' => 1,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'multiselect',
-      'settings' => array(),
-      'type' => 'multiselect',
-      'weight' => 10,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'node-event_pedagogische_activiteit-field_ev_doelstellingen'.
-  $field_instances['node-event_pedagogische_activiteit-field_ev_doelstellingen'] = array(
-    'bundle' => 'event_pedagogische_activiteit',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Vakgebonden en/of vakoverschrijdende doelstellingen die door deze activiteit nagestreefd worden (leerplannummer, nummer(s) leerplandoel(en) en omschrijving leerplandoel(en)',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(
-          'conditions' => array(),
-        ),
-        'type' => 'text_default',
-        'weight' => 10,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_ev_doelstellingen',
-    'label' => 'Doelstellingen',
-    'required' => 1,
-    'settings' => array(
-      'linkit' => array(
-        'button_text' => 'Search',
-        'enable' => 0,
-        'profile' => '',
-      ),
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 5,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 13,
-    ),
-  );
-
-  // Exported field_instance:
   // 'node-event_pedagogische_activiteit-field_ev_goedkeuring'.
   $field_instances['node-event_pedagogische_activiteit-field_ev_goedkeuring'] = array(
     'bundle' => 'event_pedagogische_activiteit',
@@ -638,7 +386,7 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 20,
+      'weight' => 19,
     ),
   );
 
@@ -690,7 +438,7 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
       'module' => 'number',
       'settings' => array(),
       'type' => 'number',
-      'weight' => 17,
+      'weight' => 16,
     ),
   );
 
@@ -786,54 +534,6 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
   );
 
   // Exported field_instance:
-  // 'node-event_pedagogische_activiteit-field_ev_locatie'.
-  $field_instances['node-event_pedagogische_activiteit-field_ev_locatie'] = array(
-    'bundle' => 'event_pedagogische_activiteit',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Wees zo specifiek mogelijk: plaats, volledig adres',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'text',
-        'settings' => array(
-          'conditions' => array(),
-        ),
-        'type' => 'text_default',
-        'weight' => 5,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_ev_locatie',
-    'label' => 'Plaats/adres',
-    'required' => 0,
-    'settings' => array(
-      'linkit' => array(
-        'button_text' => 'Search',
-        'enable' => 0,
-        'profile' => '',
-      ),
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 150,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 8,
-    ),
-  );
-
-  // Exported field_instance:
   // 'node-event_pedagogische_activiteit-field_ev_plaats_activiteit'.
   $field_instances['node-event_pedagogische_activiteit-field_ev_plaats_activiteit'] = array(
     'bundle' => 'event_pedagogische_activiteit',
@@ -869,7 +569,7 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 4,
+      'weight' => 3,
     ),
   );
 
@@ -948,7 +648,7 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 5,
+      'weight' => 4,
     ),
   );
 
@@ -987,7 +687,7 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
       'module' => 'computed_field',
       'settings' => array(),
       'type' => 'computed',
-      'weight' => 18,
+      'weight' => 17,
     ),
   );
 
@@ -1026,7 +726,7 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
       'module' => 'computed_field',
       'settings' => array(),
       'type' => 'computed',
-      'weight' => 19,
+      'weight' => 18,
     ),
   );
 
@@ -1070,54 +770,6 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
     ),
   );
 
-  // Exported field_instance:
-  // 'node-event_pedagogische_activiteit-field_ev_verwerkingsopdrachten'.
-  $field_instances['node-event_pedagogische_activiteit-field_ev_verwerkingsopdrachten'] = array(
-    'bundle' => 'event_pedagogische_activiteit',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Opdrachten die als voorbereiding of verwerking worden uitgevoerd door de leerlingen.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(
-          'conditions' => array(),
-        ),
-        'type' => 'text_default',
-        'weight' => 11,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_ev_verwerkingsopdrachten',
-    'label' => 'Verwerkingsopdrachten',
-    'required' => 0,
-    'settings' => array(
-      'linkit' => array(
-        'button_text' => 'Search',
-        'enable' => 0,
-        'profile' => '',
-      ),
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 5,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 14,
-    ),
-  );
-
   // Translatables
   // Included for use with string extractors like potx.
   t('Aantal deelnemende lln');
@@ -1131,36 +783,22 @@ Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>',
 Enkel in te vullen indien gebruik gemaakt wordt van een <b>schoolbusje</b>');
   t('Bedrag dat aan elke leerling moet gevraagd worden ter dekking van de kosten van het schoolbusje.');
   t('Bedrag dat aan elke leerling moet worden gevraagd (kostprijs vervoer + kostprijs activiteit)');
-  t('Begeleiders');
   t('Betreft het hier een standaardactiviteit of gaat het om werkplekleren of duaal leren?');
-  t('Bijlage');
   t('Busje betaald');
   t('Comment');
-  t('Deelnemende klassen');
-  t('Doelstellingen');
-  t('Geef hier het moment van vertrek en eventueel van terugkomst aan.');
   t('Goedkeuring');
   t('Hoeveel kost de activiteit (excl. vervoer) voor alle leerlingen samen?');
   t('Kostprijs activiteit');
   t('Kostprijs schoolbusje');
   t('Kostprijs vervoer');
-  t('Opdrachten die als voorbereiding of verwerking worden uitgevoerd door de leerlingen.');
   t('Plaats activiteit');
   t('Plaats van de pedagogische activiteit');
-  t('Plaats/adres');
   t('Prijs busje per leerling');
-  t('Selecteer alle klassen die zullen deelnemen aan de pedagogische activiteit.');
-  t('Stel zelf begeleiders voor (aantal en namen). Dit kan worden aangepast door de directie bij goedkeuring.');
-  t('Tijdstip');
   t('Timing activiteit');
   t('Totale kostprijs activiteit');
   t('Totale kostprijs per leerling');
-  t('Upload je verwerkingsopdracht, uitnodiging, flyer en/of andere bestanden die betrekking hebben op de activiteit.');
-  t('Vakgebonden en/of vakoverschrijdende doelstellingen die door deze activiteit nagestreefd worden (leerplannummer, nummer(s) leerplandoel(en) en omschrijving leerplandoel(en)');
   t('Vervoer');
-  t('Verwerkingsopdrachten');
   t('Wanneer vindt de activiteit plaats?');
-  t('Wees zo specifiek mogelijk: plaats, volledig adres');
   t('Wordt automatisch berekend door het aantal leerlingen te vermenigvuldigen met het aantal kilometer en de kostprijs van 0,15 EUR/km. Er geldt een maximum van de prijs van een GO-pass H/T.');
 
   return $field_instances;

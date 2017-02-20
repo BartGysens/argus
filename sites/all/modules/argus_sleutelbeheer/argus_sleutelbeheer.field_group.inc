@@ -8,7 +8,7 @@
  * Implements hook_field_group_info().
  */
 function argus_sleutelbeheer_field_group_info() {
-  $export = array();
+  $field_groups = array();
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -25,6 +25,7 @@ function argus_sleutelbeheer_field_group_info() {
     'children' => array(
       0 => 'field_user_sms_naam',
       1 => 'field_user_sms_voornaam',
+      2 => 'field_user_organisatie',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -36,7 +37,11 @@ function argus_sleutelbeheer_field_group_info() {
       ),
     ),
   );
-  $export['group_user_fullname|user|user|form'] = $field_group;
+  $field_groups['group_user_fullname|user|user|form'] = $field_group;
 
-  return $export;
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Volledige naam');
+
+  return $field_groups;
 }

@@ -10,7 +10,44 @@
 function argus_begeleidingsovereenkomsten_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_aanleiding'
+  // Exported field_instance:
+  // 'comment-comment_node_msl_begeleidingsovereenkomst-comment_body'.
+  $field_instances['comment-comment_node_msl_begeleidingsovereenkomst-comment_body'] = array(
+    'bundle' => 'comment_node_msl_begeleidingsovereenkomst',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'comment',
+    'field_name' => 'comment_body',
+    'label' => 'Comment',
+    'required' => TRUE,
+    'settings' => array(
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 0,
+    ),
+  );
+
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_aanleiding'.
   $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_aanleiding'] = array(
     'bundle' => 'msl_begeleidingsovereenkomst',
     'default_value' => NULL,
@@ -20,9 +57,11 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
       'default' => array(
         'label' => 'above',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
-        'weight' => 6,
+        'weight' => 7,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -51,211 +90,12 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 8,
+      'weight' => 7,
     ),
   );
 
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_afspraken_leerling'
-  $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_afspraken_leerling'] = array(
-    'bundle' => 'msl_begeleidingsovereenkomst',
-    'default_value' => array(
-      0 => array(
-        'value' => '<ul><li>je steeds aanwezig bent op school en dat je bij wettige afwezigheid de regels volgt, zoals het schoolreglement dat voorschrijft;</li><li>je het schoolreglement naleeft en zelf actief zal meewerken aan een positieve sfeer in de school en in de klas;</li><li>je je strikt houdt aan de afspraken, die met je gemaakt worden;</li><li>je elke week je volgkaart komt ophalen op het ILB, je volgkaart dan elk lesuur laat invullen door de leerkracht en er een onberispelijk gedrag op wordt aangeduid (geen ‘niet ok’ aanmerkingen);</li><li>je goed je best zal doet om dit jaar te slagen.</li></ul>',
-        'format' => 'filtered_html',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 7,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_msl_bo_afspraken_leerling',
-    'label' => 'Afspraken met de leerling',
-    'required' => 0,
-    'settings' => array(
-      'linkit' => array(
-        'button_text' => 'Zoeken',
-        'enable' => 0,
-        'profile' => '',
-      ),
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 5,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 10,
-    ),
-  );
-
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_afspraken_ouders'
-  $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_afspraken_ouders'] = array(
-    'bundle' => 'msl_begeleidingsovereenkomst',
-    'default_value' => array(
-      0 => array(
-        'value' => '<ul><li>zij samenwerken met de school om jouw gedrag mee te helpen bij te sturen;</li><li>je agenda minstens twee keer per week wordt gecontroleerd;</li><li>ze naar elk oudercontact komen om de evolutie van jou in de school op te volgen.</li></ul>',
-        'format' => 'filtered_html',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 8,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_msl_bo_afspraken_ouders',
-    'label' => 'Afspraken met de ouders',
-    'required' => 0,
-    'settings' => array(
-      'linkit' => array(
-        'button_text' => 'Zoeken',
-        'enable' => 0,
-        'profile' => '',
-      ),
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 5,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 11,
-    ),
-  );
-
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_afspraken_school'
-  $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_afspraken_school'] = array(
-    'bundle' => 'msl_begeleidingsovereenkomst',
-    'default_value' => array(
-      0 => array(
-        'value' => '<ul><li>er een wekelijkse opvolging is door de klastitularis, die een individueel gesprek zal hebben met jou;</li><li>er een 3-wekelijkse opvolging is via een overleg tussen de interne leerlingenbegeleiding en de &nbsp;klastitularis;</li><li>er een mogelijkheid is om het individueel dossier in te kijken op aanvraag en na afspraak.</li></ul>',
-        'format' => 'filtered_html',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 9,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_msl_bo_afspraken_school',
-    'label' => 'Afspraken met de school',
-    'required' => 0,
-    'settings' => array(
-      'linkit' => array(
-        'button_text' => 'Zoeken',
-        'enable' => 0,
-        'profile' => '',
-      ),
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 5,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 12,
-    ),
-  );
-
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_conclusie'
-  $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_conclusie'] = array(
-    'bundle' => 'msl_begeleidingsovereenkomst',
-    'default_value' => array(
-      0 => array(
-        'value' => '<p>Deze begeleidingsovereenkomst loopt telkens voor een periode van 3 weken; zolang er geen positieve evolutie vastgesteld wordt door de klastitularis, in samenspraak met de interne leerlingenbegeleiding. In geval van verlenging met 3 weken, zullen jouw ouders hiervan schriftelijk op de hoogte gehouden worden.</p><p><strong>Indien jij je niet houdt aan bovenstaande afspraken kan de tuchtprocedure opgestart worden. Maar we hopen dat dit de laatste keer was en dat het vanaf nu beter zal gaan.</strong></p>',
-        'format' => 'filtered_html',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 10,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_msl_bo_conclusie',
-    'label' => 'Conclusie',
-    'required' => 0,
-    'settings' => array(
-      'linkit' => array(
-        'button_text' => 'Zoeken',
-        'enable' => 0,
-        'profile' => '',
-      ),
-      'text_processing' => 1,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'rows' => 10,
-      ),
-      'type' => 'text_textarea',
-      'weight' => 13,
-    ),
-  );
-
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_einddatum'
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_einddatum'.
   $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_einddatum'] = array(
     'bundle' => 'msl_begeleidingsovereenkomst',
     'deleted' => 0,
@@ -265,15 +105,17 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'datum_kort_',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -307,11 +149,77 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_popup',
-      'weight' => 7,
+      'weight' => 6,
     ),
   );
 
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_handtekeningen'
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_gehandtekend'.
+  $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_gehandtekend'] = array(
+    'bundle' => 'msl_begeleidingsovereenkomst',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'file',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'file_default',
+        'weight' => 9,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_msl_bo_gehandtekend',
+    'label' => 'Gehandtekende begeleidingsovereenkomst',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'begeleidingsovereenkomsten',
+      'file_extensions' => 'pdf jpg jpeg tif png gif',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'filefield_sources' => array(
+          'filefield_sources' => array(
+            'attach' => 0,
+            'clipboard' => 0,
+            'reference' => 0,
+            'remote' => 0,
+            'upload' => 'upload',
+          ),
+          'source_attach' => array(
+            'absolute' => 0,
+            'attach_mode' => 'move',
+            'path' => 'file_attach',
+          ),
+          'source_imce' => array(
+            'imce_mode' => 0,
+          ),
+          'source_reference' => array(
+            'autocomplete' => 0,
+          ),
+        ),
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 10,
+    ),
+  );
+
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_handtekeningen'.
   $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_handtekeningen'] = array(
     'bundle' => 'msl_begeleidingsovereenkomst',
     'default_value' => NULL,
@@ -321,9 +229,11 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
       'default' => array(
         'label' => 'above',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
-        'weight' => 11,
+        'weight' => 8,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -344,11 +254,12 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 14,
+      'weight' => 9,
     ),
   );
 
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_leerling'
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_leerling'.
   $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_leerling'] = array(
     'bundle' => 'msl_begeleidingsovereenkomst',
     'default_value' => NULL,
@@ -359,6 +270,7 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -387,13 +299,15 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 3,
+      'weight' => 1,
     ),
   );
 
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_meldingen'
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_meldingen'.
   $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_meldingen'] = array(
     'bundle' => 'msl_begeleidingsovereenkomst',
+    'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -401,10 +315,11 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -422,14 +337,19 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 0,
-      'module' => 'multiselect',
-      'settings' => array(),
-      'type' => 'multiselect',
-      'weight' => 9,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 8,
     ),
   );
 
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_startdatum'
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_startdatum'.
   $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_startdatum'] = array(
     'bundle' => 'msl_begeleidingsovereenkomst',
     'deleted' => 0,
@@ -439,15 +359,17 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'datum_kort_',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -481,11 +403,58 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_popup',
-      'weight' => 6,
+      'weight' => 5,
     ),
   );
 
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_type'
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_status'.
+  $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_status'] = array(
+    'bundle' => 'msl_begeleidingsovereenkomst',
+    'default_value' => array(
+      0 => array(
+        'value' => 'In behandeling',
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'list_default',
+        'weight' => 3,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_msl_bo_status',
+    'label' => 'Status',
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_type'.
   $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_type'] = array(
     'bundle' => 'msl_begeleidingsovereenkomst',
     'default_value' => NULL,
@@ -495,7 +464,9 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
       'default' => array(
         'label' => 'inline',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 1,
       ),
@@ -520,11 +491,12 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_volgkaart'
+  // Exported field_instance:
+  // 'node-msl_begeleidingsovereenkomst-field_msl_bo_volgkaart'.
   $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_volgkaart'] = array(
     'bundle' => 'msl_begeleidingsovereenkomst',
     'default_value' => array(
@@ -538,7 +510,9 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
       'default' => array(
         'label' => 'inline',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 2,
       ),
@@ -563,63 +537,23 @@ function argus_begeleidingsovereenkomsten_field_default_field_instances() {
         'display_label' => 0,
       ),
       'type' => 'options_onoff',
-      'weight' => 5,
-    ),
-  );
-
-  // Exported field_instance: 'node-msl_begeleidingsovereenkomst-field_msl_bo_volgkaarten'
-  $field_instances['node-msl_begeleidingsovereenkomst-field_msl_bo_volgkaarten'] = array(
-    'bundle' => 'msl_begeleidingsovereenkomst',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => 1,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 12,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_msl_bo_volgkaarten',
-    'label' => 'Volgkaarten',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'multiselect',
-      'settings' => array(),
-      'type' => 'multiselect',
-      'weight' => 15,
+      'weight' => 3,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Aanleiding');
-  t('Afspraken met de leerling');
-  t('Afspraken met de ouders');
-  t('Afspraken met de school');
-  t('Conclusie');
+  t('Comment');
   t('Einddatum');
+  t('Gehandtekende begeleidingsovereenkomst');
   t('Handtekeningen');
   t('Leerling');
   t('Meldingen');
   t('Startdatum');
+  t('Status');
   t('Type');
   t('Volgkaart');
-  t('Volgkaarten');
 
   return $field_instances;
 }

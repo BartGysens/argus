@@ -10,7 +10,7 @@
 function argus_sleutelbeheer_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'comment-comment_node_sleutel-comment_body'
+  // Exported field_instance: 'comment-comment_node_sleutel-comment_body'.
   $field_instances['comment-comment_node_sleutel-comment_body'] = array(
     'bundle' => 'comment_node_sleutel',
     'default_value' => NULL,
@@ -20,7 +20,9 @@ function argus_sleutelbeheer_field_default_field_instances() {
       'default' => array(
         'label' => 'hidden',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
         'weight' => 0,
       ),
@@ -43,7 +45,8 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sleutel_uitlening-field_sleutel_datum_uitgeleend'
+  // Exported field_instance:
+  // 'field_collection_item-field_sleutel_uitlening-field_sleutel_datum_uitgeleend'.
   $field_instances['field_collection_item-field_sleutel_uitlening-field_sleutel_datum_uitgeleend'] = array(
     'bundle' => 'field_sleutel_uitlening',
     'deleted' => 0,
@@ -53,11 +56,13 @@ function argus_sleutelbeheer_field_default_field_instances() {
         'label' => 'above',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
@@ -67,11 +72,13 @@ function argus_sleutelbeheer_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
@@ -107,7 +114,8 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_borg'
+  // Exported field_instance:
+  // 'field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_borg'.
   $field_instances['field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_borg'] = array(
     'bundle' => 'field_sleutel_uitlening',
     'default_value' => array(
@@ -121,14 +129,18 @@ function argus_sleutelbeheer_field_default_field_instances() {
       'default' => array(
         'label' => 'above',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 1,
       ),
       'token' => array(
         'label' => 'inline',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 1,
       ),
@@ -149,7 +161,8 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_duur'
+  // Exported field_instance:
+  // 'field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_duur'.
   $field_instances['field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_duur'] = array(
     'bundle' => 'field_sleutel_uitlening',
     'default_value' => array(
@@ -163,14 +176,18 @@ function argus_sleutelbeheer_field_default_field_instances() {
       'default' => array(
         'label' => 'above',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 3,
       ),
       'token' => array(
         'label' => 'inline',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 3,
       ),
@@ -191,7 +208,8 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_uitlener'
+  // Exported field_instance:
+  // 'field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_uitlener'.
   $field_instances['field_collection_item-field_sleutel_uitlening-field_sleutel_uitlening_uitlener'] = array(
     'bundle' => 'field_sleutel_uitlening',
     'default_value' => NULL,
@@ -202,7 +220,9 @@ function argus_sleutelbeheer_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'token',
         ),
         'type' => 'entityreference_entity_view',
@@ -212,6 +232,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -236,7 +257,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-sleutel-field_sleutel_kleurcode'
+  // Exported field_instance: 'node-sleutel-field_sleutel_kleurcode'.
   $field_instances['node-sleutel-field_sleutel_kleurcode'] = array(
     'bundle' => 'sleutel',
     'default_value' => NULL,
@@ -258,6 +279,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
         'label' => 'above',
         'module' => 'color_field',
         'settings' => array(
+          'conditions' => array(),
           'height' => 15,
           'width' => 50,
         ),
@@ -281,7 +303,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-sleutel-field_sleutel_locatie'
+  // Exported field_instance: 'node-sleutel-field_sleutel_locatie'.
   $field_instances['node-sleutel-field_sleutel_locatie'] = array(
     'bundle' => 'sleutel',
     'default_value' => NULL,
@@ -300,7 +322,9 @@ function argus_sleutelbeheer_field_default_field_instances() {
       'full' => array(
         'label' => 'inline',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 3,
       ),
@@ -323,7 +347,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-sleutel-field_sleutel_nummer'
+  // Exported field_instance: 'node-sleutel-field_sleutel_nummer'.
   $field_instances['node-sleutel-field_sleutel_nummer'] = array(
     'bundle' => 'sleutel',
     'default_value' => NULL,
@@ -347,6 +371,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'number',
         'settings' => array(
+          'conditions' => array(),
           'decimal_separator' => '.',
           'prefix_suffix' => TRUE,
           'scale' => 0,
@@ -376,7 +401,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-sleutel-field_sleutel_omschrijving'
+  // Exported field_instance: 'node-sleutel-field_sleutel_omschrijving'.
   $field_instances['node-sleutel-field_sleutel_omschrijving'] = array(
     'bundle' => 'sleutel',
     'default_value' => NULL,
@@ -395,7 +420,9 @@ function argus_sleutelbeheer_field_default_field_instances() {
       'full' => array(
         'label' => 'inline',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
         'weight' => 1,
       ),
@@ -419,7 +446,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-sleutel-field_sleutel_totaal_aantal'
+  // Exported field_instance: 'node-sleutel-field_sleutel_totaal_aantal'.
   $field_instances['node-sleutel-field_sleutel_totaal_aantal'] = array(
     'bundle' => 'sleutel',
     'default_value' => array(
@@ -447,6 +474,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'number',
         'settings' => array(
+          'conditions' => array(),
           'decimal_separator' => '.',
           'prefix_suffix' => TRUE,
           'scale' => 0,
@@ -476,7 +504,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-sleutel-field_sleutel_type'
+  // Exported field_instance: 'node-sleutel-field_sleutel_type'.
   $field_instances['node-sleutel-field_sleutel_type'] = array(
     'bundle' => 'sleutel',
     'default_value' => NULL,
@@ -495,7 +523,9 @@ function argus_sleutelbeheer_field_default_field_instances() {
       'full' => array(
         'label' => 'inline',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 4,
       ),
@@ -518,7 +548,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-sleutel-field_sleutel_uitlening'
+  // Exported field_instance: 'node-sleutel-field_sleutel_uitlening'.
   $field_instances['node-sleutel-field_sleutel_uitlening'] = array(
     'bundle' => 'sleutel',
     'default_value' => NULL,
@@ -544,6 +574,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
         'module' => 'field_collection',
         'settings' => array(
           'add' => 'Toevoegen',
+          'conditions' => array(),
           'delete' => 'Verwijderen',
           'description' => 1,
           'edit' => 'Bewerken',
@@ -569,7 +600,7 @@ function argus_sleutelbeheer_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-sleutel-field_sleutel_vrijgave'
+  // Exported field_instance: 'node-sleutel-field_sleutel_vrijgave'.
   $field_instances['node-sleutel-field_sleutel_vrijgave'] = array(
     'bundle' => 'sleutel',
     'default_value' => NULL,
@@ -588,7 +619,9 @@ function argus_sleutelbeheer_field_default_field_instances() {
       'full' => array(
         'label' => 'inline',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 2,
       ),

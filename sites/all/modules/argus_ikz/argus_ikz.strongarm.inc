@@ -342,6 +342,34 @@ function argus_ikz_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'content_access_ikz_afkortingen';
+  $strongarm->value = array(
+    'view_own' => array(
+      0 => 90,
+      1 => 3,
+      2 => 86,
+      3 => 225,
+      4 => 274,
+      5 => 218,
+      6 => 219,
+    ),
+    'view' => array(
+      0 => 2,
+      1 => 90,
+      2 => 216,
+      3 => 3,
+      4 => 86,
+      5 => 225,
+      6 => 274,
+      7 => 218,
+      8 => 219,
+    ),
+  );
+  $export['content_access_ikz_afkortingen'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'content_access_ikz_formulier';
   $strongarm->value = array(
     'update' => array(
@@ -375,6 +403,25 @@ function argus_ikz_strongarm() {
       3 => 90,
       4 => 218,
       5 => 219,
+    ),
+    'view_own' => array(
+      0 => 90,
+      1 => 3,
+      2 => 86,
+      3 => 225,
+      4 => 274,
+      5 => 218,
+      6 => 219,
+    ),
+    'view' => array(
+      0 => 90,
+      1 => 216,
+      2 => 3,
+      3 => 86,
+      4 => 225,
+      5 => 274,
+      6 => 218,
+      7 => 219,
     ),
   );
   $export['content_access_ikz_formulier'] = $strongarm;
@@ -515,6 +562,9 @@ function argus_ikz_strongarm() {
         ),
         'path' => array(
           'weight' => '30',
+        ),
+        'domain' => array(
+          'weight' => '1',
         ),
       ),
       'display' => array(),

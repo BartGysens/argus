@@ -80,8 +80,6 @@ function argus_volgkaarten_views_default_views() {
       ),
     ),
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '25';
   $handler->display->display_options['pager']['options']['offset'] = '0';
@@ -100,16 +98,17 @@ function argus_volgkaarten_views_default_views() {
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
     'nid' => 'nid',
-    'field_msl_volgkaart_leerling' => 'field_msl_volgkaart_leerling',
+    'nid_1' => 'nid_1',
+    'realname' => 'realname',
     'field_msl_volgkaart_afgehaald' => 'field_msl_volgkaart_afgehaald',
     'field_msl_volgkaart_status' => 'field_msl_volgkaart_status',
+    'field_volgkaart_scan' => 'field_volgkaart_scan',
     'field_msl_bo_type' => 'field_msl_bo_type',
     'field_msl_bo_aanleiding' => 'field_msl_bo_aanleiding',
     'field_msl_bo_startdatum' => 'field_msl_bo_startdatum',
     'field_msl_bo_einddatum' => 'field_msl_bo_einddatum',
-    'field_msl_bo_volgkaarten' => 'field_msl_bo_volgkaarten',
   );
-  $handler->display->display_options['style_options']['default'] = 'field_msl_volgkaart_leerling';
+  $handler->display->display_options['style_options']['default'] = 'field_msl_volgkaart_afgehaald';
   $handler->display->display_options['style_options']['info'] = array(
     'nid' => array(
       'sortable' => 0,
@@ -118,7 +117,14 @@ function argus_volgkaarten_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'field_msl_volgkaart_leerling' => array(
+    'nid_1' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'realname' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => 'views-align-left',
@@ -135,19 +141,26 @@ function argus_volgkaarten_views_default_views() {
     'field_msl_volgkaart_status' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => 'views-align-center',
+      'align' => 'views-align-left',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_volgkaart_scan' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_msl_bo_type' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => 'views-align-center',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_msl_bo_aanleiding' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => 'views-align-left',
       'separator' => '',
@@ -164,11 +177,6 @@ function argus_volgkaarten_views_default_views() {
       'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => 'views-align-center',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_msl_bo_volgkaarten' => array(
-      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
@@ -189,34 +197,44 @@ function argus_volgkaarten_views_default_views() {
   $handler->display->display_options['footer']['area']['label'] = 'Volgkaart toevoegen';
   $handler->display->display_options['footer']['area']['content'] = '<a href="/node/add/msl-volgkaart">Een nieuwe volgkaart toevoegen</a>';
   $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
-  /* Relatie: Referentie naar een entiteit: Refererende entiteit */
-  $handler->display->display_options['relationships']['reverse_field_msl_bo_volgkaarten_node']['id'] = 'reverse_field_msl_bo_volgkaarten_node';
-  $handler->display->display_options['relationships']['reverse_field_msl_bo_volgkaarten_node']['table'] = 'node';
-  $handler->display->display_options['relationships']['reverse_field_msl_bo_volgkaarten_node']['field'] = 'reverse_field_msl_bo_volgkaarten_node';
   /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_msl_volgkaart_leerling_target_id']['id'] = 'field_msl_volgkaart_leerling_target_id';
   $handler->display->display_options['relationships']['field_msl_volgkaart_leerling_target_id']['table'] = 'field_data_field_msl_volgkaart_leerling';
   $handler->display->display_options['relationships']['field_msl_volgkaart_leerling_target_id']['field'] = 'field_msl_volgkaart_leerling_target_id';
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+  $handler->display->display_options['relationships']['field_msl_volgkaart_bo_target_id']['id'] = 'field_msl_volgkaart_bo_target_id';
+  $handler->display->display_options['relationships']['field_msl_volgkaart_bo_target_id']['table'] = 'field_data_field_msl_volgkaart_bo';
+  $handler->display->display_options['relationships']['field_msl_volgkaart_bo_target_id']['field'] = 'field_msl_volgkaart_bo_target_id';
+  $handler->display->display_options['relationships']['field_msl_volgkaart_bo_target_id']['label'] = 'Inhoud entity referenced from field_msl_volgkaart_bo';
   /* Veld: Inhoud: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
   $handler->display->display_options['fields']['nid']['field'] = 'nid';
-  $handler->display->display_options['fields']['nid']['relationship'] = 'reverse_field_msl_bo_volgkaarten_node';
   $handler->display->display_options['fields']['nid']['label'] = '';
   $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['nid']['alter']['text'] = '[field_msl_volgkaart_afgehaald]';
   $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
-  /* Veld: Inhoud: Leerling */
-  $handler->display->display_options['fields']['field_msl_volgkaart_leerling']['id'] = 'field_msl_volgkaart_leerling';
-  $handler->display->display_options['fields']['field_msl_volgkaart_leerling']['table'] = 'field_data_field_msl_volgkaart_leerling';
-  $handler->display->display_options['fields']['field_msl_volgkaart_leerling']['field'] = 'field_msl_volgkaart_leerling';
-  $handler->display->display_options['fields']['field_msl_volgkaart_leerling']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_msl_volgkaart_leerling']['settings'] = array(
-    'link' => 1,
-  );
+  /* Veld: Inhoud: Nid */
+  $handler->display->display_options['fields']['nid_1']['id'] = 'nid_1';
+  $handler->display->display_options['fields']['nid_1']['table'] = 'node';
+  $handler->display->display_options['fields']['nid_1']['field'] = 'nid';
+  $handler->display->display_options['fields']['nid_1']['relationship'] = 'field_msl_volgkaart_bo_target_id';
+  $handler->display->display_options['fields']['nid_1']['label'] = '';
+  $handler->display->display_options['fields']['nid_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['nid_1']['element_label_colon'] = FALSE;
+  /* Veld: Echte naam: Werkelijke naam */
+  $handler->display->display_options['fields']['realname']['id'] = 'realname';
+  $handler->display->display_options['fields']['realname']['table'] = 'realname';
+  $handler->display->display_options['fields']['realname']['field'] = 'realname';
+  $handler->display->display_options['fields']['realname']['relationship'] = 'field_msl_volgkaart_leerling_target_id';
+  $handler->display->display_options['fields']['realname']['label'] = 'Leerling';
   /* Veld: Inhoud: Afgehaald */
   $handler->display->display_options['fields']['field_msl_volgkaart_afgehaald']['id'] = 'field_msl_volgkaart_afgehaald';
   $handler->display->display_options['fields']['field_msl_volgkaart_afgehaald']['table'] = 'field_data_field_msl_volgkaart_afgehaald';
   $handler->display->display_options['fields']['field_msl_volgkaart_afgehaald']['field'] = 'field_msl_volgkaart_afgehaald';
+  $handler->display->display_options['fields']['field_msl_volgkaart_afgehaald']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['field_msl_volgkaart_afgehaald']['alter']['path'] = 'node/[nid]';
+  $handler->display->display_options['fields']['field_msl_volgkaart_afgehaald']['alter']['absolute'] = TRUE;
   $handler->display->display_options['fields']['field_msl_volgkaart_afgehaald']['settings'] = array(
     'format_type' => 'dag_en_datum_lang_',
     'fromto' => 'both',
@@ -231,40 +249,36 @@ function argus_volgkaarten_views_default_views() {
   $handler->display->display_options['fields']['field_msl_volgkaart_status']['field'] = 'field_msl_volgkaart_status';
   $handler->display->display_options['fields']['field_msl_volgkaart_status']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['field_msl_volgkaart_status']['alter']['text'] = 'ok';
-  $handler->display->display_options['fields']['field_msl_volgkaart_status']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['field_msl_volgkaart_status']['alter']['path'] = 'node/[nid]';
+  $handler->display->display_options['fields']['field_msl_volgkaart_status']['alter']['absolute'] = TRUE;
+  $handler->display->display_options['fields']['field_msl_volgkaart_status']['hide_alter_empty'] = FALSE;
+  /* Veld: Inhoud: Ingescande volgkaart */
+  $handler->display->display_options['fields']['field_volgkaart_scan']['id'] = 'field_volgkaart_scan';
+  $handler->display->display_options['fields']['field_volgkaart_scan']['table'] = 'field_data_field_volgkaart_scan';
+  $handler->display->display_options['fields']['field_volgkaart_scan']['field'] = 'field_volgkaart_scan';
+  $handler->display->display_options['fields']['field_volgkaart_scan']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_volgkaart_scan']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_volgkaart_scan']['type'] = 'file_url_plain';
+  $handler->display->display_options['fields']['field_volgkaart_scan']['settings'] = array(
+    'file_view_mode' => 'default',
+  );
   /* Veld: Inhoud: Type */
   $handler->display->display_options['fields']['field_msl_bo_type']['id'] = 'field_msl_bo_type';
   $handler->display->display_options['fields']['field_msl_bo_type']['table'] = 'field_data_field_msl_bo_type';
   $handler->display->display_options['fields']['field_msl_bo_type']['field'] = 'field_msl_bo_type';
-  $handler->display->display_options['fields']['field_msl_bo_type']['relationship'] = 'reverse_field_msl_bo_volgkaarten_node';
+  $handler->display->display_options['fields']['field_msl_bo_type']['relationship'] = 'field_msl_volgkaart_bo_target_id';
+  $handler->display->display_options['fields']['field_msl_bo_type']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['field_msl_bo_type']['alter']['path'] = 'node/[nid_1]';
   /* Veld: Inhoud: Aanleiding */
   $handler->display->display_options['fields']['field_msl_bo_aanleiding']['id'] = 'field_msl_bo_aanleiding';
   $handler->display->display_options['fields']['field_msl_bo_aanleiding']['table'] = 'field_data_field_msl_bo_aanleiding';
   $handler->display->display_options['fields']['field_msl_bo_aanleiding']['field'] = 'field_msl_bo_aanleiding';
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['relationship'] = 'reverse_field_msl_bo_volgkaarten_node';
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['alter']['path'] = 'node/[nid]';
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['alter']['absolute'] = TRUE;
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['alter']['max_length'] = '100';
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['alter']['more_link'] = TRUE;
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['alter']['more_link_text'] = '(meer)';
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['alter']['strip_tags'] = TRUE;
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['alter']['trim'] = TRUE;
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['type'] = 'text_plain';
-  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['settings'] = array(
-    'trim_length' => '300',
-    'trim_type' => 'chars',
-    'trim_suffix' => '...',
-    'more_link' => '1',
-    'more_text' => ' (meer)',
-    'trim_options' => array(
-      'text' => 'text',
-    ),
-  );
+  $handler->display->display_options['fields']['field_msl_bo_aanleiding']['relationship'] = 'field_msl_volgkaart_bo_target_id';
   /* Veld: Inhoud: Startdatum */
   $handler->display->display_options['fields']['field_msl_bo_startdatum']['id'] = 'field_msl_bo_startdatum';
   $handler->display->display_options['fields']['field_msl_bo_startdatum']['table'] = 'field_data_field_msl_bo_startdatum';
   $handler->display->display_options['fields']['field_msl_bo_startdatum']['field'] = 'field_msl_bo_startdatum';
-  $handler->display->display_options['fields']['field_msl_bo_startdatum']['relationship'] = 'reverse_field_msl_bo_volgkaarten_node';
+  $handler->display->display_options['fields']['field_msl_bo_startdatum']['relationship'] = 'field_msl_volgkaart_bo_target_id';
   $handler->display->display_options['fields']['field_msl_bo_startdatum']['settings'] = array(
     'format_type' => 'datum_kort_',
     'fromto' => 'both',
@@ -277,7 +291,7 @@ function argus_volgkaarten_views_default_views() {
   $handler->display->display_options['fields']['field_msl_bo_einddatum']['id'] = 'field_msl_bo_einddatum';
   $handler->display->display_options['fields']['field_msl_bo_einddatum']['table'] = 'field_data_field_msl_bo_einddatum';
   $handler->display->display_options['fields']['field_msl_bo_einddatum']['field'] = 'field_msl_bo_einddatum';
-  $handler->display->display_options['fields']['field_msl_bo_einddatum']['relationship'] = 'reverse_field_msl_bo_volgkaarten_node';
+  $handler->display->display_options['fields']['field_msl_bo_einddatum']['relationship'] = 'field_msl_volgkaart_bo_target_id';
   $handler->display->display_options['fields']['field_msl_bo_einddatum']['settings'] = array(
     'format_type' => 'datum_kort_',
     'fromto' => 'both',
@@ -286,11 +300,6 @@ function argus_volgkaarten_views_default_views() {
     'multiple_to' => '',
     'show_repeat_rule' => 'show',
   );
-  /* Sorteercriterium: Inhoud: Datum van inzending */
-  $handler->display->display_options['sorts']['created']['id'] = 'created';
-  $handler->display->display_options['sorts']['created']['table'] = 'node';
-  $handler->display->display_options['sorts']['created']['field'] = 'created';
-  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
   /* Filtercriterium: Inhoud: Gepubliceerd */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -790,7 +799,7 @@ function argus_volgkaarten_views_default_views() {
     t('Sorteren op'),
     t('Oplopend'),
     t('Aflopend'),
-    t('Selecteer een van de filters en klik op \'Toepassen\' om het resultaat te zien'),
+    t('Uitgebreide opties'),
     t('Items per pagina'),
     t('- Alle -'),
     t('Startpunt'),
@@ -800,15 +809,16 @@ function argus_volgkaarten_views_default_views() {
     t('laatste »'),
     t('Volgkaart toevoegen'),
     t('<a href="/node/add/msl-volgkaart">Een nieuwe volgkaart toevoegen</a>'),
-    t('Inhoud referencing Inhoud from field_msl_bo_volgkaarten'),
-    t('Gebruiker entity referenced from field_msl_volgkaart_leerling'),
+    t('Gebruiker entiteit gerefereerd vanaf field_msl_volgkaart_leerling'),
+    t('Inhoud entity referenced from field_msl_volgkaart_bo'),
+    t('[field_msl_volgkaart_afgehaald]'),
     t('Leerling'),
     t('Afgehaald'),
     t('Status'),
     t('ok'),
+    t('Ingescande volgkaart'),
     t('Type'),
     t('Aanleiding'),
-    t('(meer)'),
     t('Startdatum'),
     t('Einddatum'),
     t('Status (field_msl_volgkaart_status)'),

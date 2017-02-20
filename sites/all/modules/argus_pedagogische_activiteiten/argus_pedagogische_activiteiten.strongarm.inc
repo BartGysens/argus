@@ -109,13 +109,14 @@ function argus_pedagogische_activiteiten_strongarm() {
       6 => 219,
     ),
     'view' => array(
-      0 => 216,
-      1 => 3,
-      2 => 86,
-      3 => 225,
-      4 => 274,
-      5 => 218,
-      6 => 219,
+      0 => 2,
+      1 => 216,
+      2 => 3,
+      3 => 86,
+      4 => 225,
+      5 => 274,
+      6 => 218,
+      7 => 219,
     ),
   );
   $export['content_access_event_pedagogische_activiteit'] = $strongarm;
@@ -166,16 +167,16 @@ function argus_pedagogische_activiteiten_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'metatags' => array(
-          'weight' => '3',
+          'weight' => '2',
         ),
         'title' => array(
           'weight' => '0',
         ),
         'path' => array(
-          'weight' => '2',
+          'weight' => '1',
         ),
         'domain' => array(
-          'weight' => '1',
+          'weight' => '20',
         ),
       ),
       'display' => array(
@@ -263,20 +264,6 @@ function argus_pedagogische_activiteiten_strongarm() {
   $strongarm->name = 'simplify_nodes_event_pedagogische_activiteit';
   $strongarm->value = array();
   $export['simplify_nodes_event_pedagogische_activiteit'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'uuid_features_entity_node_event_pedagogische_activiteit';
-  $strongarm->value = 0;
-  $export['uuid_features_entity_node_event_pedagogische_activiteit'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'uuid_features_file_node_event_pedagogische_activiteit';
-  $strongarm->value = 0;
-  $export['uuid_features_file_node_event_pedagogische_activiteit'] = $strongarm;
 
   return $export;
 }

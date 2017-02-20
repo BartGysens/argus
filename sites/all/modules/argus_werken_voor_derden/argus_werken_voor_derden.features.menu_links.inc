@@ -26,7 +26,7 @@ function argus_werken_voor_derden_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -41,
+    'weight' => -42,
     'customized' => 1,
     'parent_identifier' => 'menu-modules_pedagogischdidactisch:<nolink>',
   );
@@ -48,7 +48,7 @@ function argus_werken_voor_derden_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -13,
+    'weight' => -6,
     'customized' => 1,
     'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );

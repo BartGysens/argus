@@ -10,7 +10,44 @@
 function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-msl_oa_sticker-field_msl_oa_sticker_f1_datum'
+  // Exported field_instance:
+  // 'comment-comment_node_msl_oa_sticker-comment_body'.
+  $field_instances['comment-comment_node_msl_oa_sticker-comment_body'] = array(
+    'bundle' => 'comment_node_msl_oa_sticker',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'text',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'comment',
+    'field_name' => 'comment_body',
+    'label' => 'Comment',
+    'required' => TRUE,
+    'settings' => array(
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 0,
+    ),
+  );
+
+  // Exported field_instance:
+  // 'node-msl_oa_sticker-field_msl_oa_sticker_f1_datum'.
   $field_instances['node-msl_oa_sticker-field_msl_oa_sticker_f1_datum'] = array(
     'bundle' => 'msl_oa_sticker',
     'deleted' => 0,
@@ -20,11 +57,13 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
@@ -66,7 +105,8 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-msl_oa_sticker-field_msl_oa_sticker_f2_datum'
+  // Exported field_instance:
+  // 'node-msl_oa_sticker-field_msl_oa_sticker_f2_datum'.
   $field_instances['node-msl_oa_sticker-field_msl_oa_sticker_f2_datum'] = array(
     'bundle' => 'msl_oa_sticker',
     'deleted' => 0,
@@ -76,11 +116,13 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
@@ -122,7 +164,8 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-msl_oa_sticker-field_msl_oa_sticker_f2_m_datum'
+  // Exported field_instance:
+  // 'node-msl_oa_sticker-field_msl_oa_sticker_f2_m_datum'.
   $field_instances['node-msl_oa_sticker-field_msl_oa_sticker_f2_m_datum'] = array(
     'bundle' => 'msl_oa_sticker',
     'deleted' => 0,
@@ -132,11 +175,13 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
@@ -178,7 +223,8 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-msl_oa_sticker-field_msl_oa_sticker_f2_maatreg'
+  // Exported field_instance:
+  // 'node-msl_oa_sticker-field_msl_oa_sticker_f2_maatreg'.
   $field_instances['node-msl_oa_sticker-field_msl_oa_sticker_f2_maatreg'] = array(
     'bundle' => 'msl_oa_sticker',
     'default_value' => NULL,
@@ -189,6 +235,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -219,7 +266,8 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-msl_oa_sticker-field_msl_oa_sticker_f3_datum'
+  // Exported field_instance:
+  // 'node-msl_oa_sticker-field_msl_oa_sticker_f3_datum'.
   $field_instances['node-msl_oa_sticker-field_msl_oa_sticker_f3_datum'] = array(
     'bundle' => 'msl_oa_sticker',
     'deleted' => 0,
@@ -229,11 +277,13 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
@@ -275,7 +325,8 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-msl_oa_sticker-field_msl_oa_sticker_f3_m_datum'
+  // Exported field_instance:
+  // 'node-msl_oa_sticker-field_msl_oa_sticker_f3_m_datum'.
   $field_instances['node-msl_oa_sticker-field_msl_oa_sticker_f3_m_datum'] = array(
     'bundle' => 'msl_oa_sticker',
     'deleted' => 0,
@@ -285,11 +336,13 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
           'show_repeat_rule' => 'show',
         ),
         'type' => 'date_default',
@@ -331,7 +384,8 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-msl_oa_sticker-field_msl_oa_sticker_f3_maatreg'
+  // Exported field_instance:
+  // 'node-msl_oa_sticker-field_msl_oa_sticker_f3_maatreg'.
   $field_instances['node-msl_oa_sticker-field_msl_oa_sticker_f3_maatreg'] = array(
     'bundle' => 'msl_oa_sticker',
     'default_value' => NULL,
@@ -342,6 +396,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -370,7 +425,8 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-msl_oa_sticker-field_msl_oa_sticker_leerling'
+  // Exported field_instance:
+  // 'node-msl_oa_sticker-field_msl_oa_sticker_leerling'.
   $field_instances['node-msl_oa_sticker-field_msl_oa_sticker_leerling'] = array(
     'bundle' => 'msl_oa_sticker',
     'default_value' => NULL,
@@ -381,7 +437,11 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => FALSE,
+          'quickedit' => array(
+            'editor' => 'form',
+          ),
         ),
         'type' => 'entityreference_label',
         'weight' => 0,
@@ -416,6 +476,7 @@ function argus_sticker_onwettige_afwezigheid_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Comment');
   t('Datum - fase 1');
   t('Datum - fase 2');
   t('Datum - fase 3');

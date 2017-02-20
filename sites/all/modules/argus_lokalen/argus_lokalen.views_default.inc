@@ -36,18 +36,8 @@ function argus_lokalen_views_default_views() {
   $handler->display->display_options['exposed_form']['options']['sort_asc_label'] = 'Oplopend';
   $handler->display->display_options['exposed_form']['options']['sort_desc_label'] = 'Aflopend';
   $handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
-  $handler->display->display_options['pager']['type'] = 'full';
-  $handler->display->display_options['pager']['options']['items_per_page'] = '25';
+  $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['pager']['options']['offset'] = '0';
-  $handler->display->display_options['pager']['options']['id'] = '0';
-  $handler->display->display_options['pager']['options']['quantity'] = '9';
-  $handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = 'Items per pagina';
-  $handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- Alle -';
-  $handler->display->display_options['pager']['options']['expose']['offset_label'] = 'Startpunt';
-  $handler->display->display_options['pager']['options']['tags']['first'] = '« eerste';
-  $handler->display->display_options['pager']['options']['tags']['previous'] = '‹ vorige';
-  $handler->display->display_options['pager']['options']['tags']['next'] = 'volgende ›';
-  $handler->display->display_options['pager']['options']['tags']['last'] = 'laatste »';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
     'title' => 'title',
@@ -55,45 +45,58 @@ function argus_lokalen_views_default_views() {
     'field_lokaal_beschrijving' => 'field_lokaal_beschrijving',
     'field_lokaal_capaciteit' => 'field_lokaal_capaciteit',
     'field_lokaal_type' => 'field_lokaal_type',
+    'counter' => 'counter',
   );
   $handler->display->display_options['style_options']['default'] = 'title';
   $handler->display->display_options['style_options']['info'] = array(
     'title' => array(
-      'sortable' => 1,
+      'sortable' => '1',
       'default_sort_order' => 'asc',
       'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_lokaal_afkorting' => array(
-      'sortable' => 1,
+      'sortable' => '1',
       'default_sort_order' => 'asc',
       'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_lokaal_beschrijving' => array(
-      'sortable' => 1,
+      'sortable' => '1',
       'default_sort_order' => 'asc',
       'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_lokaal_capaciteit' => array(
-      'sortable' => 1,
+      'sortable' => '1',
       'default_sort_order' => 'asc',
       'align' => 'views-align-center',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_lokaal_type' => array(
-      'sortable' => 1,
+      'sortable' => '1',
       'default_sort_order' => 'asc',
       'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
+    'counter' => array(
+      'align' => 'views-align-center',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
   );
+  /* Veld: Algemeen: Resultatenteller weergeven */
+  $handler->display->display_options['fields']['counter']['id'] = 'counter';
+  $handler->display->display_options['fields']['counter']['table'] = 'views';
+  $handler->display->display_options['fields']['counter']['field'] = 'counter';
+  $handler->display->display_options['fields']['counter']['label'] = 'Nr.';
+  $handler->display->display_options['fields']['counter']['counter_start'] = '1';
+  $handler->display->display_options['fields']['counter']['reverse'] = 0;
   /* Veld: Inhoud: Titel */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -1042,6 +1045,7 @@ function argus_lokalen_views_default_views() {
   $handler = $view->new_display('page', 'Overzicht', 'lokaal_overzicht');
   $handler->display->display_options['display_description'] = 'Overzicht van alle lokalen.';
   $handler->display->display_options['exposed_block'] = TRUE;
+  $handler->display->display_options['qtip_instance'] = 'standaard';
   $handler->display->display_options['path'] = 'lokalen/overzicht';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Lokalen';
@@ -1055,13 +1059,7 @@ function argus_lokalen_views_default_views() {
     t('Sorteren op'),
     t('Oplopend'),
     t('Aflopend'),
-    t('Items per pagina'),
-    t('- Alle -'),
-    t('Startpunt'),
-    t('« eerste'),
-    t('‹ vorige'),
-    t('volgende ›'),
-    t('laatste »'),
+    t('Nr.'),
     t('Titel'),
     t('Afkorting'),
     t('Beschrijving'),

@@ -31,7 +31,7 @@ function argus_jaarkalender_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 1,
     'expanded' => 0,
-    'weight' => -41,
+    'weight' => -42,
     'customized' => 1,
     'parent_identifier' => 'menu-modules_algemeen:<nolink>',
   );

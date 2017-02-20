@@ -31,7 +31,7 @@ function argus_verslagen_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -48,
+    'weight' => -47,
     'customized' => 1,
     'parent_identifier' => 'menu-modules_algemeen:<nolink>',
   );
@@ -78,7 +78,7 @@ function argus_verslagen_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -16,
+    'weight' => -9,
     'customized' => 1,
     'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );

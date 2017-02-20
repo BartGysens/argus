@@ -57,6 +57,25 @@ function argus_stages_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-modules_stages:stages',
   );
+  // Exported menu link: menu-modules_stagebezoeken:stages/bezoeken.
+  $menu_links['menu-modules_stagebezoeken:stages/bezoeken'] = array(
+    'menu_name' => 'menu-modules',
+    'link_path' => 'stages/bezoeken',
+    'router_path' => 'stages/bezoeken',
+    'link_title' => 'Stagebezoeken',
+    'options' => array(
+      'alter' => TRUE,
+      'identifier' => 'menu-modules_stagebezoeken:stages/bezoeken',
+    ),
+    'module' => 'system',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => 0,
+    'customized' => 0,
+    'parent_identifier' => 'menu-modules_stages:stages',
+  );
   // Exported menu link: menu-modules_stagegevers:organisaties/stagegever.
   $menu_links['menu-modules_stagegevers:organisaties/stagegever'] = array(
     'menu_name' => 'menu-modules',
@@ -113,7 +132,7 @@ function argus_stages_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 1,
     'expanded' => 1,
-    'weight' => -43,
+    'weight' => -44,
     'customized' => 1,
     'parent_identifier' => 'menu-modules_pedagogischdidactisch:<nolink>',
   );
@@ -135,7 +154,7 @@ function argus_stages_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 1,
     'expanded' => 1,
-    'weight' => -22,
+    'weight' => -15,
     'customized' => 1,
     'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
   );
@@ -213,6 +232,7 @@ function argus_stages_menu_default_menu_links() {
   t('Stageactiviteitenlijsten');
   t('Stagebegeleiders');
   t('Stagebezoek');
+  t('Stagebezoeken');
   t('Stagegevers');
   t('Stageperiode');
   t('Stageperiodes');

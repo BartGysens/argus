@@ -10,7 +10,7 @@
 function argus_sticker_onwettige_afwezigheid_conditional_fields_default_fields() {
   $items = array();
 
-  $items[] = array(
+  $items["node:msl_oa_sticker:0"] = array(
     'entity' => 'node',
     'bundle' => 'msl_oa_sticker',
     'dependent' => 'field_msl_oa_sticker_f2_m_datum',
@@ -2378,7 +2378,7 @@ function argus_sticker_onwettige_afwezigheid_conditional_fields_default_fields()
     ),
   );
 
-  $items[] = array(
+  $items["node:msl_oa_sticker:1"] = array(
     'entity' => 'node',
     'bundle' => 'msl_oa_sticker',
     'dependent' => 'field_msl_oa_sticker_f3_m_datum',

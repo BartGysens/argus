@@ -10,7 +10,7 @@
 function argus_lokalen_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-lokaal-field_lokaal_afkorting'
+  // Exported field_instance: 'node-lokaal-field_lokaal_afkorting'.
   $field_instances['node-lokaal-field_lokaal_afkorting'] = array(
     'bundle' => 'lokaal',
     'default_value' => NULL,
@@ -20,7 +20,9 @@ function argus_lokalen_field_default_field_instances() {
       'default' => array(
         'label' => 'inline',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
         'weight' => 1,
       ),
@@ -50,7 +52,7 @@ function argus_lokalen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-lokaal-field_lokaal_beschrijving'
+  // Exported field_instance: 'node-lokaal-field_lokaal_beschrijving'.
   $field_instances['node-lokaal-field_lokaal_beschrijving'] = array(
     'bundle' => 'lokaal',
     'default_value' => NULL,
@@ -60,7 +62,9 @@ function argus_lokalen_field_default_field_instances() {
       'default' => array(
         'label' => 'inline',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
         'weight' => 2,
       ),
@@ -90,7 +94,7 @@ function argus_lokalen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-lokaal-field_lokaal_capaciteit'
+  // Exported field_instance: 'node-lokaal-field_lokaal_capaciteit'.
   $field_instances['node-lokaal-field_lokaal_capaciteit'] = array(
     'bundle' => 'lokaal',
     'default_value' => NULL,
@@ -101,6 +105,7 @@ function argus_lokalen_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'number',
         'settings' => array(
+          'conditions' => array(),
           'decimal_separator' => '.',
           'prefix_suffix' => TRUE,
           'scale' => 0,
@@ -136,7 +141,7 @@ function argus_lokalen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-lokaal-field_lokaal_id_untis'
+  // Exported field_instance: 'node-lokaal-field_lokaal_id_untis'.
   $field_instances['node-lokaal-field_lokaal_id_untis'] = array(
     'bundle' => 'lokaal',
     'default_value' => NULL,
@@ -146,7 +151,9 @@ function argus_lokalen_field_default_field_instances() {
       'default' => array(
         'label' => 'inline',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
         'weight' => 5,
       ),
@@ -181,7 +188,7 @@ function argus_lokalen_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-lokaal-field_lokaal_type'
+  // Exported field_instance: 'node-lokaal-field_lokaal_type'.
   $field_instances['node-lokaal-field_lokaal_type'] = array(
     'bundle' => 'lokaal',
     'default_value' => NULL,
@@ -191,7 +198,9 @@ function argus_lokalen_field_default_field_instances() {
       'default' => array(
         'label' => 'inline',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 4,
       ),

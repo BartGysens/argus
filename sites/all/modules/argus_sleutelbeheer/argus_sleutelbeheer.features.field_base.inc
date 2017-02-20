@@ -10,14 +10,13 @@
 function argus_sleutelbeheer_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_sleutel_datum_uitgeleend'
+  // Exported field_base: 'field_sleutel_datum_uitgeleend'.
   $field_bases['field_sleutel_datum_uitgeleend'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_datum_uitgeleend',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -41,14 +40,13 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_sleutel_kleurcode'
+  // Exported field_base: 'field_sleutel_kleurcode'.
   $field_bases['field_sleutel_kleurcode'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_kleurcode',
-    'foreign keys' => array(),
     'indexes' => array(
       'rgb' => array(
         0 => 'rgb',
@@ -68,14 +66,13 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'color_field_rgb',
   );
 
-  // Exported field_base: 'field_sleutel_locatie'
+  // Exported field_base: 'field_sleutel_locatie'.
   $field_bases['field_sleutel_locatie'] = array(
     'active' => 1,
     'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_locatie',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -96,14 +93,13 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'list_integer',
   );
 
-  // Exported field_base: 'field_sleutel_nummer'
+  // Exported field_base: 'field_sleutel_nummer'.
   $field_bases['field_sleutel_nummer'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_nummer',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'number',
@@ -112,21 +108,13 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'number_integer',
   );
 
-  // Exported field_base: 'field_sleutel_omschrijving'
+  // Exported field_base: 'field_sleutel_omschrijving'.
   $field_bases['field_sleutel_omschrijving'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_omschrijving',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -141,14 +129,13 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_sleutel_totaal_aantal'
+  // Exported field_base: 'field_sleutel_totaal_aantal'.
   $field_bases['field_sleutel_totaal_aantal'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_totaal_aantal',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'number',
@@ -157,14 +144,16 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'number_integer',
   );
 
-  // Exported field_base: 'field_sleutel_type'
+  // Exported field_base: 'field_sleutel_type'.
   $field_bases['field_sleutel_type'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_type',
-    'foreign keys' => array(),
+    'field_permissions' => array(
+      'type' => 0,
+    ),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -182,6 +171,7 @@ function argus_sleutelbeheer_field_default_field_bases() {
         5 => 'kluis',
         6 => 'raam',
         7 => 'speciaal',
+        8 => 'machine',
       ),
       'allowed_values_function' => '',
     ),
@@ -189,37 +179,39 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'list_integer',
   );
 
-  // Exported field_base: 'field_sleutel_uitlening'
+  // Exported field_base: 'field_sleutel_uitlening'.
   $field_bases['field_sleutel_uitlening'] = array(
     'active' => 1,
     'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_uitlening',
-    'foreign keys' => array(),
     'indexes' => array(
       'revision_id' => array(
         0 => 'revision_id',
+      ),
+      'value' => array(
+        0 => 'value',
       ),
     ),
     'locked' => 0,
     'module' => 'field_collection',
     'settings' => array(
       'hide_blank_items' => 1,
+      'hide_initial_item' => FALSE,
       'path' => '',
     ),
     'translatable' => 0,
     'type' => 'field_collection',
   );
 
-  // Exported field_base: 'field_sleutel_uitlening_borg'
+  // Exported field_base: 'field_sleutel_uitlening_borg'.
   $field_bases['field_sleutel_uitlening_borg'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_uitlening_borg',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -238,14 +230,13 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'field_sleutel_uitlening_duur'
+  // Exported field_base: 'field_sleutel_uitlening_duur'.
   $field_bases['field_sleutel_uitlening_duur'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_uitlening_duur',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -264,21 +255,13 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'field_sleutel_uitlening_uitlener'
+  // Exported field_base: 'field_sleutel_uitlening_uitlener'.
   $field_bases['field_sleutel_uitlening_uitlener'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_uitlening_uitlener',
-    'foreign keys' => array(
-      'users' => array(
-        'columns' => array(
-          'target_id' => 'uid',
-        ),
-        'table' => 'users',
-      ),
-    ),
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -306,14 +289,13 @@ function argus_sleutelbeheer_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_sleutel_vrijgave'
+  // Exported field_base: 'field_sleutel_vrijgave'.
   $field_bases['field_sleutel_vrijgave'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_sleutel_vrijgave',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',

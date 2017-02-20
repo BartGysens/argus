@@ -11,6 +11,9 @@ function argus_sticker_onwettige_afwezigheid_ctools_plugin_api($module = NULL, $
   if ($module == "field_group" && $api == "field_group") {
     return array("version" => "1");
   }
+  if ($module == "strongarm" && $api == "strongarm") {
+    return array("version" => "1");
+  }
 }
 
 /**

@@ -25,7 +25,12 @@ function argus_stages_views_default_views() {
   $handler->display->display_options['title'] = 'Stages';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = 'meer';
-  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    156 => '156',
+    162 => '162',
+    216 => '216',
+  );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -156,15 +161,18 @@ function argus_stages_views_default_views() {
   $handler->display->display_options['relationships']['field_leerling_target_id']['id'] = 'field_leerling_target_id';
   $handler->display->display_options['relationships']['field_leerling_target_id']['table'] = 'field_data_field_leerling';
   $handler->display->display_options['relationships']['field_leerling_target_id']['field'] = 'field_leerling_target_id';
+  $handler->display->display_options['relationships']['field_leerling_target_id']['label'] = 'Gebruiker entity referenced from field_leerling';
   /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_leerkracht_target_id']['id'] = 'field_leerkracht_target_id';
   $handler->display->display_options['relationships']['field_leerkracht_target_id']['table'] = 'field_data_field_leerkracht';
   $handler->display->display_options['relationships']['field_leerkracht_target_id']['field'] = 'field_leerkracht_target_id';
+  $handler->display->display_options['relationships']['field_leerkracht_target_id']['label'] = 'Gebruiker entity referenced from field_leerkracht';
   /* Relatie: Referentie naar een entiteit: Refererende entiteit */
   $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['id'] = 'reverse_field_klas_leerlingen_node';
   $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['table'] = 'users';
   $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['field'] = 'reverse_field_klas_leerlingen_node';
   $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['relationship'] = 'field_leerling_target_id';
+  $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['label'] = 'Inhoud referencing Gebruiker from field_klas_leerlingen';
   /* Veld: Inhoud: Stageperiode */
   $handler->display->display_options['fields']['field_stage_periode']['id'] = 'field_stage_periode';
   $handler->display->display_options['fields']['field_stage_periode']['table'] = 'field_data_field_stage_periode';
@@ -1577,7 +1585,7 @@ function argus_stages_views_default_views() {
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = 'Acties';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node] - <a href="/documenten_generator.get/CNT_Stagedossier_Individueel/stage=[nid]">stagedossier</a> - <a href="/documenten_generator.get/VSG_Stageschrift_Individueel/stage=[nid]">stageschrift</a> - <a href="/documenten_generator.get/VSG_Stageverslag/stage=[nid]">stageverslag</a>';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '[edit_node] - <a href="/documenten_generator.get/CNT_Stagedossier/stage=[nid]">stagedossier</a> - <a href="/documenten_generator.get/VSG_Stageschrift/stage=[nid]">stageschrift</a> - <a href="/documenten_generator.get/VSG_Stageverslag/stage=[nid]">stageverslag</a>';
   $handler->display->display_options['defaults']['sorts'] = FALSE;
   /* Sorteercriterium: Inhoud: Titel */
   $handler->display->display_options['sorts']['title_1']['id'] = 'title_1';
@@ -4047,6 +4055,7 @@ function argus_stages_views_default_views() {
   $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['field'] = 'reverse_field_klas_leerlingen_node';
   $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['relationship'] = 'field_leerling_target_id';
   $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['ui_name'] = 'Klas';
+  $handler->display->display_options['relationships']['reverse_field_klas_leerlingen_node']['label'] = 'Inhoud referencing Gebruiker from field_klas_leerlingen';
   /* Relatie: auteur */
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
@@ -5364,7 +5373,7 @@ function argus_stages_views_default_views() {
     t('Stagebezoeken'),
     t('[edit_node] - '),
     t('Acties'),
-    t('[edit_node] - <a href="/documenten_generator.get/CNT_Stagedossier_Individueel/stage=[nid]">stagedossier</a> - <a href="/documenten_generator.get/VSG_Stageschrift_Individueel/stage=[nid]">stageschrift</a> - <a href="/documenten_generator.get/VSG_Stageverslag/stage=[nid]">stageverslag</a>'),
+    t('[edit_node] - <a href="/documenten_generator.get/CNT_Stagedossier/stage=[nid]">stagedossier</a> - <a href="/documenten_generator.get/VSG_Stageschrift/stage=[nid]">stageschrift</a> - <a href="/documenten_generator.get/VSG_Stageverslag/stage=[nid]">stageverslag</a>'),
     t('Stageperiodes - overzicht'),
     t('Stageperiodes'),
     t('<a href="/node/add/stageperiode">Een stageperiode toevoegen</a>'),

@@ -15,6 +15,7 @@ function argus_leerplichtbegeleiding_user_default_permissions() {
     'name' => 'create lvs_leerplichtbegeleiding content',
     'roles' => array(
       'administrator' => 'administrator',
+      'coördinator 1e graad' => 'coördinator 1e graad',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
@@ -28,6 +29,7 @@ function argus_leerplichtbegeleiding_user_default_permissions() {
     'name' => 'delete any lvs_leerplichtbegeleiding content',
     'roles' => array(
       'administrator' => 'administrator',
+      'coördinator 1e graad' => 'coördinator 1e graad',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
@@ -41,6 +43,7 @@ function argus_leerplichtbegeleiding_user_default_permissions() {
     'name' => 'delete own lvs_leerplichtbegeleiding content',
     'roles' => array(
       'administrator' => 'administrator',
+      'coördinator 1e graad' => 'coördinator 1e graad',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
@@ -54,6 +57,7 @@ function argus_leerplichtbegeleiding_user_default_permissions() {
     'name' => 'edit any lvs_leerplichtbegeleiding content',
     'roles' => array(
       'administrator' => 'administrator',
+      'coördinator 1e graad' => 'coördinator 1e graad',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
@@ -67,6 +71,7 @@ function argus_leerplichtbegeleiding_user_default_permissions() {
     'name' => 'edit own lvs_leerplichtbegeleiding content',
     'roles' => array(
       'administrator' => 'administrator',
+      'coördinator 1e graad' => 'coördinator 1e graad',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',

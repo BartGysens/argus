@@ -28,8 +28,10 @@ function argus_contracten_user_default_permissions() {
     'name' => 'delete any contract content',
     'roles' => array(
       'administrator' => 'administrator',
+      'boekhouding' => 'boekhouding',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
       'technisch adviseur' => 'technisch adviseur',
       'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
@@ -41,8 +43,10 @@ function argus_contracten_user_default_permissions() {
     'name' => 'delete own contract content',
     'roles' => array(
       'administrator' => 'administrator',
+      'boekhouding' => 'boekhouding',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
       'technisch adviseur' => 'technisch adviseur',
       'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
@@ -54,8 +58,10 @@ function argus_contracten_user_default_permissions() {
     'name' => 'edit any contract content',
     'roles' => array(
       'administrator' => 'administrator',
+      'boekhouding' => 'boekhouding',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
       'technisch adviseur' => 'technisch adviseur',
       'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
@@ -67,8 +73,10 @@ function argus_contracten_user_default_permissions() {
     'name' => 'edit own contract content',
     'roles' => array(
       'administrator' => 'administrator',
+      'boekhouding' => 'boekhouding',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
       'technisch adviseur' => 'technisch adviseur',
       'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),

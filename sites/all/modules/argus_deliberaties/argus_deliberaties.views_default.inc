@@ -41,12 +41,6 @@ function argus_deliberaties_views_default_views() {
     'general' => array(
       'allow_secondary' => 0,
       'secondary_label' => 'Uitgebreide opties',
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_lvs_deliberatie_attest_value' => array(
       'bef_format' => 'bef',
@@ -59,44 +53,12 @@ function argus_deliberaties_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_lvs_deliberatie_klas_target_id' => array(
       'bef_format' => 'default',
@@ -106,13 +68,6 @@ function argus_deliberaties_views_default_views() {
         'bef_slider_step' => '1',
         'bef_slider_animate' => '',
         'bef_slider_orientation' => 'horizontal',
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'bef_filter_description' => NULL,
-        'any_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
       'more_options' => array(
         'is_secondary' => 0,
@@ -121,44 +76,12 @@ function argus_deliberaties_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_lvs_deliberatie_leerling_target_id' => array(
       'bef_format' => 'default',
@@ -168,13 +91,6 @@ function argus_deliberaties_views_default_views() {
         'bef_slider_step' => '1',
         'bef_slider_animate' => '',
         'bef_slider_orientation' => 'horizontal',
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'bef_filter_description' => NULL,
-        'any_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
       'more_options' => array(
         'is_secondary' => 0,
@@ -183,44 +99,12 @@ function argus_deliberaties_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_lvs_deliberatie_schooljaar_value' => array(
       'bef_format' => 'default',
@@ -233,55 +117,14 @@ function argus_deliberaties_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
-    'secondary_label' => NULL,
-    'collapsible_label' => NULL,
-    'combine_rewrite' => NULL,
-    'reset_label' => NULL,
-    'bef_filter_description' => NULL,
-    'any_label' => NULL,
-    'filter_rewrite_values' => NULL,
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '25';
   $handler->display->display_options['pager']['options']['offset'] = '0';
@@ -382,93 +225,93 @@ function argus_deliberaties_views_default_views() {
     ),
   );
   $handler->display->display_options['style_options']['sticky'] = TRUE;
-  /* Header: Global: Result summary */
+  /* Kop: Algemeen: Samenvatting van het resultaat */
   $handler->display->display_options['header']['result']['id'] = 'result';
   $handler->display->display_options['header']['result']['table'] = 'views';
   $handler->display->display_options['header']['result']['field'] = 'result';
   $handler->display->display_options['header']['result']['content'] = 'Getoond @start - @end van @total';
-  /* Relationship: Entity Reference: Referenced Entity */
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_lvs_deliberatie_leerling_target_id']['id'] = 'field_lvs_deliberatie_leerling_target_id';
   $handler->display->display_options['relationships']['field_lvs_deliberatie_leerling_target_id']['table'] = 'field_data_field_lvs_deliberatie_leerling';
   $handler->display->display_options['relationships']['field_lvs_deliberatie_leerling_target_id']['field'] = 'field_lvs_deliberatie_leerling_target_id';
-  /* Relationship: Entity Reference: Referenced Entity */
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_lvs_deliberatie_klas_target_id']['id'] = 'field_lvs_deliberatie_klas_target_id';
   $handler->display->display_options['relationships']['field_lvs_deliberatie_klas_target_id']['table'] = 'field_data_field_lvs_deliberatie_klas';
   $handler->display->display_options['relationships']['field_lvs_deliberatie_klas_target_id']['field'] = 'field_lvs_deliberatie_klas_target_id';
-  /* Field: Content: Title */
+  /* Veld: Inhoud: Titel */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['relationship'] = 'field_lvs_deliberatie_klas_target_id';
   $handler->display->display_options['fields']['title']['label'] = 'Klas';
   $handler->display->display_options['fields']['title']['exclude'] = TRUE;
-  /* Field: Realname: Real name */
+  /* Veld: Echte naam: Werkelijke naam */
   $handler->display->display_options['fields']['realname']['id'] = 'realname';
   $handler->display->display_options['fields']['realname']['table'] = 'realname';
   $handler->display->display_options['fields']['realname']['field'] = 'realname';
   $handler->display->display_options['fields']['realname']['relationship'] = 'field_lvs_deliberatie_leerling_target_id';
   $handler->display->display_options['fields']['realname']['label'] = 'Leerling';
-  /* Field: Content: Attest */
+  /* Veld: Inhoud: Attest */
   $handler->display->display_options['fields']['field_lvs_deliberatie_attest']['id'] = 'field_lvs_deliberatie_attest';
   $handler->display->display_options['fields']['field_lvs_deliberatie_attest']['table'] = 'field_data_field_lvs_deliberatie_attest';
   $handler->display->display_options['fields']['field_lvs_deliberatie_attest']['field'] = 'field_lvs_deliberatie_attest';
-  /* Field: Content: Attest (na uitgestelde proef) */
+  /* Veld: Inhoud: Attest (na uitgestelde proef) */
   $handler->display->display_options['fields']['field_lvs_deliberatie_at_uitgest']['id'] = 'field_lvs_deliberatie_at_uitgest';
   $handler->display->display_options['fields']['field_lvs_deliberatie_at_uitgest']['table'] = 'field_data_field_lvs_deliberatie_at_uitgest';
   $handler->display->display_options['fields']['field_lvs_deliberatie_at_uitgest']['field'] = 'field_lvs_deliberatie_at_uitgest';
   $handler->display->display_options['fields']['field_lvs_deliberatie_at_uitgest']['label'] = 'Attest (augustus)';
-  /* Field: Content: Diplomas */
+  /* Veld: Inhoud: Diplomas */
   $handler->display->display_options['fields']['field_lvs_deliberatie_diplomas']['id'] = 'field_lvs_deliberatie_diplomas';
   $handler->display->display_options['fields']['field_lvs_deliberatie_diplomas']['table'] = 'field_data_field_lvs_deliberatie_diplomas';
   $handler->display->display_options['fields']['field_lvs_deliberatie_diplomas']['field'] = 'field_lvs_deliberatie_diplomas';
   $handler->display->display_options['fields']['field_lvs_deliberatie_diplomas']['group_column'] = 'entity_id';
   $handler->display->display_options['fields']['field_lvs_deliberatie_diplomas']['delta_offset'] = '0';
   $handler->display->display_options['fields']['field_lvs_deliberatie_diplomas']['separator'] = '<br />';
-  /* Field: Content: Advies */
+  /* Veld: Inhoud: Advies */
   $handler->display->display_options['fields']['field_lvs_deliberatie_advies']['id'] = 'field_lvs_deliberatie_advies';
   $handler->display->display_options['fields']['field_lvs_deliberatie_advies']['table'] = 'field_data_field_lvs_deliberatie_advies';
   $handler->display->display_options['fields']['field_lvs_deliberatie_advies']['field'] = 'field_lvs_deliberatie_advies';
-  /* Field: Content: Motief */
+  /* Veld: Inhoud: Motief */
   $handler->display->display_options['fields']['field_lvs_deliberatie_motief']['id'] = 'field_lvs_deliberatie_motief';
   $handler->display->display_options['fields']['field_lvs_deliberatie_motief']['table'] = 'field_data_field_lvs_deliberatie_motief';
   $handler->display->display_options['fields']['field_lvs_deliberatie_motief']['field'] = 'field_lvs_deliberatie_motief';
-  /* Field: Content: Stemming */
+  /* Veld: Inhoud: Stemming */
   $handler->display->display_options['fields']['field_lvs_deliberatie_stemming']['id'] = 'field_lvs_deliberatie_stemming';
   $handler->display->display_options['fields']['field_lvs_deliberatie_stemming']['table'] = 'field_data_field_lvs_deliberatie_stemming';
   $handler->display->display_options['fields']['field_lvs_deliberatie_stemming']['field'] = 'field_lvs_deliberatie_stemming';
-  /* Field: Content: Waarschuwingen */
+  /* Veld: Inhoud: Waarschuwingen */
   $handler->display->display_options['fields']['field_lvs_deliberatie_waarschuw']['id'] = 'field_lvs_deliberatie_waarschuw';
   $handler->display->display_options['fields']['field_lvs_deliberatie_waarschuw']['table'] = 'field_data_field_lvs_deliberatie_waarschuw';
   $handler->display->display_options['fields']['field_lvs_deliberatie_waarschuw']['field'] = 'field_lvs_deliberatie_waarschuw';
   $handler->display->display_options['fields']['field_lvs_deliberatie_waarschuw']['group_column'] = 'entity_id';
   $handler->display->display_options['fields']['field_lvs_deliberatie_waarschuw']['delta_offset'] = '0';
   $handler->display->display_options['fields']['field_lvs_deliberatie_waarschuw']['separator'] = '<br />';
-  /* Field: Content: Vakantietaken */
+  /* Veld: Inhoud: Vakantietaken */
   $handler->display->display_options['fields']['field_lvs_deliberatie_vakantie']['id'] = 'field_lvs_deliberatie_vakantie';
   $handler->display->display_options['fields']['field_lvs_deliberatie_vakantie']['table'] = 'field_data_field_lvs_deliberatie_vakantie';
   $handler->display->display_options['fields']['field_lvs_deliberatie_vakantie']['field'] = 'field_lvs_deliberatie_vakantie';
   $handler->display->display_options['fields']['field_lvs_deliberatie_vakantie']['group_column'] = 'entity_id';
   $handler->display->display_options['fields']['field_lvs_deliberatie_vakantie']['delta_offset'] = '0';
   $handler->display->display_options['fields']['field_lvs_deliberatie_vakantie']['separator'] = '<br/>';
-  /* Sort criterion: Content: Title */
+  /* Sorteercriterium: Inhoud: Titel */
   $handler->display->display_options['sorts']['title']['id'] = 'title';
   $handler->display->display_options['sorts']['title']['table'] = 'node';
   $handler->display->display_options['sorts']['title']['field'] = 'title';
   $handler->display->display_options['sorts']['title']['relationship'] = 'field_lvs_deliberatie_klas_target_id';
-  /* Sort criterion: Realname: Real name */
+  /* Sorteercriterium: Echte naam: Werkelijke naam */
   $handler->display->display_options['sorts']['realname']['id'] = 'realname';
   $handler->display->display_options['sorts']['realname']['table'] = 'realname';
   $handler->display->display_options['sorts']['realname']['field'] = 'realname';
   $handler->display->display_options['sorts']['realname']['relationship'] = 'field_lvs_deliberatie_leerling_target_id';
   $handler->display->display_options['sorts']['realname']['expose']['label'] = 'Werkelijke naam';
-  /* Filter criterion: Content: Published */
+  /* Filtercriterium: Inhoud: Gepubliceerd */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Content: Type */
+  /* Filtercriterium: Inhoud: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -476,7 +319,7 @@ function argus_deliberaties_views_default_views() {
     'lvs_deliberatie' => 'lvs_deliberatie',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
-  /* Filter criterion: Content: Schooljaar (field_lvs_deliberatie_schooljaar) */
+  /* Filtercriterium: Inhoud: Schooljaar (field_lvs_deliberatie_schooljaar) */
   $handler->display->display_options['filters']['field_lvs_deliberatie_schooljaar_value']['id'] = 'field_lvs_deliberatie_schooljaar_value';
   $handler->display->display_options['filters']['field_lvs_deliberatie_schooljaar_value']['table'] = 'field_data_field_lvs_deliberatie_schooljaar';
   $handler->display->display_options['filters']['field_lvs_deliberatie_schooljaar_value']['field'] = 'field_lvs_deliberatie_schooljaar_value';
@@ -513,7 +356,7 @@ function argus_deliberaties_views_default_views() {
       'value' => '2011-2012',
     ),
   );
-  /* Filter criterion: Content: Title */
+  /* Filtercriterium: Inhoud: Titel */
   $handler->display->display_options['filters']['title']['id'] = 'title';
   $handler->display->display_options['filters']['title']['table'] = 'node';
   $handler->display->display_options['filters']['title']['field'] = 'title';
@@ -741,7 +584,7 @@ function argus_deliberaties_views_default_views() {
     231 => 0,
     232 => 0,
   );
-  /* Filter criterion: User: Name (raw) */
+  /* Filtercriterium: Gebruiker: Naam (onbewerkt) */
   $handler->display->display_options['filters']['name']['id'] = 'name';
   $handler->display->display_options['filters']['name']['table'] = 'users';
   $handler->display->display_options['filters']['name']['field'] = 'name';
@@ -969,7 +812,7 @@ function argus_deliberaties_views_default_views() {
     231 => 0,
     232 => 0,
   );
-  /* Filter criterion: Content: Attest (field_lvs_deliberatie_attest) */
+  /* Filtercriterium: Inhoud: Attest (field_lvs_deliberatie_attest) */
   $handler->display->display_options['filters']['field_lvs_deliberatie_attest_value']['id'] = 'field_lvs_deliberatie_attest_value';
   $handler->display->display_options['filters']['field_lvs_deliberatie_attest_value']['table'] = 'field_data_field_lvs_deliberatie_attest';
   $handler->display->display_options['filters']['field_lvs_deliberatie_attest_value']['field'] = 'field_lvs_deliberatie_attest_value';
@@ -1216,7 +1059,6 @@ function argus_deliberaties_views_default_views() {
     t('Oplopend'),
     t('Aflopend'),
     t('Uitgebreide opties'),
-    t('Select any filter and click on Apply to see results'),
     t('Items per pagina'),
     t('- Alle -'),
     t('Startpunt'),
@@ -1225,8 +1067,8 @@ function argus_deliberaties_views_default_views() {
     t('volgende ›'),
     t('laatste »'),
     t('Getoond @start - @end van @total'),
-    t('User entity referenced from field_lvs_deliberatie_leerling'),
-    t('Content entity referenced from field_lvs_deliberatie_klas'),
+    t('Gebruiker entiteit gerefereerd vanaf field_lvs_deliberatie_leerling'),
+    t('Inhoud entiteit gerefereerd vanaf field_lvs_deliberatie_klas'),
     t('Klas'),
     t('Leerling'),
     t('Attest'),
@@ -1241,7 +1083,6 @@ function argus_deliberaties_views_default_views() {
     t('Schooljaar (field_lvs_deliberatie_schooljaar)'),
     t('Schooljaar'),
     t('Overzicht van de behaalde diploma\'s, attesten, vakantietaken en andere deliberatiegegevens.'),
-    t('more'),
   );
   $export['lvs_deliberaties'] = $view;
 

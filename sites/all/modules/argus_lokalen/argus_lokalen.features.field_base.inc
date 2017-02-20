@@ -10,21 +10,13 @@
 function argus_lokalen_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_lokaal_afkorting'
+  // Exported field_base: 'field_lokaal_afkorting'.
   $field_bases['field_lokaal_afkorting'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_lokaal_afkorting',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -39,21 +31,13 @@ function argus_lokalen_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_lokaal_beschrijving'
+  // Exported field_base: 'field_lokaal_beschrijving'.
   $field_bases['field_lokaal_beschrijving'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_lokaal_beschrijving',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -68,14 +52,13 @@ function argus_lokalen_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_lokaal_capaciteit'
+  // Exported field_base: 'field_lokaal_capaciteit'.
   $field_bases['field_lokaal_capaciteit'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_lokaal_capaciteit',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'number',
@@ -84,21 +67,13 @@ function argus_lokalen_field_default_field_bases() {
     'type' => 'number_integer',
   );
 
-  // Exported field_base: 'field_lokaal_id_untis'
+  // Exported field_base: 'field_lokaal_id_untis'.
   $field_bases['field_lokaal_id_untis'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_lokaal_id_untis',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -113,14 +88,16 @@ function argus_lokalen_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_lokaal_type'
+  // Exported field_base: 'field_lokaal_type'.
   $field_bases['field_lokaal_type'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_lokaal_type',
-    'foreign keys' => array(),
+    'field_permissions' => array(
+      'type' => 0,
+    ),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -134,6 +111,7 @@ function argus_lokalen_field_default_field_bases() {
         'bureel' => 'bureel',
         'vergaderzaal' => 'vergaderzaal',
         'polyvalente ruimte' => 'polyvalente ruimte',
+        'andere' => 'andere',
       ),
       'allowed_values_function' => '',
     ),

@@ -46,6 +46,72 @@ function argus_leerplichtbegeleiding_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-lvs_leerplichtbegeleiding-field_bijlage'.
+  $field_instances['node-lvs_leerplichtbegeleiding-field_bijlage'] = array(
+    'bundle' => 'lvs_leerplichtbegeleiding',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'file_default',
+        'weight' => 7,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_bijlage',
+    'label' => 'Bijlage',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'leerplichtbegeleiding',
+      'file_extensions' => 'txt pdf doc docx xls xlsx ppt pptx',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'filefield_sources' => array(
+          'filefield_sources' => array(
+            'attach' => 0,
+            'clipboard' => 0,
+            'imce' => 0,
+            'reference' => 0,
+            'remote' => 0,
+            'upload' => 'upload',
+          ),
+          'source_attach' => array(
+            'absolute' => 0,
+            'attach_mode' => 'move',
+            'path' => 'file_attach',
+          ),
+          'source_imce' => array(
+            'imce_mode' => 0,
+          ),
+          'source_reference' => array(
+            'autocomplete' => 0,
+            'search_all_fields' => 0,
+          ),
+        ),
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 4,
+    ),
+  );
+
   // Exported field_instance: 'node-lvs_leerplichtbegeleiding-field_datum'.
   $field_instances['node-lvs_leerplichtbegeleiding-field_datum'] = array(
     'bundle' => 'lvs_leerplichtbegeleiding',
@@ -652,6 +718,7 @@ function argus_leerplichtbegeleiding_field_default_field_instances() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Afspraken');
+  t('Bijlage');
   t('Comment');
   t('Contact via');
   t('Contactpersoon CLB');

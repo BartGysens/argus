@@ -26,7 +26,7 @@ function argus_leerplichtbegeleiding_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => 1,
+    'weight' => -49,
     'customized' => 1,
     'parent_identifier' => 'menu-modules_afwezigheden:afwezigheden',
   );
@@ -53,7 +53,7 @@ function argus_leerplichtbegeleiding_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -46,
+    'weight' => -47,
     'customized' => 1,
     'parent_identifier' => 'navigation_leerlingvolgsysteem:node/18707',
   );

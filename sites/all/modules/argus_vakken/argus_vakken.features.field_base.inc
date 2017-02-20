@@ -10,21 +10,13 @@
 function argus_vakken_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_vak_afkorting'
+  // Exported field_base: 'field_vak_afkorting'.
   $field_bases['field_vak_afkorting'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_vak_afkorting',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -39,21 +31,13 @@ function argus_vakken_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_vak_beschrijving'
+  // Exported field_base: 'field_vak_beschrijving'.
   $field_bases['field_vak_beschrijving'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_vak_beschrijving',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -68,21 +52,44 @@ function argus_vakken_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'field_vak_lokaal'
+  // Exported field_base: 'field_vak_evaluatie'.
+  $field_bases['field_vak_evaluatie'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_vak_evaluatie',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'E1' => 'Examen 1',
+        'E2' => 'Examen 2',
+        'EP' => 'Examen Pasen',
+        'PE' => 'Permanente evaluatie',
+        'nvt' => 'niet van toepassing',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_vak_lokaal'.
   $field_bases['field_vak_lokaal'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_vak_lokaal',
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
-    ),
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -113,21 +120,34 @@ function argus_vakken_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_vak_untis_id'
+  // Exported field_base: 'field_vak_skore_id'.
+  $field_bases['field_vak_skore_id'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_vak_skore_id',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'max_length' => 255,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
+  );
+
+  // Exported field_base: 'field_vak_untis_id'.
   $field_bases['field_vak_untis_id'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_vak_untis_id',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',

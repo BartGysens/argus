@@ -281,14 +281,106 @@ function argus_examens_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-examen-field_uurrooster_les_klassen'.
+  $field_instances['node-examen-field_uurrooster_les_klassen'] = array(
+    'bundle' => 'examen',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Selecteer de klas(sen) waarvoor je een examen wilt uploaden.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 6,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_uurrooster_les_klassen',
+    'label' => 'Klas(sen)',
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_buttons',
+      'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'node-examen-field_uurrooster_les_vak'.
+  $field_instances['node-examen-field_uurrooster_les_vak'] = array(
+    'bundle' => 'examen',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 5,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_uurrooster_les_vak',
+    'label' => 'Vak',
+    'required' => 1,
+    'settings' => array(
+      'behaviors' => array(
+        'taxonomy-index' => array(
+          'status' => TRUE,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 4,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Comment');
   t('Datum');
   t('Datum wanneer het examen wordt afgenomen.');
   t('Examenvragen');
+  t('Klas(sen)');
   t('Modeloplossingen');
+  t('Selecteer de klas(sen) waarvoor je een examen wilt uploaden.');
   t('Uitgestelde proef');
+  t('Vak');
 
   return $field_instances;
 }

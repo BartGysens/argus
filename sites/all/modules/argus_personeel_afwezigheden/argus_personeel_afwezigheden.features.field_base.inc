@@ -37,6 +37,7 @@ function argus_personeel_afwezigheden_field_default_field_bases() {
         'overleg (intern)' => 'overleg (intern)',
         'te laat' => 'te laat',
         'tijdelijk andere opdracht' => 'tijdelijk andere opdracht',
+        'verlof wegens overmacht' => 'verlof wegens overmacht',
         'andere' => 'andere',
       ),
       'allowed_values_function' => '',

@@ -85,5 +85,57 @@ function argus_nascholingen_default_rules_configuration() {
       ]
     }
   }');
+  $items['rules_pedagogische_activiteit_en_nascholing_reactie_a'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_en_nascholing_reactie_a" : {
+      "LABEL" : "Pedagogische activiteit en nascholing - reactie a",
+      "PLUGIN" : "reaction rule",
+      "OWNER" : "rules",
+      "TAGS" : [ "event", "nascholing", "pedagogische activiteit" ],
+      "REQUIRES" : [ "rules", "argus_sms_api", "comment" ],
+      "ON" : {
+        "comment_insert--comment_node_event_nascholing" : { "bundle" : "comment_node_event_nascholing" },
+        "comment_insert--comment_node_event_pedagogische_activiteit" : { "bundle" : "comment_node_event_pedagogische_activiteit" }
+      },
+      "IF" : [
+        { "data_is" : { "data" : [ "comment:author" ], "value" : [ "comment:node:author" ] } }
+      ],
+      "DO" : [
+        { "argus_sms_api_send_msg" : {
+            "key" : [ "comment:cid" ],
+            "to" : "94",
+            "co" : "0",
+            "from" : [ "comment:author:uid" ],
+            "subject" : "Betreft: nieuwe reactie op aanvraag \\u0027[comment:node:title]\\u0027",
+            "body" : "\\u003Cp\\u003EBeste\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003EEr werd een nieuwe reactie geschreven op aanvraag \\u0027[comment:node]\\u0027\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003Eklik hier voor meer informatie: \\u003Ca href=\\u0022[comment:url]\\u0022 target=\\u0022_blank\\u0022\\u003E[comment:url]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
+          }
+        }
+      ]
+    }
+  }');
+  $items['rules_pedagogische_activiteit_en_nascholing_reactie_b'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_en_nascholing_reactie_b" : {
+      "LABEL" : "Pedagogische activiteit en nascholing - reactie b",
+      "PLUGIN" : "reaction rule",
+      "OWNER" : "rules",
+      "TAGS" : [ "event", "nascholing", "pedagogische activiteit" ],
+      "REQUIRES" : [ "rules", "argus_sms_api", "comment" ],
+      "ON" : {
+        "comment_insert--comment_node_event_nascholing" : { "bundle" : "comment_node_event_nascholing" },
+        "comment_insert--comment_node_event_pedagogische_activiteit" : { "bundle" : "comment_node_event_pedagogische_activiteit" }
+      },
+      "IF" : [
+        { "NOT data_is" : { "data" : [ "comment:author" ], "value" : [ "comment:node:author" ] } }
+      ],
+      "DO" : [
+        { "argus_sms_api_send_msg" : {
+            "key" : [ "comment:cid" ],
+            "to" : [ "comment:node:author:uid" ],
+            "co" : "0",
+            "from" : [ "comment:author:uid" ],
+            "subject" : "Betreft: nieuwe reactie op aanvraag \\u0027[comment:node:title]\\u0027",
+            "body" : "\\u003Cp\\u003EBeste\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003EEr werd een nieuwe reactie geschreven op aanvraag \\u0027[comment:node]\\u0027\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003Eklik hier voor meer informatie: \\u003Ca href=\\u0022[comment:url]\\u0022 target=\\u0022_blank\\u0022\\u003E[comment:url]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
+          }
+        }
+      ]
+    }
+  }');
   return $items;
 }

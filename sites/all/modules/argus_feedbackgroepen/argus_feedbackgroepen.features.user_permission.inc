@@ -15,6 +15,10 @@ function argus_feedbackgroepen_user_default_permissions() {
     'name' => 'create feedbackgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -24,6 +28,11 @@ function argus_feedbackgroepen_user_default_permissions() {
     'name' => 'delete any feedbackgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -33,6 +42,11 @@ function argus_feedbackgroepen_user_default_permissions() {
     'name' => 'delete own feedbackgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -42,6 +56,11 @@ function argus_feedbackgroepen_user_default_permissions() {
     'name' => 'edit any feedbackgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -51,6 +70,11 @@ function argus_feedbackgroepen_user_default_permissions() {
     'name' => 'edit own feedbackgroep content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );

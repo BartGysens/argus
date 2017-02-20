@@ -254,7 +254,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 314,
+        'weight' => 33,
       ),
       'token' => array(
         'label' => 'above',
@@ -499,7 +499,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 77,
+        'weight' => 29,
       ),
       'full' => array(
         'label' => 'inline',
@@ -555,7 +555,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 328,
+        'weight' => 40,
       ),
       'token' => array(
         'label' => 'above',
@@ -689,7 +689,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 315,
+        'weight' => 36,
       ),
       'token' => array(
         'label' => 'above',
@@ -767,7 +767,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 330,
+        'weight' => 41,
       ),
       'token' => array(
         'label' => 'above',
@@ -806,7 +806,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 317,
+        'weight' => 38,
       ),
       'token' => array(
         'label' => 'above',
@@ -884,7 +884,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 23,
+        'weight' => 22,
       ),
       'full' => array(
         'label' => 'inline',
@@ -1034,7 +1034,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 24,
+        'weight' => 23,
       ),
       'full' => array(
         'label' => 'inline',
@@ -1434,7 +1434,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 8,
+        'weight' => 7,
       ),
       'full' => array(
         'label' => 'inline',
@@ -1574,7 +1574,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 318,
+        'weight' => 39,
       ),
       'token' => array(
         'label' => 'above',
@@ -2331,7 +2331,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 110,
+        'weight' => 31,
       ),
       'full' => array(
         'label' => 'above',
@@ -2425,7 +2425,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 316,
+        'weight' => 37,
       ),
       'token' => array(
         'label' => 'above',
@@ -2664,7 +2664,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 314,
+        'weight' => 34,
       ),
       'token' => array(
         'label' => 'above',
@@ -2703,7 +2703,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 313,
+        'weight' => 32,
       ),
       'token' => array(
         'label' => 'above',
@@ -3974,7 +3974,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 331,
+        'weight' => 42,
       ),
       'token' => array(
         'label' => 'above',
@@ -4013,7 +4013,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 83,
+        'weight' => 30,
       ),
       'full' => array(
         'label' => 'inline',
@@ -4063,7 +4063,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 2,
+        'weight' => 1,
       ),
       'token' => array(
         'label' => 'above',
@@ -4110,7 +4110,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 22,
+        'weight' => 20,
       ),
       'token' => array(
         'label' => 'above',
@@ -4775,7 +4775,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 12,
+        'weight' => 11,
       ),
       'full' => array(
         'label' => 'above',
@@ -4836,7 +4836,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 7,
+        'weight' => 6,
       ),
       'full' => array(
         'label' => 'above',
@@ -4997,7 +4997,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 3,
+        'weight' => 2,
       ),
       'full' => array(
         'label' => 'above',
@@ -5052,7 +5052,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 365,
+        'weight' => 22,
       ),
       'token' => array(
         'label' => 'above',
@@ -5093,7 +5093,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 364,
+        'weight' => 23,
       ),
       'token' => array(
         'label' => 'above',
@@ -5134,7 +5134,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 366,
+        'weight' => 21,
       ),
       'token' => array(
         'label' => 'above',
@@ -5175,7 +5175,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 14,
+        'weight' => 13,
       ),
       'full' => array(
         'label' => 'inline',
@@ -5231,7 +5231,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 5,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'above',
@@ -5353,7 +5353,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 4,
+        'weight' => 3,
       ),
       'token' => array(
         'label' => 'above',
@@ -5489,7 +5489,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 13,
+        'weight' => 12,
       ),
       'full' => array(
         'label' => 'inline',
@@ -6177,7 +6177,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 6,
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'above',
@@ -6477,7 +6477,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 315,
+        'weight' => 35,
       ),
       'token' => array(
         'label' => 'above',
@@ -7239,7 +7239,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 29,
+        'weight' => 28,
       ),
       'full' => array(
         'label' => 'above',
@@ -7953,7 +7953,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'list_default',
-        'weight' => 1,
+        'weight' => 0,
       ),
       'token' => array(
         'label' => 'above',
@@ -7992,7 +7992,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 11,
+        'weight' => 10,
       ),
       'full' => array(
         'label' => 'inline',
@@ -8103,7 +8103,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 15,
+        'weight' => 14,
       ),
       'full' => array(
         'label' => 'inline',
@@ -8336,7 +8336,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 9,
+        'weight' => 8,
       ),
       'full' => array(
         'label' => 'inline',
@@ -9054,7 +9054,7 @@ function argus_gebruikers_field_default_field_instances() {
           'title' => '',
         ),
         'type' => 'telephone_link',
-        'weight' => 21,
+        'weight' => 19,
       ),
       'token' => array(
         'label' => 'above',
@@ -10119,7 +10119,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 10,
+        'weight' => 9,
       ),
       'full' => array(
         'label' => 'above',
@@ -10235,7 +10235,7 @@ function argus_gebruikers_field_default_field_instances() {
           'conditions' => array(),
         ),
         'type' => 'text_default',
-        'weight' => 16,
+        'weight' => 15,
       ),
       'full' => array(
         'label' => 'above',

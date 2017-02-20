@@ -34,5 +34,50 @@ function argus_gebruikers_user_default_permissions() {
     'module' => 'user',
   );
 
+  // Exported permission: 'create field_user_sms_gebruikersnaam'.
+  $permissions['create field_user_sms_gebruikersnaam'] = array(
+    'name' => 'create field_user_sms_gebruikersnaam',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'edit field_user_sms_gebruikersnaam'.
+  $permissions['edit field_user_sms_gebruikersnaam'] = array(
+    'name' => 'edit field_user_sms_gebruikersnaam',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'edit own field_user_sms_gebruikersnaam'.
+  $permissions['edit own field_user_sms_gebruikersnaam'] = array(
+    'name' => 'edit own field_user_sms_gebruikersnaam',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'view field_user_sms_gebruikersnaam'.
+  $permissions['view field_user_sms_gebruikersnaam'] = array(
+    'name' => 'view field_user_sms_gebruikersnaam',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'view own field_user_sms_gebruikersnaam'.
+  $permissions['view own field_user_sms_gebruikersnaam'] = array(
+    'name' => 'view own field_user_sms_gebruikersnaam',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'field_permissions',
+  );
+
   return $permissions;
 }

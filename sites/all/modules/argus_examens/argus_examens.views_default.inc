@@ -160,12 +160,6 @@ function argus_examens_views_default_views() {
     'general' => array(
       'allow_secondary' => 0,
       'secondary_label' => 'Uitgebreide opties',
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'sort' => array(
       'bef_format' => 'default',
@@ -178,18 +172,7 @@ function argus_examens_views_default_views() {
         'reset' => 0,
         'reset_label' => '',
         'is_secondary' => 0,
-        'secondary_label' => NULL,
-        'bef_filter_description' => NULL,
-        'any_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'name' => array(
       'bef_format' => 'default',
@@ -200,44 +183,12 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_klas_sms_code_value' => array(
       'bef_format' => 'default',
@@ -248,44 +199,12 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_examen_datum_value' => array(
       'bef_format' => 'default',
@@ -296,44 +215,12 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_examen_vragen_fid' => array(
       'bef_format' => 'default',
@@ -343,13 +230,6 @@ function argus_examens_views_default_views() {
         'bef_slider_step' => '1',
         'bef_slider_animate' => '',
         'bef_slider_orientation' => 'horizontal',
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'bef_filter_description' => NULL,
-        'any_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
       'more_options' => array(
         'bef_select_all_none' => FALSE,
@@ -360,44 +240,12 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_examen_modeloplossingen_fid' => array(
       'bef_format' => 'default',
@@ -407,13 +255,6 @@ function argus_examens_views_default_views() {
         'bef_slider_step' => '1',
         'bef_slider_animate' => '',
         'bef_slider_orientation' => 'horizontal',
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'bef_filter_description' => NULL,
-        'any_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
       'more_options' => array(
         'bef_select_all_none' => FALSE,
@@ -424,55 +265,14 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
-    'secondary_label' => NULL,
-    'collapsible_label' => NULL,
-    'combine_rewrite' => NULL,
-    'reset_label' => NULL,
-    'bef_filter_description' => NULL,
-    'any_label' => NULL,
-    'filter_rewrite_values' => NULL,
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['defaults']['pager'] = FALSE;
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '100';
@@ -564,10 +364,12 @@ function argus_examens_views_default_views() {
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['id'] = 'field_uurrooster_les_vak_target_id';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['table'] = 'field_data_field_uurrooster_les_vak';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['field'] = 'field_uurrooster_les_vak_target_id';
+  $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['label'] = 'Inhoud entity referenced from field_uurrooster_les_vak';
   /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_uurrooster_les_klassen_target_id']['id'] = 'field_uurrooster_les_klassen_target_id';
   $handler->display->display_options['relationships']['field_uurrooster_les_klassen_target_id']['table'] = 'field_data_field_uurrooster_les_klassen';
   $handler->display->display_options['relationships']['field_uurrooster_les_klassen_target_id']['field'] = 'field_uurrooster_les_klassen_target_id';
+  $handler->display->display_options['relationships']['field_uurrooster_les_klassen_target_id']['label'] = 'Inhoud entity referenced from field_uurrooster_les_klassen';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Veld: Gebruiker: Naam */
   $handler->display->display_options['fields']['name']['id'] = 'name';
@@ -1848,9 +1650,6 @@ function argus_examens_views_default_views() {
     'general' => array(
       'allow_secondary' => 0,
       'secondary_label' => 'Uitgebreide opties',
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
     ),
     'sort' => array(
       'bef_format' => 'default',
@@ -1863,12 +1662,7 @@ function argus_examens_views_default_views() {
         'reset' => 0,
         'reset_label' => '',
         'is_secondary' => 0,
-        'secondary_label' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
     ),
     'name' => array(
       'bef_format' => 'default',
@@ -1879,32 +1673,12 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
     ),
     'field_klas_sms_code_value' => array(
       'bef_format' => 'default',
@@ -1915,32 +1689,12 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
     ),
     'field_examen_datum_value' => array(
       'bef_format' => 'default',
@@ -1951,32 +1705,12 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
     ),
     'field_examen_vragen_fid' => array(
       'bef_format' => 'default',
@@ -1986,10 +1720,6 @@ function argus_examens_views_default_views() {
         'bef_slider_step' => '1',
         'bef_slider_animate' => '',
         'bef_slider_orientation' => 'horizontal',
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
       ),
       'more_options' => array(
         'bef_select_all_none' => FALSE,
@@ -2000,32 +1730,12 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
     ),
     'field_examen_modeloplossingen_fid' => array(
       'bef_format' => 'default',
@@ -2035,10 +1745,6 @@ function argus_examens_views_default_views() {
         'bef_slider_step' => '1',
         'bef_slider_animate' => '',
         'bef_slider_orientation' => 'horizontal',
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
       ),
       'more_options' => array(
         'bef_select_all_none' => FALSE,
@@ -2049,40 +1755,14 @@ function argus_examens_views_default_views() {
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
     ),
-    'secondary_label' => NULL,
-    'collapsible_label' => NULL,
-    'combine_rewrite' => NULL,
-    'reset_label' => NULL,
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['defaults']['pager'] = FALSE;
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '50';
@@ -2175,12 +1855,12 @@ function argus_examens_views_default_views() {
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['id'] = 'field_uurrooster_les_vak_target_id';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['table'] = 'field_data_field_uurrooster_les_vak';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['field'] = 'field_uurrooster_les_vak_target_id';
+  $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['label'] = 'Inhoud entity referenced from field_uurrooster_les_vak';
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Veld: Inhoud: Klassen */
+  /* Veld: Inhoud: Klas(sen) */
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['id'] = 'field_uurrooster_les_klassen';
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['table'] = 'field_data_field_uurrooster_les_klassen';
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['field'] = 'field_uurrooster_les_klassen';
-  $handler->display->display_options['fields']['field_uurrooster_les_klassen']['label'] = 'Klas(sen)';
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['settings'] = array(
     'link' => 0,
@@ -2282,12 +1962,14 @@ function argus_examens_views_default_views() {
   $handler->display->display_options['relationships']['reverse_field_uurrooster_les_klassen_node']['id'] = 'reverse_field_uurrooster_les_klassen_node';
   $handler->display->display_options['relationships']['reverse_field_uurrooster_les_klassen_node']['table'] = 'node';
   $handler->display->display_options['relationships']['reverse_field_uurrooster_les_klassen_node']['field'] = 'reverse_field_uurrooster_les_klassen_node';
+  $handler->display->display_options['relationships']['reverse_field_uurrooster_les_klassen_node']['label'] = 'Inhoud referencing Inhoud from field_uurrooster_les_klassen';
   $handler->display->display_options['relationships']['reverse_field_uurrooster_les_klassen_node']['required'] = TRUE;
   /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['id'] = 'field_uurrooster_les_vak_target_id';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['table'] = 'field_data_field_uurrooster_les_vak';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['field'] = 'field_uurrooster_les_vak_target_id';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['relationship'] = 'reverse_field_uurrooster_les_klassen_node';
+  $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['label'] = 'Inhoud entity referenced from field_uurrooster_les_vak';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['required'] = TRUE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Veld: Inhoud: Nid */
@@ -2373,6 +2055,7 @@ function argus_examens_views_default_views() {
   $handler->display->display_options['relationships']['reverse_field_uurrooster_les_vak_node']['id'] = 'reverse_field_uurrooster_les_vak_node';
   $handler->display->display_options['relationships']['reverse_field_uurrooster_les_vak_node']['table'] = 'node';
   $handler->display->display_options['relationships']['reverse_field_uurrooster_les_vak_node']['field'] = 'reverse_field_uurrooster_les_vak_node';
+  $handler->display->display_options['relationships']['reverse_field_uurrooster_les_vak_node']['label'] = 'Inhoud referencing Inhoud from field_uurrooster_les_vak';
   $handler->display->display_options['relationships']['reverse_field_uurrooster_les_vak_node']['required'] = TRUE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Veld: Inhoud: Nid */
@@ -2461,7 +2144,6 @@ function argus_examens_views_default_views() {
     t('Beheer'),
     t('Uitgebreide opties'),
     t('Sort options'),
-    t('Selecteer een van de filters en klik op \'Toepassen\' om het resultaat te zien'),
     t('Getoond @start - @end van @total'),
     t('Inhoud entity referenced from field_uurrooster_les_vak'),
     t('Inhoud entity referenced from field_uurrooster_les_klassen'),

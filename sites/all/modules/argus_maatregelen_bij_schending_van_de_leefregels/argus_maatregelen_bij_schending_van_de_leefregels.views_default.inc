@@ -45,12 +45,6 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'general' => array(
       'allow_secondary' => 0,
       'secondary_label' => 'Uitgebreide opties',
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'title' => array(
       'bef_format' => 'default',
@@ -61,44 +55,12 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
     'field_maatregelen_categorie_value' => array(
       'bef_format' => 'bef',
@@ -111,56 +73,14 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
         'tokens' => array(
           'available' => array(
             0 => 'global_types',
-            'secondary_label' => NULL,
-            'collapsible_label' => NULL,
-            'combine_rewrite' => NULL,
-            'reset_label' => NULL,
-            'bef_filter_description' => NULL,
-            'any_label' => NULL,
-            'filter_rewrite_values' => NULL,
           ),
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
-          'filter_rewrite_values' => NULL,
         ),
         'rewrite' => array(
           'filter_rewrite_values' => '',
-          'secondary_label' => NULL,
-          'collapsible_label' => NULL,
-          'combine_rewrite' => NULL,
-          'reset_label' => NULL,
-          'bef_filter_description' => NULL,
-          'any_label' => NULL,
         ),
-        'secondary_label' => NULL,
-        'collapsible_label' => NULL,
-        'combine_rewrite' => NULL,
-        'reset_label' => NULL,
-        'filter_rewrite_values' => NULL,
       ),
-      'secondary_label' => NULL,
-      'collapsible_label' => NULL,
-      'combine_rewrite' => NULL,
-      'reset_label' => NULL,
-      'bef_filter_description' => NULL,
-      'any_label' => NULL,
-      'filter_rewrite_values' => NULL,
     ),
-    'secondary_label' => NULL,
-    'collapsible_label' => NULL,
-    'combine_rewrite' => NULL,
-    'reset_label' => NULL,
-    'bef_filter_description' => NULL,
-    'any_label' => NULL,
-    'filter_rewrite_values' => NULL,
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required'] = 'Selecteer een van de filters en klik op \'Toepassen\' om het resultaat te zien';
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '0';
   $handler->display->display_options['pager']['options']['offset'] = '0';
@@ -195,7 +115,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
       'empty_column' => 0,
     ),
   );
-  /* Header: Global: Text area */
+  /* Kop: Algemeen: Tekstveld */
   $handler->display->display_options['header']['area']['id'] = 'area';
   $handler->display->display_options['header']['area']['table'] = 'views';
   $handler->display->display_options['header']['area']['field'] = 'area';
@@ -203,29 +123,29 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['header']['area']['empty'] = TRUE;
   $handler->display->display_options['header']['area']['content'] = '<a href="/node/add/msl-oa-sticker">Een nieuwe rode sticker toevoegen</a>';
   $handler->display->display_options['header']['area']['format'] = 'filtered_html';
-  /* Footer: Global: Text area */
+  /* Voet: Algemeen: Tekstveld */
   $handler->display->display_options['footer']['area']['id'] = 'area';
   $handler->display->display_options['footer']['area']['table'] = 'views';
   $handler->display->display_options['footer']['area']['field'] = 'area';
   $handler->display->display_options['footer']['area']['label'] = 'Sticker toevoegen';
   $handler->display->display_options['footer']['area']['content'] = '<a href="/node/add/msl-oa-sticker">Een nieuwe rode sticker toevoegen</a>';
   $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
-  /* Relationship: Entity Reference: Referenced Entity */
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_msl_oa_sticker_leerling_target_id']['id'] = 'field_msl_oa_sticker_leerling_target_id';
   $handler->display->display_options['relationships']['field_msl_oa_sticker_leerling_target_id']['table'] = 'field_data_field_msl_oa_sticker_leerling';
   $handler->display->display_options['relationships']['field_msl_oa_sticker_leerling_target_id']['field'] = 'field_msl_oa_sticker_leerling_target_id';
-  /* Relationship: Entity Reference: Referenced Entity */
+  /* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
   $handler->display->display_options['relationships']['field_msl_oa_sticker_f2_maatreg_target_id']['id'] = 'field_msl_oa_sticker_f2_maatreg_target_id';
   $handler->display->display_options['relationships']['field_msl_oa_sticker_f2_maatreg_target_id']['table'] = 'field_data_field_msl_oa_sticker_f2_maatreg';
   $handler->display->display_options['relationships']['field_msl_oa_sticker_f2_maatreg_target_id']['field'] = 'field_msl_oa_sticker_f2_maatreg_target_id';
-  /* Field: Content: Nid */
+  /* Veld: Inhoud: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
   $handler->display->display_options['fields']['nid']['field'] = 'nid';
   $handler->display->display_options['fields']['nid']['label'] = '';
   $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
   $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
-  /* Field: Global: View result counter */
+  /* Veld: Algemeen: Resultatenteller weergeven */
   $handler->display->display_options['fields']['counter']['id'] = 'counter';
   $handler->display->display_options['fields']['counter']['table'] = 'views';
   $handler->display->display_options['fields']['counter']['field'] = 'counter';
@@ -234,7 +154,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['fields']['counter']['alter']['path'] = '/node/edit/[nid]';
   $handler->display->display_options['fields']['counter']['alter']['absolute'] = TRUE;
   $handler->display->display_options['fields']['counter']['counter_start'] = '1';
-  /* Field: User: Voornaam */
+  /* Veld: Gebruiker: Voornaam */
   $handler->display->display_options['fields']['field_user_sms_voornaam']['id'] = 'field_user_sms_voornaam';
   $handler->display->display_options['fields']['field_user_sms_voornaam']['table'] = 'field_data_field_user_sms_voornaam';
   $handler->display->display_options['fields']['field_user_sms_voornaam']['field'] = 'field_user_sms_voornaam';
@@ -242,7 +162,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['fields']['field_user_sms_voornaam']['label'] = '';
   $handler->display->display_options['fields']['field_user_sms_voornaam']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_user_sms_voornaam']['element_label_colon'] = FALSE;
-  /* Field: User: Achternaam */
+  /* Veld: Gebruiker: Achternaam */
   $handler->display->display_options['fields']['field_user_sms_naam']['id'] = 'field_user_sms_naam';
   $handler->display->display_options['fields']['field_user_sms_naam']['table'] = 'field_data_field_user_sms_naam';
   $handler->display->display_options['fields']['field_user_sms_naam']['field'] = 'field_user_sms_naam';
@@ -253,7 +173,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['fields']['field_user_sms_naam']['alter']['make_link'] = TRUE;
   $handler->display->display_options['fields']['field_user_sms_naam']['alter']['path'] = 'users/[field_user_sms_naam]-[field_user_sms_voornaam]';
   $handler->display->display_options['fields']['field_user_sms_naam']['alter']['absolute'] = TRUE;
-  /* Field: Content: Datum - fase 1 */
+  /* Veld: Inhoud: Datum - fase 1 */
   $handler->display->display_options['fields']['field_msl_oa_sticker_f1_datum']['id'] = 'field_msl_oa_sticker_f1_datum';
   $handler->display->display_options['fields']['field_msl_oa_sticker_f1_datum']['table'] = 'field_data_field_msl_oa_sticker_f1_datum';
   $handler->display->display_options['fields']['field_msl_oa_sticker_f1_datum']['field'] = 'field_msl_oa_sticker_f1_datum';
@@ -266,7 +186,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'multiple_to' => '',
     'show_repeat_rule' => 'show',
   );
-  /* Field: Content: Datum - fase 2 */
+  /* Veld: Inhoud: Datum - fase 2 */
   $handler->display->display_options['fields']['field_msl_oa_sticker_f2_datum']['id'] = 'field_msl_oa_sticker_f2_datum';
   $handler->display->display_options['fields']['field_msl_oa_sticker_f2_datum']['table'] = 'field_data_field_msl_oa_sticker_f2_datum';
   $handler->display->display_options['fields']['field_msl_oa_sticker_f2_datum']['field'] = 'field_msl_oa_sticker_f2_datum';
@@ -279,7 +199,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'multiple_to' => '',
     'show_repeat_rule' => 'show',
   );
-  /* Field: Content: Datum - fase 3 */
+  /* Veld: Inhoud: Datum - fase 3 */
   $handler->display->display_options['fields']['field_msl_oa_sticker_f3_datum']['id'] = 'field_msl_oa_sticker_f3_datum';
   $handler->display->display_options['fields']['field_msl_oa_sticker_f3_datum']['table'] = 'field_data_field_msl_oa_sticker_f3_datum';
   $handler->display->display_options['fields']['field_msl_oa_sticker_f3_datum']['field'] = 'field_msl_oa_sticker_f3_datum';
@@ -292,19 +212,19 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'multiple_to' => '',
     'show_repeat_rule' => 'show',
   );
-  /* Field: Content: Edit link */
+  /* Veld: Inhoud: Bewerkingslink */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
   $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['label'] = 'Bewerken';
-  /* Filter criterion: Content: Published */
+  /* Filtercriterium: Inhoud: Gepubliceerd */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Content: Type */
+  /* Filtercriterium: Inhoud: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -312,7 +232,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'msl_oa_sticker' => 'msl_oa_sticker',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
-  /* Filter criterion: Global: Combine fields filter */
+  /* Filtercriterium: Algemeen: Veldenfilter combineren */
   $handler->display->display_options['filters']['combine']['id'] = 'combine';
   $handler->display->display_options['filters']['combine']['table'] = 'views';
   $handler->display->display_options['filters']['combine']['field'] = 'combine';
@@ -559,20 +479,21 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'field_maatregelen_categorie' => 'field_maatregelen_categorie',
     'field_maatregelen_gewicht' => 'field_maatregelen_gewicht',
     'title' => 'title',
+    'field_maatregelen_procedure' => 'field_maatregelen_procedure',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
     'field_maatregelen_categorie' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => '',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_maatregelen_gewicht' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
-      'align' => '',
+      'align' => 'views-align-left',
       'separator' => '',
       'empty_column' => 0,
     ),
@@ -583,6 +504,13 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
       'separator' => '',
       'empty_column' => 0,
     ),
+    'field_maatregelen_procedure' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => 'views-align-right',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
   );
   $handler->display->display_options['style_options']['sticky'] = TRUE;
   $handler->display->display_options['defaults']['style_options'] = FALSE;
@@ -590,10 +518,27 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $handler->display->display_options['exposed_block'] = TRUE;
   $handler->display->display_options['defaults']['header'] = FALSE;
+  /* Kop: Algemeen: Tekstveld */
+  $handler->display->display_options['header']['area']['id'] = 'area';
+  $handler->display->display_options['header']['area']['table'] = 'views';
+  $handler->display->display_options['header']['area']['field'] = 'area';
+  $handler->display->display_options['header']['area']['content'] = '<a href="/node/add/maatregelen">Een nieuwe maatregel toevoegen</a>';
+  $handler->display->display_options['header']['area']['format'] = 'filtered_html';
   $handler->display->display_options['defaults']['footer'] = FALSE;
+  /* Voet: Algemeen: Samenvatting van het resultaat */
+  $handler->display->display_options['footer']['result']['id'] = 'result';
+  $handler->display->display_options['footer']['result']['table'] = 'views';
+  $handler->display->display_options['footer']['result']['field'] = 'result';
+  $handler->display->display_options['footer']['result']['content'] = 'Getoond @start - @end van @total';
+  /* Voet: Algemeen: Tekstveld */
+  $handler->display->display_options['footer']['area']['id'] = 'area';
+  $handler->display->display_options['footer']['area']['table'] = 'views';
+  $handler->display->display_options['footer']['area']['field'] = 'area';
+  $handler->display->display_options['footer']['area']['content'] = '<a href="/node/add/maatregelen">Een nieuwe maatregel toevoegen</a>';
+  $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
   $handler->display->display_options['defaults']['relationships'] = FALSE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Content: Categorie */
+  /* Veld: Inhoud: Categorie */
   $handler->display->display_options['fields']['field_maatregelen_categorie']['id'] = 'field_maatregelen_categorie';
   $handler->display->display_options['fields']['field_maatregelen_categorie']['table'] = 'field_data_field_maatregelen_categorie';
   $handler->display->display_options['fields']['field_maatregelen_categorie']['field'] = 'field_maatregelen_categorie';
@@ -601,7 +546,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['fields']['field_maatregelen_categorie']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_maatregelen_categorie']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_maatregelen_categorie']['group_column'] = 'entity_id';
-  /* Field: Content: Gewicht */
+  /* Veld: Inhoud: Gewicht */
   $handler->display->display_options['fields']['field_maatregelen_gewicht']['id'] = 'field_maatregelen_gewicht';
   $handler->display->display_options['fields']['field_maatregelen_gewicht']['table'] = 'field_data_field_maatregelen_gewicht';
   $handler->display->display_options['fields']['field_maatregelen_gewicht']['field'] = 'field_maatregelen_gewicht';
@@ -614,7 +559,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'scale' => '2',
     'prefix_suffix' => 1,
   );
-  /* Field: Content: Title */
+  /* Veld: Inhoud: Titel */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
@@ -622,21 +567,32 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
   $handler->display->display_options['fields']['title']['alter']['text'] = '§[field_maatregelen_gewicht] - [title]';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* Veld: Inhoud: Procedure */
+  $handler->display->display_options['fields']['field_maatregelen_procedure']['id'] = 'field_maatregelen_procedure';
+  $handler->display->display_options['fields']['field_maatregelen_procedure']['table'] = 'field_data_field_maatregelen_procedure';
+  $handler->display->display_options['fields']['field_maatregelen_procedure']['field'] = 'field_maatregelen_procedure';
+  $handler->display->display_options['fields']['field_maatregelen_procedure']['settings'] = array(
+    'link' => 1,
+  );
   $handler->display->display_options['defaults']['sorts'] = FALSE;
-  /* Sort criterion: Content: Categorie (field_maatregelen_categorie) */
+  /* Sorteercriterium: Inhoud: Categorie (field_maatregelen_categorie) */
   $handler->display->display_options['sorts']['field_maatregelen_categorie_value']['id'] = 'field_maatregelen_categorie_value';
   $handler->display->display_options['sorts']['field_maatregelen_categorie_value']['table'] = 'field_data_field_maatregelen_categorie';
   $handler->display->display_options['sorts']['field_maatregelen_categorie_value']['field'] = 'field_maatregelen_categorie_value';
+  /* Sorteercriterium: Inhoud: Gewicht (field_maatregelen_gewicht) */
+  $handler->display->display_options['sorts']['field_maatregelen_gewicht_value']['id'] = 'field_maatregelen_gewicht_value';
+  $handler->display->display_options['sorts']['field_maatregelen_gewicht_value']['table'] = 'field_data_field_maatregelen_gewicht';
+  $handler->display->display_options['sorts']['field_maatregelen_gewicht_value']['field'] = 'field_maatregelen_gewicht_value';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: Content: Published */
+  /* Filtercriterium: Inhoud: Gepubliceerd */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Content: Type */
+  /* Filtercriterium: Inhoud: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -644,7 +600,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'maatregelen' => 'maatregelen',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
-  /* Filter criterion: Content: Title */
+  /* Filtercriterium: Inhoud: Titel */
   $handler->display->display_options['filters']['title']['id'] = 'title';
   $handler->display->display_options['filters']['title']['table'] = 'node';
   $handler->display->display_options['filters']['title']['field'] = 'title';
@@ -869,7 +825,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     223 => 0,
     224 => 0,
   );
-  /* Filter criterion: Content: Categorie (field_maatregelen_categorie) */
+  /* Filtercriterium: Inhoud: Categorie (field_maatregelen_categorie) */
   $handler->display->display_options['filters']['field_maatregelen_categorie_value']['id'] = 'field_maatregelen_categorie_value';
   $handler->display->display_options['filters']['field_maatregelen_categorie_value']['table'] = 'field_data_field_maatregelen_categorie';
   $handler->display->display_options['filters']['field_maatregelen_categorie_value']['field'] = 'field_maatregelen_categorie_value';
@@ -1095,6 +1051,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     224 => 0,
   );
   $handler->display->display_options['filters']['field_maatregelen_categorie_value']['reduce_duplicates'] = TRUE;
+  $handler->display->display_options['qtip_instance'] = 'standaard';
   $handler->display->display_options['path'] = 'maatregelen/overzicht';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Maatregelen';
@@ -1130,7 +1087,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['style_options']['grouping'] = array(
     0 => array(
       'field' => 'field_maatregelen_categorie',
-      'rendered' => 1,
+      'rendered' => 0,
       'rendered_strip' => 0,
     ),
   );
@@ -1146,30 +1103,32 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['defaults']['footer'] = FALSE;
   $handler->display->display_options['defaults']['relationships'] = FALSE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Field: Content: Categorie */
+  /* Veld: Inhoud: Categorie */
   $handler->display->display_options['fields']['field_maatregelen_categorie']['id'] = 'field_maatregelen_categorie';
   $handler->display->display_options['fields']['field_maatregelen_categorie']['table'] = 'field_data_field_maatregelen_categorie';
   $handler->display->display_options['fields']['field_maatregelen_categorie']['field'] = 'field_maatregelen_categorie';
   $handler->display->display_options['fields']['field_maatregelen_categorie']['label'] = '';
   $handler->display->display_options['fields']['field_maatregelen_categorie']['exclude'] = TRUE;
   $handler->display->display_options['fields']['field_maatregelen_categorie']['element_label_colon'] = FALSE;
-  /* Field: Content: Title */
+  /* Veld: Inhoud: Titel */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = '';
+  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['text'] = '[field_maatregelen_categorie] - [title]';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   $handler->display->display_options['defaults']['sorts'] = FALSE;
-  /* Sort criterion: Content: Gewicht (field_maatregelen_gewicht) */
+  /* Sorteercriterium: Inhoud: Gewicht (field_maatregelen_gewicht) */
   $handler->display->display_options['sorts']['field_maatregelen_gewicht_value']['id'] = 'field_maatregelen_gewicht_value';
   $handler->display->display_options['sorts']['field_maatregelen_gewicht_value']['table'] = 'field_data_field_maatregelen_gewicht';
   $handler->display->display_options['sorts']['field_maatregelen_gewicht_value']['field'] = 'field_maatregelen_gewicht_value';
-  /* Sort criterion: Content: Title */
+  /* Sorteercriterium: Inhoud: Titel */
   $handler->display->display_options['sorts']['title']['id'] = 'title';
   $handler->display->display_options['sorts']['title']['table'] = 'node';
   $handler->display->display_options['sorts']['title']['field'] = 'title';
   $handler->display->display_options['defaults']['arguments'] = FALSE;
-  /* Contextual filter: Content: Categorie (field_maatregelen_categorie) */
+  /* Contextueel filter: Inhoud: Categorie (field_maatregelen_categorie) */
   $handler->display->display_options['arguments']['field_maatregelen_categorie_value']['id'] = 'field_maatregelen_categorie_value';
   $handler->display->display_options['arguments']['field_maatregelen_categorie_value']['table'] = 'field_data_field_maatregelen_categorie';
   $handler->display->display_options['arguments']['field_maatregelen_categorie_value']['field'] = 'field_maatregelen_categorie_value';
@@ -1181,14 +1140,14 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
   $handler->display->display_options['arguments']['field_maatregelen_categorie_value']['limit'] = '0';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: Content: Published */
+  /* Filtercriterium: Inhoud: Gepubliceerd */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: Content: Type */
+  /* Filtercriterium: Inhoud: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -1196,6 +1155,7 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     'maatregelen' => 'maatregelen',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
+  $handler->display->display_options['qtip_instance'] = 'standaard';
   $translatables['maatregelen'] = array(
     t('Master'),
     t('Sticker onwettige afwezigheid'),
@@ -1206,7 +1166,6 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     t('Oplopend'),
     t('Aflopend'),
     t('Uitgebreide opties'),
-    t('Selecteer een van de filters en klik op \'Toepassen\' om het resultaat te zien'),
     t('Items per pagina'),
     t('- Alle -'),
     t('Startpunt'),
@@ -1216,8 +1175,8 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     t('laatste »'),
     t('Sticker toevoegen'),
     t('<a href="/node/add/msl-oa-sticker">Een nieuwe rode sticker toevoegen</a>'),
-    t('User entity referenced from field_msl_oa_sticker_leerling'),
-    t('Content entity referenced from field_msl_oa_sticker_f2_maatreg'),
+    t('Gebruiker entiteit gerefereerd vanaf field_msl_oa_sticker_leerling'),
+    t('Inhoud entiteit gerefereerd vanaf field_msl_oa_sticker_f2_maatreg'),
     t('Nr.'),
     t('Leerling'),
     t('[field_user_sms_naam], [field_user_sms_voornaam]'),
@@ -1228,11 +1187,14 @@ function argus_maatregelen_bij_schending_van_de_leefregels_views_default_views()
     t('Overzicht: maatregelen'),
     t('Maatregelen'),
     t('Lijst van alle maatregelen die in ons schoolreglement staan.'),
-    t('more'),
+    t('<a href="/node/add/maatregelen">Een nieuwe maatregel toevoegen</a>'),
+    t('Getoond @start - @end van @total'),
     t('§[field_maatregelen_gewicht] - [title]'),
+    t('Procedure'),
     t('Maatregel'),
     t('Categorie'),
     t('Selectielijst: maatregelen'),
+    t('[field_maatregelen_categorie] - [title]'),
     t('Alle'),
   );
   $export['maatregelen'] = $view;

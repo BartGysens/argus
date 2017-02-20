@@ -11,163 +11,74 @@ function argus_klassenraden_field_default_field_instances() {
   $field_instances = array();
 
   // Exported field_instance:
-  // 'field_collection_item-field_actie-field_deadline'.
-  $field_instances['field_collection_item-field_actie-field_deadline'] = array(
-    'bundle' => 'field_actie',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'date',
-        'settings' => array(
-          'format_type' => 'long',
-          'fromto' => 'both',
-          'multiple_from' => '',
-          'multiple_number' => '',
-          'multiple_to' => '',
-          'show_remaining_days' => FALSE,
-          'show_repeat_rule' => 'show',
-        ),
-        'type' => 'date_default',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_deadline',
-    'label' => 'Deadline',
-    'required' => 0,
-    'settings' => array(
-      'default_value' => 'now',
-      'default_value2' => 'same',
-      'default_value_code' => '',
-      'default_value_code2' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'date',
-      'settings' => array(
-        'display_all_day' => 0,
-        'increment' => 15,
-        'input_format' => 'd/m/Y - H:i:s',
-        'input_format_custom' => '',
-        'label_position' => 'above',
-        'no_fieldset' => 0,
-        'repeat_collapsed' => 0,
-        'text_parts' => array(),
-        'year_range' => '-3:+3',
-      ),
-      'type' => 'date_popup',
-      'weight' => 4,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'field_collection_item-field_actie-field_gebruiker'.
-  $field_instances['field_collection_item-field_actie-field_gebruiker'] = array(
-    'bundle' => 'field_actie',
+  // 'comment-comment_node_lvs_klassenraad-comment_body'.
+  $field_instances['comment-comment_node_lvs_klassenraad-comment_body'] = array(
+    'bundle' => 'comment_node_lvs_klassenraad',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(
-          'link' => FALSE,
+          'conditions' => array(),
         ),
-        'type' => 'entityreference_label',
+        'type' => 'text_default',
         'weight' => 0,
       ),
     ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_gebruiker',
-    'label' => 'Gebruiker',
-    'required' => 1,
+    'entity_type' => 'comment',
+    'field_name' => 'comment_body',
+    'label' => 'Comment',
+    'required' => TRUE,
     'settings' => array(
+      'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 1,
-      'module' => 'options',
+      'module' => 'text',
       'settings' => array(
-        'apply_chosen' => '',
+        'rows' => 5,
       ),
-      'type' => 'options_select',
-      'weight' => 1,
+      'type' => 'text_textarea',
+      'weight' => 0,
     ),
   );
 
   // Exported field_instance:
-  // 'field_collection_item-field_actie-field_maatregel'.
-  $field_instances['field_collection_item-field_actie-field_maatregel'] = array(
-    'bundle' => 'field_actie',
+  // 'comment-comment_node_lvs_klassenraad_notitie-comment_body'.
+  $field_instances['comment-comment_node_lvs_klassenraad_notitie-comment_body'] = array(
+    'bundle' => 'comment_node_lvs_klassenraad_notitie',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(
-          'link' => FALSE,
+          'conditions' => array(),
         ),
-        'type' => 'entityreference_label',
-        'weight' => 1,
+        'type' => 'text_default',
+        'weight' => 0,
       ),
     ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_maatregel',
-    'label' => 'Maatregel',
-    'required' => 1,
+    'entity_type' => 'comment',
+    'field_name' => 'comment_body',
+    'label' => 'Comment',
+    'required' => TRUE,
     'settings' => array(
+      'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 1,
-      'module' => 'options',
+      'module' => 'text',
       'settings' => array(
-        'apply_chosen' => '',
+        'rows' => 5,
       ),
-      'type' => 'options_select',
-      'weight' => 2,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'field_collection_item-field_actie-field_uitvoerder'.
-  $field_instances['field_collection_item-field_actie-field_uitvoerder'] = array(
-    'bundle' => 'field_actie',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 2,
-      ),
-    ),
-    'entity_type' => 'field_collection_item',
-    'field_name' => 'field_uitvoerder',
-    'label' => 'Uitvoerder',
-    'required' => 1,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
-      'type' => 'options_select',
-      'weight' => 3,
+      'type' => 'text_textarea',
+      'weight' => 0,
     ),
   );
 
@@ -183,6 +94,17 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 4,
+      ),
+      'token' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -222,6 +144,17 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 3,
+      ),
+      'token' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -237,11 +170,14 @@ function argus_klassenraden_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'entityreference',
       'settings' => array(
         'apply_chosen' => '',
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
       ),
-      'type' => 'options_select',
+      'type' => 'entityreference_autocomplete',
       'weight' => 2,
     ),
   );
@@ -257,9 +193,22 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
+        'weight' => 5,
+      ),
+      'token' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
+          'links' => 1,
+          'use_content_language' => TRUE,
+          'view_mode' => 'default',
+        ),
+        'type' => 'entityreference_entity_view',
         'weight' => 5,
       ),
     ),
@@ -295,6 +244,17 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 0,
+      ),
+      'token' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -331,6 +291,17 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'token' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -346,11 +317,14 @@ function argus_klassenraden_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'entityreference',
       'settings' => array(
         'apply_chosen' => '',
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
       ),
-      'type' => 'options_select',
+      'type' => 'entityreference_autocomplete',
       'weight' => 1,
     ),
   );
@@ -367,6 +341,17 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
+          'link' => 1,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 1,
+      ),
+      'token' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -382,11 +367,14 @@ function argus_klassenraden_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'entityreference',
       'settings' => array(
         'apply_chosen' => '',
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
       ),
-      'type' => 'options_select',
+      'type' => 'entityreference_autocomplete',
       'weight' => 0,
     ),
   );
@@ -401,7 +389,9 @@ function argus_klassenraden_field_default_field_instances() {
       'default' => array(
         'label' => 'inline',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
         'weight' => 0,
       ),
@@ -436,6 +426,53 @@ function argus_klassenraden_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-lvs_klassenraad-field_opmerkingen'.
+  $field_instances['node-lvs_klassenraad-field_opmerkingen'] = array(
+    'bundle' => 'lvs_klassenraad',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'text_default',
+        'weight' => 3,
+      ),
+      'token' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_opmerkingen',
+    'label' => 'Opmerkingen',
+    'required' => 0,
+    'settings' => array(
+      'linkit' => array(
+        'button_text' => 'Zoeken',
+        'enable' => 0,
+        'profile' => '',
+      ),
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 6,
+    ),
+  );
+
   // Exported field_instance: 'node-lvs_klassenraad-field_spoor'.
   $field_instances['node-lvs_klassenraad-field_spoor'] = array(
     'bundle' => 'lvs_klassenraad',
@@ -448,6 +485,7 @@ function argus_klassenraden_field_default_field_instances() {
         'module' => 'field_collection',
         'settings' => array(
           'add' => 'Toevoegen',
+          'conditions' => array(),
           'delete' => 'Verwijderen',
           'description' => TRUE,
           'edit' => 'Bewerken',
@@ -489,6 +527,7 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
@@ -504,6 +543,7 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'date',
         'settings' => array(
+          'conditions' => array(),
           'format_type' => 'long',
           'fromto' => 'both',
           'multiple_from' => '',
@@ -556,7 +596,9 @@ function argus_klassenraden_field_default_field_instances() {
       'default' => array(
         'label' => 'hidden',
         'module' => 'text',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'text_default',
         'weight' => 0,
       ),
@@ -564,6 +606,7 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'text',
         'settings' => array(
+          'conditions' => array(),
           'trim_length' => 600,
         ),
         'type' => 'text_summary_or_trimmed',
@@ -596,25 +639,21 @@ function argus_klassenraden_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-lvs_klassenraad_notitie-field_actie'.
-  $field_instances['node-lvs_klassenraad_notitie-field_actie'] = array(
+  // Exported field_instance: 'node-lvs_klassenraad_notitie-field_acties'.
+  $field_instances['node-lvs_klassenraad_notitie-field_acties'] = array(
     'bundle' => 'lvs_klassenraad_notitie',
-    'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'field_collection',
+        'module' => 'entityreference',
         'settings' => array(
-          'add' => 'Toevoegen',
-          'delete' => 'Verwijderen',
-          'description' => TRUE,
-          'edit' => 'Bewerken',
-          'view_mode' => 'full',
+          'conditions' => array(),
+          'link' => FALSE,
         ),
-        'type' => 'field_collection_view',
-        'weight' => 6,
+        'type' => 'entityreference_label',
+        'weight' => 7,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -624,20 +663,29 @@ function argus_klassenraden_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_actie',
-    'label' => 'Actie',
+    'field_name' => 'field_acties',
+    'label' => 'Acties',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'field_collection_table',
+      'module' => 'inline_entity_form',
       'settings' => array(
-        'nodragging' => 0,
+        'fields' => array(),
+        'type_settings' => array(
+          'allow_existing' => 0,
+          'allow_new' => 1,
+          'delete_references' => 1,
+          'label_plural' => 'nodes',
+          'label_singular' => 'node',
+          'match_operator' => 'CONTAINS',
+          'override_labels' => 0,
+        ),
       ),
-      'type' => 'field_collection_table',
-      'weight' => 3,
+      'type' => 'inline_entity_form',
+      'weight' => 8,
     ),
   );
 
@@ -652,6 +700,7 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -693,6 +742,7 @@ function argus_klassenraden_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'conditions' => array(),
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -714,11 +764,14 @@ function argus_klassenraden_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'entityreference',
       'settings' => array(
         'apply_chosen' => '',
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
       ),
-      'type' => 'options_select',
+      'type' => 'entityreference_autocomplete',
       'weight' => 2,
     ),
   );
@@ -734,7 +787,9 @@ function argus_klassenraden_field_default_field_instances() {
       'default' => array(
         'label' => 'above',
         'module' => 'list',
-        'settings' => array(),
+        'settings' => array(
+          'conditions' => array(),
+        ),
         'type' => 'list_default',
         'weight' => 4,
       ),
@@ -763,23 +818,20 @@ function argus_klassenraden_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Actie');
+  t('Acties');
   t('Andere deelnemers');
   t('Benaming');
-  t('Deadline');
-  t('Gebruiker');
+  t('Comment');
   t('ILB');
   t('Klassen');
   t('Klassenraad');
   t('LVS-onderdeel');
   t('Leerling');
   t('Lokaal');
-  t('Maatregel');
   t('Opmerkingen');
   t('Secretaris');
   t('Spoor');
   t('Tijdstip');
-  t('Uitvoerder');
   t('Voorzitter');
 
   return $field_instances;

@@ -10,6 +10,16 @@
 function argus_volgkaarten_user_default_permissions() {
   $permissions = array();
 
+  // Exported permission: 'create field_msl_volgkaart_status'.
+  $permissions['create field_msl_volgkaart_status'] = array(
+    'name' => 'create field_msl_volgkaart_status',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'field_permissions',
+  );
+
   // Exported permission: 'create msl_volgkaart content'.
   $permissions['create msl_volgkaart content'] = array(
     'name' => 'create msl_volgkaart content',
@@ -66,6 +76,26 @@ function argus_volgkaarten_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'edit field_msl_volgkaart_status'.
+  $permissions['edit field_msl_volgkaart_status'] = array(
+    'name' => 'edit field_msl_volgkaart_status',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'edit own field_msl_volgkaart_status'.
+  $permissions['edit own field_msl_volgkaart_status'] = array(
+    'name' => 'edit own field_msl_volgkaart_status',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'field_permissions',
+  );
+
   // Exported permission: 'edit own msl_volgkaart content'.
   $permissions['edit own msl_volgkaart content'] = array(
     'name' => 'edit own msl_volgkaart content',
@@ -78,6 +108,26 @@ function argus_volgkaarten_user_default_permissions() {
       'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
+  );
+
+  // Exported permission: 'view field_msl_volgkaart_status'.
+  $permissions['view field_msl_volgkaart_status'] = array(
+    'name' => 'view field_msl_volgkaart_status',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'field_permissions',
+  );
+
+  // Exported permission: 'view own field_msl_volgkaart_status'.
+  $permissions['view own field_msl_volgkaart_status'] = array(
+    'name' => 'view own field_msl_volgkaart_status',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'field_permissions',
   );
 
   return $permissions;

@@ -102,12 +102,13 @@ function argus_werken_voor_derden_strongarm() {
       6 => 219,
     ),
     'view' => array(
-      0 => 3,
-      1 => 86,
-      2 => 225,
-      3 => 274,
-      4 => 218,
-      5 => 219,
+      0 => 85,
+      1 => 3,
+      2 => 86,
+      3 => 225,
+      4 => 274,
+      5 => 218,
+      6 => 219,
     ),
   );
   $export['content_access_werk_voor_derden'] = $strongarm;

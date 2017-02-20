@@ -15,6 +15,7 @@ function argus_deliberaties_user_default_permissions() {
     'name' => 'create lvs_deliberatie content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
       'technisch adviseur' => 'technisch adviseur',
@@ -28,6 +29,7 @@ function argus_deliberaties_user_default_permissions() {
     'name' => 'delete any lvs_deliberatie content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
       'technisch adviseur' => 'technisch adviseur',
@@ -41,6 +43,7 @@ function argus_deliberaties_user_default_permissions() {
     'name' => 'delete own lvs_deliberatie content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
       'technisch adviseur' => 'technisch adviseur',
@@ -54,6 +57,7 @@ function argus_deliberaties_user_default_permissions() {
     'name' => 'edit any lvs_deliberatie content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
       'technisch adviseur' => 'technisch adviseur',
@@ -67,6 +71,7 @@ function argus_deliberaties_user_default_permissions() {
     'name' => 'edit own lvs_deliberatie content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
       'directielid' => 'directielid',
       'interne leerlingbegeleider' => 'interne leerlingbegeleider',
       'technisch adviseur' => 'technisch adviseur',

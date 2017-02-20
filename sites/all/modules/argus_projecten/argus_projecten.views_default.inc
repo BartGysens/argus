@@ -25,7 +25,10 @@ function argus_projecten_views_default_views() {
   $handler->display->display_options['title'] = 'Projecten';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['use_more_text'] = 'meer';
-  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['type'] = 'role';
+  $handler->display->display_options['access']['role'] = array(
+    216 => '216',
+  );
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -248,10 +251,11 @@ function argus_projecten_views_default_views() {
     ),
   );
   $handler->display->display_options['fields']['field_leerlingen']['delta_offset'] = '0';
-  /* Veld: Inhoud: Personeelsleden */
+  /* Veld: Inhoud: Leden */
   $handler->display->display_options['fields']['field_personeelsleden']['id'] = 'field_personeelsleden';
   $handler->display->display_options['fields']['field_personeelsleden']['table'] = 'field_data_field_personeelsleden';
   $handler->display->display_options['fields']['field_personeelsleden']['field'] = 'field_personeelsleden';
+  $handler->display->display_options['fields']['field_personeelsleden']['label'] = 'Personeelsleden';
   $handler->display->display_options['fields']['field_personeelsleden']['settings'] = array(
     'link' => '1',
     'conditions' => array(

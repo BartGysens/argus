@@ -10,32 +10,62 @@
 function argus_maatregelen_bij_schending_van_de_leefregels_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: navigation_msl---maatregelen:node/add/msl-maatregelen
-  $menu_links['navigation_msl---maatregelen:node/add/msl-maatregelen'] = array(
-    'menu_name' => 'navigation',
-    'link_path' => 'node/add/msl-maatregelen',
-    'router_path' => 'node/add/msl-maatregelen',
-    'link_title' => 'MSL - Maatregelen',
+  // Exported menu link: menu-modules_maatregelen:maatregelen/overzicht.
+  $menu_links['menu-modules_maatregelen:maatregelen/overzicht'] = array(
+    'menu_name' => 'menu-modules',
+    'link_path' => 'maatregelen/overzicht',
+    'router_path' => 'maatregelen/overzicht',
+    'link_title' => 'Maatregelen',
     'options' => array(
-      'attributes' => array(
-        'title' => 'Oplijsting van alle maatregelen die volgens het schoolreglement, in het kader van Maatregelen bij Schending van de Leefregels, kunnen worden toegepast. Het gaat om <em>ordemaatregelen, bewarende maatregelen en tuchtmaatregelen</em>.',
-      ),
       'alter' => TRUE,
-      'identifier' => 'navigation_msl---maatregelen:node/add/msl-maatregelen',
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => 'icon_msl',
+        'style' => '',
+      ),
+      'identifier' => 'menu-modules_maatregelen:maatregelen/overzicht',
+    ),
+    'module' => 'system',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 1,
+    'expanded' => 1,
+    'weight' => -45,
+    'customized' => 1,
+    'parent_identifier' => 'menu-modules_leerlingvolgsysteem:node/18707',
+  );
+  // Exported menu link: navigation_maatregelen:node/add/maatregelen.
+  $menu_links['navigation_maatregelen:node/add/maatregelen'] = array(
+    'menu_name' => 'navigation',
+    'link_path' => 'node/add/maatregelen',
+    'router_path' => 'node/add/maatregelen',
+    'link_title' => 'Maatregelen',
+    'options' => array(
+      'alter' => TRUE,
+      'identifier' => 'navigation_maatregelen:node/add/maatregelen',
+      'attributes' => array(
+        'title' => 'Oplijsting van alle maatregelen die volgens het schoolreglement kunnen worden toegepast. Het gaat om allerlei toepassingsgebieden, zoals Maatregelen bij Schending van de Leefregels, Studiebegeleiding, Bekrachtiging van positief gedrag, Afwezigheden, enz.',
+      ),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
     ),
     'module' => 'system',
     'hidden' => 0,
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
-    'parent_identifier' => 'navigation_inhoud-toevoegen:node/add',
+    'weight' => -43,
+    'customized' => 1,
+    'parent_identifier' => 'navigation_leerlingvolgsysteem:node/18707',
   );
+
   // Translatables
   // Included for use with string extractors like potx.
-  t('MSL - Maatregelen');
-
+  t('Maatregelen');
 
   return $menu_links;
 }

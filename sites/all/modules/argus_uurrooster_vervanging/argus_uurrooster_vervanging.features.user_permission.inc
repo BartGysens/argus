@@ -15,6 +15,12 @@ function argus_uurrooster_vervanging_user_default_permissions() {
     'name' => 'create uurrooster_vervanging content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'personeelssecretariaat' => 'personeelssecretariaat',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -24,6 +30,13 @@ function argus_uurrooster_vervanging_user_default_permissions() {
     'name' => 'delete any uurrooster_vervanging content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'personeelssecretariaat' => 'personeelssecretariaat',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -33,6 +46,13 @@ function argus_uurrooster_vervanging_user_default_permissions() {
     'name' => 'delete own uurrooster_vervanging content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'personeelssecretariaat' => 'personeelssecretariaat',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -42,6 +62,13 @@ function argus_uurrooster_vervanging_user_default_permissions() {
     'name' => 'edit any uurrooster_vervanging content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'personeelssecretariaat' => 'personeelssecretariaat',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );
@@ -51,6 +78,13 @@ function argus_uurrooster_vervanging_user_default_permissions() {
     'name' => 'edit own uurrooster_vervanging content',
     'roles' => array(
       'administrator' => 'administrator',
+      'directeur' => 'directeur',
+      'directielid' => 'directielid',
+      'leerlingsecretariaat' => 'leerlingsecretariaat',
+      'pedagogische coördinator' => 'pedagogische coördinator',
+      'personeelssecretariaat' => 'personeelssecretariaat',
+      'technisch adviseur' => 'technisch adviseur',
+      'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
   );

@@ -94,6 +94,7 @@ function argus_nascholingen_user_default_permissions() {
       'administrator' => 'administrator',
       'directeur' => 'directeur',
       'directielid' => 'directielid',
+      'kwaliteitscoördinator' => 'kwaliteitscoördinator',
       'pedagogische coördinator' => 'pedagogische coördinator',
       'personeelssecretariaat' => 'personeelssecretariaat',
       'technisch adviseur' => 'technisch adviseur',

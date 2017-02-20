@@ -131,6 +131,7 @@ function argus_attesten_views_default_views() {
   $handler->display->display_options['relationships']['field_attest_persoon_target_id']['id'] = 'field_attest_persoon_target_id';
   $handler->display->display_options['relationships']['field_attest_persoon_target_id']['table'] = 'field_data_field_attest_persoon';
   $handler->display->display_options['relationships']['field_attest_persoon_target_id']['field'] = 'field_attest_persoon_target_id';
+  $handler->display->display_options['relationships']['field_attest_persoon_target_id']['label'] = 'Gebruiker entity referenced from field_attest_persoon';
   /* Veld: Gebruiker: Voornaam */
   $handler->display->display_options['fields']['field_user_sms_voornaam']['id'] = 'field_user_sms_voornaam';
   $handler->display->display_options['fields']['field_user_sms_voornaam']['table'] = 'field_data_field_user_sms_voornaam';

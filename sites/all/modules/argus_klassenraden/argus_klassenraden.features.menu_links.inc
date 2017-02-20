@@ -9,6 +9,32 @@
  */
 function argus_klassenraden_menu_default_menu_links() {
   $menu_links = array();
+
+  // Exported menu link: menu-modules_klassenraden:klassenraden.
+  $menu_links['menu-modules_klassenraden:klassenraden'] = array(
+    'menu_name' => 'menu-modules',
+    'link_path' => 'klassenraden',
+    'router_path' => 'klassenraden',
+    'link_title' => 'Klassenraden',
+    'options' => array(
+      'alter' => TRUE,
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => 'icon_klassenraden',
+        'style' => '',
+      ),
+      'identifier' => 'menu-modules_klassenraden:klassenraden',
+    ),
+    'module' => 'system',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 1,
+    'expanded' => 1,
+    'weight' => -47,
+    'customized' => 1,
+    'parent_identifier' => 'menu-modules_leerlingvolgsysteem:node/18707',
+  );
   // Exported menu link: navigation_lvs---klassenraad---notitie:node/add/lvs-klassenraad-notitie.
   $menu_links['navigation_lvs---klassenraad---notitie:node/add/lvs-klassenraad-notitie'] = array(
     'menu_name' => 'navigation',
@@ -27,9 +53,9 @@ function argus_klassenraden_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
-    'parent_identifier' => 'navigation_add-content:node/add',
+    'weight' => -50,
+    'customized' => 1,
+    'parent_identifier' => 'navigation_lvs---klassenraad:node/add/lvs-klassenraad',
   );
   // Exported menu link: navigation_lvs---klassenraad:node/add/lvs-klassenraad.
   $menu_links['navigation_lvs---klassenraad:node/add/lvs-klassenraad'] = array(
@@ -47,16 +73,16 @@ function argus_klassenraden_menu_default_menu_links() {
     'module' => 'system',
     'hidden' => 0,
     'external' => 0,
-    'has_children' => 0,
+    'has_children' => 1,
     'expanded' => 0,
-    'weight' => 0,
-    'customized' => 0,
-    'parent_identifier' => 'navigation_add-content:node/add',
+    'weight' => -45,
+    'customized' => 1,
+    'parent_identifier' => 'navigation_leerlingvolgsysteem:node/18707',
   );
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Klassenraad');
+  t('Klassenraden');
   t('LVS - Klassenraad');
   t('LVS - Klassenraad - notitie');
 
