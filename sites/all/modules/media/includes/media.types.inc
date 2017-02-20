@@ -126,8 +126,8 @@ function media_type_load($name) {
  *  Media types keyed by machine name.
  */
 function media_type_get_types() {
-  $types =& drupal_static(__FUNCTION__);
-  if (!$types) {
+	$types =& drupal_static(__FUNCTION__, array());
+	if (!$types && db_table_exists('media_types')) {
     $types = db_select('media_type', 'mt')
       ->orderBy('weight')
       ->fields('mt')
