@@ -1857,10 +1857,11 @@ function argus_examens_views_default_views() {
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['field'] = 'field_uurrooster_les_vak_target_id';
   $handler->display->display_options['relationships']['field_uurrooster_les_vak_target_id']['label'] = 'Inhoud entity referenced from field_uurrooster_les_vak';
   $handler->display->display_options['defaults']['fields'] = FALSE;
-  /* Veld: Inhoud: Klas(sen) */
+  /* Veld: Inhoud: Klassen */
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['id'] = 'field_uurrooster_les_klassen';
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['table'] = 'field_data_field_uurrooster_les_klassen';
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['field'] = 'field_uurrooster_les_klassen';
+  $handler->display->display_options['fields']['field_uurrooster_les_klassen']['label'] = 'Klas(sen)';
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_uurrooster_les_klassen']['settings'] = array(
     'link' => 0,
