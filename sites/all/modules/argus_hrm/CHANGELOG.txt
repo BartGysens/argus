@@ -1,6 +1,9 @@
 **Releases:
 
 
+fix in admin menu
+
+
 v7.x-3.0
 ---------
 - Uitbreiding Flitsbezoeken en Klasbezoeken

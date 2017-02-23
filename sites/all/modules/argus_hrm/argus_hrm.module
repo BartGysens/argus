@@ -29,9 +29,9 @@ include_once 'argus_hrm.features.inc';
  */
 function argus_hrm_menu() {
 	$items = array ();
-	$items ['admin/config/argus/hrm/workload'] = array (
+	$items ['admin/config/argus/hrm'] = array (
 			'title' => 'HRM: workload',
-			'description' => '.',
+			'description' => 'Parameters instellen voor het berekenen van de workload per personeelslid',
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array (
 					'argus_hrm_workload_setup_form' 
