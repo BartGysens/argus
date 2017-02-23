@@ -190,15 +190,6 @@ function argus_ikz_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'delete terms in ikz'.
-  $permissions['delete terms in ikz'] = array(
-    'name' => 'delete terms in ikz',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'taxonomy',
-  );
-
   // Exported permission: 'edit any ikz_afkortingen content'.
   $permissions['edit any ikz_afkortingen content'] = array(
     'name' => 'edit any ikz_afkortingen content',
@@ -333,15 +324,6 @@ function argus_ikz_user_default_permissions() {
       'technisch adviseur-coördinator' => 'technisch adviseur-coördinator',
     ),
     'module' => 'node',
-  );
-
-  // Exported permission: 'edit terms in ikz'.
-  $permissions['edit terms in ikz'] = array(
-    'name' => 'edit terms in ikz',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'taxonomy',
   );
 
   // Exported permission: 'publish revisions of any ikz_procedure content'.
