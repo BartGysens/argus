@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.3
+---------
+- Features disabled, fully custom module conversion
+
 v7.x-1.2
 ---------
 - Update Absenteïsme: enkel vervanging aanpassen vanaf datum dat nodig is; oude vervangingen behouden

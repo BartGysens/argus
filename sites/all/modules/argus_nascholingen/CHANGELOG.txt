@@ -1,6 +1,10 @@
 **Releases:
 
 
+v7.x-3.1
+---------
+- Features disabled, custom module created
+
 v7.x-3.0
 ---------
 - Automatische opvolging via berichten geupdate

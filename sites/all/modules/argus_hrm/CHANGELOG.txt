@@ -1,8 +1,10 @@
 **Releases:
 
 
-fix in admin menu
-
+v7.x-3.1
+---------
+- Fix in admin menu
+- Features disabled, changed to full module
 
 v7.x-3.0
 ---------

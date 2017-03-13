@@ -95,7 +95,7 @@
 		<?php
 		
 		$roles = array();
-		foreach (variable_get('argus_uurrooster_substitutions_roles') as $rid){
+		foreach (variable_get('argus_uurrooster_substitutions_roles', array()) as $rid){
 			$role = user_role_load($rid);
 			$roles[] =  $role->name;
 		}
@@ -107,7 +107,7 @@
 		<ul>
 		<?php
 		
-		foreach (variable_get('argus_uurrooster_substitutions_exemptions') as $uid){
+		foreach (variable_get('argus_uurrooster_substitutions_exemptions', array()) as $uid){
 			print '<li style="line-height: 1.2em;">'.argus_get_user_realname($uid).'</li>';
 		}
 		
@@ -116,7 +116,7 @@
 	</li>
 	<li>
 		<em><span style="underline">Opmerkingen</span>:<br />
-		<?php print variable_get('argus_uurrooster_substitutions_exemptions_remarks'); ?></em>
+		<?php print variable_get('argus_uurrooster_substitutions_exemptions_remarks', '/'); ?></em>
 	</li>
 </ul>
 
@@ -128,7 +128,7 @@
 		<?php
 		
 		$roles = array();
-		foreach (variable_get('argus_uurrooster_supervisions_roles') as $rid){
+		foreach (variable_get('argus_uurrooster_supervisions_roles', array()) as $rid){
 			$role = user_role_load($rid);
 			$roles[] =  $role->name;
 		}
@@ -140,7 +140,7 @@
 		<ul>
 		<?php
 		
-		foreach (variable_get('argus_uurrooster_supervisions_exemptions') as $uid){
+		foreach (variable_get('argus_uurrooster_supervisions_exemptions', array()) as $uid){
 			print '<li style="line-height: 1.2em;">'.argus_get_user_realname($uid).'</li>';
 		}
 		
@@ -149,6 +149,6 @@
 	</li>
 	<li>
 		<em><span style="underline">Opmerkingen</span>:<br />
-		<?php print variable_get('argus_uurrooster_supervisions_exemptions_remarks'); ?></em>
+		<?php print variable_get('argus_uurrooster_supervisions_exemptions_remarks', '/'); ?></em>
 	</li>
 </ul>

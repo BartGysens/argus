@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Copyright (C) 2015 bartgysens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -9,163 +9,467 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
-/**
- * @file
- * Code for the Klassenraad feature.
- */
-
-include_once 'argus_klassenraden.features.inc';
 
 /* Drupal Hooks */
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_klassenraden_node_info() {
+	$items = array (
+			'lvs_klassenraad' => array (
+					'name' => t ( 'LVS - Klassenraad' ),
+					'base' => 'node_content',
+					'description' => t ( 'Plan en organiseer je <em>klassenraad</em> om er nadien notulen en acties aan te koppelen.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			),
+			'lvs_klassenraad_notitie' => array (
+					'name' => t ( 'LVS - Klassenraad - notitie' ),
+					'base' => 'node_content',
+					'description' => t ( 'Maak je administratie rond tijdens de <em>klassenraad</em> en noteer wat er over een bepaalde leerling werd gezegd en welke acties er aan vastgekoppeld worden.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_klassenraden_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function argus_klassenraden_views_api() {
+	return array (
+			'api' => 3.0,
+			'path' => drupal_get_path ( 'module', 'argus_klassenraden' ) 
+	); // replace demo with your content type
+}
+
+/**
+ * Implementation of hook_views_default_views().
+ *
+ * Views export creates code that you have to paste in this function.
+ *
+ * Administration > Structure > Views : click the button behind the view you need and export
+ * /admin/structure/views
+ */
+function argus_klassenraden_views_default_views() {
+	$view = new view ();
+	$view->name = 'klassenraden';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'Klassenraden';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+	
+	/* Display: Master */
+	$handler = $view->new_display ( 'default', 'Master', 'default' );
+	$handler->display->display_options ['title'] = 'Klassenraden';
+	$handler->display->display_options ['use_more_always'] = FALSE;
+	$handler->display->display_options ['use_more_text'] = 'meer';
+	$handler->display->display_options ['group_by'] = TRUE;
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0 
+			),
+			'node' => array (
+					'lvs_klassenraad' => 'lvs_klassenraad',
+					'lvs_klassenraad_notitie' => 'lvs_klassenraad_notitie' 
+			),
+			'node_only' => array (
+					'node_changed' => 'node_changed' 
+			) 
+	);
+	$handler->display->display_options ['query'] ['type'] = 'views_query';
+	$handler->display->display_options ['exposed_form'] ['type'] = 'basic';
+	$handler->display->display_options ['exposed_form'] ['options'] ['submit_button'] = 'Toepassen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button_label'] = 'Opnieuw instellen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['exposed_sorts_label'] = 'Sorteren op';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_asc_label'] = 'Oplopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_desc_label'] = 'Aflopend';
+	$handler->display->display_options ['pager'] ['type'] = 'mini';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '5';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['style_plugin'] = 'list';
+	$handler->display->display_options ['style_options'] ['grouping'] = array (
+			0 => array (
+					'field' => 'title',
+					'rendered' => '1',
+					'rendered_strip' => 0 
+			) 
+	);
+	$handler->display->display_options ['row_plugin'] = 'fields';
+	$handler->display->display_options ['row_options'] ['inline'] = array (
+			'field_voorzitter' => 'field_voorzitter',
+			'field_secretaris' => 'field_secretaris',
+			'field_interne_leerlingbegeleider' => 'field_interne_leerlingbegeleider',
+			'field_andere_deelnemers' => 'field_andere_deelnemers',
+			'field_lokaal' => 'field_lokaal',
+			'field_klassen' => 'field_klassen' 
+	);
+	$handler->display->display_options ['row_options'] ['separator'] = '<br />';
+	$handler->display->display_options ['row_options'] ['hide_empty'] = TRUE;
+	/* Relatie: Inhoud: Spoor (field_spoor) */
+	$handler->display->display_options ['relationships'] ['field_spoor_value'] ['id'] = 'field_spoor_value';
+	$handler->display->display_options ['relationships'] ['field_spoor_value'] ['table'] = 'field_data_field_spoor';
+	$handler->display->display_options ['relationships'] ['field_spoor_value'] ['field'] = 'field_spoor_value';
+	$handler->display->display_options ['relationships'] ['field_spoor_value'] ['delta'] = '-1';
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['title'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['word_boundary'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['ellipsis'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Tijdstip */
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['id'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['table'] = 'field_data_field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['field'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['text'] = '[field_tijdstip-value]';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['settings'] = array (
+			'format_type' => 'long',
+			'fromto' => 'value',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show' 
+	);
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Field collection item: Field collection item-ID */
+	$handler->display->display_options ['fields'] ['item_id'] ['id'] = 'item_id';
+	$handler->display->display_options ['fields'] ['item_id'] ['table'] = 'field_collection_item';
+	$handler->display->display_options ['fields'] ['item_id'] ['field'] = 'item_id';
+	$handler->display->display_options ['fields'] ['item_id'] ['relationship'] = 'field_spoor_value';
+	$handler->display->display_options ['fields'] ['item_id'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['item_id'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['item_id'] ['element_label_colon'] = FALSE;
+	/* Veld: Veld: Voorzitter */
+	$handler->display->display_options ['fields'] ['field_voorzitter'] ['id'] = 'field_voorzitter';
+	$handler->display->display_options ['fields'] ['field_voorzitter'] ['table'] = 'field_data_field_voorzitter';
+	$handler->display->display_options ['fields'] ['field_voorzitter'] ['field'] = 'field_voorzitter';
+	$handler->display->display_options ['fields'] ['field_voorzitter'] ['relationship'] = 'field_spoor_value';
+	$handler->display->display_options ['fields'] ['field_voorzitter'] ['settings'] = array (
+			'link' => '1' 
+	);
+	/* Veld: Field collection item: Secretaris */
+	$handler->display->display_options ['fields'] ['field_secretaris'] ['id'] = 'field_secretaris';
+	$handler->display->display_options ['fields'] ['field_secretaris'] ['table'] = 'field_data_field_secretaris';
+	$handler->display->display_options ['fields'] ['field_secretaris'] ['field'] = 'field_secretaris';
+	$handler->display->display_options ['fields'] ['field_secretaris'] ['relationship'] = 'field_spoor_value';
+	$handler->display->display_options ['fields'] ['field_secretaris'] ['settings'] = array (
+			'link' => '1' 
+	);
+	/* Veld: Field collection item: ILB */
+	$handler->display->display_options ['fields'] ['field_interne_leerlingbegeleider'] ['id'] = 'field_interne_leerlingbegeleider';
+	$handler->display->display_options ['fields'] ['field_interne_leerlingbegeleider'] ['table'] = 'field_data_field_interne_leerlingbegeleider';
+	$handler->display->display_options ['fields'] ['field_interne_leerlingbegeleider'] ['field'] = 'field_interne_leerlingbegeleider';
+	$handler->display->display_options ['fields'] ['field_interne_leerlingbegeleider'] ['relationship'] = 'field_spoor_value';
+	$handler->display->display_options ['fields'] ['field_interne_leerlingbegeleider'] ['settings'] = array (
+			'link' => '1' 
+	);
+	/* Veld: Field collection item: Andere deelnemers */
+	$handler->display->display_options ['fields'] ['field_andere_deelnemers'] ['id'] = 'field_andere_deelnemers';
+	$handler->display->display_options ['fields'] ['field_andere_deelnemers'] ['table'] = 'field_data_field_andere_deelnemers';
+	$handler->display->display_options ['fields'] ['field_andere_deelnemers'] ['field'] = 'field_andere_deelnemers';
+	$handler->display->display_options ['fields'] ['field_andere_deelnemers'] ['relationship'] = 'field_spoor_value';
+	$handler->display->display_options ['fields'] ['field_andere_deelnemers'] ['hide_empty'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_andere_deelnemers'] ['settings'] = array (
+			'link' => '1' 
+	);
+	$handler->display->display_options ['fields'] ['field_andere_deelnemers'] ['delta_offset'] = '0';
+	/* Veld: Veld: Lokaal */
+	$handler->display->display_options ['fields'] ['field_lokaal'] ['id'] = 'field_lokaal';
+	$handler->display->display_options ['fields'] ['field_lokaal'] ['table'] = 'field_data_field_lokaal';
+	$handler->display->display_options ['fields'] ['field_lokaal'] ['field'] = 'field_lokaal';
+	$handler->display->display_options ['fields'] ['field_lokaal'] ['relationship'] = 'field_spoor_value';
+	$handler->display->display_options ['fields'] ['field_lokaal'] ['element_wrapper_type'] = 'em';
+	$handler->display->display_options ['fields'] ['field_lokaal'] ['settings'] = array (
+			'link' => '1' 
+	);
+	/* Veld: Veld: Klassen */
+	$handler->display->display_options ['fields'] ['field_klassen'] ['id'] = 'field_klassen';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['table'] = 'field_data_field_klassen';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['field'] = 'field_klassen';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['relationship'] = 'field_spoor_value';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['label'] = 'Klassen (in volgorde van behandeling)';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['alter'] ['text'] = '<a href="/klassenraden-notities/*/[nid]/[item_id]/[field_klassen-target_id]" target="_blank">x</a>';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_klassen'] ['alter'] ['path'] = 'klassenraden-notities/0/[nid]/[item_id]/[field_klassen-target_id]';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_klassen'] ['alter'] ['target'] = '_blank';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['element_type'] = 'div';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['element_label_type'] = 'strong';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['settings'] = array (
+			'link' => 0 
+	);
+	$handler->display->display_options ['fields'] ['field_klassen'] ['group_column'] = 'entity_id';
+	$handler->display->display_options ['fields'] ['field_klassen'] ['delta_offset'] = '0';
+	/* Sorteercriterium: Inhoud: Datum van inzending */
+	$handler->display->display_options ['sorts'] ['created'] ['id'] = 'created';
+	$handler->display->display_options ['sorts'] ['created'] ['table'] = 'node';
+	$handler->display->display_options ['sorts'] ['created'] ['field'] = 'created';
+	$handler->display->display_options ['sorts'] ['created'] ['order'] = 'DESC';
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'lvs_klassenraad' => 'lvs_klassenraad' 
+	);
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	
+	/* Display: Overzicht */
+	$handler = $view->new_display ( 'page', 'Overzicht', 'page' );
+	$handler->display->display_options ['defaults'] ['pager'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'none';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'klassenraden';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Klassenraden';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$translatables ['klassenraden'] = array (
+			t ( 'Master' ),
+			t ( 'Klassenraden' ),
+			t ( 'meer' ),
+			t ( 'Toepassen' ),
+			t ( 'Opnieuw instellen' ),
+			t ( 'Sorteren op' ),
+			t ( 'Oplopend' ),
+			t ( 'Aflopend' ),
+			t ( 'Items per pagina' ),
+			t ( '- Alle -' ),
+			t ( 'Startpunt' ),
+			t ( '« eerste' ),
+			t ( '‹ vorige' ),
+			t ( 'volgende ›' ),
+			t ( 'laatste »' ),
+			t ( 'field collection item from field_spoor' ),
+			t ( '[field_tijdstip-value]' ),
+			t ( '.' ),
+			t ( ',' ),
+			t ( 'Voorzitter' ),
+			t ( 'Secretaris' ),
+			t ( 'ILB' ),
+			t ( 'Andere deelnemers' ),
+			t ( 'Lokaal' ),
+			t ( 'Klassen (in volgorde van behandeling)' ),
+			t ( '<a href="/klassenraden-notities/*/[nid]/[item_id]/[field_klassen-target_id]" target="_blank">x</a>' ),
+			t ( 'Overzicht' ) 
+	);
+	
+	$views [$view->name] = $view;
+	return $views;
+}
 
 /**
  * Implements argus_afwezigheden_menu().
  */
 function argus_klassenraden_menu() {
-	$items = array();
-	$items['klassenraden-notities'] = array(
-		'title' => 'Klassenraden: notities',
-		'description' => 'Administratie van de notities van de klassenraden.',
-		'page callback' => 'argus_klassenraden_notes',
-		'access arguments' => array('access content'),
-		'access callback' => TRUE,
-		'menu_name' => 'menu-modules',
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
+	$items = array ();
+	$items ['klassenraden-notities'] = array (
+			'title' => 'Klassenraden: notities',
+			'description' => 'Administratie van de notities van de klassenraden.',
+			'page callback' => 'argus_klassenraden_notes',
+			'access arguments' => array (
+					'access content' 
+			),
+			'access callback' => TRUE,
+			'menu_name' => $menu 
 	);
 	return $items;
 }
 
 /**
-* Implements hook_block_info().
-*/
+ * Implements hook_block_info().
+ */
 function argus_klassenraden_block_info() {
-    $blocks = array();
-    $blocks['klassenraden-notities'] = array(
-        'info' => t('Klassenraden: notities'),
-        'title' => t('Filter'),
-    );
-
-    return $blocks;
+	$blocks = array ();
+	$blocks ['klassenraden-notities'] = array (
+			'info' => t ( 'Klassenraden: notities' ),
+			'cache' => DRUPAL_CACHE_GLOBAL,
+			'weight' => 2,
+			'status' => 1,
+			'region' => 'sidebar_first',
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => 'klassenraden' . chr ( 13 ) . 'klassenraden/*' . chr ( 13 ) . 'klassenraden-notities' . chr ( 13 ) . 'klassenraden-notities/*' 
+	);
+	
+	return $blocks;
 }
 
 /**
  * Implements hook_block_view().
  */
 function argus_klassenraden_block_view($delta = '') {
-	$block = array();
-    $variables = array();
-    
-    /* Set schoolyear */
-    $params = explode('/',drupal_parse_url(current_path())['path']);
-    
-    $schoolyear = 0;
-    $today = NULL;
-    if (array_key_exists(1, $params)){
-    	if ($params[1] != '*'){
-			$schoolyear = array('start' => $params[1].'0901', 'end' => ($params[1]+1).'0831');
-	    }
-	    if (array_key_exists(2, $params)){
-	    	$currentKR = node_load($params[2]);
-	    	if ($currentKR){
-	    		$today = $currentKR->field_tijdstip[LANGUAGE_NONE][0]['value'];
-				$schoolyear = (array) argus_schoolyear(0, 'Y-m-d', $today);
-	    	}
-	    }
-    } else {
-		$schoolyear = (array) argus_schoolyear($schoolyear, 'Y-m-d', $today);
-    }
-    $variables['schoolyear'] = $schoolyear;
-
-    /* Fetch all classmeetings */
-    $query = 'SELECT nid, title ' .
-      		'FROM {node} AS n ' .
-      		'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid ' .
-      		'WHERE type = :type AND t.field_tijdstip_value BETWEEN :startdate AND :enddate ' .
-    		'ORDER BY t.field_tijdstip_value DESC';
-    $variables['classmeetings'] = db_query($query, array(':type' => 'lvs_klassenraad', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAllKeyed();
-
-    /* Fetch all tracks for selected classmeeting */
-    if (array_key_exists(2, $params)){
-    	if (is_numeric($params[2])){
-    		$query = 'SELECT s.field_spoor_value AS sid, l.title ' .
-    				'FROM {field_data_field_spoor} AS s ' .
-    				'INNER JOIN {field_data_field_lokaal} AS sl ON sl.entity_id = s.field_spoor_value ' .
-    				'INNER JOIN {node} AS l ON l.nid = sl.field_lokaal_target_id ' .
-    				'WHERE s.entity_id = :cmid AND sl.bundle = :bundle';
-    		$variables['tracks'] = db_query($query, array(':cmid' => $params[2], ':bundle' => 'field_spoor'))->fetchAllKeyed();
-    	}
-    }
-    
-    /* Fetch all classes for selected classmeeting and track */
-    if (array_key_exists('tracks', $variables)){
-	    if (array_key_exists(3, $params)){
-	    	if (is_numeric($params[3])){
-			    $query = 'SELECT k.nid AS cid, k.title, COUNT(lln.field_klas_leerlingen_target_id) AS cnt_lln ' .
-			      		'FROM {field_data_field_klassen} AS kn ' .
-			      		'INNER JOIN {node} AS k ON k.nid = kn.field_klassen_target_id ' .
-			      		'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON lln.entity_id = k.nid ' .
-			      		'WHERE kn.entity_id = :tid AND kn.bundle = :bundle ' .
-			      		'GROUP BY k.nid ORDER BY kn.delta';
-			    $variables['groups'] = db_query($query, array(':tid' => $params[3], ':bundle' => 'field_spoor'))->fetchAllAssoc('cid');
-	    	}
-	    }
-    }
-    
-    /* Fetch all classes for selected classmeeting and track */
-    if (array_key_exists('groups', $variables)){
-	    if (array_key_exists(4, $params)){
-	    	if (is_numeric($params[4])){
-			    $query = 'SELECT lln.field_klas_leerlingen_target_id AS uid ' .
-			      		'FROM {field_data_field_klas_leerlingen} AS lln ' .
-			      		'WHERE lln.entity_id = :cid';
-			    $variables['pupils'] = db_query($query, array(':cid' => $params[4]))->fetchCol();
-	    	}
-	    }
-    }
-    
-    drupal_add_css(drupal_get_path('module', 'argus_klassenraden').'/css/argus_klassenraden_notities.css');
-    drupal_add_js(drupal_get_path('module', 'argus_klassenraden').'/js/argus_klassenraden_notities.js');
-    
-    switch ($delta) {
-        default:
-            $block['subject'] = 'Klassenraden: notities';
-            $block['content'] = theme('notes_block', $variables);
-            break;
-    }
-    return $block;
+	$block = array ();
+	$variables = array ();
+	
+	/* Set schoolyear */
+	$params = explode ( '/', drupal_parse_url ( current_path () ) ['path'] );
+	
+	$schoolyear = 0;
+	$today = NULL;
+	if (array_key_exists ( 1, $params )) {
+		if ($params [1] != '*') {
+			$schoolyear = array (
+					'start' => $params [1] . '0901',
+					'end' => ($params [1] + 1) . '0831' 
+			);
+		}
+		if (array_key_exists ( 2, $params )) {
+			$currentKR = node_load ( $params [2] );
+			if ($currentKR) {
+				$today = $currentKR->field_tijdstip [LANGUAGE_NONE] [0] ['value'];
+				$schoolyear = ( array ) argus_schoolyear ( 0, 'Y-m-d', $today );
+			}
+		}
+	} else {
+		$schoolyear = ( array ) argus_schoolyear ( $schoolyear, 'Y-m-d', $today );
+	}
+	$variables ['schoolyear'] = $schoolyear;
+	
+	/* Fetch all classmeetings */
+	$query = 'SELECT nid, title ' . 'FROM {node} AS n ' . 'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid ' . 'WHERE type = :type AND t.field_tijdstip_value BETWEEN :startdate AND :enddate ' . 'ORDER BY t.field_tijdstip_value DESC';
+	$variables ['classmeetings'] = db_query ( $query, array (
+			':type' => 'lvs_klassenraad',
+			':startdate' => $schoolyear ['start'],
+			':enddate' => $schoolyear ['end'] 
+	) )->fetchAllKeyed ();
+	
+	/* Fetch all tracks for selected classmeeting */
+	if (array_key_exists ( 2, $params )) {
+		if (is_numeric ( $params [2] )) {
+			$query = 'SELECT s.field_spoor_value AS sid, l.title ' . 'FROM {field_data_field_spoor} AS s ' . 'INNER JOIN {field_data_field_lokaal} AS sl ON sl.entity_id = s.field_spoor_value ' . 'INNER JOIN {node} AS l ON l.nid = sl.field_lokaal_target_id ' . 'WHERE s.entity_id = :cmid AND sl.bundle = :bundle';
+			$variables ['tracks'] = db_query ( $query, array (
+					':cmid' => $params [2],
+					':bundle' => 'field_spoor' 
+			) )->fetchAllKeyed ();
+		}
+	}
+	
+	/* Fetch all classes for selected classmeeting and track */
+	if (array_key_exists ( 'tracks', $variables )) {
+		if (array_key_exists ( 3, $params )) {
+			if (is_numeric ( $params [3] )) {
+				$query = 'SELECT k.nid AS cid, k.title, COUNT(lln.field_klas_leerlingen_target_id) AS cnt_lln ' . 'FROM {field_data_field_klassen} AS kn ' . 'INNER JOIN {node} AS k ON k.nid = kn.field_klassen_target_id ' . 'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON lln.entity_id = k.nid ' . 'WHERE kn.entity_id = :tid AND kn.bundle = :bundle ' . 'GROUP BY k.nid ORDER BY kn.delta';
+				$variables ['groups'] = db_query ( $query, array (
+						':tid' => $params [3],
+						':bundle' => 'field_spoor' 
+				) )->fetchAllAssoc ( 'cid' );
+			}
+		}
+	}
+	
+	/* Fetch all classes for selected classmeeting and track */
+	if (array_key_exists ( 'groups', $variables )) {
+		if (array_key_exists ( 4, $params )) {
+			if (is_numeric ( $params [4] )) {
+				$query = 'SELECT lln.field_klas_leerlingen_target_id AS uid ' . 'FROM {field_data_field_klas_leerlingen} AS lln ' . 'WHERE lln.entity_id = :cid';
+				$variables ['pupils'] = db_query ( $query, array (
+						':cid' => $params [4] 
+				) )->fetchCol ();
+			}
+		}
+	}
+	
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_klassenraden' ) . '/css/argus_klassenraden_notities.css' );
+	drupal_add_js ( drupal_get_path ( 'module', 'argus_klassenraden' ) . '/js/argus_klassenraden_notities.js' );
+	
+	switch ($delta) {
+		default :
+			$block ['subject'] = 'Filter';
+			$block ['content'] = theme ( 'notes_block', $variables );
+			break;
+	}
+	return $block;
 }
-
 
 /**
  * Implement hook_theme()
  */
 function argus_klassenraden_theme() {
-	return array(
-		'notes-overview' => array(
-			'template' => 'templates/argus_klassenraden--notes-overview',
-		),
-		'notes-edit' => array(
-			'template' => 'templates/argus_klassenraden--notes-edit',
-		),
-		'notes-edit-model-action' => array(
-			'template' => 'templates/argus_klassenraden--notes-edit-model-action',
-		),
-        'notes_block' => array(
-            'variables' => array(
-                'content' => NULL,
-                'popular_content' => NULL,
-            ),
-            'template' => 'templates/argus_klassenraden--notes_block',
-        ),
+	return array (
+			'notes-overview' => array (
+					'template' => 'templates/argus_klassenraden--notes-overview' 
+			),
+			'notes-edit' => array (
+					'template' => 'templates/argus_klassenraden--notes-edit' 
+			),
+			'notes-edit-model-action' => array (
+					'template' => 'templates/argus_klassenraden--notes-edit-model-action' 
+			),
+			'notes_block' => array (
+					'variables' => array (
+							'content' => NULL,
+							'popular_content' => NULL 
+					),
+					'template' => 'templates/argus_klassenraden--notes_block' 
+			) 
 	);
 }
-
 
 /**
  * Page callback: Notities klassenraden
@@ -174,533 +478,553 @@ function argus_klassenraden_theme() {
  */
 function argus_klassenraden_notes($schoolyear = 0, $cmid = NULL, $sid = NULL, $cid = NULL, $modus = NULL, $pid = NULL) {
 	/* Only access for logged in users */
-	if (!user_is_logged_in()){
-		header('Location: '.url(NULL, array('absolute' => TRUE)));
-		exit;
+	if (! user_is_logged_in ()) {
+		header ( 'Location: ' . url ( NULL, array (
+				'absolute' => TRUE 
+		) ) );
+		exit ();
 	}
 	
-	$data = array(
-		'cmid' => $cmid,
-		'sid' => $sid,
-		'cid' => $cid,
-		'cmid' => $cmid,
-		'modus' => $modus,
-		'pupils' => array(),
+	$data = array (
+			'cmid' => $cmid,
+			'sid' => $sid,
+			'cid' => $cid,
+			'cmid' => $cmid,
+			'modus' => $modus,
+			'pupils' => array () 
 	);
-
+	
 	if ($cmid) {
-		$classmeeting = node_load($cmid);
-		$data['cm-title'] = $classmeeting->title;
-		$schoolyear = (array) argus_schoolyear(0, 'Ymd', $classmeeting->field_tijdstip[LANGUAGE_NONE][0]['value']);
+		$classmeeting = node_load ( $cmid );
+		$data ['cm-title'] = $classmeeting->title;
+		$schoolyear = ( array ) argus_schoolyear ( 0, 'Ymd', $classmeeting->field_tijdstip [LANGUAGE_NONE] [0] ['value'] );
 	}
-
+	
 	/* Filter data only for this schoolyear (active schoolyear) */
-	if (is_array($schoolyear)){
+	if (is_array ( $schoolyear )) {
 		/* Fetch all pupils for this class with corresponding notes */
-		if (!is_numeric($cid)){
-			$query = 'SELECT nid '.
-					'FROM node '.
-					'WHERE title = :title AND type = :type';
-			$cid = db_query($query, array(':title' => $cid, ':type' => 'klas'))->fetchAssoc();
-			if ($cid){
-				$cid = $cid['nid'];
+		if (! is_numeric ( $cid )) {
+			$query = 'SELECT nid ' . 'FROM node ' . 'WHERE title = :title AND type = :type';
+			$cid = db_query ( $query, array (
+					':title' => $cid,
+					':type' => 'klas' 
+			) )->fetchAssoc ();
+			if ($cid) {
+				$cid = $cid ['nid'];
 			}
 		}
 		
-		if ($cid){
-			$query = 'SELECT lln.field_klas_leerlingen_target_id AS uid ' .
-					'FROM {field_data_field_klas_leerlingen} AS lln ' .
-					'WHERE lln.entity_id = :cid';
-			$data['pupils'] = db_query($query, array(':cid' => $cid))->fetchCol();
+		if ($cid) {
+			$query = 'SELECT lln.field_klas_leerlingen_target_id AS uid ' . 'FROM {field_data_field_klas_leerlingen} AS lln ' . 'WHERE lln.entity_id = :cid';
+			$data ['pupils'] = db_query ( $query, array (
+					':cid' => $cid 
+			) )->fetchCol ();
 			
-			$class = node_load($cid);
-			$data['classname'] = $class->title;
+			$class = node_load ( $cid );
+			$data ['classname'] = $class->title;
 		}
 	}
 	
-	if ($modus == 'edit'){
+	if ($modus == 'edit') {
 		
-		if ($pid && (array_search($pid, $data['pupils']) < count($data['pupils'])-1)){
-			$data['uid_next'] = $data['pupils'][array_search($pid, $data['pupils'])+1];
+		if ($pid && (array_search ( $pid, $data ['pupils'] ) < count ( $data ['pupils'] ) - 1)) {
+			$data ['uid_next'] = $data ['pupils'] [array_search ( $pid, $data ['pupils'] ) + 1];
 		}
 		
-		$lvsParts = list_allowed_values(field_info_field('field_lvs_onderdeel')); //afwezigheden, gedrag, studiebegeleiding, andere
-		if (array_key_exists('submit', $_POST)){
+		$lvsParts = list_allowed_values ( field_info_field ( 'field_lvs_onderdeel' ) ); // afwezigheden, gedrag, studiebegeleiding, andere
+		if (array_key_exists ( 'submit', $_POST )) {
 			global $user;
-				
+			
 			/* Process form submitted values */
-			 	
+			
 			/* STUDY */
-			foreach ($lvsParts as $lvsPart){
-				$query = new EntityFieldQuery();
-				$query
-				->entityCondition('entity_type', 'node', '=')
-				->entityCondition('bundle', 'lvs_klassenraad_notitie', '=')
-				->fieldCondition('field_klassenraad', 'target_id', $cmid, '=')
-				->fieldCondition('field_lvs_onderdeel', 'value', $lvsPart, '=')
-				->fieldCondition('field_leerling', 'target_id', $pid, '=');
-				$note = $query->execute();
-				if ($note){
-					$node = node_load(key($note['node']));
+			foreach ( $lvsParts as $lvsPart ) {
+				$query = new EntityFieldQuery ();
+				$query->entityCondition ( 'entity_type', 'node', '=' )->entityCondition ( 'bundle', 'lvs_klassenraad_notitie', '=' )->fieldCondition ( 'field_klassenraad', 'target_id', $cmid, '=' )->fieldCondition ( 'field_lvs_onderdeel', 'value', $lvsPart, '=' )->fieldCondition ( 'field_leerling', 'target_id', $pid, '=' );
+				$note = $query->execute ();
+				if ($note) {
+					$node = node_load ( key ( $note ['node'] ) );
 				} else {
-					$node = new stdClass();
+					$node = new stdClass ();
 					$node->type = 'lvs_klassenraad_notitie';
 					$node->language = LANGUAGE_NONE;
 					$node->uid = $user->uid;
 					$node->status = 1;
 					$node->promote = 0;
 					$node->comment = 0;
-					node_object_prepare($node);
-					$node->field_klassenraad[$node->language][0]['target_id'] = $cmid;
-					$node->field_lvs_onderdeel[$node->language][0]['value'] = $lvsPart;
-					$node->field_leerling[$node->language][0]['target_id'] = $pid;
+					node_object_prepare ( $node );
+					$node->field_klassenraad [$node->language] [0] ['target_id'] = $cmid;
+					$node->field_lvs_onderdeel [$node->language] [0] ['value'] = $lvsPart;
+					$node->field_leerling [$node->language] [0] ['target_id'] = $pid;
 				}
 				
-				if (array_key_exists('argus_klassenraden_'.$lvsPart.'_remarks', $_POST)){
-					$node->body[LANGUAGE_NONE][0]['value'] = $_POST['argus_klassenraden_'.$lvsPart.'_remarks'];
-					$node->body[LANGUAGE_NONE][0]['format'] = filter_default_format();
+				if (array_key_exists ( 'argus_klassenraden_' . $lvsPart . '_remarks', $_POST )) {
+					$node->body [LANGUAGE_NONE] [0] ['value'] = $_POST ['argus_klassenraden_' . $lvsPart . '_remarks'];
+					$node->body [LANGUAGE_NONE] [0] ['format'] = filter_default_format ();
 				}
 				
-				$actionsForRemoval = array();
-				if (isset($node->field_acties)){
-					if (array_key_exists(LANGUAGE_NONE, $node->field_acties)){
-						foreach ($node->field_acties[LANGUAGE_NONE] as $a){
-							$actionsForRemoval[$a['target_id']] = $a['target_id'];
+				$actionsForRemoval = array ();
+				if (isset ( $node->field_acties )) {
+					if (array_key_exists ( LANGUAGE_NONE, $node->field_acties )) {
+						foreach ( $node->field_acties [LANGUAGE_NONE] as $a ) {
+							$actionsForRemoval [$a ['target_id']] = $a ['target_id'];
 						}
 					}
 				}
 				
-				$actions = array();
-				if (array_key_exists('argus_klassenraden_'.$lvsPart.'_action_id', $_POST)){
-					foreach ($_POST['argus_klassenraden_'.$lvsPart.'_action_id'] as $k => $aid){
-						if ($aid){
-							$action = node_load($aid);
-							unset($actionsForRemoval[$aid]);
+				$actions = array ();
+				if (array_key_exists ( 'argus_klassenraden_' . $lvsPart . '_action_id', $_POST )) {
+					foreach ( $_POST ['argus_klassenraden_' . $lvsPart . '_action_id'] as $k => $aid ) {
+						if ($aid) {
+							$action = node_load ( $aid );
+							unset ( $actionsForRemoval [$aid] );
 							$sendMsg = false;
 						} else {
-							$action = new stdClass();
+							$action = new stdClass ();
 							$action->type = 'actie';
 							$action->language = LANGUAGE_NONE;
 							$action->status = 1;
 							$action->promote = 0;
 							$action->comment = 0;
-							node_object_prepare($action);
+							node_object_prepare ( $action );
 							
-							$action->field_gebruiker[$node->language][0]['target_id'] = $pid;
+							$action->field_gebruiker [$node->language] [0] ['target_id'] = $pid;
 							
 							$sendMsg = true;
 						}
 						
-						node_save($action);
+						node_save ( $action );
 						
-						$actions[] = array('target_id' => $action->nid);
+						$actions [] = array (
+								'target_id' => $action->nid 
+						);
 						
-						if ($_POST['argus_klassenraden_'.$lvsPart.'_action_measure'][$k] && $_POST['argus_klassenraden_'.$lvsPart.'_action_executor'][$k]){
-							$action->uid = $_POST['argus_klassenraden_'.$lvsPart.'_action_executor'][$k];
-							$action->field_maatregel[$node->language][0]['target_id'] = $_POST['argus_klassenraden_'.$lvsPart.'_action_measure'][$k];
-							$action->body[$node->language][0]['value'] = $_POST['argus_klassenraden_'.$lvsPart.'_action_description'][$k];
-						
-							node_save($action);
+						if ($_POST ['argus_klassenraden_' . $lvsPart . '_action_measure'] [$k] && $_POST ['argus_klassenraden_' . $lvsPart . '_action_executor'] [$k]) {
+							$action->uid = $_POST ['argus_klassenraden_' . $lvsPart . '_action_executor'] [$k];
+							$action->field_maatregel [$node->language] [0] ['target_id'] = $_POST ['argus_klassenraden_' . $lvsPart . '_action_measure'] [$k];
+							$action->body [$node->language] [0] ['value'] = $_POST ['argus_klassenraden_' . $lvsPart . '_action_description'] [$k];
+							
+							node_save ( $action );
 							
 							/* Send user a Smartschool message (only new actions) */
-							if (module_exists('argus_sms_api') && $sendMsg){
-								$measure = node_load($_POST['argus_klassenraden_'.$lvsPart.'_action_measure'][$k]);
-								$body = '<u>Herinnering</u><br /><br />' .
-									'Betreft: <strong>'.$lvsPart.'</strong><br />' .
-									'Leerling: <strong>'.argus_get_user_realname($pid).'</strong><br />' .
-									'Te doen: <strong>'.$measure->title.'</strong><br />';
-								if ($_POST['argus_klassenraden_'.$lvsPart.'_action_description'][$k]){
-									$body .= '<br />Details:<br /><strong>'.$_POST['argus_klassenraden_'.$lvsPart.'_action_description'][$k].'</strong><br />';
+							if (module_exists ( 'argus_sms_api' ) && $sendMsg) {
+								$measure = node_load ( $_POST ['argus_klassenraden_' . $lvsPart . '_action_measure'] [$k] );
+								$body = '<u>Herinnering</u><br /><br />' . 'Betreft: <strong>' . $lvsPart . '</strong><br />' . 'Leerling: <strong>' . argus_get_user_realname ( $pid ) . '</strong><br />' . 'Te doen: <strong>' . $measure->title . '</strong><br />';
+								if ($_POST ['argus_klassenraden_' . $lvsPart . '_action_description'] [$k]) {
+									$body .= '<br />Details:<br /><strong>' . $_POST ['argus_klassenraden_' . $lvsPart . '_action_description'] [$k] . '</strong><br />';
 								}
-								argus_sms_api_send_msg('argus_klassenraden_notes_new_action', $_POST['argus_klassenraden_'.$lvsPart.'_action_executor'][$k], 0, $user->uid, 'Nieuwe actie aangemaakt tijdens '.$classmeeting->field_benaming[LANGUAGE_NONE][0]['value'], $body);
+								argus_sms_api_send_msg ( 'argus_klassenraden_notes_new_action', $_POST ['argus_klassenraden_' . $lvsPart . '_action_executor'] [$k], 0, $user->uid, 'Nieuwe actie aangemaakt tijdens ' . $classmeeting->field_benaming [LANGUAGE_NONE] [0] ['value'], $body );
 							}
 						} else {
-							drupal_set_message('Er werd een actie opgegeven die niet volledig werd gedefinieerd (geen maatregel of uitvoerder opgegeven) => <a href="#action'.$aid.'">bekijk de fout</a>', 'error');
+							drupal_set_message ( 'Er werd een actie opgegeven die niet volledig werd gedefinieerd (geen maatregel of uitvoerder opgegeven) => <a href="#action' . $aid . '">bekijk de fout</a>', 'error' );
 						}
 					}
 				}
-				node_delete_multiple($actionsForRemoval);
+				node_delete_multiple ( $actionsForRemoval );
 				
-				$node->field_acties[LANGUAGE_NONE] = $actions;
+				$node->field_acties [LANGUAGE_NONE] = $actions;
 				
 				// Save the node.
-				node_save($node);
+				node_save ( $node );
 			}
-				
-			drupal_set_message('De notities voor de klassenraad van '.argus_get_user_realname($pid).' werden bewaard.');
-		
+			
+			drupal_set_message ( 'De notities voor de klassenraad van ' . argus_get_user_realname ( $pid ) . ' werden bewaard.' );
+			
 			/* Redirect to next user when asked for */
-			if ($_POST['submit'] == 'opslaan & volgende leerling'){
-				header('Location: '.url(str_replace('edit/'.$pid, 'edit/'.$data['uid_next'], current_path()), array('absolute' => TRUE)));
-				exit;
+			if ($_POST ['submit'] == 'opslaan & volgende leerling') {
+				header ( 'Location: ' . url ( str_replace ( 'edit/' . $pid, 'edit/' . $data ['uid_next'], current_path () ), array (
+						'absolute' => TRUE 
+				) ) );
+				exit ();
 			}
 			/* Redirect to overview when asked for */
-			if ($_POST['submit'] == 'opslaan & naar het overzicht'){
-				header('Location: '.url(str_replace('edit/'.$pid, 'edit', current_path()), array('absolute' => TRUE)));
-				exit;
+			if ($_POST ['submit'] == 'opslaan & naar het overzicht') {
+				header ( 'Location: ' . url ( str_replace ( 'edit/' . $pid, 'edit', current_path () ), array (
+						'absolute' => TRUE 
+				) ) );
+				exit ();
 			}
 		}
 		
-		drupal_add_library('system', 'drupal.collapse');
+		drupal_add_library ( 'system', 'drupal.collapse' );
 		
 		/* Read existing notes for this user/classmeeting */
-		$data['actions'] = array();
-		foreach ($lvsParts as $lvsPart){
-			$query = new EntityFieldQuery();
-			$query
-			->entityCondition('entity_type', 'node', '=')
-			->entityCondition('bundle', 'lvs_klassenraad_notitie', '=')
-			->fieldCondition('field_klassenraad', 'target_id', $cmid, '=')
-			->fieldCondition('field_lvs_onderdeel', 'value', $lvsPart, '=')
-			->fieldCondition('field_leerling', 'target_id', $pid, '=');
-			$data['notes'][$lvsPart] = $query->execute();
+		$data ['actions'] = array ();
+		foreach ( $lvsParts as $lvsPart ) {
+			$query = new EntityFieldQuery ();
+			$query->entityCondition ( 'entity_type', 'node', '=' )->entityCondition ( 'bundle', 'lvs_klassenraad_notitie', '=' )->fieldCondition ( 'field_klassenraad', 'target_id', $cmid, '=' )->fieldCondition ( 'field_lvs_onderdeel', 'value', $lvsPart, '=' )->fieldCondition ( 'field_leerling', 'target_id', $pid, '=' );
+			$data ['notes'] [$lvsPart] = $query->execute ();
 			
-			if (count($data['notes'][$lvsPart])){
-				$data['notes'][$lvsPart] = node_load(key($data['notes'][$lvsPart]['node']));
+			if (count ( $data ['notes'] [$lvsPart] )) {
+				$data ['notes'] [$lvsPart] = node_load ( key ( $data ['notes'] [$lvsPart] ['node'] ) );
 				
-				if ($data['notes'][$lvsPart]->field_acties){
-					foreach ($data['notes'][$lvsPart]->field_acties[LANGUAGE_NONE] as $action){
-						$action = node_load($action['target_id']);
+				if ($data ['notes'] [$lvsPart]->field_acties) {
+					foreach ( $data ['notes'] [$lvsPart]->field_acties [LANGUAGE_NONE] as $action ) {
+						$action = node_load ( $action ['target_id'] );
 						
-						$actionData = array(
+						$actionData = array (
 								'measure' => NULL,
 								'executor' => NULL,
-								'remark' => NULL,
+								'remark' => NULL 
 						);
-						if (count($action->field_maatregel)){
-							$actionData['measure'] = $action->field_maatregel[LANGUAGE_NONE][0]['target_id'];
+						if (count ( $action->field_maatregel )) {
+							$actionData ['measure'] = $action->field_maatregel [LANGUAGE_NONE] [0] ['target_id'];
 						}
-						if (count($action->uid)){
-							$actionData['executor'] = $action->uid;
+						if (count ( $action->uid )) {
+							$actionData ['executor'] = $action->uid;
 						}
-						if (count($action->body)){
-							$actionData['remark'] = $action->body[LANGUAGE_NONE][0]['value'];
+						if (count ( $action->body )) {
+							$actionData ['remark'] = $action->body [LANGUAGE_NONE] [0] ['value'];
 						}
-						$data['actions'][$lvsPart][$action->nid] = $actionData;
+						$data ['actions'] [$lvsPart] [$action->nid] = $actionData;
 					}
 				}
 			}
 		}
 		
-		if ($pid){
-			$account = user_load($pid);
-			$data['uid'] = $pid;
+		if ($pid) {
+			$account = user_load ( $pid );
+			$data ['uid'] = $pid;
 			
 			/* Generate lists for action models */
 			
-			$data['executors'] = array('teachers' => array(), 'others' => array());
+			$data ['executors'] = array (
+					'teachers' => array (),
+					'others' => array () 
+			);
 			
 			// Add teachers of this class
-			foreach ($class->field_klas_leerkrachten[LANGUAGE_NONE] as $teacher){
-				$data['executors']['teachers'][] = $teacher['target_id'];
+			foreach ( $class->field_klas_leerkrachten [LANGUAGE_NONE] as $teacher ) {
+				$data ['executors'] ['teachers'] [] = $teacher ['target_id'];
 			}
 			
-			if (array_key_exists(LANGUAGE_NONE, $class->field_klas_klastitularis)){
-				$data['executors']['ktt'] = $class->field_klas_klastitularis[LANGUAGE_NONE][0]['target_id'];
+			if (array_key_exists ( LANGUAGE_NONE, $class->field_klas_klastitularis )) {
+				$data ['executors'] ['ktt'] = $class->field_klas_klastitularis [LANGUAGE_NONE] [0] ['target_id'];
 			}
-			if (array_key_exists(LANGUAGE_NONE, $class->field_klas_hulpklastitularis)){
-				$data['executors']['hktt'] = $class->field_klas_hulpklastitularis[LANGUAGE_NONE][0]['target_id'];
+			if (array_key_exists ( LANGUAGE_NONE, $class->field_klas_hulpklastitularis )) {
+				$data ['executors'] ['hktt'] = $class->field_klas_hulpklastitularis [LANGUAGE_NONE] [0] ['target_id'];
 			}
-				
+			
 			// TODO: set variable for selecting these people 'ILB', 'Externe (GON, CLB, ...)', 'directielid', ...
-			$executor_roles = array(88, 87, 225);
-			$query = 'SELECT ur.uid ' .
-					'FROM {users_roles} AS ur ' .
-					'INNER JOIN {users} AS u ON u.uid = ur.uid ' .
-					'INNER JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = ur.uid ' .
-					'INNER JOIN {field_data_field_user_sms_voornaam} AS uf ON uf.entity_id = ur.uid ' .
-					'WHERE ur.rid in (:rids) AND u.status = 1 ' .
-					'ORDER BY un.field_user_sms_naam_value ASC, uf.field_user_sms_voornaam_value ASC';
-			$data['executors']['others'] = db_query($query, array(':rids' => $executor_roles))->fetchCol();
-				
-			$measures = array(
+			$executor_roles = array (
+					88,
+					87,
+					225 
+			);
+			$query = 'SELECT ur.uid ' . 'FROM {users_roles} AS ur ' . 'INNER JOIN {users} AS u ON u.uid = ur.uid ' . 'INNER JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = ur.uid ' . 'INNER JOIN {field_data_field_user_sms_voornaam} AS uf ON uf.entity_id = ur.uid ' . 'WHERE ur.rid in (:rids) AND u.status = 1 ' . 'ORDER BY un.field_user_sms_naam_value ASC, uf.field_user_sms_voornaam_value ASC';
+			$data ['executors'] ['others'] = db_query ( $query, array (
+					':rids' => $executor_roles 
+			) )->fetchCol ();
+			
+			$measures = array (
 					'studie' => 'Studiebegeleiding',
 					'orde_fase1' => 'Ordemaatregel - fase 1',
 					'orde_fase2' => 'Ordemaatregel - fase 2',
 					'bewarend' => 'Bewarende maatregel',
 					'tucht' => 'Tuchtmaatregel',
-					'positief' => 'Positieve gedragsbekrachtiging',
+					'positief' => 'Positieve gedragsbekrachtiging' 
 			);
 			
-			$data['measures'] = array(
-				'studiebegeleiding' => array(),
-				'afwezigheden' => array(),
-				'gedrag' => array(),
-				'andere' => array(),
+			$data ['measures'] = array (
+					'studiebegeleiding' => array (),
+					'afwezigheden' => array (),
+					'gedrag' => array (),
+					'andere' => array () 
 			);
-			foreach ($measures as $mcat => $mdescr){
-				$query = 'SELECT m.nid, m.title ' .
-						'FROM {node} AS m ' .
-						'INNER JOIN {field_data_field_maatregelen_categorie} AS mc ON mc.entity_id = m.nid ' .
-						'INNER JOIN {field_data_field_maatregelen_gewicht} AS mg ON mg.entity_id = m.nid ' .
-						'WHERE mc.field_maatregelen_categorie_value = :mcid ' .
-						'ORDER BY mg.field_maatregelen_gewicht_value ASC';
-				switch ($mcat){
-					case 'studie':
-						$data['measures']['studiebegeleiding'] += db_query($query, array(':mcid' => $mdescr))->fetchAllKeyed(0);
+			foreach ( $measures as $mcat => $mdescr ) {
+				$query = 'SELECT m.nid, m.title ' . 'FROM {node} AS m ' . 'INNER JOIN {field_data_field_maatregelen_categorie} AS mc ON mc.entity_id = m.nid ' . 'INNER JOIN {field_data_field_maatregelen_gewicht} AS mg ON mg.entity_id = m.nid ' . 'WHERE mc.field_maatregelen_categorie_value = :mcid ' . 'ORDER BY mg.field_maatregelen_gewicht_value ASC';
+				switch ($mcat) {
+					case 'studie' :
+						$data ['measures'] ['studiebegeleiding'] += db_query ( $query, array (
+								':mcid' => $mdescr 
+						) )->fetchAllKeyed ( 0 );
 						break;
-					case 'positief':
-						$data['measures']['andere'] += db_query($query, array(':mcid' => $mdescr))->fetchAllKeyed(0);
+					case 'positief' :
+						$data ['measures'] ['andere'] += db_query ( $query, array (
+								':mcid' => $mdescr 
+						) )->fetchAllKeyed ( 0 );
 						break;
-					default:
-						$data['measures']['gedrag'] += db_query($query, array(':mcid' => $mdescr))->fetchAllKeyed(0);
-						$data['measures']['afwezigheden'] += db_query($query, array(':mcid' => $mdescr))->fetchAllKeyed(0);
+					default :
+						$data ['measures'] ['gedrag'] += db_query ( $query, array (
+								':mcid' => $mdescr 
+						) )->fetchAllKeyed ( 0 );
+						$data ['measures'] ['afwezigheden'] += db_query ( $query, array (
+								':mcid' => $mdescr 
+						) )->fetchAllKeyed ( 0 );
 						break;
 				}
 			}
 			
 			/* Generate information panels */
-				
-				/* -------------------- STUDY -------------------- */
-				$query = 'SELECT l.entity_id AS id '
-						. 'FROM {field_data_field_lvs_melding_leerling} AS l '
-						. 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-						. 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-						. 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-						. 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
-						. 'AND b.field_lvs_melding_betreft_value = :about';
-				$data['infopanel']['study']['hotline'] = db_query($query, array(':uid' => $pid, ':about' => 'studiebegeleiding', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
-				
-				$data['infopanel']['study']['measure'] = array();
-				$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_studie_target_id AS mid, COUNT(m.field_lvs_melding_studie_target_id) AS cmid, mt.title AS title '
-						. 'FROM {field_data_field_lvs_melding_leerling} AS l '
-						. 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-						. 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-						. 'LEFT JOIN {field_data_field_lvs_melding_studie} AS m ON l.entity_id = m.entity_id '
-						. 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid '
-						. 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-						. 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
-						. 'AND b.field_lvs_melding_betreft_value = :about '
-						. 'GROUP BY mid';
-				$result = db_query($query, array(':uid' => $pid, ':about' => 'studiebegeleiding', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-				foreach ($result->fetchAll() as $k => $r){
-					$data['infopanel']['study']['measure'][] = array('title' => $r->title, 'count' => $r->cmid);
-				}
-				
-				// TODO: Add this to content type Klassenraad
-				$query = 'SELECT id, afkorting, omschrijving '
-						. 'FROM {argus_skore_periode} '
-						. 'ORDER BY volgorde ASC';
-				$periods = db_query($query)->fetchAll();
-				
-				foreach ($periods as $p){
-					$query = 'SELECT r.vak, r.behaald, r.max, ca.field_vak_afkorting_value AS vak_afkorting, cu.field_vak_untis_id_value AS vak_untis_id, cb.field_vak_beschrijving_value AS vak_beschrijving '
-							. 'FROM {argus_skore_resultaten} AS r '
-							. 'LEFT JOIN {field_data_field_vak_afkorting} AS ca ON r.vak = ca.entity_id '
-							. 'LEFT JOIN {field_data_field_vak_beschrijving} AS cb ON r.vak = cb.entity_id '
-							. 'LEFT JOIN {field_data_field_vak_untis_id} AS cu ON r.vak = cu.entity_id '
-							. 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid '
-							. 'ORDER BY cb.field_vak_beschrijving_value ASC';
-					$results = db_query($query, array(':uid' => $pid, ':pid' => $p->id, 'schoolyear' => substr($schoolyear['start'],0,4).'-'.substr($schoolyear['end'],0,4)))->fetchAll();
-					$fails = 0;
-					$success = 0;
-					foreach ($results as $r){
-						if (isset($r->behaald)){
-				            $query = 'SELECT v.field_uurrooster_les_vak_target_id '
-				                . 'FROM {field_data_field_uurrooster_les_klassen} AS k '
-				                . 'LEFT JOIN {field_data_field_uurrooster_les_vak} AS v ON k.entity_id = v.entity_id '
-				                . 'WHERE k.field_uurrooster_les_klassen_target_id = :cid AND v.field_uurrooster_les_vak_target_id = :vid';
-				            $course_hours = db_query($query, array(':cid' => $cid, ':vid' => $r->vak))->rowCount();
-				
-							if ((real) $r->behaald < ((real) $r->max)/2){
-								$fails++;
-								$result = 'fail';
-							} else {
-								$success++;
-								$result = 'success';
-							}
-				            
-							$data['infopanel']['study']['results'][$p->id][$result][$r->vak] = array(
-								'behaald' => round($r->behaald,1),
-								'max' => round($r->max),
-								'percent' => round($r->behaald/$r->max*100,1),
+			
+			/* -------------------- STUDY -------------------- */
+			$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value = :about';
+			$data ['infopanel'] ['study'] ['hotline'] = db_query ( $query, array (
+					':uid' => $pid,
+					':about' => 'studiebegeleiding',
+					':startdate' => $schoolyear ['start'],
+					':enddate' => $schoolyear ['end'] 
+			) )->rowCount ();
+			
+			$data ['infopanel'] ['study'] ['measure'] = array ();
+			$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_studie_target_id AS mid, COUNT(m.field_lvs_melding_studie_target_id) AS cmid, mt.title AS title ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_studie} AS m ON l.entity_id = m.entity_id ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'GROUP BY mid';
+			$result = db_query ( $query, array (
+					':uid' => $pid,
+					':about' => 'studiebegeleiding',
+					':startdate' => $schoolyear ['start'],
+					':enddate' => $schoolyear ['end'] 
+			) );
+			foreach ( $result->fetchAll () as $k => $r ) {
+				$data ['infopanel'] ['study'] ['measure'] [] = array (
+						'title' => $r->title,
+						'count' => $r->cmid 
+				);
+			}
+			
+			// TODO: Add this to content type Klassenraad
+			$query = 'SELECT id, afkorting, omschrijving ' . 'FROM {argus_skore_periode} ' . 'ORDER BY volgorde ASC';
+			$periods = db_query ( $query )->fetchAll ();
+			
+			foreach ( $periods as $p ) {
+				$query = 'SELECT r.vak, r.behaald, r.max, ca.field_vak_afkorting_value AS vak_afkorting, cu.field_vak_untis_id_value AS vak_untis_id, cb.field_vak_beschrijving_value AS vak_beschrijving ' . 'FROM {argus_skore_resultaten} AS r ' . 'LEFT JOIN {field_data_field_vak_afkorting} AS ca ON r.vak = ca.entity_id ' . 'LEFT JOIN {field_data_field_vak_beschrijving} AS cb ON r.vak = cb.entity_id ' . 'LEFT JOIN {field_data_field_vak_untis_id} AS cu ON r.vak = cu.entity_id ' . 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid ' . 'ORDER BY cb.field_vak_beschrijving_value ASC';
+				$results = db_query ( $query, array (
+						':uid' => $pid,
+						':pid' => $p->id,
+						'schoolyear' => substr ( $schoolyear ['start'], 0, 4 ) . '-' . substr ( $schoolyear ['end'], 0, 4 ) 
+				) )->fetchAll ();
+				$fails = 0;
+				$success = 0;
+				foreach ( $results as $r ) {
+					if (isset ( $r->behaald )) {
+						$query = 'SELECT v.field_uurrooster_les_vak_target_id ' . 'FROM {field_data_field_uurrooster_les_klassen} AS k ' . 'LEFT JOIN {field_data_field_uurrooster_les_vak} AS v ON k.entity_id = v.entity_id ' . 'WHERE k.field_uurrooster_les_klassen_target_id = :cid AND v.field_uurrooster_les_vak_target_id = :vid';
+						$course_hours = db_query ( $query, array (
+								':cid' => $cid,
+								':vid' => $r->vak 
+						) )->rowCount ();
+						
+						if (( real ) $r->behaald < (( real ) $r->max) / 2) {
+							$fails ++;
+							$result = 'fail';
+						} else {
+							$success ++;
+							$result = 'success';
+						}
+						
+						$data ['infopanel'] ['study'] ['results'] [$p->id] [$result] [$r->vak] = array (
+								'behaald' => round ( $r->behaald, 1 ),
+								'max' => round ( $r->max ),
+								'percent' => round ( $r->behaald / $r->max * 100, 1 ),
 								'vak_afkorting' => $r->vak_afkorting,
 								'vak_beschrijving' => $r->vak_beschrijving,
-								'vak_uren_week' => $course_hours,
-							);
-						}
-					}
-					if ($results){
-						$data['infopanel']['study']['results'][$p->id]['aantal_vakken'] = $fails + $success;
-						$data['infopanel']['study']['results'][$p->id]['short'] = $p->afkorting;
-						$data['infopanel']['study']['results'][$p->id]['long'] = $p->omschrijving;
+								'vak_uren_week' => $course_hours 
+						);
 					}
 				}
-				
-				/* -------------------- ABSENCES -------------------- */
-				$codes = array(
-						array('B', 'red'),
-						array('L', 'lightsalmon'),
-						array('D', 'green'),
-						array('Z', 'darkgreen'),
-				);
-				foreach ($codes as $code){
-					$query = 'SELECT id '
-							. 'FROM {argus_lvs_afwezigheden} AS a '
-									. 'WHERE a.leerling = :uid AND am = :code AND a.datum BETWEEN :startdate AND :enddate';
-					$result = db_query($query, array(':uid' => $pid, ':code' => $code[0], ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-					$total = $result->rowCount();
-					$query = 'SELECT id '
-							. 'FROM {argus_lvs_afwezigheden} AS a '
-									. 'WHERE a.leerling = :uid AND pm = :code AND a.datum BETWEEN :startdate AND :enddate';
-					$result = db_query($query, array(':uid' => $pid, ':code' => $code[0], ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-					$total += $result->rowCount();
-					$data['infopanel']['absences']['codes'][$code[0]] = $total;
+				if ($results) {
+					$data ['infopanel'] ['study'] ['results'] [$p->id] ['aantal_vakken'] = $fails + $success;
+					$data ['infopanel'] ['study'] ['results'] [$p->id] ['short'] = $p->afkorting;
+					$data ['infopanel'] ['study'] ['results'] [$p->id] ['long'] = $p->omschrijving;
 				}
-				
-				$query = 'SELECT l.entity_id AS id '
-						. 'FROM {field_data_field_lvs_melding_leerling} AS l '
-						. 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-						. 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-						. 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-						. 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
-						. 'AND b.field_lvs_melding_betreft_value = :about';
-				$result = db_query($query, array(':uid' => $pid, ':about' => 'afwezigheden', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-				$data['infopanel']['absences']['hotline'] = $result->rowCount();
-
-				$data['infopanel']['absences']['measure'] = array();
-				$msl_types = array('fase1','fase2','bewarend','tucht');
-				foreach ($msl_types as $mt){
-					$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_msl_'.$mt.'_target_id AS mid, COUNT(m.field_lvs_melding_msl_'.$mt.'_target_id) AS cmid, mt.title AS title '
-							. 'FROM {field_data_field_lvs_melding_leerling} AS l '
-							. 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-							. 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-							. 'LEFT JOIN {field_data_field_lvs_melding_msl_'.$mt.'} AS m ON l.entity_id = m.entity_id '
-							. 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_'.$mt.'_target_id = mt.nid '
-							. 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-							. 'AND b.field_lvs_melding_betreft_value = :about '
-							. 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
-							. 'GROUP BY mid';
-					$result = db_query($query, array(':uid' => $pid, ':about' => 'afwezigheden', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-					foreach ($result->fetchAll() as $k => $r){
-						$data['infopanel']['absences']['measure'][] = array('title' => $r->title, 'count' => $r->cmid);
-					}
-				}
-				
-				if (count($account->field_user_sms_toelating_te_laat)){
-					$data['infopanel']['absences']['permission']['late'] = $account->field_user_sms_toelating_te_laat[LANGUAGE_NONE][0]['value'];
-				}
-				
-				if (count($account->field_user_sms_toelating_vroeger)){
-					$data['infopanel']['absences']['permission']['early'] = $account->field_user_sms_toelating_vroeger[LANGUAGE_NONE][0]['value'];
-				}
-				
-				if (count($account->field_user_sms_s_middags_buiten_)){
-					$data['infopanel']['absences']['permission']['outside'] = $account->field_user_sms_s_middags_buiten_[LANGUAGE_NONE][0]['value'];
-				}
-				
-				/* -------------------- BEHAVIOUR -------------------- */
-				
-				$query = 'SELECT l.entity_id AS id '
-						. 'FROM {field_data_field_lvs_melding_leerling} AS l '
-						. 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-						. 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-						. 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-						. 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
-						. 'AND b.field_lvs_melding_betreft_value = :about';
-				$result = db_query($query, array(':uid' => $pid, ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-				$data['infopanel']['behaviour']['hotline'] = $result->rowCount();
-
-				$data['infopanel']['behaviour']['measure'] = array();
-				$msl_types = array('fase1','fase2','bewarend','tucht');
-				foreach ($msl_types as $mt){
-					$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_msl_'.$mt.'_target_id AS mid, COUNT(m.field_lvs_melding_msl_'.$mt.'_target_id) AS cmid, mt.title AS title '
-							. 'FROM {field_data_field_lvs_melding_leerling} AS l '
-							. 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-							. 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-							. 'LEFT JOIN {field_data_field_lvs_melding_msl_'.$mt.'} AS m ON l.entity_id = m.entity_id '
-							. 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_'.$mt.'_target_id = mt.nid '
-							. 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-							. 'AND b.field_lvs_melding_betreft_value = :about '
-							. 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
-							. 'GROUP BY mid';
-					$result = db_query($query, array(':uid' => $pid, ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-					foreach ($result->fetchAll() as $k => $r){
-						$data['infopanel']['behaviour']['measure'][] = array('title' => $r->title, 'count' => $r->cmid);
-					}
-				}
-				
-				$query = 'SELECT l.entity_id AS id, '
-						. '        a.field_msl_bo_aanleiding_value AS reason, '
-						. '        sd.field_msl_bo_startdatum_value AS startDate, '
-						. '        ed.field_msl_bo_einddatum_value AS endDate, '
-						. '        COUNT(m.entity_id) AS cms '
-						. 'FROM {field_data_field_msl_bo_leerling} AS l '
-						. 'LEFT JOIN {field_data_field_msl_bo_aanleiding} AS a ON l.entity_id = a.entity_id '
-						. 'LEFT JOIN {field_data_field_msl_bo_type} AS t ON l.entity_id = t.entity_id '
-						. 'LEFT JOIN {field_data_field_msl_bo_startdatum} AS sd ON l.entity_id = sd.entity_id '
-						. 'LEFT JOIN {field_data_field_msl_bo_einddatum} AS ed ON l.entity_id = ed.entity_id '
-						. 'LEFT JOIN {field_data_field_msl_bo_meldingen} AS m ON l.entity_id = m.entity_id '
-						. 'WHERE l.field_msl_bo_leerling_target_id = :uid '
-						. 'AND sd.field_msl_bo_startdatum_value BETWEEN :startdate AND :enddate '
-						. 'AND t.field_msl_bo_type_value IN (:about)'
-						. 'GROUP BY m.entity_id';
-				$result = db_query($query, array(':uid' => $pid, ':about' => array('Gedrag','Schoolse attitude','Pesten'), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-				$data['infopanel']['behaviour']['bos'] = array();
-				foreach ($result->fetchAll() as $k => $r){
-					$data['infopanel']['behaviour']['bos'][] = array(
-							'id' => $r->id,
-							'reason' => $r->reason,
-							'startDate' => $r->startDate,
-							'endDate' => $r->endDate,
-							'cms' => $r->cms,
+			}
+			
+			/* -------------------- ABSENCES -------------------- */
+			$codes = array (
+					array (
+							'B',
+							'red' 
+					),
+					array (
+							'L',
+							'lightsalmon' 
+					),
+					array (
+							'D',
+							'green' 
+					),
+					array (
+							'Z',
+							'darkgreen' 
+					) 
+			);
+			foreach ( $codes as $code ) {
+				$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND am = :code AND a.datum BETWEEN :startdate AND :enddate';
+				$result = db_query ( $query, array (
+						':uid' => $pid,
+						':code' => $code [0],
+						':startdate' => $schoolyear ['start'],
+						':enddate' => $schoolyear ['end'] 
+				) );
+				$total = $result->rowCount ();
+				$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND pm = :code AND a.datum BETWEEN :startdate AND :enddate';
+				$result = db_query ( $query, array (
+						':uid' => $pid,
+						':code' => $code [0],
+						':startdate' => $schoolyear ['start'],
+						':enddate' => $schoolyear ['end'] 
+				) );
+				$total += $result->rowCount ();
+				$data ['infopanel'] ['absences'] ['codes'] [$code [0]] = $total;
+			}
+			
+			$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value = :about';
+			$result = db_query ( $query, array (
+					':uid' => $pid,
+					':about' => 'afwezigheden',
+					':startdate' => $schoolyear ['start'],
+					':enddate' => $schoolyear ['end'] 
+			) );
+			$data ['infopanel'] ['absences'] ['hotline'] = $result->rowCount ();
+			
+			$data ['infopanel'] ['absences'] ['measure'] = array ();
+			$msl_types = array (
+					'fase1',
+					'fase2',
+					'bewarend',
+					'tucht' 
+			);
+			foreach ( $msl_types as $mt ) {
+				$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_msl_' . $mt . '_target_id AS mid, COUNT(m.field_lvs_melding_msl_' . $mt . '_target_id) AS cmid, mt.title AS title ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_msl_' . $mt . '} AS m ON l.entity_id = m.entity_id ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_' . $mt . '_target_id = mt.nid ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'GROUP BY mid';
+				$result = db_query ( $query, array (
+						':uid' => $pid,
+						':about' => 'afwezigheden',
+						':startdate' => $schoolyear ['start'],
+						':enddate' => $schoolyear ['end'] 
+				) );
+				foreach ( $result->fetchAll () as $k => $r ) {
+					$data ['infopanel'] ['absences'] ['measure'] [] = array (
+							'title' => $r->title,
+							'count' => $r->cmid 
 					);
 				}
-				
-				/* -------------------- OTHER -------------------- */
-				
-				$query = 'SELECT l.entity_id AS id '
-						. 'FROM {field_data_field_lvs_melding_leerling} AS l '
-						. 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-						. 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-						. 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-						. 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
-						. 'AND b.field_lvs_melding_betreft_value NOT IN (:about)';
-				$result = db_query($query, array(':uid' => $pid, ':about' => array('studiebegeleiding', 'negatief gedrag', 'afwezigheden'), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-				$data['infopanel']['other']['hotline'] = $result->rowCount();
+			}
+			
+			if (count ( $account->field_user_sms_toelating_te_laat )) {
+				$data ['infopanel'] ['absences'] ['permission'] ['late'] = $account->field_user_sms_toelating_te_laat [LANGUAGE_NONE] [0] ['value'];
+			}
+			
+			if (count ( $account->field_user_sms_toelating_vroeger )) {
+				$data ['infopanel'] ['absences'] ['permission'] ['early'] = $account->field_user_sms_toelating_vroeger [LANGUAGE_NONE] [0] ['value'];
+			}
+			
+			if (count ( $account->field_user_sms_s_middags_buiten_ )) {
+				$data ['infopanel'] ['absences'] ['permission'] ['outside'] = $account->field_user_sms_s_middags_buiten_ [LANGUAGE_NONE] [0] ['value'];
+			}
+			
+			/* -------------------- BEHAVIOUR -------------------- */
+			
+			$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value = :about';
+			$result = db_query ( $query, array (
+					':uid' => $pid,
+					':about' => 'negatief gedrag',
+					':startdate' => $schoolyear ['start'],
+					':enddate' => $schoolyear ['end'] 
+			) );
+			$data ['infopanel'] ['behaviour'] ['hotline'] = $result->rowCount ();
+			
+			$data ['infopanel'] ['behaviour'] ['measure'] = array ();
+			$msl_types = array (
+					'fase1',
+					'fase2',
+					'bewarend',
+					'tucht' 
+			);
+			foreach ( $msl_types as $mt ) {
+				$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_msl_' . $mt . '_target_id AS mid, COUNT(m.field_lvs_melding_msl_' . $mt . '_target_id) AS cmid, mt.title AS title ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_msl_' . $mt . '} AS m ON l.entity_id = m.entity_id ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_' . $mt . '_target_id = mt.nid ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'GROUP BY mid';
+				$result = db_query ( $query, array (
+						':uid' => $pid,
+						':about' => 'negatief gedrag',
+						':startdate' => $schoolyear ['start'],
+						':enddate' => $schoolyear ['end'] 
+				) );
+				foreach ( $result->fetchAll () as $k => $r ) {
+					$data ['infopanel'] ['behaviour'] ['measure'] [] = array (
+							'title' => $r->title,
+							'count' => $r->cmid 
+					);
+				}
+			}
+			
+			$query = 'SELECT l.entity_id AS id, ' . '        a.field_msl_bo_aanleiding_value AS reason, ' . '        sd.field_msl_bo_startdatum_value AS startDate, ' . '        ed.field_msl_bo_einddatum_value AS endDate, ' . '        COUNT(m.entity_id) AS cms ' . 'FROM {field_data_field_msl_bo_leerling} AS l ' . 'LEFT JOIN {field_data_field_msl_bo_aanleiding} AS a ON l.entity_id = a.entity_id ' . 'LEFT JOIN {field_data_field_msl_bo_type} AS t ON l.entity_id = t.entity_id ' . 'LEFT JOIN {field_data_field_msl_bo_startdatum} AS sd ON l.entity_id = sd.entity_id ' . 'LEFT JOIN {field_data_field_msl_bo_einddatum} AS ed ON l.entity_id = ed.entity_id ' . 'LEFT JOIN {field_data_field_msl_bo_meldingen} AS m ON l.entity_id = m.entity_id ' . 'WHERE l.field_msl_bo_leerling_target_id = :uid ' . 'AND sd.field_msl_bo_startdatum_value BETWEEN :startdate AND :enddate ' . 'AND t.field_msl_bo_type_value IN (:about)' . 'GROUP BY m.entity_id';
+			$result = db_query ( $query, array (
+					':uid' => $pid,
+					':about' => array (
+							'Gedrag',
+							'Schoolse attitude',
+							'Pesten' 
+					),
+					':startdate' => $schoolyear ['start'],
+					':enddate' => $schoolyear ['end'] 
+			) );
+			$data ['infopanel'] ['behaviour'] ['bos'] = array ();
+			foreach ( $result->fetchAll () as $k => $r ) {
+				$data ['infopanel'] ['behaviour'] ['bos'] [] = array (
+						'id' => $r->id,
+						'reason' => $r->reason,
+						'startDate' => $r->startDate,
+						'endDate' => $r->endDate,
+						'cms' => $r->cms 
+				);
+			}
+			
+			/* -------------------- OTHER -------------------- */
+			
+			$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value NOT IN (:about)';
+			$result = db_query ( $query, array (
+					':uid' => $pid,
+					':about' => array (
+							'studiebegeleiding',
+							'negatief gedrag',
+							'afwezigheden' 
+					),
+					':startdate' => $schoolyear ['start'],
+					':enddate' => $schoolyear ['end'] 
+			) );
+			$data ['infopanel'] ['other'] ['hotline'] = $result->rowCount ();
 		}
 	}
 	
 	// TODO: Error handling when entering url with parameters manually
-	switch ($modus){
-		case 'edit':
-			return theme('notes-edit', array(
-				'data' => $data,
-				)
-			);
+	switch ($modus) {
+		case 'edit' :
+			return theme ( 'notes-edit', array (
+					'data' => $data 
+			) );
 			break;
-		default:
-			return theme('notes-overview', array(
-				'data' => $data,
-				)
-			);
+		default :
+			return theme ( 'notes-overview', array (
+					'data' => $data 
+			) );
 			break;
 	}
 }
 
-
 /* Supporting function */
 /**
  * Output html used as model for generating actions
- * 
- * @param $data array Main data processed on mother form
- * @param $lvsPart string Index of measures
- * 
+ *
+ * @param $data array
+ *        	Main data processed on mother form
+ * @param $lvsPart string
+ *        	Index of measures
+ *        	
  */
-function argus_klassenraden_notes_model_action($data, $lvsPart, $aid = NULL, $measure = NULL, $executor = NULL, $description = NULL, $cntr = '{id}'){
-	$measures = array();
-	if (array_key_exists('measures', $data)){
-		if (array_key_exists($lvsPart, $data['measures'])){
-			$measures = $data['measures'][$lvsPart];
+function argus_klassenraden_notes_model_action($data, $lvsPart, $aid = NULL, $measure = NULL, $executor = NULL, $description = NULL, $cntr = '{id}') {
+	$measures = array ();
+	if (array_key_exists ( 'measures', $data )) {
+		if (array_key_exists ( $lvsPart, $data ['measures'] )) {
+			$measures = $data ['measures'] [$lvsPart];
 		}
 	}
 	
-	$executors = array('teachers' => array(), 'others' => array());
-	if (array_key_exists('executors', $data)){
-		$executors = $data['executors'];
+	$executors = array (
+			'teachers' => array (),
+			'others' => array () 
+	);
+	if (array_key_exists ( 'executors', $data )) {
+		$executors = $data ['executors'];
 	}
 	
-	return theme('notes-edit-model-action', array(
+	return theme ( 'notes-edit-model-action', array (
 			'lvsPart' => $lvsPart,
 			'measures' => $measures,
 			'executors' => $executors,
@@ -708,7 +1032,6 @@ function argus_klassenraden_notes_model_action($data, $lvsPart, $aid = NULL, $me
 			'measure' => $measure,
 			'executor' => $executor,
 			'description' => $description,
-			'cntr' => $cntr,
-		)
-	);
+			'cntr' => $cntr 
+	) );
 }

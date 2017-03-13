@@ -4,9 +4,9 @@ package = argus - a Quality control extension
 project status url = http://www.projectargus.be/release-history
 core = 7.x
 php = 5.2
-configure = admin/config/argus/sms-api
-
-version = "7.x-1.3"
-core = "7.x"
-project = "argus_sms_api"
-datestamp = "1413358147"
+configure = admin/config/argus/smartschool-api
+version = 7.x-1.4
+core = 7.x
+project = argus_sms_api
+datestamp = 1413358147
+dependencies[] = argus_engine

@@ -8,10 +8,12 @@
  * Implements hook_default_rules_configuration().
  */
 function argus_technische_meldingen_default_rules_configuration() {
-  $items = array();
-  $items['rules_technische_melding_reactie'] = entity_import('rules_config', '{ "rules_technische_melding_reactie" : {
+	$items = array ();
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_technische_melding_reactie'] = entity_import ( 'rules_config', '{ "rules_technische_melding_reactie" : {
       "LABEL" : "Technische melding - reactie - naar auteur",
       "PLUGIN" : "reaction rule",
+      "ACTIVE" : false,
       "OWNER" : "rules",
       "TAGS" : [ "reactie", "technische melding" ],
       "REQUIRES" : [ "rules", "argus_sms_api", "comment" ],
@@ -35,10 +37,13 @@ function argus_technische_meldingen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_technische_melding_reactie_naar_opvolger'] = entity_import('rules_config', '{ "rules_technische_melding_reactie_naar_opvolger" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_technische_melding_reactie_naar_opvolger'] = entity_import ( 'rules_config', '{ "rules_technische_melding_reactie_naar_opvolger" : {
       "LABEL" : "Technische melding - reactie - naar opvolger",
       "PLUGIN" : "reaction rule",
+      "ACTIVE" : false,
       "OWNER" : "rules",
       "TAGS" : [ "reactie", "technische melding" ],
       "REQUIRES" : [ "rules", "argus_sms_api", "comment" ],
@@ -63,13 +68,15 @@ function argus_technische_meldingen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_technische_meldingen_kennisgeving_nieuwe_melding_argus'] = entity_import('rules_config', '{ "rules_technische_meldingen_kennisgeving_nieuwe_melding_argus" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_technische_meldingen_kennisgeving_nieuwe_melding_argus'] = entity_import ( 'rules_config', '{ "rules_technische_meldingen_kennisgeving_nieuwe_melding_argus" : {
       "LABEL" : "Technische meldingen - Kennisgeving nieuwe melding argus",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
       "TAGS" : [ "technische melding" ],
-      "REQUIRES" : [ "rules", "argus_sms_api", "argus_bitbucket" ],
+      "REQUIRES" : [ "rules", "argus_sms_api" ],
       "ON" : { "node_insert--technische_melding" : { "bundle" : "technische_melding" } },
       "IF" : [
         { "data_is" : { "data" : [ "node:field-tm-categorie" ], "value" : "argus" } }
@@ -84,19 +91,16 @@ function argus_technische_meldingen_default_rules_configuration() {
             "body" : "De nieuwe technische melding kan je vinden op \\u003Ca href=\\u0022[node:url]\\u0022 target=\\u0022_blank\\u0022\\u003E[node:url]\\u003C\\/a\\u003E.",
             "attachments" : [ "" ]
           }
-        },
-        { "argus_bitbucket_sendIssue" : {
-            "bugformtitle" : [ "node:title" ],
-            "bugformdescription" : [ "node:body:value" ],
-            "bugformuser" : [ "user:mail" ]
-          }
         }
       ]
     }
-  }');
-  $items['rules_technische_meldingen_kennisgeving_nieuwe_melding_ict'] = entity_import('rules_config', '{ "rules_technische_meldingen_kennisgeving_nieuwe_melding_ict" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_technische_meldingen_kennisgeving_nieuwe_melding_ict'] = entity_import ( 'rules_config', '{ "rules_technische_meldingen_kennisgeving_nieuwe_melding_ict" : {
       "LABEL" : "Technische meldingen - Kennisgeving nieuwe melding ICT",
       "PLUGIN" : "reaction rule",
+      "ACTIVE" : false,
       "OWNER" : "rules",
       "TAGS" : [ "technische melding" ],
       "REQUIRES" : [ "rules", "argus_sms_api" ],
@@ -117,10 +121,14 @@ function argus_technische_meldingen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_technische_meldingen_kennisgeving_nieuwe_melding_infrastru'] = entity_import('rules_config', '{ "rules_technische_meldingen_kennisgeving_nieuwe_melding_infrastru" : {
+  }' );
+	}
+	
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_technische_meldingen_kennisgeving_nieuwe_melding_infrastru'] = entity_import ( 'rules_config', '{ "rules_technische_meldingen_kennisgeving_nieuwe_melding_infrastru" : {
       "LABEL" : "Technische meldingen - Kennisgeving nieuwe melding Infrastructuur",
       "PLUGIN" : "reaction rule",
+      "ACTIVE" : false,
       "OWNER" : "rules",
       "TAGS" : [ "technische melding" ],
       "REQUIRES" : [ "rules", "argus_sms_api" ],
@@ -141,10 +149,13 @@ function argus_technische_meldingen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_technische_meldingen_kennisgeving_nieuwe_melding_smartscho'] = entity_import('rules_config', '{ "rules_technische_meldingen_kennisgeving_nieuwe_melding_smartscho" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_technische_meldingen_kennisgeving_nieuwe_melding_smartscho'] = entity_import ( 'rules_config', '{ "rules_technische_meldingen_kennisgeving_nieuwe_melding_smartscho" : {
       "LABEL" : "Technische meldingen - Kennisgeving nieuwe melding Smartschool",
       "PLUGIN" : "reaction rule",
+      "ACTIVE" : false,
       "OWNER" : "rules",
       "TAGS" : [ "technische melding" ],
       "REQUIRES" : [ "rules", "argus_sms_api" ],
@@ -165,6 +176,7 @@ function argus_technische_meldingen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  return $items;
+  }' );
+	}
+	return $items;
 }

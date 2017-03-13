@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Copyright (C) 2016 bartgysens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -9,16 +9,16 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
-* REQUIRED MODULE: Smartschool Sync module -> synchronisation with Afwezigheden through API activated!
-*/
+ * REQUIRED MODULE: Smartschool Sync module -> synchronisation with Afwezigheden through API activated!
+ */
 
 /* Drupal Hooks */
 
@@ -26,47 +26,67 @@
  * Implements argus_afwezigheden_menu().
  */
 function argus_afwezigheden_menu() {
-    $items = array();
-    $items['afwezigheden'] = array(
-        'title' => t('Afwezigheden'),
-        'description' => 'Overzicht van de afwezigheden per leerling.',
-        'page callback' => 'argus_afwezigheden_overview',
-        'access arguments' => array('access argus_absences_overview content'),
-        'menu_name' => 'menu-modules',
-    );
-    $items['afwezigheden-bcodes'] = array(
-        'title' => t('Status B-codes'),
-        'description' => 'Controlelijst van de B-codes.',
-        'page callback' => 'drupal_get_form',
-        'page arguments' => array('argus_afwezigheden_bcodes_form'),
-        'access arguments' => array('access argus_absences_bcodes content'),
-        'menu_name' => 'menu-modules',
-    );
-    $items['afwezigheden-omzetting'] = array(
-        'title' => t('Wettiging afwezigheden'),
-        'description' => 'Controlelijst om afwezigheden te wettigen.',
-        'page callback' => 'argus_afwezigheden_justification',
-        'access arguments' => array('access argus_absences_justify content'),
-        'menu_name' => 'menu-modules',
-    );
-    $items['telaatkomers'] = array(
-        'title' => t('Telaatkomers'),
-        'description' => 'Controlelijst om het te laat komen te beheren.',
-        'page callback' => 'argus_afwezigheden_latecomers',
-        'access arguments' => array('access argus_absences_latecomers content'),
-        'menu_name' => 'menu-modules',
-    );
-    $items['telaatkomers-wettiging.create'] = array(
-        'page callback' => 'argus_afwezigheden_latecomers_rectification_create',
-        'access arguments' => array('access argus_absences_latecomers content'),
-        'type' => MENU_CALLBACK,
-    );
-    $items['telaatkomers-wettiging.delete'] = array(
-        'page callback' => 'argus_afwezigheden_latecomers_rectification_delete',
-        'access arguments' => array('access argus_absences_latecomers content'),
-        'type' => MENU_CALLBACK,
-    );
-    return $items;
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
+	$items = array ();
+	$items ['afwezigheden'] = array (
+			'title' => t ( 'Afwezigheden' ),
+			'description' => 'Overzicht van de afwezigheden per leerling.',
+			'page callback' => 'argus_afwezigheden_overview',
+			'access arguments' => array (
+					'access argus_absences_overview content' 
+			),
+			'menu_name' => $menu 
+	);
+	$items ['afwezigheden-bcodes'] = array (
+			'title' => t ( 'Status B-codes' ),
+			'description' => 'Controlelijst van de B-codes.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'argus_afwezigheden_bcodes_form' 
+			),
+			'access arguments' => array (
+					'access argus_absences_bcodes content' 
+			),
+			'menu_name' => $menu 
+	);
+	$items ['afwezigheden-omzetting'] = array (
+			'title' => t ( 'Wettiging afwezigheden' ),
+			'description' => 'Controlelijst om afwezigheden te wettigen.',
+			'page callback' => 'argus_afwezigheden_justification',
+			'access arguments' => array (
+					'access argus_absences_justify content' 
+			),
+			'menu_name' => $menu 
+	);
+	$items ['telaatkomers'] = array (
+			'title' => t ( 'Telaatkomers' ),
+			'description' => 'Controlelijst om het te laat komen te beheren.',
+			'page callback' => 'argus_afwezigheden_latecomers',
+			'access arguments' => array (
+					'access argus_absences_latecomers content' 
+			),
+			'menu_name' => $menu 
+	);
+	$items ['telaatkomers-wettiging.create'] = array (
+			'page callback' => 'argus_afwezigheden_latecomers_rectification_create',
+			'access arguments' => array (
+					'access argus_absences_latecomers content' 
+			),
+			'type' => MENU_CALLBACK 
+	);
+	$items ['telaatkomers-wettiging.delete'] = array (
+			'page callback' => 'argus_afwezigheden_latecomers_rectification_delete',
+			'access arguments' => array (
+					'access argus_absences_latecomers content' 
+			),
+			'type' => MENU_CALLBACK 
+	);
+	return $items;
 }
 
 /**
@@ -75,106 +95,115 @@ function argus_afwezigheden_menu() {
 function argus_afwezigheden_permission() {
 	return array (
 			'access argus_absences_overview content' => array (
-					'title' => t ( 'Overzicht bekijken van de afwezigheden per leerling' ),
+					'title' => t ( 'Overzicht bekijken van de afwezigheden per leerling' ) 
 			),
 			'access argus_absences_bcodes content' => array (
-					'title' => t ( 'Controlelijst B-codes bekijken' ),
+					'title' => t ( 'Controlelijst B-codes bekijken' ) 
 			),
 			'access argus_absences_justify content' => array (
-					'title' => t ( 'Afwezigheden wettigen' ),
+					'title' => t ( 'Afwezigheden wettigen' ) 
 			),
 			'access argus_absences_latecomers content' => array (
-					'title' => t ( 'Te laat komen beheren' ),
-			),
+					'title' => t ( 'Te laat komen beheren' ) 
+			) 
 	);
 }
 
-
-/** 
+/**
  * Implement hook_theme()
  */
 function argus_afwezigheden_theme() {
-    return array(
-        'overview' => array(
-            'template' => 'templates/argus_afwezigheden--overview',
-        ),
-        'absences_filter_block' => array(
-            'variables' => array(
-                'content' => NULL,
-                'popular_content' => NULL,
-            ),
-            'template' => 'templates/argus_afwezigheden--absences--filter_block',
-        ),
-        'justification' => array(
-            'template' => 'templates/argus_afwezigheden--justification',
-        ),
-        'latecomers' => array(
-            'template' => 'templates/argus_afwezigheden--latecomers',
-        ),
-        'latecomers_filter_block' => array(
-            'variables' => array(
-                'content' => NULL,
-                'popular_content' => NULL,
-            ),
-            'template' => 'templates/argus_afwezigheden--latecomers--filter_block',
-        ),
-        'latecomers_infoscreen_block' => array(
-            'template' => 'templates/argus_afwezigheden--latecomers--infoscreen_block',
-        ),
-      );
+	return array (
+			'overview' => array (
+					'template' => 'templates/argus_afwezigheden--overview' 
+			),
+			'absences_filter_block' => array (
+					'variables' => array (
+							'content' => NULL,
+							'popular_content' => NULL 
+					),
+					'template' => 'templates/argus_afwezigheden--absences--filter_block' 
+			),
+			'justification' => array (
+					'template' => 'templates/argus_afwezigheden--justification' 
+			),
+			'latecomers' => array (
+					'template' => 'templates/argus_afwezigheden--latecomers' 
+			),
+			'latecomers_filter_block' => array (
+					'variables' => array (
+							'content' => NULL,
+							'popular_content' => NULL 
+					),
+					'template' => 'templates/argus_afwezigheden--latecomers--filter_block' 
+			),
+			'latecomers_infoscreen_block' => array (
+					'template' => 'templates/argus_afwezigheden--latecomers--infoscreen_block' 
+			) 
+	);
 }
 
-
-/** 
+/**
  * Implement hook_block_info().
  */
 function argus_afwezigheden_block_info() {
-    $blocks = array(
-	    'absences_filter_block' => array(
-	        'info' => t('Afwezigheden: filter'),
-	        'title' => t('Filter'),
-	    ),
-	    'latecomers_filter_block' => array(
-	        'info' => t('Telaatkomers: filter'),
-	        'title' => t('Filter'),
-	    ),
-	    'latecomers_infoscreen_block' => array(
-	        'info' => t('Telaatkomers: infoscherm'),
-	        'title' => t('Telaatkomers: avondstudie'),
-	    ),
-    );
-
-    return $blocks;
+	$blocks = array (
+			'absences_filter_block' => array (
+					'info' => t ( 'Afwezigheden: filter' ),
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'weight' => 2,
+					'status' => 1,
+					'region' => 'sidebar_first',
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'afwezigheden' . chr ( 13 ) . 'afwezigheden/*' 
+			),
+			'latecomers_filter_block' => array (
+					'info' => t ( 'Telaatkomers: filter' ),
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'weight' => 2,
+					'status' => 1,
+					'region' => 'sidebar_first',
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'telaatkomers' . chr ( 13 ) . 'telaatkomers/*' 
+			),
+			'latecomers_infoscreen_block' => array (
+					'info' => t ( 'Telaatkomers: infoscherm' ),
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'weight' => 2,
+					'status' => 1,
+					'region' => 'sidebar_first',
+					'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+					'pages' => '' 
+			) 
+	);
+	
+	return $blocks;
 }
 
 /**
  * Implement hook_block_view().
  */
-function argus_afwezigheden_block_view($delta='') {
-	$block = array();
-	$variables = array();
+function argus_afwezigheden_block_view($delta = '') {
+	$block = array ();
+	$variables = array ();
 	switch ($delta) {
-		case 'absences_filter_block':
-			$block['title'] = 'Filter';
-			$block['subject'] = 'Afwezigheden: filter';
-			$block['content'] = theme('absences_filter_block', $variables);
-			drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/jquery.ui.datepicker.js');
-			drupal_add_js(drupal_get_path('module', 'argus_afwezigheden') . '/js/argus_afwezigheden.js');
+		case 'absences_filter_block' :
+			$block ['subject'] = 'Filter';
+			$block ['content'] = theme ( 'absences_filter_block', $variables );
+			drupal_add_js ( drupal_get_path ( 'module', 'jquery_update' ) . '/replace/ui/ui/jquery.ui.datepicker.js' );
+			drupal_add_js ( drupal_get_path ( 'module', 'argus_afwezigheden' ) . '/js/argus_afwezigheden.js' );
 			break;
-		case 'latecomers_filter_block':
-			$block['title'] = 'Filter';
-			$block['subject'] = 'Telaatkomers: filter';
-			$block['content'] = theme('latecomers_filter_block', $variables);
+		case 'latecomers_filter_block' :
+			$block ['subject'] = 'Filter';
+			$block ['content'] = theme ( 'latecomers_filter_block', $variables );
 			break;
-		case 'latecomers_infoscreen_block':
-			$block['title'] = 'Telaatkomers';
-			$block['subject'] = 'Telaatkomers: avondstudie';
-			$block['content'] = theme('latecomers_infoscreen_block');
+		case 'latecomers_infoscreen_block' :
+			$block ['subject'] = 'Filter';
+			$block ['content'] = theme ( 'latecomers_infoscreen_block' );
 			break;
 	}
 	return $block;
 }
-
 
 /**
  * Page callback: Overzicht van de afwezigheden
@@ -182,124 +211,146 @@ function argus_afwezigheden_block_view($delta='') {
  * @return array
  */
 function argus_afwezigheden_overview($day = NULL, $uid = NULL) {
-    drupal_add_css(drupal_get_path('module', 'argus_afwezigheden') . '/css/argus_afwezigheden.css');
-    
-    /* Get absences for selected day */
-   	$day = new DateTime($day);
-    
-    /*
-    * Fetch all absences and calculate totals
-    */
-   	$codes_ok = array('D', 'Z', 'G', 'T', 'C', 'H', 'R', 'O', 'Q', 'P', 'J');
-   	$codes_nok = array('B', '-', NULL);
-   	
-   	$query = 'SELECT a.leerling, a.leerling '
-        . 'FROM {argus_lvs_afwezigheden} AS a '
-        . 'INNER JOIN users AS u ON u.uid = a.leerling '
-        . 'WHERE a.am IN (:codes) '
-        . 'AND u.status = 1 '
-        . 'AND DATE_FORMAT(a.datum,\'%Y-%m-%d\') = :day ';
-    if (is_numeric($uid)) $query .= ' AND a.leerling = '.$uid;
-    $result = db_query($query, array(':codes' => $codes_ok, ':day' => $day->format('Y-m-d')));
-    $usersAM_ok = $result->fetchAllKeyed();
-    $result = db_query($query, array(':codes' => $codes_nok, ':day' => $day->format('Y-m-d')));
-    $usersAM_nok = $result->fetchAllKeyed();
-    
-    $query = 'SELECT a.leerling, a.leerling '
-        . 'FROM {argus_lvs_afwezigheden} AS a '
-        . 'INNER JOIN users AS u ON u.uid = a.leerling '
-        . 'WHERE a.pm IN (:codes) '
-        . 'AND u.status = 1 '
-        . 'AND DATE_FORMAT(a.datum,\'%Y-%m-%d\') = :day ';
-    if (is_numeric($uid)) $query .= ' AND a.leerling = '.$uid;
-    $result = db_query($query, array(':codes' => $codes_ok, ':day' => $day->format('Y-m-d')));
-    $usersPM_ok = $result->fetchAllKeyed();
-    $result = db_query($query, array(':codes' => $codes_nok, ':day' => $day->format('Y-m-d')));
-    $usersPM_nok = $result->fetchAllKeyed();
-    
-    $userDates = array();
-    foreach($usersAM_ok as $u){
-    	if (!array_key_exists($u, $userDates)){
-    		$fullname = argus_get_user_realname($u);
-    		$userDates[strtoupper($fullname)] = array(
-    			'id' => $u,
-    			'name' => $fullname,
-    			'class' => argus_get_user_class($u, 'title'),
-    			'am' => array(
-    				'ok' => false,
-    				'nok' => false,
-    			),
-    			'pm' => array(
-    				'ok' => false,
-    				'nok' => false,
-    			),
-    		);
-    	}
-        $userDates[strtoupper($fullname)]['am']['ok'] = 'x';
-    }
-    foreach($usersAM_nok as $u){
-    	if (!array_key_exists($u, $userDates)){
-    		$fullname = argus_get_user_realname($u);
-    		$userDates[strtoupper($fullname)] = array(
-    			'id' => $u,
-    			'name' => $fullname,
-    			'class' => argus_get_user_class($u, 'title'),
-    			'am' => array(
-    				'ok' => false,
-    				'nok' => false,
-    			),
-    			'pm' => array(
-    				'ok' => false,
-    				'nok' => false,
-    			),
-    		);
-    	}
-        $userDates[strtoupper($fullname)]['am']['nok'] = 'x';
-    }
-    foreach($usersPM_ok as $u){
-    	if (!array_key_exists($u, $userDates)){
-    		$fullname = argus_get_user_realname($u, 'title');
-    		$userDates[strtoupper($fullname)] = array(
-    			'id' => $u,
-    			'name' => $fullname,
-    			'class' => argus_get_user_class($u, 'title'),
-    			'am' => array(
-    				'ok' => false,
-    				'nok' => false,
-    			),
-    			'pm' => array(
-    				'ok' => false,
-    				'nok' => false,
-    			),
-    		);
-    	}
-        $userDates[strtoupper($fullname)]['pm']['ok'] = 'x';
-    }
-    foreach($usersPM_nok as $u){
-    	if (!array_key_exists($u, $userDates)){
-    		$fullname = argus_get_user_realname($u);
-    		$userDates[strtoupper($fullname)] = array(
-    			'id' => $u,
-    			'name' => $fullname,
-    			'class' => argus_get_user_class($u, 'title'),
-    			'am' => array(
-    				'ok' => false,
-    				'nok' => false,
-    			),
-    			'pm' => array(
-    				'ok' => false,
-    				'nok' => false,
-    			),
-    		);
-    	}
-        $userDates[strtoupper($fullname)]['pm']['nok'] = 'x';
-    }
-    
-    ksort($userDates);
-    
-    return theme('overview', array( 's' => $day, 'data' => $userDates ));
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_afwezigheden' ) . '/css/argus_afwezigheden.css' );
+	
+	/* Get absences for selected day */
+	$day = new DateTime ( $day );
+	
+	/*
+	 * Fetch all absences and calculate totals
+	 */
+	$codes_ok = array (
+			'D',
+			'Z',
+			'G',
+			'T',
+			'C',
+			'H',
+			'R',
+			'O',
+			'Q',
+			'P',
+			'J' 
+	);
+	$codes_nok = array (
+			'B',
+			'-',
+			NULL 
+	);
+	
+	$query = 'SELECT a.leerling, a.leerling ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'INNER JOIN users AS u ON u.uid = a.leerling ' . 'WHERE a.am IN (:codes) ' . 'AND u.status = 1 ' . 'AND DATE_FORMAT(a.datum,\'%Y-%m-%d\') = :day ';
+	if (is_numeric ( $uid ))
+		$query .= ' AND a.leerling = ' . $uid;
+	$result = db_query ( $query, array (
+			':codes' => $codes_ok,
+			':day' => $day->format ( 'Y-m-d' ) 
+	) );
+	$usersAM_ok = $result->fetchAllKeyed ();
+	$result = db_query ( $query, array (
+			':codes' => $codes_nok,
+			':day' => $day->format ( 'Y-m-d' ) 
+	) );
+	$usersAM_nok = $result->fetchAllKeyed ();
+	
+	$query = 'SELECT a.leerling, a.leerling ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'INNER JOIN users AS u ON u.uid = a.leerling ' . 'WHERE a.pm IN (:codes) ' . 'AND u.status = 1 ' . 'AND DATE_FORMAT(a.datum,\'%Y-%m-%d\') = :day ';
+	if (is_numeric ( $uid ))
+		$query .= ' AND a.leerling = ' . $uid;
+	$result = db_query ( $query, array (
+			':codes' => $codes_ok,
+			':day' => $day->format ( 'Y-m-d' ) 
+	) );
+	$usersPM_ok = $result->fetchAllKeyed ();
+	$result = db_query ( $query, array (
+			':codes' => $codes_nok,
+			':day' => $day->format ( 'Y-m-d' ) 
+	) );
+	$usersPM_nok = $result->fetchAllKeyed ();
+	
+	$userDates = array ();
+	foreach ( $usersAM_ok as $u ) {
+		if (! array_key_exists ( $u, $userDates )) {
+			$fullname = argus_get_user_realname ( $u );
+			$userDates [strtoupper ( $fullname )] = array (
+					'id' => $u,
+					'name' => $fullname,
+					'class' => argus_get_user_class ( $u, 'title' ),
+					'am' => array (
+							'ok' => false,
+							'nok' => false 
+					),
+					'pm' => array (
+							'ok' => false,
+							'nok' => false 
+					) 
+			);
+		}
+		$userDates [strtoupper ( $fullname )] ['am'] ['ok'] = 'x';
+	}
+	foreach ( $usersAM_nok as $u ) {
+		if (! array_key_exists ( $u, $userDates )) {
+			$fullname = argus_get_user_realname ( $u );
+			$userDates [strtoupper ( $fullname )] = array (
+					'id' => $u,
+					'name' => $fullname,
+					'class' => argus_get_user_class ( $u, 'title' ),
+					'am' => array (
+							'ok' => false,
+							'nok' => false 
+					),
+					'pm' => array (
+							'ok' => false,
+							'nok' => false 
+					) 
+			);
+		}
+		$userDates [strtoupper ( $fullname )] ['am'] ['nok'] = 'x';
+	}
+	foreach ( $usersPM_ok as $u ) {
+		if (! array_key_exists ( $u, $userDates )) {
+			$fullname = argus_get_user_realname ( $u, 'title' );
+			$userDates [strtoupper ( $fullname )] = array (
+					'id' => $u,
+					'name' => $fullname,
+					'class' => argus_get_user_class ( $u, 'title' ),
+					'am' => array (
+							'ok' => false,
+							'nok' => false 
+					),
+					'pm' => array (
+							'ok' => false,
+							'nok' => false 
+					) 
+			);
+		}
+		$userDates [strtoupper ( $fullname )] ['pm'] ['ok'] = 'x';
+	}
+	foreach ( $usersPM_nok as $u ) {
+		if (! array_key_exists ( $u, $userDates )) {
+			$fullname = argus_get_user_realname ( $u );
+			$userDates [strtoupper ( $fullname )] = array (
+					'id' => $u,
+					'name' => $fullname,
+					'class' => argus_get_user_class ( $u, 'title' ),
+					'am' => array (
+							'ok' => false,
+							'nok' => false 
+					),
+					'pm' => array (
+							'ok' => false,
+							'nok' => false 
+					) 
+			);
+		}
+		$userDates [strtoupper ( $fullname )] ['pm'] ['nok'] = 'x';
+	}
+	
+	ksort ( $userDates );
+	
+	return theme ( 'overview', array (
+			's' => $day,
+			'data' => $userDates 
+	) );
 }
-
 
 /**
  * Page callback: Controlelijst status B-codes form
@@ -307,154 +358,156 @@ function argus_afwezigheden_overview($day = NULL, $uid = NULL) {
  * @see argus_afwezigheden_form()
  */
 function argus_afwezigheden_bcodes_form($form, &$form_state) {
-    global $base_url;
-    
-    /* Filter data only for this schoolyear (active schoolyear) */
-    $schoolyear = (array) argus_schoolyear(0);
-    
-    drupal_add_css(drupal_get_path('module', 'argus_afwezigheden') . '/css/argus_afwezigheden.css');
-    
-    $form['argus_afwezigheden_problems'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Problematische afwezigheden tonen (+30 B-codes)'),
-        '#description' => t('Als een leerling meer dan 30 B-codes heeft, krijgt hij de status "problematisch". Dit heeft als gevolg dat de leerling wordt gemeld aan Brussel.'),
-        '#default_value' => 1,
-    );
-    $form['argus_afwezigheden_cel'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Te bespreken op de cel (+5 B-codes)'),
-        '#description' => t('Als een leerling meer dan 5 B-codes heeft, wordt hij besproken op de cel Overleg met CLB.'),
-        '#default_value' => 1,
-    );
-    $form['argus_afwezigheden_submit'] = array(
-        '#type' => 'submit',
-        '#value' => t('Lijst opvragen'),
-    );
-    
-    /*
-     * Retrieve latest update information voor 'afwezigheden'
-     */
-    $query = 'SELECT timestamp '
-        . 'FROM {watchdog} AS w '
-        . 'WHERE w.type = :type AND w.message LIKE :message '
-        . 'ORDER BY timestamp DESC';
-    $result = db_query($query, array(':type' => 'argus', ':message' => '%afwezigheden%'));
-    $lastUpdate = $result->fetch();
-    if ($lastUpdate){
-        $form['#prefix'] = '<div id="lastUpdate">Laatste update uitgevoerd op <strong>'.date('d/m/y', $lastUpdate->timestamp).'</strong> om <strong>'.date('H:i', $lastUpdate->timestamp).'</strong></div>';
-    } else {
-        $form['#prefix'] = '<div id="lastUpdate" style="color: red;"><u>Opgelet</u>: deze gegevens werden reeds enige tijd niet meer bijgewerkt.</div>';
-    }
-    
-    /*
-     * Process request for results consulting the Afwezigheden
-     */
-    $form['#suffix'] = '<div id="argus_afwezigheden_results">';
-    
-    /*
-    * Fetch all absences and calculate totals
-    */
-    $query = 'SELECT leerling, COUNT(am) AS total '
-        . 'FROM {argus_lvs_afwezigheden} '
-        . 'WHERE am=\'B\' '
-        . 'AND datum BETWEEN :startdate AND :enddate '
-        . 'GROUP BY leerling '
-        . 'ORDER BY total DESC';
-    $result = db_query($query, array(':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-    $usersAM = $result->fetchAll();
-    
-    $query = 'SELECT leerling, COUNT(pm) AS total '
-        . 'FROM {argus_lvs_afwezigheden} '
-        . 'WHERE pm=\'B\' '
-        . 'AND datum BETWEEN :startdate AND :enddate '
-        . 'GROUP BY leerling '
-        . 'ORDER BY total DESC';
-    $result = db_query($query, array(':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-    $usersPM = $result->fetchAll();
-
-    $usersTotals = array();
-    foreach($usersAM as $u){
-        $user = user_load($u->leerling);
-        if (isset($user->status)){
-            if (isset($user->status)){
-                $usersTotals[$u->leerling] = $u->total;
-            }
-        }
-    }
-    foreach($usersPM as $u){
-        $user = user_load($u->leerling);
-        if (isset($user->status)){
-            if ($user->status){
-                if (isset($usersTotals[$u->leerling])){
-                    $usersTotals[$u->leerling] += $u->total;
-                } else {
-                    $usersTotals[$u->leerling] = $u->total;
-                }
-            }
-        }
-    }
-    arsort($usersTotals);
-    
-        if (isset($form_state['values'])){
-            /*
-             * Show all problematic absences (+30 B-codes)
-             */
-            if ($form_state['values']['argus_afwezigheden_problems']){
-                $form['#suffix'] .= '<hr />+30 B-codes<hr /><ol>';
-                foreach($usersTotals as $uid => $total){
-                    if ($total<31) break;
-                    $u = user_load($uid);
-
-                    $query = 'SELECT c.title AS title '
-                        . 'FROM {node} AS c '
-                        . 'LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id '
-                        . 'WHERE l.field_klas_leerlingen_target_id = :uid';
-                    $result = db_query($query, array(':uid' => $uid));
-                    $class = $result->fetchAll();
-
-                    $form['#suffix'] .= '<li><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'">'.argus_get_user_realname($uid).'</a>';
-                    
-                    if (count($class)){
-                        if ($class[0]->title) $form['#suffix'] .= ' - ' . $class[0]->title;
-                    }
-
-                    $form['#suffix'] .= ' : <span style="color: red;">' . $total . '</span></li>';
-                }
-                $form['#suffix'] .= '</ol>';
-            }
-            /*
-             * Show all users for the cel (+5 B-codes)
-             */
-            if ($form_state['values']['argus_afwezigheden_cel']){
-                $form['#suffix'] .= '<hr />+5 B-codes<hr /><ol>';
-                foreach($usersTotals as $uid => $total){
-                    if ($total<6) break;
-                    if ($total<31){
-                        $u = user_load($uid);
-
-                        $query = 'SELECT c.title AS title '
-                            . 'FROM {node} AS c '
-                            . 'LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id '
-                            . 'WHERE l.field_klas_leerlingen_target_id = :uid';
-                        $result = db_query($query, array(':uid' => $uid));
-                        $class = $result->fetchAll();
-
-                        $form['#suffix'] .= '<li><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'">'.argus_get_user_realname($uid).'</a>';
-
-                        if (count($class)){
-                            if ($class[0]->title) $form['#suffix'] .= ' - ' . $class[0]->title;
-                        }
-
-                        $form['#suffix'] .= ' : <span style="color: red;">' . $total . '</span></li>';
-                    }
-                }
-                $form['#suffix'] .= '</ol>';
-            }
-        }
-    
-    $form['#suffix'] .= '</div>';
-    
-    return $form;
+	global $base_url;
+	
+	/* Filter data only for this schoolyear (active schoolyear) */
+	$schoolyear = ( array ) argus_schoolyear ( 0 );
+	
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_afwezigheden' ) . '/css/argus_afwezigheden.css' );
+	
+	$form ['argus_afwezigheden_problems'] = array (
+			'#type' => 'checkbox',
+			'#title' => t ( 'Problematische afwezigheden tonen (+30 B-codes)' ),
+			'#description' => t ( 'Als een leerling meer dan 30 B-codes heeft, krijgt hij de status "problematisch". Dit heeft als gevolg dat de leerling wordt gemeld aan Brussel.' ),
+			'#default_value' => 1 
+	);
+	$form ['argus_afwezigheden_cel'] = array (
+			'#type' => 'checkbox',
+			'#title' => t ( 'Te bespreken op de cel (+5 B-codes)' ),
+			'#description' => t ( 'Als een leerling meer dan 5 B-codes heeft, wordt hij besproken op de cel Overleg met CLB.' ),
+			'#default_value' => 1 
+	);
+	$form ['argus_afwezigheden_submit'] = array (
+			'#type' => 'submit',
+			'#value' => t ( 'Lijst opvragen' ) 
+	);
+	
+	/*
+	 * Retrieve latest update information voor 'afwezigheden'
+	 */
+	if (db_table_exists ( 'watchdog' )) {
+		$query = 'SELECT timestamp ' . 'FROM {watchdog} AS w ' . 'WHERE w.type = :type AND w.message LIKE :message ' . 'ORDER BY timestamp DESC';
+		$result = db_query ( $query, array (
+				':type' => 'argus',
+				':message' => '%afwezigheden%' 
+		) );
+		$lastUpdate = $result->fetch ();
+		if ($lastUpdate) {
+			$form ['#prefix'] = '<div id="lastUpdate">Laatste update uitgevoerd op <strong>' . date ( 'd/m/y', $lastUpdate->timestamp ) . '</strong> om <strong>' . date ( 'H:i', $lastUpdate->timestamp ) . '</strong></div>';
+		} else {
+			$form ['#prefix'] = '<div id="lastUpdate" style="color: red;"><u>Opgelet</u>: deze gegevens werden reeds enige tijd niet meer bijgewerkt.</div>';
+		}
+	} else {
+		$form ['#prefix'] = '';
+	}
+	
+	/*
+	 * Process request for results consulting the Afwezigheden
+	 */
+	$form ['#suffix'] = '<div id="argus_afwezigheden_results">';
+	
+	/*
+	 * Fetch all absences and calculate totals
+	 */
+	$query = 'SELECT leerling, COUNT(am) AS total ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE am=\'B\' ' . 'AND datum BETWEEN :startdate AND :enddate ' . 'GROUP BY leerling ' . 'ORDER BY total DESC';
+	$result = db_query ( $query, array (
+			':startdate' => $schoolyear ['start'],
+			':enddate' => $schoolyear ['end'] 
+	) );
+	$usersAM = $result->fetchAll ();
+	
+	$query = 'SELECT leerling, COUNT(pm) AS total ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE pm=\'B\' ' . 'AND datum BETWEEN :startdate AND :enddate ' . 'GROUP BY leerling ' . 'ORDER BY total DESC';
+	$result = db_query ( $query, array (
+			':startdate' => $schoolyear ['start'],
+			':enddate' => $schoolyear ['end'] 
+	) );
+	$usersPM = $result->fetchAll ();
+	
+	$usersTotals = array ();
+	foreach ( $usersAM as $u ) {
+		$user = user_load ( $u->leerling );
+		if (isset ( $user->status )) {
+			if (isset ( $user->status )) {
+				$usersTotals [$u->leerling] = $u->total;
+			}
+		}
+	}
+	foreach ( $usersPM as $u ) {
+		$user = user_load ( $u->leerling );
+		if (isset ( $user->status )) {
+			if ($user->status) {
+				if (isset ( $usersTotals [$u->leerling] )) {
+					$usersTotals [$u->leerling] += $u->total;
+				} else {
+					$usersTotals [$u->leerling] = $u->total;
+				}
+			}
+		}
+	}
+	arsort ( $usersTotals );
+	
+	if (isset ( $form_state ['values'] )) {
+		/*
+		 * Show all problematic absences (+30 B-codes)
+		 */
+		if ($form_state ['values'] ['argus_afwezigheden_problems']) {
+			$form ['#suffix'] .= '<hr />+30 B-codes<hr /><ol>';
+			foreach ( $usersTotals as $uid => $total ) {
+				if ($total < 31)
+					break;
+				$u = user_load ( $uid );
+				
+				$query = 'SELECT c.title AS title ' . 'FROM {node} AS c ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id ' . 'WHERE l.field_klas_leerlingen_target_id = :uid';
+				$result = db_query ( $query, array (
+						':uid' => $uid 
+				) );
+				$class = $result->fetchAll ();
+				
+				$form ['#suffix'] .= '<li><a href="' . base_path () . drupal_lookup_path ( 'alias', 'user/' . $uid ) . '">' . argus_get_user_realname ( $uid ) . '</a>';
+				
+				if (count ( $class )) {
+					if ($class [0]->title)
+						$form ['#suffix'] .= ' - ' . $class [0]->title;
+				}
+				
+				$form ['#suffix'] .= ' : <span style="color: red;">' . $total . '</span></li>';
+			}
+			$form ['#suffix'] .= '</ol>';
+		}
+		/*
+		 * Show all users for the cel (+5 B-codes)
+		 */
+		if ($form_state ['values'] ['argus_afwezigheden_cel']) {
+			$form ['#suffix'] .= '<hr />+5 B-codes<hr /><ol>';
+			foreach ( $usersTotals as $uid => $total ) {
+				if ($total < 6)
+					break;
+				if ($total < 31) {
+					$u = user_load ( $uid );
+					
+					$query = 'SELECT c.title AS title ' . 'FROM {node} AS c ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id ' . 'WHERE l.field_klas_leerlingen_target_id = :uid';
+					$result = db_query ( $query, array (
+							':uid' => $uid 
+					) );
+					$class = $result->fetchAll ();
+					
+					$form ['#suffix'] .= '<li><a href="' . base_path () . drupal_lookup_path ( 'alias', 'user/' . $uid ) . '">' . argus_get_user_realname ( $uid ) . '</a>';
+					
+					if (count ( $class )) {
+						if ($class [0]->title)
+							$form ['#suffix'] .= ' - ' . $class [0]->title;
+					}
+					
+					$form ['#suffix'] .= ' : <span style="color: red;">' . $total . '</span></li>';
+				}
+			}
+			$form ['#suffix'] .= '</ol>';
+		}
+	}
+	
+	$form ['#suffix'] .= '</div>';
+	
+	return $form;
 }
 
 /**
@@ -463,9 +516,8 @@ function argus_afwezigheden_bcodes_form($form, &$form_state) {
  * @see argus_afwezigheden_form()
  */
 function argus_afwezigheden_bcodes_form_submit($form, &$form_state) {
-    $form_state['rebuild'] = TRUE;
+	$form_state ['rebuild'] = TRUE;
 }
-
 
 /**
  * Page callback: Controlelijst justification absences
@@ -473,93 +525,93 @@ function argus_afwezigheden_bcodes_form_submit($form, &$form_state) {
  * @return array
  */
 function argus_afwezigheden_justification($uid = NULL) {
-    /* Filter data only for this schoolyear (active schoolyear) */
-    $schoolyear = (array) argus_schoolyear(0);
-    
-    /*
-    * Fetch all absences and calculate totals
-    */
-    $query = 'SELECT leerling, datum '
-        . 'FROM {argus_lvs_afwezigheden} '
-        . 'WHERE am=\'-\' '
-        . 'AND datum BETWEEN :startdate AND :enddate ';
-    if (is_numeric($uid)) $query .= ' AND leerling = '.$uid;
-    $result = db_query($query, array(':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-    $usersAM = $result->fetchAll();
-    
-    $query = 'SELECT leerling, datum '
-        . 'FROM {argus_lvs_afwezigheden} '
-        . 'WHERE pm=\'-\' '
-        . 'AND datum BETWEEN :startdate AND :enddate ';
-    if (is_numeric($uid)) $query .= ' AND leerling = '.$uid;
-    $result = db_query($query, array(':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
-    $usersPM = $result->fetchAll();
-
-    $userDates = array();
-    foreach($usersAM as $u){
-        $user = user_load($u->leerling);
-        if ($user){
-	        if ($user->status){
-	            $fullname = field_get_items('user', $user, 'field_user_sms_naam')[0]['value'] . ', ' . field_get_items('user', $user, 'field_user_sms_voornaam')[0]['value'];
-	            $userDates[$fullname]['id'] = $u->leerling;
-	            $userDates[$fullname]['username'] = $user->name;
-	            
-	            $query = 'SELECT datum '
-	                . 'FROM {argus_lvs_afwezigheden} '
-	                . 'WHERE (am=\'|\' OR am=\'|\') AND leerling = :uid AND datum > :date '
-	                . 'ORDER BY datum ASC';
-	            $result = db_query($query, array(':uid' => $u->leerling, ':date' => $u->datum));
-	            $userBack = $result->fetch();
-	            if ($userBack){
-	                $userDates[$fullname]['back'] = $userBack->datum;
-	                $diff = date_diff(date_create($userBack->datum),date_create())->days;
-	                $userDates[$fullname]['dates'][$u->datum]['diff'] = $diff - (ceil($diff/7)*2);
-	                if ($userDates[$fullname]['dates'][$u->datum]['diff'] < 0){
-	                    $userDates[$fullname]['dates'][$u->datum]['diff'] = 0;
-	                }
-	            }
-	            
-	            $userDates[$fullname]['dates'][$u->datum]['am'] = TRUE;
-	        }
-        }
-    }
-    foreach($usersPM as $u){
-        $user = user_load($u->leerling);
-        if ($user->status){
-            $fullname = field_get_items('user', $user, 'field_user_sms_naam')[0]['value'] . ', ' . field_get_items('user', $user, 'field_user_sms_voornaam')[0]['value'];
-            $userDates[$fullname]['id'] = $u->leerling;
-            $userDates[$fullname]['username'] = $user->name;
-            
-            $query = 'SELECT datum '
-                . 'FROM {argus_lvs_afwezigheden} '
-                . 'WHERE (am=\'|\' OR am=\'|\') AND leerling = :uid AND datum > :date '
-                . 'ORDER BY datum ASC';
-            $result = db_query($query, array(':uid' => $u->leerling, ':date' => $u->datum));
-            $userBack = $result->fetch();
-            if ($userBack){
-                $userDates[$fullname]['back'] = $userBack->datum;
-                $diff = date_diff(date_create($userBack->datum),date_create())->days;
-                $userDates[$fullname]['dates'][$u->datum]['diff'] = $diff - (ceil($diff/7)*2);
-                if ($userDates[$fullname]['dates'][$u->datum]['diff'] < 0){
-                    $userDates[$fullname]['dates'][$u->datum]['diff'] = 0;
-                }
-            }
-            
-            $userDates[$fullname]['dates'][$u->datum]['pm'] = TRUE;
-        }
-    }
-    ksort($userDates);
-    
-    if (is_numeric($uid)){
-        return $userDates;
-    } else {
-        return theme('justification', array(
-            'data' => $userDates,
-            )
-        );
-    }
+	/* Filter data only for this schoolyear (active schoolyear) */
+	$schoolyear = ( array ) argus_schoolyear ( 0 );
+	
+	/*
+	 * Fetch all absences and calculate totals
+	 */
+	$query = 'SELECT leerling, datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE am=\'-\' ' . 'AND datum BETWEEN :startdate AND :enddate ';
+	if (is_numeric ( $uid ))
+		$query .= ' AND leerling = ' . $uid;
+	$result = db_query ( $query, array (
+			':startdate' => $schoolyear ['start'],
+			':enddate' => $schoolyear ['end'] 
+	) );
+	$usersAM = $result->fetchAll ();
+	
+	$query = 'SELECT leerling, datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE pm=\'-\' ' . 'AND datum BETWEEN :startdate AND :enddate ';
+	if (is_numeric ( $uid ))
+		$query .= ' AND leerling = ' . $uid;
+	$result = db_query ( $query, array (
+			':startdate' => $schoolyear ['start'],
+			':enddate' => $schoolyear ['end'] 
+	) );
+	$usersPM = $result->fetchAll ();
+	
+	$userDates = array ();
+	foreach ( $usersAM as $u ) {
+		$user = user_load ( $u->leerling );
+		if ($user) {
+			if ($user->status) {
+				$fullname = field_get_items ( 'user', $user, 'field_user_sms_naam' ) [0] ['value'] . ', ' . field_get_items ( 'user', $user, 'field_user_sms_voornaam' ) [0] ['value'];
+				$userDates [$fullname] ['id'] = $u->leerling;
+				$userDates [$fullname] ['username'] = $user->name;
+				
+				$query = 'SELECT datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE (am=\'|\' OR am=\'|\') AND leerling = :uid AND datum > :date ' . 'ORDER BY datum ASC';
+				$result = db_query ( $query, array (
+						':uid' => $u->leerling,
+						':date' => $u->datum 
+				) );
+				$userBack = $result->fetch ();
+				if ($userBack) {
+					$userDates [$fullname] ['back'] = $userBack->datum;
+					$diff = date_diff ( date_create ( $userBack->datum ), date_create () )->days;
+					$userDates [$fullname] ['dates'] [$u->datum] ['diff'] = $diff - (ceil ( $diff / 7 ) * 2);
+					if ($userDates [$fullname] ['dates'] [$u->datum] ['diff'] < 0) {
+						$userDates [$fullname] ['dates'] [$u->datum] ['diff'] = 0;
+					}
+				}
+				
+				$userDates [$fullname] ['dates'] [$u->datum] ['am'] = TRUE;
+			}
+		}
+	}
+	foreach ( $usersPM as $u ) {
+		$user = user_load ( $u->leerling );
+		if ($user->status) {
+			$fullname = field_get_items ( 'user', $user, 'field_user_sms_naam' ) [0] ['value'] . ', ' . field_get_items ( 'user', $user, 'field_user_sms_voornaam' ) [0] ['value'];
+			$userDates [$fullname] ['id'] = $u->leerling;
+			$userDates [$fullname] ['username'] = $user->name;
+			
+			$query = 'SELECT datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE (am=\'|\' OR am=\'|\') AND leerling = :uid AND datum > :date ' . 'ORDER BY datum ASC';
+			$result = db_query ( $query, array (
+					':uid' => $u->leerling,
+					':date' => $u->datum 
+			) );
+			$userBack = $result->fetch ();
+			if ($userBack) {
+				$userDates [$fullname] ['back'] = $userBack->datum;
+				$diff = date_diff ( date_create ( $userBack->datum ), date_create () )->days;
+				$userDates [$fullname] ['dates'] [$u->datum] ['diff'] = $diff - (ceil ( $diff / 7 ) * 2);
+				if ($userDates [$fullname] ['dates'] [$u->datum] ['diff'] < 0) {
+					$userDates [$fullname] ['dates'] [$u->datum] ['diff'] = 0;
+				}
+			}
+			
+			$userDates [$fullname] ['dates'] [$u->datum] ['pm'] = TRUE;
+		}
+	}
+	ksort ( $userDates );
+	
+	if (is_numeric ( $uid )) {
+		return $userDates;
+	} else {
+		return theme ( 'justification', array (
+				'data' => $userDates 
+		) );
+	}
 }
-
 
 /**
  * Page callback: Controlelijst latecomers absences
@@ -567,66 +619,61 @@ function argus_afwezigheden_justification($uid = NULL) {
  * @return array
  */
 function argus_afwezigheden_latecomers($uid = NULL) {
-    /* Filter data only for this schoolyear (active schoolyear) */
-    $schoolyear = (array) argus_schoolyear(0);
-    
-    /*
-    * Fetch all latecomings and calculate totals
-    */
-    $query = 'SELECT id, leerling, datum '
-        . 'FROM {argus_lvs_afwezigheden} '
-        . 'INNER JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = leerling '
-        . 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = leerling '
-        . 'RIGHT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = leerling '
-        . 'WHERE (am=\'L\' OR pm=\'L\') '
-        . 'AND datum BETWEEN :startdate AND :enddate ';
-    $params = array(':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']);
-    
-    if (is_numeric($uid)){
-    	$query .= 'AND leerling=:uid ';
-    	$params[':uid'] = $uid;
-    }elseif (isset($_GET)){
-    	if (array_key_exists('uid', $_GET)){
-    		if (is_numeric($_GET['uid'])){
-		    	$query .= 'AND leerling=:uid ';
-		    	$params[':uid'] = $_GET['uid'];
-		    }
-    	}
-    }
-    
-    if (isset($_GET)){
-    	if (array_key_exists('cid', $_GET)){
-    		if (is_numeric($_GET['cid'])){
-    			$query .= 'AND k.entity_id=:cid ';
-    			$params[':cid'] = $_GET['cid'];
-    		}
-    	}
-    }
-    
-    $query .= 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC, datum DESC';
-    $dates_late = db_query($query, $params)->fetchAll();
-    
-    $userDates = array();
-    foreach($dates_late as $d){
-    	$query = 'SELECT id '
-    			. 'FROM {argus_lvs_latecomers_rectified} '
-    			. 'WHERE date_late = :date';
-		$userDates[$d->leerling][db_query($query, array(':date' => $d->id))->rowCount()][$d->id] = $d->datum;
-    }
-
-    drupal_add_css(drupal_get_path('module', 'argus_afwezigheden') . '/css/argus_afwezigheden_latecomers.css');
-    drupal_add_js(drupal_get_path('module', 'argus_afwezigheden') . '/js/argus_afwezigheden_latecomers.js');
-    
-    if (is_numeric($uid)){
-        return $userDates;
-    } else {
-        return theme('latecomers', array(
-            'data' => $userDates,
-            )
-        );
-    }
+	/* Filter data only for this schoolyear (active schoolyear) */
+	$schoolyear = ( array ) argus_schoolyear ( 0 );
+	
+	/*
+	 * Fetch all latecomings and calculate totals
+	 */
+	$query = 'SELECT id, leerling, datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'INNER JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = leerling ' . 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = leerling ' . 'RIGHT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = leerling ' . 'WHERE (am=\'L\' OR pm=\'L\') ' . 'AND datum BETWEEN :startdate AND :enddate ';
+	$params = array (
+			':startdate' => $schoolyear ['start'],
+			':enddate' => $schoolyear ['end'] 
+	);
+	
+	if (is_numeric ( $uid )) {
+		$query .= 'AND leerling=:uid ';
+		$params [':uid'] = $uid;
+	} elseif (isset ( $_GET )) {
+		if (array_key_exists ( 'uid', $_GET )) {
+			if (is_numeric ( $_GET ['uid'] )) {
+				$query .= 'AND leerling=:uid ';
+				$params [':uid'] = $_GET ['uid'];
+			}
+		}
+	}
+	
+	if (isset ( $_GET )) {
+		if (array_key_exists ( 'cid', $_GET )) {
+			if (is_numeric ( $_GET ['cid'] )) {
+				$query .= 'AND k.entity_id=:cid ';
+				$params [':cid'] = $_GET ['cid'];
+			}
+		}
+	}
+	
+	$query .= 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC, datum DESC';
+	$dates_late = db_query ( $query, $params )->fetchAll ();
+	
+	$userDates = array ();
+	foreach ( $dates_late as $d ) {
+		$query = 'SELECT id ' . 'FROM {argus_lvs_latecomers_rectified} ' . 'WHERE date_late = :date';
+		$userDates [$d->leerling] [db_query ( $query, array (
+				':date' => $d->id 
+		) )->rowCount ()] [$d->id] = $d->datum;
+	}
+	
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_afwezigheden' ) . '/css/argus_afwezigheden_latecomers.css' );
+	drupal_add_js ( drupal_get_path ( 'module', 'argus_afwezigheden' ) . '/js/argus_afwezigheden_latecomers.js' );
+	
+	if (is_numeric ( $uid )) {
+		return $userDates;
+	} else {
+		return theme ( 'latecomers', array (
+				'data' => $userDates 
+		) );
+	}
 }
-
 
 /**
  * Custom module functionality
@@ -634,40 +681,45 @@ function argus_afwezigheden_latecomers($uid = NULL) {
 
 /**
  * Create rectification.
- * 
- * @param $did int Reference ID for argus_lvs_afwezigheden
+ *
+ * @param $did int
+ *        	Reference ID for argus_lvs_afwezigheden
  */
-function argus_afwezigheden_latecomers_rectification_create($did){
-	if (db_query("SHOW TABLES LIKE 'argus_lvs_latecomers_rectified'")->rowCount()==0) {
-        $query = 'CREATE TABLE argus_lvs_latecomers_rectified (
+function argus_afwezigheden_latecomers_rectification_create($did) {
+	if (db_query ( "SHOW TABLES LIKE 'argus_lvs_latecomers_rectified'" )->rowCount () == 0) {
+		$query = 'CREATE TABLE argus_lvs_latecomers_rectified (
             id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             date_late INT(6) UNSIGNED
         )';
-        $result = db_query($query);
-    }
-    
+		$result = db_query ( $query );
+	}
+	
 	if ($did) {
 		$query = 'INSERT INTO {argus_lvs_latecomers_rectified} (date_late) VALUES (:did)';
-		$result = db_query($query, array(':did' => $did));
-		header('location:'.base_path().'telaatkomers?'.$_SERVER['QUERY_STRING']);
+		$result = db_query ( $query, array (
+				':did' => $did 
+		) );
+		header ( 'location:' . base_path () . 'telaatkomers?' . $_SERVER ['QUERY_STRING'] );
 	} else {
 		// Somethin' happend what wasn't cosher -> watchDog
-		watchdog('argus', 'Misbruik van de wettiging van telaatkomers geconstateerd', array(), WATCHDOG_EMERGENCY);
+		watchdog ( 'argus', 'Misbruik van de wettiging van telaatkomers geconstateerd', array (), WATCHDOG_EMERGENCY );
 	}
-	exit;
+	exit ();
 }
 
 /**
  * Delete rectification.
  */
-function argus_afwezigheden_latecomers_rectification_delete($did){
+function argus_afwezigheden_latecomers_rectification_delete($did) {
 	if ($did) {
 		$query = 'DELETE FROM {argus_lvs_latecomers_rectified} WHERE date_late = :did';
-		$result = db_query($query, array(':did' => $did));
-		header('location:'.base_path().'telaatkomers?'.$_SERVER['QUERY_STRING']);
+		$result = db_query ( $query, array (
+				':did' => $did 
+		) );
+		header ( 'location:' . base_path () . 'telaatkomers?' . $_SERVER ['QUERY_STRING'] );
 	} else {
 		// Somethin' happend what wasn't cosher -> watchDog
-		watchdog('argus', 'Misbruik van de wettiging van telaatkomers geconstateerd', array(), WATCHDOG_EMERGENCY);
+		watchdog ( 'argus', 'Misbruik van de wettiging van telaatkomers geconstateerd', array (), WATCHDOG_EMERGENCY );
 	}
-	exit;
+	exit ();
 }

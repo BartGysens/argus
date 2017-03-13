@@ -1,12 +1,25 @@
 name = Afwezigheden
 description = Genereer lijsten van leerlingen op basis van Smartschool afwezigheden.
 package = argus - a Quality control extension
-
-version = 7.x-3.1
+version = 7.x-3.3
 core = 7.x
 project = argus_afwezigheden
 datestamp = 1425720891
 project status url = http://www.projectargus.be/release-history
-
+files[] = argus_afwezigheden.install
+files[] = argus_afwezigheden.module
+files[] = css/argus_afwezigheden_latecomers.css
+files[] = css/argus_afwezigheden.css
+files[] = js/argus_afwezigheden_latecomers.js
+files[] = js/argus_afwezigheden.js
+files[] = templates/argus_afwezigheden--absences--filter_block.tpl.php
+files[] = templates/argus_afwezigheden--justification.tpl.php
+files[] = templates/argus_afwezigheden--latecomers--filter_block.tpl.php
+files[] = templates/argus_afwezigheden--latecomers--infoscreen_block.tpl.php
+files[] = templates/argus_afwezigheden--latecomers.tpl.php
+files[] = templates/argus_afwezigheden--overview.tpl.php
 dependencies[] = argus_engine
-dependencies[] = argus_sms_sync
+dependencies[] = argus_gebruikers
+dependencies[] = argus_klasbeheer
+test_dependencies[] = argus_sms_sync
+test_dependencies[] = argus_embeddings

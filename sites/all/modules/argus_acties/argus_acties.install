@@ -1,0 +1,475 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_acties_install() {
+	// Rebuild and define new content type
+	$type = 'actie'; // replace with your content type name
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	// Add the body field with specified label
+	node_add_body_field ( $types [$type], $label = t ( 'Beschrijving' ) ); // replace your label or remove if no body-field necessary
+	                                                                       
+	// Add field bases which are copied from your Features-based module
+	foreach ( argus_acties_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	foreach ( argus_acties_field_default_field_instances () as $fieldinstance ) {
+		$fieldinstance ['entity_type'] = 'node';
+		$fieldinstance ['bundle'] = $type;
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => 'f2e6536be294bba63487e9aa74977300', // copy this id from your view definition
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'acties' . chr ( 13 ) . 'acties/*' . chr ( 13 ) . 'acties_beheren' . chr ( 13 ) . 'acties_beheren/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => 'eda03e4a10145b7435b3fcbcdc82d7d2', // copy this id from your view definition
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'acties' . chr ( 13 ) . 'acties/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			) 
+	) // replace with your title
+
+	;
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_acties_uninstall() {
+	// Remove all nodes of new content type
+	$type = 'actie'; // replace with your content type name
+	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+	$result = db_query ( $sql, array (
+			':type' => $type 
+	) );
+	$nodeids = array ();
+	foreach ( $result as $row ) {
+		$nodeids [] = $row->nid;
+	}
+	node_delete_multiple ( $nodeids );
+	
+	// Delete all related fields
+	foreach ( argus_acties_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	$instances = field_info_instances ( 'node', $type );
+	foreach ( $instances as $instance_name => $fieldinstance ) {
+		field_delete_instance ( $fieldinstance );
+	}
+	
+	// Remove new content type
+	node_type_delete ( $type );
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_acties' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ */
+function argus_acties_field_default_field_bases() {
+	$field_bases = array ();
+	
+	//if (!field_info_field('field_deadline')){
+		// Exported field_base: 'field_deadline'.
+		$field_bases ['field_deadline'] = array (
+				'active' => 1,
+				'cardinality' => 1,
+				'deleted' => 0,
+				'entity_types' => array (),
+				'field_name' => 'field_deadline',
+				'field_permissions' => array (
+						'type' => 0 
+				),
+				'indexes' => array (),
+				'locked' => 0,
+				'module' => 'date',
+				'settings' => array (
+						'cache_count' => 4,
+						'cache_enabled' => 0,
+						'granularity' => array (
+								'day' => 'day',
+								'hour' => 'hour',
+								'minute' => 'minute',
+								'month' => 'month',
+								'second' => 0,
+								'year' => 'year' 
+						),
+						'repeat' => 0,
+						'timezone_db' => 'UTC',
+						'todate' => '',
+						'tz_handling' => 'site' 
+				),
+				'translatable' => 0,
+				'type' => 'datetime' 
+		);
+	//}
+	
+	// Exported field_base: 'field_gebruiker'.
+	$field_bases ['field_gebruiker'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_gebruiker',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (
+											0 => 80 
+									),
+									'display_name' => 'users',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_maatregel'.
+	$field_bases ['field_maatregel'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_maatregel',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'selectielijst_maatregelen',
+									'view_name' => 'maatregelen' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_status'.
+	$field_bases ['field_status'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_status',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'nieuw' => 'nieuw',
+							'in behandeling' => 'in behandeling',
+							'afgehandeld' => 'afgehandeld',
+							'geannuleerd' => 'geannuleerd' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function argus_acties_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-actie-field_deadline'.
+	$field_instances ['node-actie-field_deadline'] = array (
+			'bundle' => 'actie',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_deadline',
+			'label' => 'Deadline',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance: 'node-actie-field_gebruiker'.
+	$field_instances ['node-actie-field_gebruiker'] = array (
+			'bundle' => 'actie',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_gebruiker',
+			'label' => 'Met betrekking op',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'entityreference',
+					'settings' => array (
+							'match_operator' => 'CONTAINS',
+							'path' => '',
+							'size' => 60 
+					),
+					'type' => 'entityreference_autocomplete',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance: 'node-actie-field_maatregel'.
+	$field_instances ['node-actie-field_maatregel'] = array (
+			'bundle' => 'actie',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_maatregel',
+			'label' => 'Maatregel',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 0 
+			) 
+	);
+	
+	// Exported field_instance: 'node-actie-field_status'.
+	$field_instances ['node-actie-field_status'] = array (
+			'bundle' => 'actie',
+			'default_value' => array (
+					0 => array (
+							'value' => 'nieuw' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_status',
+			'label' => 'Status',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 3 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Beschrijving' );
+	t ( 'Comment' );
+	t ( 'Deadline' );
+	t ( 'Maatregel' );
+	t ( 'Met betrekking op' );
+	t ( 'Status' );
+	
+	return $field_instances;
+}
+

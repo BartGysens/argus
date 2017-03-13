@@ -37,25 +37,28 @@
  */
 function argus_sms_api_menu() {
     $items = array();
-    $items['admin/config/argus'] = array(
-        'title' => 'argus',
-        'description' => 'Instellingen voor argus - a Smartschool extension.',
-        'position' => 'right',
-        'weight' => 0,
-        'page callback' => 'argus_sms_api_admin_menu_block_page',
-        'access arguments' => array('access administration pages'),
-        'file' => 'argus_sms_api.admin.inc',
-    );
     $items['admin/config/argus/smartschool-api'] = array(
         'title' => 'Smartschool-API',
         'description' => 'Koppel jouw Smartschool-platform met argus.',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('argus_smartschool_api_form'),
-        'access arguments' => array('access administration pages'),
+        'access arguments' => array('administer argus_sms_api'),
         'type' => MENU_NORMAL_ITEM,
         'weight' => 1,
     );
     return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function argus_sms_api_permission() {
+  return array(
+    'administer argus_sms_api' => array(
+      'title' => t('Smartschool-instellingen'),
+      'description' => t('Maak en beheer een koppeling tussen Smartschool en argus.'),
+    ),
+  );
 }
 
 /**
@@ -98,62 +101,6 @@ function argus_smartschool_api_form($form, &$form_state) {
         '#description' => t('Het paswoord dat ingesteld werd bij je Smartschoolplatform om toegang te krijgen tot de API.'),
         '#required' => TRUE,
     );
-  
-    $form['roles'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Instellen van de rollen'),
-        '#weight' => 5,
-        '#collapsible' => TRUE,
-        '#collapsed' => FALSE,
-    );
-  
-    /*
-     * Smartschool User role = 0 (leerkracht)
-     */
-    $form['roles']['argus_sms_api_roles_0'] = array(
-        '#type' => 'select',
-        '#title' => t('Leerkracht'),
-        '#multiple' => true,
-        '#options' => user_roles($membersOnly = true),
-        '#default_value' => variable_get('argus_sms_api_roles_0',NULL),
-        '#description' => t('Selecteer de overeenstemmende rol voor <em>leerkracht (code <strong>0</strong>)</em>.'),
-    );
-  
-    /*
-     * Smartschool User role = 1 (leerling)
-     */
-    $form['roles']['argus_sms_api_roles_1'] = array(
-        '#type' => 'select',
-        '#title' => t('Leerling'),
-        '#multiple' => true,
-        '#options' => user_roles($membersOnly = true),
-        '#default_value' => variable_get('argus_sms_api_roles_1',NULL),
-        '#description' => t('Selecteer de overeenstemmende rol voor <em>leerling (code <strong>1</strong>)</em>.'),
-    );
-
-    /*
-     * Smartschool User role = 13 (andere)
-     */
-    $form['roles']['argus_sms_api_roles_13'] = array(
-        '#type' => 'select',
-        '#title' => t('Andere'),
-        '#multiple' => true,
-        '#options' => user_roles($membersOnly = true),
-        '#default_value' => variable_get('argus_sms_api_roles_13',NULL),
-        '#description' => t('Selecteer de overeenstemmende rol voor <em>andere (code <strong>13</strong>)</em>.'),
-    );
-
-    /*
-     * Smartschool User role = 30 (directie)
-     */
-    $form['roles']['argus_sms_api_roles_30'] = array(
-        '#type' => 'select',
-        '#title' => t('Directie'),
-        '#multiple' => true,
-        '#options' => user_roles($membersOnly = true),
-        '#default_value' => variable_get('argus_sms_api_roles_30',NULL),
-        '#description' => t('Selecteer de overeenstemmende rol voor <em>directie (code <strong>30</strong>)</em>.'),
-    );
     return system_settings_form($form);
 }
 
@@ -187,11 +134,6 @@ function argus_sms_api_help($path, $arg) {
         . '<dd>' . t('Vervang ook hier in de url <em>"uwschool"</em> met de verwijzing naar je eigen school of pas de url aan naar een specifieke locatie.') . '</dd>'
         . '<dt><strong>' . t('Smartschool API-paswoord') . '</strong></dt>'
         . '<dd>' . t('Zoek in je Smartschool-platform het paswoord van jouw school op: <em>Ga > Algemene configuratie > Webservices (module=Globalmanagement&file=webservices)</em>.') . '</dd>'
-        . '</dl>'
-        . '<h4>' . t('Rollen instellen') . '</h4>'
-        . '<dl>'
-        . '<dt><strong>' . t('Overdracht van permissies') . '</strong></dt>'
-        . '<dd>' . t('De login-procedure neemt de gebruikers van jouw Smartschool-platform automatisch over; hiervoor moet je wel eerst de rollen aanmaken die binnen jouw platform zullen gelden. Deze kan je dan koppelen via deze weg aan de <em>Smartschool-rollen (standaard: 0=leerkracht, 1=leerling, 13=andere en 30=directie)</em>.') . '</dd>'
         . '</dl>';
         break;
     }
@@ -304,94 +246,6 @@ function argus_sms_error($code) {
 	}
 	
     return $errorArray[$code];
-}
-
-
-/**
- * Supporting function for converting weird fieldnames to standards
- * 
- * @param field_name
- *   String to convert to usefull fieldname
- * @param field_reset
- *   String which will be added in front of fieldname
-*/
-function argus_sms_uniform_field($field_name, $field_preset='') {
-    $replace = [
-        '&lt;' => '', '&gt;' => '', '&#039;' => '', '&amp;' => '',
-        '&quot;' => '', 'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'Ae',
-        '&Auml;' => 'A', 'Å' => 'A', 'Ā' => 'A', 'Ą' => 'A', 'Ă' => 'A', 'Æ' => 'Ae',
-        'Ç' => 'C', 'Ć' => 'C', 'Č' => 'C', 'Ĉ' => 'C', 'Ċ' => 'C', 'Ď' => 'D', 'Đ' => 'D',
-        'Ð' => 'D', 'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E', 'Ē' => 'E',
-        'Ę' => 'E', 'Ě' => 'E', 'Ĕ' => 'E', 'Ė' => 'E', 'Ĝ' => 'G', 'Ğ' => 'G',
-        'Ġ' => 'G', 'Ģ' => 'G', 'Ĥ' => 'H', 'Ħ' => 'H', 'Ì' => 'I', 'Í' => 'I',
-        'Î' => 'I', 'Ï' => 'I', 'Ī' => 'I', 'Ĩ' => 'I', 'Ĭ' => 'I', 'Į' => 'I',
-        'İ' => 'I', 'Ĳ' => 'IJ', 'Ĵ' => 'J', 'Ķ' => 'K', 'Ł' => 'K', 'Ľ' => 'K',
-        'Ĺ' => 'K', 'Ļ' => 'K', 'Ŀ' => 'K', 'Ñ' => 'N', 'Ń' => 'N', 'Ň' => 'N',
-        'Ņ' => 'N', 'Ŋ' => 'N', 'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O',
-        'Ö' => 'Oe', '&Ouml;' => 'Oe', 'Ø' => 'O', 'Ō' => 'O', 'Ő' => 'O', 'Ŏ' => 'O',
-        'Œ' => 'OE', 'Ŕ' => 'R', 'Ř' => 'R', 'Ŗ' => 'R', 'Ś' => 'S', 'Š' => 'S',
-        'Ş' => 'S', 'Ŝ' => 'S', 'Ș' => 'S', 'Ť' => 'T', 'Ţ' => 'T', 'Ŧ' => 'T',
-        'Ț' => 'T', 'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ü' => 'Ue', 'Ū' => 'U',
-        '&Uuml;' => 'Ue', 'Ů' => 'U', 'Ű' => 'U', 'Ŭ' => 'U', 'Ũ' => 'U', 'Ų' => 'U',
-        'Ŵ' => 'W', 'Ý' => 'Y', 'Ŷ' => 'Y', 'Ÿ' => 'Y', 'Ź' => 'Z', 'Ž' => 'Z',
-        'Ż' => 'Z', 'Þ' => 'T', 'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a',
-        'ä' => 'ae', '&auml;' => 'ae', 'å' => 'a', 'ā' => 'a', 'ą' => 'a', 'ă' => 'a',
-        'æ' => 'ae', 'ç' => 'c', 'ć' => 'c', 'č' => 'c', 'ĉ' => 'c', 'ċ' => 'c',
-        'ď' => 'd', 'đ' => 'd', 'ð' => 'd', 'è' => 'e', 'é' => 'e', 'ê' => 'e',
-        'ë' => 'e', 'ē' => 'e', 'ę' => 'e', 'ě' => 'e', 'ĕ' => 'e', 'ė' => 'e',
-        'ƒ' => 'f', 'ĝ' => 'g', 'ğ' => 'g', 'ġ' => 'g', 'ģ' => 'g', 'ĥ' => 'h',
-        'ħ' => 'h', 'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i', 'ī' => 'i',
-        'ĩ' => 'i', 'ĭ' => 'i', 'į' => 'i', 'ı' => 'i', 'ĳ' => 'ij', 'ĵ' => 'j',
-        'ķ' => 'k', 'ĸ' => 'k', 'ł' => 'l', 'ľ' => 'l', 'ĺ' => 'l', 'ļ' => 'l',
-        'ŀ' => 'l', 'ñ' => 'n', 'ń' => 'n', 'ň' => 'n', 'ņ' => 'n', 'ŉ' => 'n',
-        'ŋ' => 'n', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'oe',
-        '&ouml;' => 'oe', 'ø' => 'o', 'ō' => 'o', 'ő' => 'o', 'ŏ' => 'o', 'œ' => 'oe',
-        'ŕ' => 'r', 'ř' => 'r', 'ŗ' => 'r', 'š' => 's', 'ù' => 'u', 'ú' => 'u',
-        'û' => 'u', 'ü' => 'ue', 'ū' => 'u', '&uuml;' => 'ue', 'ů' => 'u', 'ű' => 'u',
-        'ŭ' => 'u', 'ũ' => 'u', 'ų' => 'u', 'ŵ' => 'w', 'ý' => 'y', 'ÿ' => 'y',
-        'ŷ' => 'y', 'ž' => 'z', 'ż' => 'z', 'ź' => 'z', 'þ' => 't', 'ß' => 'ss',
-        'ſ' => 'ss', 'ый' => 'iy', 'А' => 'A', 'Б' => 'B', 'В' => 'V', 'Г' => 'G',
-        'Д' => 'D', 'Е' => 'E', 'Ё' => 'YO', 'Ж' => 'ZH', 'З' => 'Z', 'И' => 'I',
-        'Й' => 'Y', 'К' => 'K', 'Л' => 'L', 'М' => 'M', 'Н' => 'N', 'О' => 'O',
-        'П' => 'P', 'Р' => 'R', 'С' => 'S', 'Т' => 'T', 'У' => 'U', 'Ф' => 'F',
-        'Х' => 'H', 'Ц' => 'C', 'Ч' => 'CH', 'Ш' => 'SH', 'Щ' => 'SCH', 'Ъ' => '',
-        'Ы' => 'Y', 'Ь' => '', 'Э' => 'E', 'Ю' => 'YU', 'Я' => 'YA', 'а' => 'a',
-        'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'yo',
-        'ж' => 'zh', 'з' => 'z', 'и' => 'i', 'й' => 'y', 'к' => 'k', 'л' => 'l',
-        'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's',
-        'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch',
-        'ш' => 'sh', 'щ' => 'sch', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'e',
-        'ю' => 'yu', 'я' => 'ya', '/' => '_', '\\' => '_', '(' => '_', ')' => '_',
-        ',' => '_', '.' => '_', '?' => '_', ':' => '_', ';' => '_', '=' => '_', 
-        '+' => '_', '%' => '_', '*' => '_', '£' => '_', '$' => '_', '{' => '_', 
-        '}' => '_', '[' => '_', ']' => '_', '#' => '_', '@' => '_', '&' => '_', 
-        '-' => '_', ' ' => '_', '\'' => ''
-    ];
-    
-    $field_name = strtolower($field_name);
-    $field_name = str_replace(array_keys($replace), $replace, $field_name);
-    $field_name = str_replace(' ', '_', $field_name);
-    $field_name = strtolower(substr($field_name, 0, 1)).substr($field_name, 1);
-    
-    // Exeptions
-    switch ($field_name){
-    	case 'voornaam_coaccount1':
-    		$field_name = 'voornaam_coac1'; break;
-    	case 'telefoonnummer_coaccount1':
-    		$field_name = 'telnummer_coac1'; break;
-    	case 'mobielnummer_coaccount1':
-    		$field_name = 'mobielnr_coac1'; break;
-    	case 'voornaam_coaccount2':
-    		$field_name = 'voornaam_coac2'; break;
-    	case 'telefoonnummer_coaccount2':
-    		$field_name = 'telnummer_coac2'; break;
-    	case 'mobielnummer_coaccount2':
-    		$field_name = 'mobielnr_coac2'; break;
-    }
-    
-    $field_name = substr($field_preset . $field_name, 0, 32);
-    
-    return $field_name;
 }
 
 /**

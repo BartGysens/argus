@@ -32,16 +32,18 @@
 							<select id="argus_inventaris_users">
 					            <?php
 								echo '<option value="">-</option>';
-								foreach ( $users as $key => $u ) {
-									echo '<option value="' . $key . '"';
-									if (isset ( $_GET )) {
-										if (array_key_exists ( 'uid', $_GET )) {
-											if ($key == $_GET ['uid']) {
-												echo ' selected';
+								if (isset($users)){
+									foreach ( $users as $key => $u ) {
+										echo '<option value="' . $key . '"';
+										if (isset ( $_GET )) {
+											if (array_key_exists ( 'uid', $_GET )) {
+												if ($key == $_GET ['uid']) {
+													echo ' selected';
+												}
 											}
 										}
+										echo '>' . $u . '</option>';
 									}
-									echo '>' . $u . '</option>';
 								}
 								?>
 				            </select>

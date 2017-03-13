@@ -1,0 +1,1377 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_nascholingen_install() {
+	// Rebuild and define new content type
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	
+	// Add the body field with specified label
+	$type = 'event_nascholing'; // replace with your content type name
+	node_add_body_field ( $types [$type], $label = t ( 'Beschrijving' ) ); // replace your label or remove if no body-field necessary
+	
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_nascholingen_field_default_field_bases()
+	foreach ( argus_nascholingen_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_nascholingen_field_default_field_instances()
+	foreach ( argus_nascholingen_field_default_field_instances () as $fieldinstance ) {
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => '4a7c87dd3b73e09c22a8a39caad842ca', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'events/nascholing', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '-exp-kalender-nascholing_kwa', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'events/nascholing/kwa', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '-exp-nascholingen-goedkeuringen', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'nascholingen/goedkeuringen', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '7620d53caf4d8bc0e9e75c654ff58d5c', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'nascholingen/attesten', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '8a9d0d30bc54ebf84b20f710e343546d', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'nascholingen', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+	); // replace with your title
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_nascholingen_uninstall() {
+	// Remove all nodes of new content type
+	$type = 'event_nascholing'; // replace with your content type name
+	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+	$result = db_query ( $sql, array (
+			':type' => $type 
+	) );
+	$nodeids = array ();
+	foreach ( $result as $row ) {
+		$nodeids [] = $row->nid;
+	}
+	node_delete_multiple ( $nodeids );
+	
+	// Delete all related fields
+	foreach ( argus_nascholingen_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	$instances = field_info_instances ( 'node', $type );
+	foreach ( $instances as $instance_name => $fieldinstance ) {
+		field_delete_instance ( $fieldinstance );
+	}
+	
+	// Remove new content type
+	node_type_delete ( $type );
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_nascholingen' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ *
+ * This function is copied from the file generated by the Features module: demo.features.field_base.inc
+ */
+function argus_nascholingen_field_default_field_bases() {
+	$field_bases = array();
+
+  // Exported field_base: 'field_ev_aard'.
+  $field_bases['field_ev_aard'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_aard',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'werkplekleren' => 'werkplekleren',
+        'duaal leren' => 'duaal leren',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_ev_attest'.
+  $field_bases['field_ev_attest'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_attest',
+    'field_permissions' => array(
+      'type' => 2,
+    ),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => 'Attest nog niet binnengebracht',
+        1 => 'Attest binnengebracht',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_boolean',
+  );
+
+  // Exported field_base: 'field_ev_bijlage'.
+  $field_bases['field_ev_bijlage'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_bijlage',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'fid' => array(
+        0 => 'fid',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'file',
+    'settings' => array(
+      'display_default' => 0,
+      'display_field' => 0,
+      'uri_scheme' => 'public',
+    ),
+    'translatable' => 0,
+    'type' => 'file',
+  );
+
+  // Exported field_base: 'field_ev_datum'.
+  $field_bases['field_ev_datum'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_datum',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'date',
+    'settings' => array(
+      'cache_count' => 4,
+      'cache_enabled' => 1,
+      'granularity' => array(
+        'day' => 'day',
+        'hour' => 'hour',
+        'minute' => 'minute',
+        'month' => 'month',
+        'second' => 0,
+        'year' => 'year',
+      ),
+      'repeat' => 1,
+      'timezone_db' => '',
+      'todate' => 'optional',
+      'tz_handling' => 'none',
+    ),
+    'translatable' => 0,
+    'type' => 'datetime',
+  );
+
+  // Exported field_base: 'field_ev_feedback'.
+  $field_bases['field_ev_feedback'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_feedback',
+    'field_permissions' => array(
+      'type' => 2,
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
+  // Exported field_base: 'field_ev_goedkeuring'.
+  $field_bases['field_ev_goedkeuring'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_goedkeuring',
+    'field_permissions' => array(
+      'type' => 2,
+    ),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'Nieuw' => 'nieuw',
+        'In behandeling' => 'in behandeling',
+        'Toegestaan' => 'toegestaan',
+        'Geannuleerd' => 'geannuleerd',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_ev_inrichter'.
+  $field_bases['field_ev_inrichter'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_inrichter',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
+  // Exported field_base: 'field_ev_kostprijs_nas'.
+  $field_bases['field_ev_kostprijs_nas'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_kostprijs_nas',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'number',
+    'settings' => array(
+      'decimal_separator' => ',',
+    ),
+    'translatable' => 0,
+    'type' => 'number_float',
+  );
+
+  // Exported field_base: 'field_ev_onderwerp'.
+  $field_bases['field_ev_onderwerp'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_onderwerp',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
+  // Exported field_base: 'field_ev_opleidingscheques'.
+  $field_bases['field_ev_opleidingscheques'] = array(
+    'active' => 1,
+    'cardinality' => 2,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_opleidingscheques',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => 'Neen',
+        1 => 'Ja',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_boolean',
+  );
+
+  // Exported field_base: 'field_ev_opm_tips'.
+  $field_bases['field_ev_opm_tips'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_opm_tips',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
+  // Exported field_base: 'field_ev_toepasbaar'.
+  $field_bases['field_ev_toepasbaar'] = array(
+    'active' => 1,
+    'cardinality' => 3,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_toepasbaar',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'les' => 'Ja, in mijn lessen',
+        'vakgroep' => 'Ja, in mijn vakgroep',
+        'schoolteam' => 'Ja, in het schoolteam',
+        'nee' => 'Neen',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_ev_vakgroep'.
+  $field_bases['field_ev_vakgroep'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_vakgroep',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'entityreference',
+    'settings' => array(
+      'handler' => 'views',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
+        ),
+        'view' => array(
+          'args' => array(),
+          'display_name' => 'vakgroepen',
+          'view_name' => 'vakgroepen',
+        ),
+      ),
+      'target_type' => 'node',
+    ),
+    'translatable' => 0,
+    'type' => 'entityreference',
+  );
+
+  // Exported field_base: 'field_ev_verwachtingen'.
+  $field_bases['field_ev_verwachtingen'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_verwachtingen',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'ja' => 'ja',
+        'gedeeltelijk' => 'gedeeltelijk (zie \'opmerkingen/tips\' hieronder)',
+        'neen' => 'neen',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  // Exported field_base: 'field_ev_voorbeeld'.
+  $field_bases['field_ev_voorbeeld'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_voorbeeld',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
+  // Exported field_base: 'field_ev_zin_inhoud'.
+  $field_bases['field_ev_zin_inhoud'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_ev_zin_inhoud',
+    'field_permissions' => array(
+      'type' => 0,
+    ),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'ja' => 'ja',
+        'gedeeltelijk' => 'gedeeltelijk (zie \'opmerkingen/tips\' hieronder)',
+        'neen' => 'neen',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
+  return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ *
+ * This function is copied from the file generated by the Features module: demo.features.field_base.inc
+ */
+function argus_nascholingen_field_default_field_instances() {
+	$field_instances = array();
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_aard'.
+  $field_instances['node-event_nascholing-field_ev_aard'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Aanduiden indien het niet gaat om een standaardnascholing maar als het deel uitmaakt van werkplekleren of duaal leren.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'list_default',
+        'weight' => 1,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_aard',
+    'label' => 'Aard',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_buttons',
+      'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_attest'.
+  $field_instances['node-event_nascholing-field_ev_attest'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'Werd er al een attest binnengebracht?',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'list_default',
+        'weight' => 9,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_attest',
+    'label' => 'Attest',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 0,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_bijlage'.
+  $field_instances['node-event_nascholing-field_ev_bijlage'] = array(
+    'bundle' => 'event_nascholing',
+    'deleted' => 0,
+    'description' => 'Indien u materiaal heeft ontvangen, gelieve dit hierbij te voegen. Dit kan een diavoorstelling zijn, een syllabus, werkbladen... Gelieve zo veel mogelijk materiaal te delen.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'file_default',
+        'weight' => 11,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_bijlage',
+    'label' => 'Bijlage',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 1,
+      'file_directory' => 'bijlagenNAS',
+      'file_extensions' => 'txt doc docx ppt pptx pdf jpg jpeg png xls xlsx',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'filefield_sources' => array(
+          'filefield_sources' => array(
+            'attach' => 0,
+            'clipboard' => 0,
+            'imce' => 0,
+            'reference' => 0,
+            'remote' => 0,
+            'upload' => 'upload',
+          ),
+          'source_attach' => array(
+            'absolute' => 0,
+            'attach_mode' => 'move',
+            'path' => 'file_attach',
+          ),
+          'source_imce' => array(
+            'imce_mode' => 0,
+          ),
+          'source_reference' => array(
+            'autocomplete' => 0,
+            'search_all_fields' => 0,
+          ),
+        ),
+        'progress_indicator' => 'throbber',
+      ),
+      'type' => 'file_generic',
+      'weight' => 11,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_datum'.
+  $field_instances['node-event_nascholing-field_ev_datum'] = array(
+    'bundle' => 'event_nascholing',
+    'deleted' => 0,
+    'description' => 'Datum en uur wanneer de nascholing plaatsvindt.',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'date',
+        'settings' => array(
+          'conditions' => array(),
+          'format_type' => 'long',
+          'fromto' => 'both',
+          'multiple_from' => '',
+          'multiple_number' => '',
+          'multiple_to' => '',
+          'show_remaining_days' => FALSE,
+          'show_repeat_rule' => 'show',
+        ),
+        'type' => 'date_default',
+        'weight' => 4,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_datum',
+    'label' => 'Tijdstip',
+    'required' => 0,
+    'settings' => array(
+      'default_value' => 'now',
+      'default_value2' => 'same',
+      'default_value_code' => '',
+      'default_value_code2' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'date',
+      'settings' => array(
+        'display_all_day' => 1,
+        'increment' => 1,
+        'input_format' => 'd/m/Y - H:i:s',
+        'input_format_custom' => '',
+        'label_position' => 'above',
+        'no_fieldset' => 0,
+        'repeat_collapsed' => 1,
+        'text_parts' => array(),
+        'year_range' => '-1:+3',
+      ),
+      'type' => 'date_popup',
+      'weight' => 10,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_feedback'.
+  $field_instances['node-event_nascholing-field_ev_feedback'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 12,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_feedback',
+    'label' => 'Feedback',
+    'required' => 0,
+    'settings' => array(
+      'linkit' => array(
+        'button_text' => 'Zoeken',
+        'enable' => 0,
+        'profile' => '',
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 6,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_goedkeuring'.
+  $field_instances['node-event_nascholing-field_ev_goedkeuring'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => array(
+      0 => array(
+        'value' => 'Nieuw',
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'list_default',
+        'weight' => 10,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_goedkeuring',
+    'label' => 'Goedkeuring',
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 5,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_inrichter'.
+  $field_instances['node-event_nascholing-field_ev_inrichter'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Naam en adres van de inrichter',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'text',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'text_default',
+        'weight' => 6,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_inrichter',
+    'label' => 'Inrichter & locatie',
+    'required' => 1,
+    'settings' => array(
+      'linkit' => array(
+        'button_text' => 'Zoeken',
+        'enable' => 0,
+        'profile' => '',
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 12,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_kostprijs_nas'.
+  $field_instances['node-event_nascholing-field_ev_kostprijs_nas'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => array(
+      0 => array(
+        'value' => '0.00',
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'Officiële kostprijs van de nascholing',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'number',
+        'settings' => array(
+          'conditions' => array(),
+          'decimal_separator' => '.',
+          'prefix_suffix' => TRUE,
+          'scale' => 2,
+          'thousand_separator' => ' ',
+        ),
+        'type' => 'number_decimal',
+        'weight' => 7,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_kostprijs_nas',
+    'label' => 'Kostprijs',
+    'required' => 0,
+    'settings' => array(
+      'max' => '',
+      'min' => '',
+      'prefix' => '€ ',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'number',
+      'settings' => array(),
+      'type' => 'number',
+      'weight' => 13,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_onderwerp'.
+  $field_instances['node-event_nascholing-field_ev_onderwerp'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Onderwerp van de nascholing (enkel korte omschrijving of titel)',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'text',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'text_default',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_onderwerp',
+    'label' => 'Onderwerp',
+    'required' => 1,
+    'settings' => array(
+      'linkit' => array(
+        'button_text' => 'Zoeken',
+        'enable' => 0,
+        'profile' => '',
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 1,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 2,
+    ),
+  );
+
+  // Exported field_instance:
+  // 'node-event_nascholing-field_ev_opleidingscheques'.
+  $field_instances['node-event_nascholing-field_ev_opleidingscheques'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'Ik vraag opleidingscheques aan voor deze nascholing.',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'list',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'list_default',
+        'weight' => 8,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_opleidingscheques',
+    'label' => 'Opleidingscheques',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 0,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 14,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_opm_tips'.
+  $field_instances['node-event_nascholing-field_ev_opm_tips'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Heeft u nog opmerkingen of nuttige tips omtrent de gevolgde nascholing?',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'text_default',
+        'weight' => 10,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_opm_tips',
+    'label' => 'Opmerkingen/tips',
+    'required' => 0,
+    'settings' => array(
+      'linkit' => array(
+        'button_text' => 'Zoeken',
+        'enable' => 0,
+        'profile' => '',
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 10,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_toepasbaar'.
+  $field_instances['node-event_nascholing-field_ev_toepasbaar'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Kunt u de verworven kennis of vaardigheden aanwenden in uw lessen, in uw vakgroep of als lid van het schoolteam?',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'list_default',
+        'weight' => 8,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_toepasbaar',
+    'label' => 'Toepasbaar',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_buttons',
+      'weight' => 17,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_vakgroep'.
+  $field_instances['node-event_nascholing-field_ev_vakgroep'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Selecteer de vakgroep waarop de nascholing betrekking heeft. Indien het een algemeen thema betreft, selecteer dan \'beleidsondersteunend\'.',
+    'display' => array(
+      'default' => array(
+        'label' => 'inline',
+        'module' => 'entityreference',
+        'settings' => array(
+          'conditions' => array(),
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 5,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_vakgroep',
+    'label' => 'Vakgroep',
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 11,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_verwachtingen'.
+  $field_instances['node-event_nascholing-field_ev_verwachtingen'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Werden uw verwachtingen ingelost?',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'list_default',
+        'weight' => 6,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_verwachtingen',
+    'label' => 'Verwachtingen',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_buttons',
+      'weight' => 15,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_voorbeeld'.
+  $field_instances['node-event_nascholing-field_ev_voorbeeld'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Toon aan met een voorbeeld hoe u de verworven kennis of vaardigheden concreet gaat toepassen in uw lessen, in uw vakgroep of als lid van het schoolteam.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'text_default',
+        'weight' => 9,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_voorbeeld',
+    'label' => 'Voorbeeld',
+    'required' => 0,
+    'settings' => array(
+      'linkit' => array(
+        'button_text' => 'Zoeken',
+        'enable' => 0,
+        'profile' => '',
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 3,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 18,
+    ),
+  );
+
+  // Exported field_instance: 'node-event_nascholing-field_ev_zin_inhoud'.
+  $field_instances['node-event_nascholing-field_ev_zin_inhoud'] = array(
+    'bundle' => 'event_nascholing',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Was de inhoud van de nascholing zinvol?',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(
+          'conditions' => array(),
+        ),
+        'type' => 'list_default',
+        'weight' => 7,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_ev_zin_inhoud',
+    'label' => 'Inhoud zinvol',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_buttons',
+      'weight' => 16,
+    ),
+  );
+
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('Aanduiden indien het niet gaat om een standaardnascholing maar als het deel uitmaakt van werkplekleren of duaal leren.');
+  t('Aard');
+  t('Attest');
+  t('Bijlage');
+  t('Datum en uur wanneer de nascholing plaatsvindt.');
+  t('Feedback');
+  t('Goedkeuring');
+  t('Heeft u nog opmerkingen of nuttige tips omtrent de gevolgde nascholing?');
+  t('Ik vraag opleidingscheques aan voor deze nascholing.');
+  t('Indien u materiaal heeft ontvangen, gelieve dit hierbij te voegen. Dit kan een diavoorstelling zijn, een syllabus, werkbladen... Gelieve zo veel mogelijk materiaal te delen.');
+  t('Inhoud zinvol');
+  t('Inrichter & locatie');
+  t('Kostprijs');
+  t('Kunt u de verworven kennis of vaardigheden aanwenden in uw lessen, in uw vakgroep of als lid van het schoolteam?');
+  t('Naam en adres van de inrichter');
+  t('Officiële kostprijs van de nascholing');
+  t('Onderwerp');
+  t('Onderwerp van de nascholing (enkel korte omschrijving of titel)');
+  t('Opleidingscheques');
+  t('Opmerkingen/tips');
+  t('Selecteer de vakgroep waarop de nascholing betrekking heeft. Indien het een algemeen thema betreft, selecteer dan \'beleidsondersteunend\'.');
+  t('Tijdstip');
+  t('Toepasbaar');
+  t('Toon aan met een voorbeeld hoe u de verworven kennis of vaardigheden concreet gaat toepassen in uw lessen, in uw vakgroep of als lid van het schoolteam.');
+  t('Vakgroep');
+  t('Verwachtingen');
+  t('Voorbeeld');
+  t('Was de inhoud van de nascholing zinvol?');
+  t('Werd er al een attest binnengebracht?');
+  t('Werden uw verwachtingen ingelost?');
+
+  return $field_instances;
+}
+

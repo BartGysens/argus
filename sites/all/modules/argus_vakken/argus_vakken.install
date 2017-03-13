@@ -1,0 +1,544 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_vakken_install() {
+	// Rebuild and define new content type
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_vakken_field_default_field_bases()
+	foreach ( argus_vakken_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_vakken_field_default_field_instances()
+	foreach ( argus_vakken_field_default_field_instances () as $fieldinstance ) {
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => '-exp-vakken-vak_overzicht', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'vakken' . chr ( 13 ) . 'vakken/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			) 
+	); // replace with your title
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_vakken_uninstall() {
+	// Remove all nodes of new content type
+	$type = 'vak'; // replace with your content type name
+	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+	$result = db_query ( $sql, array (
+			':type' => $type 
+	) );
+	$nodeids = array ();
+	foreach ( $result as $row ) {
+		$nodeids [] = $row->nid;
+	}
+	node_delete_multiple ( $nodeids );
+	
+	// Delete all related fields
+	foreach ( argus_vakken_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	$instances = field_info_instances ( 'node', $type );
+	foreach ( $instances as $instance_name => $fieldinstance ) {
+		field_delete_instance ( $fieldinstance );
+	}
+	
+	// Remove new content type
+	node_type_delete ( $type );
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_vakken' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ */
+function argus_vakken_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_vak_afkorting'.
+	$field_bases ['field_vak_afkorting'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_vak_afkorting',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_vak_beschrijving'.
+	$field_bases ['field_vak_beschrijving'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_vak_beschrijving',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_vak_evaluatie'.
+	$field_bases ['field_vak_evaluatie'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_vak_evaluatie',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'E1' => 'Examen 1',
+							'E2' => 'Examen 2',
+							'EP' => 'Examen Pasen',
+							'PE' => 'Permanente evaluatie',
+							'nvt' => 'niet van toepassing' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_vak_lokaal'.
+	$field_bases ['field_vak_lokaal'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_vak_lokaal',
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'lokaal' => 'lokaal' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_vak_skore_id'.
+	$field_bases ['field_vak_skore_id'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_vak_skore_id',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_vak_untis_id'.
+	$field_bases ['field_vak_untis_id'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_vak_untis_id',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function argus_vakken_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-vak-field_vak_afkorting'.
+	$field_instances ['node-vak-field_vak_afkorting'] = array (
+			'bundle' => 'vak',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_vak_afkorting',
+			'label' => 'Afkorting',
+			'required' => 1,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-vak-field_vak_beschrijving'.
+	$field_instances ['node-vak-field_vak_beschrijving'] = array (
+			'bundle' => 'vak',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_vak_beschrijving',
+			'label' => 'Beschrijving',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance: 'node-vak-field_vak_evaluatie'.
+	$field_instances ['node-vak-field_vak_evaluatie'] = array (
+			'bundle' => 'vak',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Manier van evaluatie.',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_vak_evaluatie',
+			'label' => 'Evaluatie',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 7 
+			) 
+	);
+	
+	// Exported field_instance: 'node-vak-field_vak_lokaal'.
+	$field_instances ['node-vak-field_vak_lokaal'] = array (
+			'bundle' => 'vak',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_vak_lokaal',
+			'label' => 'Lokaal',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance: 'node-vak-field_vak_skore_id'.
+	$field_instances ['node-vak-field_vak_skore_id'] = array (
+			'bundle' => 'vak',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_vak_skore_id',
+			'label' => 'ID (Skore)',
+			'required' => FALSE,
+			'settings' => array (
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance: 'node-vak-field_vak_untis_id'.
+	$field_instances ['node-vak-field_vak_untis_id'] = array (
+			'bundle' => 'vak',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_vak_untis_id',
+			'label' => 'ID (Untis)',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 5 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Afkorting' );
+	t ( 'Beschrijving' );
+	t ( 'Comment' );
+	t ( 'Evaluatie' );
+	t ( 'ID (Skore)' );
+	t ( 'ID (Untis)' );
+	t ( 'Lokaal' );
+	t ( 'Manier van evaluatie.' );
+	
+	return $field_instances;
+}
+

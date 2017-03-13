@@ -1,0 +1,237 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_gip_install() {
+	global $user;
+	$node = new stdClass ();
+	$node->title = 'Geïntegreerde proef - GIP';
+	$node->type = 'page';
+	node_object_prepare ( $node );
+	$node->language = LANGUAGE_NONE;
+	$node->uid = $user->uid;
+	$node->status = 1;
+	$node->promote = 1;
+	$node->comment = 0;
+	
+	$node->path ['alias'] = 'GIP';
+	if (menu_load('menu-modules')){
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$node->menu ['parent'] = $menu;
+	$node->menu ['menu_name'] = $menu;
+	$node->menu ['enabled'] = TRUE;
+	$node->menu ['link_title'] = 'Geïntegreerde proef - GIP';
+	$node->menu ['description'] = '';
+	
+	$node->link_title = 'Geïntegreerde proef - GIP';
+	$node->link_path = 'GIP';
+	
+	$node->body [$node->language] [0] ['format'] = 'full_html';
+	$node->body [$node->language] [0] ['value'] = '<h1>Status - werkjaar 2015-2016</h1>
+<em>(als je het ingeleverde document wil herbekijken, dan kan je klikken op de datum)</em>
+
+<table border="1" cellpadding="5" cellspacing="0" style="width:100%">
+	<tbody>
+		<tr>
+			<td colspan="2" style="background-color:rgb(255, 255, 204); vertical-align:top"><strong>GIP</strong></td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 1<br />
+			<strong>22/09/2015</strong><br />
+			Opgave GIP<br />
+			Dossier</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 2<br />
+			<strong>30/10/2015</strong><br />
+			Lijst juryleden<br />
+			Dossier</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 3<br />
+			<strong>27/11/2015</strong><br />
+			<br />
+			Dossier</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 4<br />
+			<strong>11/12/2015</strong><br />
+			<br />
+			Dossier</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 5<br />
+			<strong>22/01/2016</strong><br />
+			<br />
+			Dossier</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 6<br />
+			<strong>26/02/2016</strong><br />
+			<br />
+			Dossier</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 7<br />
+			<strong>11/03/2016</strong><br />
+			<br />
+			Dossier</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 8<br />
+			<strong>15/04/2016</strong><br />
+			<br />
+			Dossier</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Act. 9<br />
+			<strong>26/05/2016</strong><br />
+			GIP-dossier<br />
+			Binnen!</td>
+			<td style="background-color:rgb(255, 255, 204); vertical-align:top">Volgorde</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top"><strong>6 TSO</strong></td>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top">6 TIW</td>
+			<td style="vertical-align:top">Leekracht A</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/aanvraagformulier_15_sept_2015.pdf">17/12</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/timing_gip_deel_1_24_sept_2015.pdf">17/12</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/timing_gip_deel_2_27_okt_2015.pdf">17/12</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/timing_gip_deel_3_7_dec_2015.pdf">17/12</a></td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/berichten904208.zip">29/06</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/volgorde_voorstelling_gip_2.docx">02/06</a></td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top">6 TIF</td>
+			<td style="vertical-align:top">Leekracht B</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">18/01</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/uitvoeringsdossier_gip_6tif.doc">18/01</a></td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/uitvoeringsdossier_gip_6tif.pdf">30/06</a></td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top">6 TEM</td>
+			<td style="vertical-align:top">Leekracht C</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">21/01</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="http://argus.kta1-hasselt.be/sites/default/files/WPL/GIP/2015-2016/informatieplan_gip_6tem.doc">21/01 </a></td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/informatieplan_gip_6tem_0.doc">15/03</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/informatieplan_gip_6tem_1.doc">15/04</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/informatieplan_gip_6tem_2.doc">29/05</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/volgorde_voorstelling_gip_6tem.docx">08/06</a></td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top">6 TMM</td>
+			<td style="vertical-align:top">Leekracht D</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">28/12</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/uitvoeringsdossier_6tmm_-_1516_1.1.docx">28/12</a></td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/uitvoeringsdossier_6tmm_-_1516_1.docx">08/06</a></td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top"><strong>6 BSO</strong></td>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="background-color:rgb(238, 238, 238); vertical-align:top">&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top">6 BAU</td>
+			<td style="vertical-align:top">Leekracht A</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">18/01</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="http://argus.kta1-hasselt.be/sites/default/files/WPL/GIP/2015-2016/uitvoeringsdossier_eindwerk_bso_2015-20161.doc_1.pdf">18/01 </a></td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/uitvoeringsdossier_eindwerk_bso_2015-20161.doc_1_0.pdf">20/03</a></td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/uitvoeringsdossier_eindwerk_bso_2015-20161.doc_1_1.pdf">07/06</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/volgorde_voorstelling_gip_1.docx">07/06</a></td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); vertical-align:top">6 BCA1+2</td>
+			<td style="vertical-align:top">Leekracht B</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/inhoudsopgave_gip_6bca_1_en_6bca2_2015_2016.doc">22/09</a></td>
+			<td class="rtecenter" style="vertical-align:top">13/11</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/6bca-oktober.pdf">16/11</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/update_gip_6bca12.zip">08/01</a></td>
+			<td class="rtecenter" style="vertical-align:top">&nbsp;</td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/aangevuld_uitvoeringsdossier_gip_6_bso_carrosserie_12_schooljaar_2015_3_2016-1.pdf">29/02</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/aangevuld_uitvoeringsdossier_gip_6_bso_carrosserie_1en2_schooljaar_2015_2016.pdf">14/03</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/berichten841566.zip">15/04</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/berichten888440.zip">09/06</a></td>
+			<td class="rtecenter" style="vertical-align:top"><a href="/sites/default/files/WPL/GIP/2015-2016/volgorde_voorstelling_gip_6bso_carrosserie_1_en_2.docx">06/06</a></td>
+		</tr>
+	</tbody>
+</table>
+
+<h1>Nuttige links</h1>
+
+<ul>
+	<li>Voor de GIP-coördinator:
+	<ul>
+		<li><a href="#" target="_blank">Externe juryleden</a></li>
+		<li><a href="#">Evaluatieformulier TSO - GIP-coördinator</a></li>
+		<li><a href="#">Evaluatieformulier BSO - GIP-coördinator</a></li>
+		<li><a href="/wie-is-wie?rid[]=x" target="_blank">GIP-coördinatoren</a></li>
+		<li><a href="#">Informatieplan TSO - GIP-coördinator</a></li>
+		<li><a href="#">Informatieplan BSO - GIP-coördinator</a></li>
+		<li><a href="#">Vademecum - GIP-coördinator</a></li>
+		<li><a href="#">Bespreking product (formulier)</a></li>
+		<li><a href="#">Volgorde jury</a></li>
+	</ul>
+	</li>
+	<li>Voor de technische adviseur:
+	<ul>
+		<li><a href="#">Brief externe juryleden (december) - TA</a></li>
+		<li><a href="#">Formulier "attest" GIP - TA</a></li>
+		<li><a href="#">Formulier bespreking productevaluatie - TA</a></li>
+		<li><a href="#">Formulier inventaris GIP - TA</a></li>
+		<li><a href="#">Planning van de GIP-dag</a></li>
+	</ul>
+	</li>
+</ul>';
+	$node = node_submit ( $node ); // Prepare node for saving
+	node_save ( $node );
+	
+	// Keep id for uninstall
+	variable_set ( 'argus_gip_page', $node->nid );
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_gip_uninstall() {
+	node_delete ( variable_get ( 'argus_gip_page' ) );
+}

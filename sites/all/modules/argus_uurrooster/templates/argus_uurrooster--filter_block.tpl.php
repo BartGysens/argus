@@ -20,18 +20,26 @@
 global $base_url;
 
 /* Select user based upon the role selected */
+$bundles = array('uurrooster_vervanging', 'uurrooster_permanentie', 'uurrooster_les', 'uurrooster_toezicht');
 $query = 'SELECT DISTINCT(u.uid) AS id '
 		. 'FROM {users} AS u '
 		. 'INNER JOIN {field_data_field_user_sms_naam} AS un ON u.uid = un.entity_id '
 		. 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON u.uid = uv.entity_id '
 		. 'LEFT JOIN {field_data_field_uurrooster_les_leerkracht} AS l ON l.field_uurrooster_les_leerkracht_target_id = u.uid '
 		. 'LEFT JOIN {field_data_field_uurrooster_perm_vervanger} AS p ON p.field_uurrooster_perm_vervanger_target_id = u.uid '
-		. 'LEFT JOIN {field_data_field_uurrooster_toez_toezichter} AS t ON t.field_uurrooster_toez_toezichter_target_id = u.uid '
-		. 'LEFT JOIN {field_data_field_gebruiker} AS g ON g.field_gebruiker_target_id = u.uid '
-		. 'WHERE status = 1 '
-		. 'AND (g.bundle IN (:bundle) OR l.bundle IN (:bundle) OR p.bundle IN (:bundle) OR t.bundle IN (:bundle)) '
+		. 'LEFT JOIN {field_data_field_uurrooster_toez_toezichter} AS t ON t.field_uurrooster_toez_toezichter_target_id = u.uid ';
+if (module_exists('argus_uurrooster_vervanging')){
+		$query .= 'LEFT JOIN {field_data_field_gebruiker} AS g ON g.field_gebruiker_target_id = u.uid ';
+		$bundle[] = 'uurrooster_vervanging';
+}
+$query .= 'WHERE status = 1 '
+		. 'AND (';
+if (module_exists('argus_uurrooster_vervanging')){
+		$query .= 'g.bundle IN (:bundle) OR ';
+}
+$query .= 'l.bundle IN (:bundle) OR p.bundle IN (:bundle) OR t.bundle IN (:bundle)) '
 		. 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
-$users_lkr = db_query($query, array(':bundle' => array('uurrooster_vervanging', 'uurrooster_permanentie', 'uurrooster_les', 'uurrooster_toezicht')))->fetchAll();
+$users_lkr = db_query($query, array(':bundle' => $bundles))->fetchAll();
 
 $query = 'SELECT DISTINCT(u.uid) AS id '
 		. 'FROM {users} AS u '
@@ -109,16 +117,18 @@ $users_lln = db_query($query, array(':rids' => variable_get('argus_engine_roles_
                 ->propertyOrderBy('title', 'ASC');
             $rooms = $query->execute();
             if (isset($rooms)) {
-                foreach ($rooms['node'] as $key => $r) {
-                    $r = (array) node_load($key);
-                    echo '<option value="'.$key.'"';
-                    if (isset($rid)) {
-                        if ($key == $rid) {
-                            echo ' selected';
-                        }
-                    }
-                    echo '>'.$r['title'].'</option>';
-                }
+            	if (array_key_exists('node', $rooms)){
+	                foreach ($rooms['node'] as $key => $r) {
+	                    $r = (array) node_load($key);
+	                    echo '<option value="'.$key.'"';
+	                    if (isset($rid)) {
+	                        if ($key == $rid) {
+	                            echo ' selected';
+	                        }
+	                    }
+	                    echo '>'.$r['title'].'</option>';
+	                }
+            	}
             } ?>
             </select>
 		<hr />

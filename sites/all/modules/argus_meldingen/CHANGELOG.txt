@@ -1,9 +1,12 @@
 **Releases:
 
+v7.x-3.3
+---------
+- Features disabled, full custom module
 
 v7.x-3.2
 ---------
-- Module Meldingen: block voor student, ilb, kit en staff
+- Module Meldingen: block voor student, ilb, ktt en staff
 
 v7.x-3.1
 ---------

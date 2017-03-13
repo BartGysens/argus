@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Copyright (C) 2016 bartgysens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -9,77 +9,88 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* Drupal Hooks */
 
-/** 
+/**
  * Implement hook_block_info().
  */
 function argus_azindex_block_info() {
-    $blocks = array();
-    $blocks['block'] = array(
-        'info' => t('AZ-index'),
-        'title' => t('AZ-index'),
-    );
-
-    return $blocks;
+	$blocks = array ();
+	$blocks ['block'] = array (
+			'info' => t ( 'AZ-index' ),
+			'cache' => DRUPAL_CACHE_GLOBAL,
+			'weight' => 2,
+			'status' => 1,
+			'region' => 'sidebar_first',
+			'pages' => '' 
+	);
+	
+	return $blocks;
 }
 
-/** 
+/**
  * Implement hook_block_view().
  */
-function argus_azindex_block_view($delta='') {
-    $block = array();
-    
-    $menuTree = getMenuItems(menu_build_tree('menu-modules'));
-    ksort($menuTree);
-    
-    $variables = array( 'index' => $menuTree );
-    
-    switch($delta) {
-    	case 'block' :
-        	$block['subject'] = t('AZ-index');
-            $block['content'] = theme('argus_azindex_block', $variables);
-            break;
-    }
-    return $block;
+function argus_azindex_block_view($delta = '') {
+	$block = array ();
+	
+	$menuTree = getMenuItems ( menu_build_tree ( 'menu-modules' ) );
+	ksort ( $menuTree );
+	
+	$variables = array (
+			'index' => $menuTree 
+	);
+	
+	switch ($delta) {
+		case 'block' :
+			$block ['subject'] = t ( 'AZ-index' );
+			$block ['content'] = theme ( 'argus_azindex_block', $variables );
+			break;
+	}
+	return $block;
 }
 
-/** 
+/**
  * Implement hook_theme()
  */
 function argus_azindex_theme() {
-    return array(
-        'argus_azindex_block' => array(
-            'variables' => array(
-                'content' => NULL,
-                'popular_content' => NULL,
-            ),
-            'template' => 'templates/argus_azindex--block',
-        ),
-      );
+	return array (
+			'argus_azindex_block' => array (
+					'variables' => array (
+							'content' => NULL,
+							'popular_content' => NULL 
+					),
+					'template' => 'templates/argus_azindex--block' 
+			) 
+	);
 }
 
 /* Custom functions */
 
 /**
  * Get all menu items from menu tree (recursive)
- * @param array $item Menuitem
+ * 
+ * @param array $item
+ *        	Menuitem
  */
-function getMenuItems($items){
-	$links = array();
-	foreach ($items as $item){
-		if (!in_array( $item['link']['link_path'], array('', '<nolink>'))){
-			$links[$item['link']['link_title']] = $item['link']['link_path'];
+function getMenuItems($items) {
+	$links = array ();
+	foreach ( $items as $item ) {
+		if (! in_array ( $item ['link'] ['link_path'], array (
+				'',
+				'<nolink>' 
+		) )) {
+			$links [$item ['link'] ['link_title']] = $item ['link'] ['link_path'];
 		}
-		if ($item['link']['has_children'] && $item['link']['expanded']){
-			$links = array_merge($links, getMenuItems($item['below']));
+		if ($item ['link'] ['has_children'] && $item ['link'] ['expanded']) {
+			$links = array_merge ( $links, getMenuItems ( $item ['below'] ) );
 		}
 	}
 	return $links;

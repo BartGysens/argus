@@ -1,0 +1,1180 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_aankoopdossiers_install() {
+	$type = 'aankoopdossier';
+	node_types_rebuild ();
+	
+	$types = node_type_get_types ();
+	node_add_body_field ( $types [$type], $label = t ( 'Beschrijving' ) );
+	
+	foreach ( argus_aankoopdossiers_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	foreach ( argus_aankoopdossiers_field_default_field_instances () as $fieldinstance ) {
+		$fieldinstance ['entity_type'] = 'node';
+		$fieldinstance ['bundle'] = $type;
+		field_create_instance ( $fieldinstance );
+	}
+	
+	foreach ( argus_aankoopdossiers_field_group_info () as $fieldgroup ) {
+		$fieldgroup->label = $fieldgroup->data ['label'];
+		$fieldgroup->weight = $fieldgroup->data ['weight'];
+		$fieldgroup->children = $fieldgroup->data ['children'];
+		$fieldgroup->format_type = $fieldgroup->data ['format_type'];
+		$fieldgroup->format_settings = $fieldgroup->data ['format_settings'];
+		
+		field_group_group_save ( $fieldgroup );
+	}
+	
+	// Enable some standard blocks.
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => 'aad10ab86e18af7397067ace8ca4b30b',
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first',
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'aankoopdossiers' . chr ( 13 ) . 'aankoopdossiers/*',
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			) 
+	);
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_aankoopdossiers_uninstall() {
+	$type = 'aankoopdossier';
+	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+	$result = db_query ( $sql, array (
+			':type' => $type 
+	) );
+	$nodeids = array ();
+	foreach ( $result as $row ) {
+		$nodeids [] = $row->nid;
+	}
+	node_delete_multiple ( $nodeids );
+	
+	foreach ( argus_aankoopdossiers_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field($field_name);
+		if (count($field_info['bundles']['node']) < 2){ // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	$instances = field_info_instances ( 'node', $type );
+	foreach ( $instances as $instance_name => $fieldinstance ) {
+		field_delete_instance ( $fieldinstance );
+	}
+	
+	node_type_delete ( $type );
+	
+	// Remove blocks.
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_aankoopdossiers' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ */
+function argus_aankoopdossiers_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_aankoop_bestelbon'.
+	$field_bases ['field_aankoop_bestelbon'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_bestelbon',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'fid' => array (
+							0 => 'fid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'file',
+			'settings' => array (
+					'display_default' => 0,
+					'display_field' => 0,
+					'uri_scheme' => 'public' 
+			),
+			'translatable' => 0,
+			'type' => 'file' 
+	);
+	
+	// Exported field_base: 'field_aankoop_budget'.
+	$field_bases ['field_aankoop_budget'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_budget',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (
+					'decimal_separator' => '.',
+					'precision' => 10,
+					'scale' => 2 
+			),
+			'translatable' => 0,
+			'type' => 'number_decimal' 
+	);
+	
+	// Exported field_base: 'field_aankoop_conclusie'.
+	$field_bases ['field_aankoop_conclusie'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_conclusie',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_aankoop_factuurbedrag'.
+	$field_bases ['field_aankoop_factuurbedrag'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_factuurbedrag',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (
+					'decimal_separator' => '.',
+					'precision' => 10,
+					'scale' => 2 
+			),
+			'translatable' => 0,
+			'type' => 'number_decimal' 
+	);
+	
+	// Exported field_base: 'field_aankoop_leverancier'.
+	$field_bases ['field_aankoop_leverancier'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_leverancier',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_aankoop_leveranciers'.
+	$field_bases ['field_aankoop_leveranciers'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_leveranciers',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (
+											0 => 'leverancier' 
+									),
+									'display_name' => 'entityreference_organisaties',
+									'view_name' => 'organisaties' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_aankoop_offerte'.
+	$field_bases ['field_aankoop_offerte'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_offerte',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'fid' => array (
+							0 => 'fid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'file',
+			'settings' => array (
+					'display_default' => 0,
+					'display_field' => 0,
+					'uri_scheme' => 'private' 
+			),
+			'translatable' => 0,
+			'type' => 'file' 
+	);
+	
+	// Exported field_base: 'field_aankoop_preventieregister'.
+	$field_bases ['field_aankoop_preventieregister'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_preventieregister',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							0 => '',
+							1 => 'Opnemen in het preventieregister' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_boolean' 
+	);
+	
+	// Exported field_base: 'field_aankoop_status'.
+	$field_bases ['field_aankoop_status'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_status',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'Nieuw dossier' => 'Nieuw dossier',
+							'Prijsoffertes opgevraagd' => 'Prijsoffertes opgevraagd',
+							'Goedgekeurd door directie' => 'Goedgekeurd door directie',
+							'Goedgekeurd door scholengroep' => 'Goedgekeurd door scholengroep',
+							'Bestelling geplaatst' => 'Bestelling geplaatst',
+							'Bestelling geleverd' => 'Bestelling geleverd',
+							'Afgehandeld (na controle)' => 'Afgehandeld (na controle)' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_aankoop_vakgroep'.
+	$field_bases ['field_aankoop_vakgroep'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_vakgroep',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'vakgroep' => 'vakgroep' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_aankoop_vergelijking'.
+	$field_bases ['field_aankoop_vergelijking'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aankoop_vergelijking',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function argus_aankoopdossiers_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_bestelbon'.
+	$field_instances ['node-aankoopdossier-field_aankoop_bestelbon'] = array (
+			'bundle' => 'aankoopdossier',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'file',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'file_default',
+							'weight' => 8 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_bestelbon',
+			'label' => 'Bestelbon',
+			'required' => 0,
+			'settings' => array (
+					'description_field' => 0,
+					'file_directory' => 'aankoopdossiers',
+					'file_extensions' => 'txt pdf doc docx xls xlsx',
+					'max_filesize' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'file',
+					'settings' => array (
+							'filefield_sources' => array (
+									'filefield_sources' => array (
+											'attach' => 0,
+											'clipboard' => 0,
+											'imce' => 0,
+											'reference' => 0,
+											'remote' => 0,
+											'upload' => 'upload' 
+									),
+									'source_attach' => array (
+											'absolute' => 0,
+											'attach_mode' => 'move',
+											'path' => 'file_attach' 
+									),
+									'source_imce' => array (
+											'imce_mode' => 0 
+									),
+									'source_reference' => array (
+											'autocomplete' => 0,
+											'search_all_fields' => 0 
+									) 
+							),
+							'progress_indicator' => 'throbber' 
+					),
+					'type' => 'file_generic',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_budget'.
+	$field_instances ['node-aankoopdossier-field_aankoop_budget'] = array (
+			'bundle' => 'aankoopdossier',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 2,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_decimal',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_budget',
+			'label' => 'Budget',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '€',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_conclusie'.
+	$field_instances ['node-aankoopdossier-field_aankoop_conclusie'] = array (
+			'bundle' => 'aankoopdossier',
+			'default_value' => array (
+					0 => array (
+							'value' => '<p>In acht name van het prijsverschil, de gratis levering, opleiding, onderhoud, ... concluderen wij dat ... het beste aanbod heeft.</p>
+',
+							'format' => 'full_html' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_conclusie',
+			'label' => 'Conclusie',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 7 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_factuurbedrag'.
+	$field_instances ['node-aankoopdossier-field_aankoop_factuurbedrag'] = array (
+			'bundle' => 'aankoopdossier',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 2,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_decimal',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_factuurbedrag',
+			'label' => 'Factuurbedrag',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '€',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 8 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_leverancier'.
+	$field_instances ['node-aankoopdossier-field_aankoop_leverancier'] = array (
+			'bundle' => 'aankoopdossier',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '<u>FIRMANAAM</u>
+Straat nr/bus
+Postnr & gemeente
+Telefoonnummer
+Emailadres',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 10 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_leverancier',
+			'label' => 'Leverancier',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 13 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_leveranciers'.
+	$field_instances ['node-aankoopdossier-field_aankoop_leveranciers'] = array (
+			'bundle' => 'aankoopdossier',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Als de leverancier niet in de lijst staat, kan je hem hier <a href="/node/add/organisatie" target="_blank">toevoegen</a>.',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'links' => 1,
+									'use_content_language' => TRUE,
+									'view_mode' => 'default' 
+							),
+							'type' => 'entityreference_entity_view',
+							'weight' => 9 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_leveranciers',
+			'label' => 'Leveranciers',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'entityreference',
+					'settings' => array (
+							'match_operator' => 'CONTAINS',
+							'path' => '',
+							'size' => 60 
+					),
+					'type' => 'entityreference_autocomplete',
+					'weight' => 12 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_offerte'.
+	$field_instances ['node-aankoopdossier-field_aankoop_offerte'] = array (
+			'bundle' => 'aankoopdossier',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'file',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'file_default',
+							'weight' => 11 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_offerte',
+			'label' => 'Offerte',
+			'required' => 0,
+			'settings' => array (
+					'description_field' => 0,
+					'file_directory' => 'aankoopdossiers',
+					'file_extensions' => 'txt doc docx pdf ppt pptx xls xlsx',
+					'max_filesize' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'file',
+					'settings' => array (
+							'filefield_sources' => array (
+									'filefield_sources' => array (
+											'attach' => 0,
+											'clipboard' => 0,
+											'imce' => 0,
+											'reference' => 0,
+											'remote' => 0,
+											'upload' => 'upload' 
+									),
+									'source_attach' => array (
+											'absolute' => 0,
+											'attach_mode' => 'move',
+											'path' => 'file_attach' 
+									),
+									'source_imce' => array (
+											'imce_mode' => 0 
+									),
+									'source_reference' => array (
+											'autocomplete' => 0 
+									) 
+							),
+							'progress_indicator' => 'throbber' 
+					),
+					'type' => 'file_generic',
+					'weight' => 14 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-aankoopdossier-field_aankoop_preventieregister'.
+	$field_instances ['node-aankoopdossier-field_aankoop_preventieregister'] = array (
+			'bundle' => 'aankoopdossier',
+			'default_value' => array (
+					0 => array (
+							'value' => 0 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 12 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_preventieregister',
+			'label' => 'Opnemen in het preventieregister',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'display_label' => 0 
+					),
+					'type' => 'options_onoff',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_status'.
+	$field_instances ['node-aankoopdossier-field_aankoop_status'] = array (
+			'bundle' => 'aankoopdossier',
+			'default_value' => array (
+					0 => array (
+							'value' => 'Nieuw dossier' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_status',
+			'label' => 'Status',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_vakgroep'.
+	$field_instances ['node-aankoopdossier-field_aankoop_vakgroep'] = array (
+			'bundle' => 'aankoopdossier',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_vakgroep',
+			'label' => 'Vakgroep',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'multiselect',
+					'settings' => array (),
+					'type' => 'multiselect',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance: 'node-aankoopdossier-field_aankoop_vergelijking'.
+	$field_instances ['node-aankoopdossier-field_aankoop_vergelijking'] = array (
+			'bundle' => 'aankoopdossier',
+			'default_value' => array (
+					0 => array (
+							'value' => '<table border="1" cellpadding="5" cellspacing="0" style="width:100%">
+	<tbody>
+		<tr>
+			<td style="background-color:rgb(220, 220, 220)"><strong>BETREFT</strong></td>
+			<td style="background-color:rgb(220, 220, 220)"><strong>FIRMA A</strong></td>
+			<td style="background-color:rgb(220, 220, 220)"><strong>FIRMA B</strong></td>
+			<td style="background-color:rgb(220, 220, 220)"><strong>FIRMA C</strong></td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(220, 220, 220)">ITEM 1</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(220, 220, 220)">ITEM 2</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(220, 220, 220)"><em>onderhoud</em></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(220, 220, 220)"><em>opleiding</em></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(220, 220, 220)"><em>levering</em></td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(220, 220, 220)"><strong>TOTAAL</strong></td>
+			<td style="background-color:rgb(220, 220, 220)">&nbsp;</td>
+			<td style="background-color:rgb(220, 220, 220)">&nbsp;</td>
+			<td style="background-color:rgb(220, 220, 220)">&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+',
+							'format' => 'full_html' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'hidden',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aankoop_vergelijking',
+			'label' => 'Vergelijking',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 6 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( '<u>FIRMANAAM</u>
+Straat nr/bus
+Postnr & gemeente
+Telefoonnummer
+Emailadres' );
+	t ( 'Als de leverancier niet in de lijst staat, kan je hem hier <a href="/node/add/organisatie" target="_blank">toevoegen</a>.' );
+	t ( 'Bestelbon' );
+	t ( 'Budget' );
+	t ( 'Comment' );
+	t ( 'Conclusie' );
+	t ( 'Factuurbedrag' );
+	t ( 'Leverancier' );
+	t ( 'Leveranciers' );
+	t ( 'Offerte' );
+	t ( 'Opnemen in het preventieregister' );
+	t ( 'Reden voor aankoop' );
+	t ( 'Status' );
+	t ( 'Vakgroep' );
+	t ( 'Vergelijking' );
+	
+	return $field_instances;
+}
+
+/**
+ * Implements hook_field_group_info().
+ */
+function argus_aankoopdossiers_field_group_info() {
+	$field_groups = array ();
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_aankoop_begroting|node|aankoopdossier|default';
+	$field_group->group_name = 'group_aankoop_begroting';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'aankoopdossier';
+	$field_group->mode = 'default';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'Begroting',
+			'weight' => '2',
+			'children' => array (
+					0 => 'field_aankoop_vakgroep',
+					1 => 'field_aankoop_budget' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-aankoop-begroting field-group-fieldset' 
+					) 
+			) 
+	);
+	$field_groups ['group_aankoop_begroting|node|aankoopdossier|default'] = $field_group;
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_aankoop_begroting|node|aankoopdossier|form';
+	$field_group->group_name = 'group_aankoop_begroting';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'aankoopdossier';
+	$field_group->mode = 'form';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'Begroting',
+			'weight' => '4',
+			'children' => array (
+					0 => 'field_aankoop_vakgroep',
+					1 => 'field_aankoop_budget' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-aankoop-begroting field-group-fieldset',
+							'required_fields' => 1 
+					) 
+			) 
+	);
+	$field_groups ['group_aankoop_begroting|node|aankoopdossier|form'] = $field_group;
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_aankoop_prijsaanvraag|node|aankoopdossier|default';
+	$field_group->group_name = 'group_aankoop_prijsaanvraag';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'aankoopdossier';
+	$field_group->mode = 'default';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'Prijsaanvraag',
+			'weight' => '3',
+			'children' => array (
+					0 => 'field_aankoop_leverancier',
+					1 => 'field_aankoop_offerte',
+					2 => 'field_aankoop_leveranciers' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'label' => 'Prijsaanvraag',
+					'instance_settings' => array (
+							'classes' => 'group-aankoop-prijsaanvraag field-group-fieldset pagebreaker-before',
+							'description' => '' 
+					),
+					'formatter' => 'collapsible' 
+			) 
+	);
+	$field_groups ['group_aankoop_prijsaanvraag|node|aankoopdossier|default'] = $field_group;
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_aankoop_prijsvraag|node|aankoopdossier|form';
+	$field_group->group_name = 'group_aankoop_prijsvraag';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'aankoopdossier';
+	$field_group->mode = 'form';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'Prijsvraag',
+			'weight' => '5',
+			'children' => array (
+					0 => 'field_aankoop_leverancier',
+					1 => 'field_aankoop_offerte',
+					2 => 'field_aankoop_leveranciers' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-aankoop-prijsvraag field-group-fieldset',
+							'required_fields' => 1 
+					) 
+			) 
+	);
+	$field_groups ['group_aankoop_prijsvraag|node|aankoopdossier|form'] = $field_group;
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Begroting' );
+	t ( 'Prijsaanvraag' );
+	t ( 'Prijsvraag' );
+	
+	return $field_groups;
+}
+

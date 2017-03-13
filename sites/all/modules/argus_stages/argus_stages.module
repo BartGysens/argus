@@ -1,7 +1,90 @@
 <?php
-/**
- * @file
- * Code for the Stages feature.
+/*
+ * Copyright (C) 2017 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'argus_stages.features.inc';
+/* Drupal Hooks */
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function argus_stages_ctools_plugin_api($module = NULL, $api = NULL) {
+	if ($module == "field_group" && $api == "field_group") {
+		return array (
+				"version" => "1" 
+		);
+	}
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_stages_node_info() {
+	$items = array (
+			'stage' => array (
+					'name' => t ( 'Stage' ),
+					'base' => 'node_content',
+					'description' => t ( 'Je kan je <em>stages</em> via deze module volledig in kaart brengen door leerlinge, stageperiodes en stagegevers aan elkaar te koppelen.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Titel' ),
+					'help' => '' 
+			),
+			'stageactiviteitenlijst' => array (
+					'name' => t ( 'Stageactiviteitenlijst' ),
+					'base' => 'node_content',
+					'description' => t ( 'Voor elke stage moet een lijst opgemaakt worden met mogelijke activiteiten. Deze <em>stageactiviteitenlijst</em> wordt opgenomen in het stagedossier.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			),
+			'stagebezoek' => array (
+					'name' => t ( 'Stagebezoek' ),
+					'base' => 'node_content',
+					'description' => t ( 'Met deze module kan je je <em>stagebezoek</em> inplannen en opvolgen qua evaluatie en administratie.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			),
+			'stageperiode' => array (
+					'name' => t ( 'Stageperiode' ),
+					'base' => 'node_content',
+					'description' => t ( 'Met dit type wordt een <em>periode</em> vastgelegd met haar specifieke datums dat een <em>stage</em> zal plaats vinden.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_stages_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function argus_stages_views_api() {
+	return array (
+			'api' => 3.0,
+			'path' => drupal_get_path ( 'module', 'argus_stages' ) 
+	) // replace demo with your content type
+;
+}

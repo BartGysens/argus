@@ -8,8 +8,22 @@
  * Implements hook_default_rules_configuration().
  */
 function argus_nascholingen_default_rules_configuration() {
-  $items = array();
-  $items['rules_nascholing_attest_binnengebracht'] = entity_import('rules_config', '{ "rules_nascholing_attest_binnengebracht" : {
+	$items = array ();
+	$items ['rules_nascholing_attest_datum'] = entity_import ( 'rules_config', '{ "rules_nascholing_attest_datum" : {
+      "LABEL" : "Nascholing attest datum",
+      "PLUGIN" : "rule",
+      "OWNER" : "rules",
+      "TAGS" : [ "attest", "datum", "nascholing" ],
+      "REQUIRES" : [ "rules" ],
+      "USES VARIABLES" : {
+        "datum_nascholing" : { "label" : "Datum van event", "type" : "date" },
+        "huidige_datum" : { "label" : "Huidige datum", "type" : "date" },
+        "attest" : { "label" : "Attest aan", "type" : "node" }
+      },
+      "DO" : []
+    }
+  }' );
+	$items ['rules_nascholing_attest_binnengebracht'] = entity_import ( 'rules_config', '{ "rules_nascholing_attest_binnengebracht" : {
       "LABEL" : "Nascholing - attest binnengebracht",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -24,21 +38,9 @@ function argus_nascholingen_default_rules_configuration() {
       ],
       "DO" : []
     }
-  }');
-  $items['rules_nascholing_attest_datum'] = entity_import('rules_config', '{ "rules_nascholing_attest_datum" : {
-      "LABEL" : "Nascholing attest datum",
-      "PLUGIN" : "rule",
-      "OWNER" : "rules",
-      "TAGS" : [ "attest", "datum", "nascholing" ],
-      "USES VARIABLES" : {
-        "datum_nascholing" : { "label" : "Datum van event", "type" : "date" },
-        "huidige_datum" : { "label" : "Huidige datum", "type" : "date" },
-        "attest" : { "label" : "Attest aan", "type" : "node" }
-      },
-      "DO" : []
-    }
-  }');
-  $items['rules_nascholing_melding_van_nieuwe_aanvraag_nascholing'] = entity_import('rules_config', '{ "rules_nascholing_melding_van_nieuwe_aanvraag_nascholing" : {
+  }' );
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_nascholing_melding_van_nieuwe_aanvraag_nascholing'] = entity_import ( 'rules_config', '{ "rules_nascholing_melding_van_nieuwe_aanvraag_nascholing" : {
       "LABEL" : "Nascholing - melding nieuwe aanvraag",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -57,85 +59,36 @@ function argus_nascholingen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_nascholing_verandering_van_status'] = entity_import('rules_config', '{ "rules_nascholing_verandering_van_status" : {
-      "LABEL" : "Nascholing - verandering van status",
-      "PLUGIN" : "reaction rule",
-      "OWNER" : "rules",
-      "TAGS" : [ "event", "nascholing" ],
-      "REQUIRES" : [ "rules", "argus_sms_api" ],
-      "ON" : { "node_presave--event_nascholing" : { "bundle" : "event_nascholing" } },
-      "IF" : [
-        { "NOT data_is" : {
-            "data" : [ "node:field-ev-goedkeuring" ],
-            "value" : [ "node-unchanged:field-ev-goedkeuring" ]
-          }
-        }
-      ],
-      "DO" : [
-        { "argus_sms_api_send_msg" : {
-            "key" : [ "node:nid" ],
-            "to" : [ "node:author:uid" ],
-            "co" : "0",
-            "from" : [ "site:current-user:uid" ],
-            "subject" : "Betreft: aanvraag nascholing \\u0027[node:field-ev-onderwerp]\\u0027",
-            "body" : "\\u003Cp\\u003EBeste,\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003EUw aanvraag tot nascholing werd nagekeken en de status werd aangepast naar \\u003Cstrong\\u003E[node:field-ev-goedkeuring]\\u003C\\/strong\\u003E\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003Eklik hier voor meer informatie: \\u003Ca href=\\u0022[node:url]\\u0022 target=\\u0022_blank\\u0022\\u003E[node:url]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
-          }
-        }
-      ]
-    }
-  }');
-  $items['rules_pedagogische_activiteit_en_nascholing_reactie_a'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_en_nascholing_reactie_a" : {
-      "LABEL" : "Pedagogische activiteit en nascholing - reactie a",
-      "PLUGIN" : "reaction rule",
-      "OWNER" : "rules",
-      "TAGS" : [ "event", "nascholing", "pedagogische activiteit" ],
-      "REQUIRES" : [ "rules", "argus_sms_api", "comment" ],
-      "ON" : {
-        "comment_insert--comment_node_event_nascholing" : { "bundle" : "comment_node_event_nascholing" },
-        "comment_insert--comment_node_event_pedagogische_activiteit" : { "bundle" : "comment_node_event_pedagogische_activiteit" }
-      },
-      "IF" : [
-        { "data_is" : { "data" : [ "comment:author" ], "value" : [ "comment:node:author" ] } }
-      ],
-      "DO" : [
-        { "argus_sms_api_send_msg" : {
-            "key" : [ "comment:cid" ],
-            "to" : "94",
-            "co" : "0",
-            "from" : [ "comment:author:uid" ],
-            "subject" : "Betreft: nieuwe reactie op aanvraag \\u0027[comment:node:title]\\u0027",
-            "body" : "\\u003Cp\\u003EBeste\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003EEr werd een nieuwe reactie geschreven op aanvraag \\u0027[comment:node]\\u0027\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003Eklik hier voor meer informatie: \\u003Ca href=\\u0022[comment:url]\\u0022 target=\\u0022_blank\\u0022\\u003E[comment:url]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
-          }
-        }
-      ]
-    }
-  }');
-  $items['rules_pedagogische_activiteit_en_nascholing_reactie_b'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_en_nascholing_reactie_b" : {
-      "LABEL" : "Pedagogische activiteit en nascholing - reactie b",
-      "PLUGIN" : "reaction rule",
-      "OWNER" : "rules",
-      "TAGS" : [ "event", "nascholing", "pedagogische activiteit" ],
-      "REQUIRES" : [ "rules", "argus_sms_api", "comment" ],
-      "ON" : {
-        "comment_insert--comment_node_event_nascholing" : { "bundle" : "comment_node_event_nascholing" },
-        "comment_insert--comment_node_event_pedagogische_activiteit" : { "bundle" : "comment_node_event_pedagogische_activiteit" }
-      },
-      "IF" : [
-        { "NOT data_is" : { "data" : [ "comment:author" ], "value" : [ "comment:node:author" ] } }
-      ],
-      "DO" : [
-        { "argus_sms_api_send_msg" : {
-            "key" : [ "comment:cid" ],
-            "to" : [ "comment:node:author:uid" ],
-            "co" : "0",
-            "from" : [ "comment:author:uid" ],
-            "subject" : "Betreft: nieuwe reactie op aanvraag \\u0027[comment:node:title]\\u0027",
-            "body" : "\\u003Cp\\u003EBeste\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003EEr werd een nieuwe reactie geschreven op aanvraag \\u0027[comment:node]\\u0027\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003Eklik hier voor meer informatie: \\u003Ca href=\\u0022[comment:url]\\u0022 target=\\u0022_blank\\u0022\\u003E[comment:url]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
-          }
-        }
-      ]
-    }
-  }');
-  return $items;
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_nascholing_verandering_van_status'] = entity_import ( 'rules_config', '{ "rules_nascholing_verandering_van_status" : {
+	      "LABEL" : "Nascholing - verandering van status",
+	      "PLUGIN" : "reaction rule",
+	      "OWNER" : "rules",
+	      "TAGS" : [ "event", "nascholing" ],
+	      "REQUIRES" : [ "rules", "argus_sms_api" ],
+	      "ON" : { "node_presave--event_nascholing" : { "bundle" : "event_nascholing" } },
+	      "IF" : [
+	        { "NOT data_is" : {
+	            "data" : [ "node:field-ev-goedkeuring" ],
+	            "value" : [ "node-unchanged:field-ev-goedkeuring" ]
+	          }
+	        }
+	      ],
+	      "DO" : [
+	        { "argus_sms_api_send_msg" : {
+	            "key" : [ "node:nid" ],
+	            "to" : [ "node:author:uid" ],
+	            "co" : "0",
+	            "from" : [ "site:current-user:uid" ],
+	            "subject" : "Betreft: aanvraag nascholing \\u0027[node:field-ev-onderwerp]\\u0027",
+	            "body" : "\\u003Cp\\u003EBeste,\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003EUw aanvraag tot nascholing werd nagekeken en de status werd aangepast naar \\u003Cstrong\\u003E[node:field-ev-goedkeuring]\\u003C\\/strong\\u003E\\u003C\\/p\\u003E\\r\\n\\u003Cp\\u003Eklik hier voor meer informatie: \\u003Ca href=\\u0022[node:url]\\u0022 target=\\u0022_blank\\u0022\\u003E[node:url]\\u003C\\/a\\u003E\\u003C\\/p\\u003E"
+	          }
+	        }
+	      ]
+	    }
+	  }' );
+	}
+	return $items;
 }

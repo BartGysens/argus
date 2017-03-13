@@ -1,0 +1,2058 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_uurrooster_install() {
+	// Rebuild and define new content type
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_uurrooster_field_default_field_bases()
+	foreach ( argus_uurrooster_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_uurrooster_field_default_field_instances()
+	foreach ( argus_uurrooster_field_default_field_instances () as $fieldinstance ) {
+		field_create_instance ( $fieldinstance );
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_uurrooster_uninstall() {
+	$newTypes = array (
+			'uurrooster_les',
+			'uurrooster_periode',
+			'uurrooster_permanentie',
+			'uurrooster_toezicht',
+			'uurrooster_toezicht_locatie' 
+	);
+	
+	foreach ( $newTypes as $type ) {
+		// Remove all nodes of new content type
+		$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+		$result = db_query ( $sql, array (
+				':type' => $type 
+		) );
+		$nodeids = array ();
+		foreach ( $result as $row ) {
+			$nodeids [] = $row->nid;
+		}
+		node_delete_multiple ( $nodeids );
+	}
+	
+	// Delete all related fields
+	foreach ( argus_uurrooster_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	foreach ( $newTypes as $type ) {
+		$instances = field_info_instances ( 'node', $type );
+		foreach ( $instances as $instance_name => $fieldinstance ) {
+			field_delete_instance ( $fieldinstance );
+		}
+	}
+	
+	foreach ( $newTypes as $type ) {
+		// Remove new content type
+		node_type_delete ( $type );
+	}
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_uurrooster' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ */
+function argus_uurrooster_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_looptijd'.
+	$field_bases ['field_looptijd'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_looptijd',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 'hour',
+							'minute' => 'minute',
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => '',
+					'todate' => 'optional',
+					'tz_handling' => 'none' 
+			),
+			'translatable' => 0,
+			'type' => 'date' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_les_id_untis'.
+	$field_bases ['field_uurrooster_les_id_untis'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_les_id_untis',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_les_klassen'.
+	$field_bases ['field_uurrooster_les_klassen'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_les_klassen',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'entityreference_klassen',
+									'view_name' => 'klassen' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_les_leerkracht'.
+	$field_bases ['field_uurrooster_les_leerkracht'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_les_leerkracht',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users_lkr',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_les_lokaal'.
+	$field_bases ['field_uurrooster_les_lokaal'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_les_lokaal',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'lokaal' => 'lokaal' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_les_periode'.
+	$field_bases ['field_uurrooster_les_periode'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_les_periode',
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'uurrooster_periode' => 'uurrooster_periode' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_les_vak'.
+	$field_bases ['field_uurrooster_les_vak'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_les_vak',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'entityreference_vakken',
+									'view_name' => 'vakken' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_periode_dag'.
+	$field_bases ['field_uurrooster_periode_dag'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_periode_dag',
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_periode_eind'.
+	$field_bases ['field_uurrooster_periode_eind'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_periode_eind',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 4 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_periode_id'.
+	$field_bases ['field_uurrooster_periode_id'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_periode_id',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_periode_periode'.
+	$field_bases ['field_uurrooster_periode_periode'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_periode_periode',
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_periode_start'.
+	$field_bases ['field_uurrooster_periode_start'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_periode_start',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 4 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_perm_periode'.
+	$field_bases ['field_uurrooster_perm_periode'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_perm_periode',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'uurrooster_periode' => 'uurrooster_periode' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_perm_vervanger'.
+	$field_bases ['field_uurrooster_perm_vervanger'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_perm_vervanger',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users_personeel',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_aantal'.
+	$field_bases ['field_uurrooster_toez_aantal'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_aantal',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_beschrijv'.
+	$field_bases ['field_uurrooster_toez_beschrijv'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_beschrijv',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_with_summary' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_dag'.
+	$field_bases ['field_uurrooster_toez_dag'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_dag',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							1 => 'maandag',
+							2 => 'dinsdag',
+							3 => 'woensdag',
+							4 => 'donderdag',
+							5 => 'vrijdag',
+							6 => 'zaterdag',
+							7 => 'zondag' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_integer' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_gewicht'.
+	$field_bases ['field_uurrooster_toez_gewicht'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_gewicht',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_lengte'.
+	$field_bases ['field_uurrooster_toez_lengte'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_lengte',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'kort' => 'kort',
+							'lang' => 'lang' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_locatie'.
+	$field_bases ['field_uurrooster_toez_locatie'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_locatie',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'uurrooster_toezicht_locatie' => 'uurrooster_toezicht_locatie' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_naam'.
+	$field_bases ['field_uurrooster_toez_naam'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_naam',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_start'.
+	$field_bases ['field_uurrooster_toez_start'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_start',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'uurrooster_periode' => 'uurrooster_periode' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_tijdstip'.
+	$field_bases ['field_uurrooster_toez_tijdstip'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_tijdstip',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 30 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_toezichter'.
+	$field_bases ['field_uurrooster_toez_toezichter'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_toezichter',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users_personeel',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_uurrooster_toez_type'.
+	$field_bases ['field_uurrooster_toez_type'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uurrooster_toez_type',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'effectief' => 'effectief',
+							'vervanger' => 'vervanger' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function argus_uurrooster_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-uurrooster_les-field_looptijd'.
+	$field_instances ['node-uurrooster_les-field_looptijd'] = array (
+			'bundle' => 'uurrooster_les',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_looptijd',
+			'label' => 'Looptijd',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_les-field_uurrooster_les_id_untis'.
+	$field_instances ['node-uurrooster_les-field_uurrooster_les_id_untis'] = array (
+			'bundle' => 'uurrooster_les',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_les_id_untis',
+			'label' => 'ID (Untis)',
+			'required' => 1,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_les-field_uurrooster_les_klassen'.
+	$field_instances ['node-uurrooster_les-field_uurrooster_les_klassen'] = array (
+			'bundle' => 'uurrooster_les',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_les_klassen',
+			'label' => 'Klassen',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'multiselect',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'multiselect',
+					'weight' => 7 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_les-field_uurrooster_les_leerkracht'.
+	$field_instances ['node-uurrooster_les-field_uurrooster_les_leerkracht'] = array (
+			'bundle' => 'uurrooster_les',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_les_leerkracht',
+			'label' => 'Leerkracht',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance: 'node-uurrooster_les-field_uurrooster_les_lokaal'.
+	$field_instances ['node-uurrooster_les-field_uurrooster_les_lokaal'] = array (
+			'bundle' => 'uurrooster_les',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_les_lokaal',
+			'label' => 'Lokaal',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 8 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_les-field_uurrooster_les_periode'.
+	$field_instances ['node-uurrooster_les-field_uurrooster_les_periode'] = array (
+			'bundle' => 'uurrooster_les',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_les_periode',
+			'label' => 'Periode',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-uurrooster_les-field_uurrooster_les_vak'.
+	$field_instances ['node-uurrooster_les-field_uurrooster_les_vak'] = array (
+			'bundle' => 'uurrooster_les',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_les_vak',
+			'label' => 'Vak',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_periode-field_uurrooster_periode_dag'.
+	$field_instances ['node-uurrooster_periode-field_uurrooster_periode_dag'] = array (
+			'bundle' => 'uurrooster_periode',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'quickedit' => array (
+											'editor' => 'form' 
+									),
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_periode_dag',
+			'label' => 'Dag (Untis)',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 42 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_periode-field_uurrooster_periode_eind'.
+	$field_instances ['node-uurrooster_periode-field_uurrooster_periode_eind'] = array (
+			'bundle' => 'uurrooster_periode',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_periode_eind',
+			'label' => 'Eindtijd (Untis)',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 4 
+					),
+					'type' => 'text_textfield',
+					'weight' => 45 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_periode-field_uurrooster_periode_id'.
+	$field_instances ['node-uurrooster_periode-field_uurrooster_periode_id'] = array (
+			'bundle' => 'uurrooster_periode',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_periode_id',
+			'label' => 'ID (Untis)',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 41 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_periode-field_uurrooster_periode_periode'.
+	$field_instances ['node-uurrooster_periode-field_uurrooster_periode_periode'] = array (
+			'bundle' => 'uurrooster_periode',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'quickedit' => array (
+											'editor' => 'form' 
+									),
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_periode_periode',
+			'label' => 'Periode (Untis)',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 43 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_periode-field_uurrooster_periode_start'.
+	$field_instances ['node-uurrooster_periode-field_uurrooster_periode_start'] = array (
+			'bundle' => 'uurrooster_periode',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_periode_start',
+			'label' => 'Starttijd (Untis)',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 4 
+					),
+					'type' => 'text_textfield',
+					'weight' => 44 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_permanentie-field_uurrooster_perm_periode'.
+	$field_instances ['node-uurrooster_permanentie-field_uurrooster_perm_periode'] = array (
+			'bundle' => 'uurrooster_permanentie',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1,
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_perm_periode',
+			'label' => 'Periode',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 42 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_permanentie-field_uurrooster_perm_vervanger'.
+	$field_instances ['node-uurrooster_permanentie-field_uurrooster_perm_vervanger'] = array (
+			'bundle' => 'uurrooster_permanentie',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1,
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_perm_vervanger',
+			'label' => 'Vervanger',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 43 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht-field_uurrooster_toez_dag'.
+	$field_instances ['node-uurrooster_toezicht-field_uurrooster_toez_dag'] = array (
+			'bundle' => 'uurrooster_toezicht',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'list_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_dag',
+			'label' => 'Dag',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht-field_uurrooster_toez_locatie'.
+	$field_instances ['node-uurrooster_toezicht-field_uurrooster_toez_locatie'] = array (
+			'bundle' => 'uurrooster_toezicht',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 0,
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_locatie',
+			'label' => 'Locatie',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht-field_uurrooster_toez_toezichter'.
+	$field_instances ['node-uurrooster_toezicht-field_uurrooster_toez_toezichter'] = array (
+			'bundle' => 'uurrooster_toezicht',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1,
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_toezichter',
+			'label' => 'Toezichter',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 0 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht_locatie-field_uurrooster_toez_aantal'.
+	$field_instances ['node-uurrooster_toezicht_locatie-field_uurrooster_toez_aantal'] = array (
+			'bundle' => 'uurrooster_toezicht_locatie',
+			'default_value' => array (
+					0 => array (
+							'value' => 1 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'quickedit' => array (
+											'editor' => 'form' 
+									),
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_aantal',
+			'label' => 'Aantal personen',
+			'required' => 1,
+			'settings' => array (
+					'max' => '',
+					'min' => 0,
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 7 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht_locatie-field_uurrooster_toez_beschrijv'.
+	$field_instances ['node-uurrooster_toezicht_locatie-field_uurrooster_toez_beschrijv'] = array (
+			'bundle' => 'uurrooster_toezicht_locatie',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_beschrijv',
+			'label' => 'Beschrijving',
+			'required' => 0,
+			'settings' => array (
+					'display_summary' => 0,
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5,
+							'summary_rows' => 5 
+					),
+					'type' => 'text_textarea_with_summary',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht_locatie-field_uurrooster_toez_gewicht'.
+	$field_instances ['node-uurrooster_toezicht_locatie-field_uurrooster_toez_gewicht'] = array (
+			'bundle' => 'uurrooster_toezicht_locatie',
+			'default_value' => array (
+					0 => array (
+							'value' => 0 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'quickedit' => array (
+											'editor' => 'form' 
+									),
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_gewicht',
+			'label' => 'Gewicht',
+			'required' => 1,
+			'settings' => array (
+					'max' => '',
+					'min' => 0,
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 10 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht_locatie-field_uurrooster_toez_lengte'.
+	$field_instances ['node-uurrooster_toezicht_locatie-field_uurrooster_toez_lengte'] = array (
+			'bundle' => 'uurrooster_toezicht_locatie',
+			'default_value' => array (
+					0 => array (
+							'value' => 'kort' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'list_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_lengte',
+			'label' => 'Lengte',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht_locatie-field_uurrooster_toez_naam'.
+	$field_instances ['node-uurrooster_toezicht_locatie-field_uurrooster_toez_naam'] = array (
+			'bundle' => 'uurrooster_toezicht_locatie',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_naam',
+			'label' => 'Naam',
+			'required' => 1,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht_locatie-field_uurrooster_toez_start'.
+	$field_instances ['node-uurrooster_toezicht_locatie-field_uurrooster_toez_start'] = array (
+			'bundle' => 'uurrooster_toezicht_locatie',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1,
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_start',
+			'label' => 'Begint na deze periode (start)',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'multiselect',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'multiselect',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht_locatie-field_uurrooster_toez_tijdstip'.
+	$field_instances ['node-uurrooster_toezicht_locatie-field_uurrooster_toez_tijdstip'] = array (
+			'bundle' => 'uurrooster_toezicht_locatie',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'bvb. 09:45 - 10:10',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_tijdstip',
+			'label' => 'Tijdstip',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-uurrooster_toezicht_locatie-field_uurrooster_toez_type'.
+	$field_instances ['node-uurrooster_toezicht_locatie-field_uurrooster_toez_type'] = array (
+			'bundle' => 'uurrooster_toezicht_locatie',
+			'default_value' => array (
+					0 => array (
+							'value' => 'effectief' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'list_default',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uurrooster_toez_type',
+			'label' => 'Type',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 8 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Aantal personen' );
+	t ( 'Begint na deze periode (start)' );
+	t ( 'Beschrijving' );
+	t ( 'Dag' );
+	t ( 'Dag (Untis)' );
+	t ( 'Eindtijd (Untis)' );
+	t ( 'Gewicht' );
+	t ( 'ID (Untis)' );
+	t ( 'Klassen' );
+	t ( 'Leerkracht' );
+	t ( 'Lengte' );
+	t ( 'Locatie' );
+	t ( 'Lokaal' );
+	t ( 'Looptijd' );
+	t ( 'Naam' );
+	t ( 'Periode' );
+	t ( 'Periode (Untis)' );
+	t ( 'Starttijd (Untis)' );
+	t ( 'Tijdstip' );
+	t ( 'Toezichter' );
+	t ( 'Type' );
+	t ( 'Vak' );
+	t ( 'Vervanger' );
+	t ( 'bvb. 09:45 - 10:10' );
+	
+	return $field_instances;
+}
+

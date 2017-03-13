@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.4
+---------
+- Preps for clean install
+
 v7.x-1.3
 ---------
 - Update request system for bigger data strings

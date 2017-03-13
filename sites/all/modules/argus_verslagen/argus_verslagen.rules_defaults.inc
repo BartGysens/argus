@@ -8,8 +8,9 @@
  * Implements hook_default_rules_configuration().
  */
 function argus_verslagen_default_rules_configuration() {
-  $items = array();
-  $items['rules_dienstmededeling_melding_gepubliceerde_dienstmededeling'] = entity_import('rules_config', '{ "rules_dienstmededeling_melding_gepubliceerde_dienstmededeling" : {
+	$items = array ();
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_dienstmededeling_melding_gepubliceerde_dienstmededeling'] = entity_import ( 'rules_config', '{ "rules_dienstmededeling_melding_gepubliceerde_dienstmededeling" : {
       "LABEL" : "Dienstmededeling - Melding gepubliceerde dienstmededeling",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -33,8 +34,10 @@ function argus_verslagen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_dienstmededeling_melding_nieuwe_dienstmededeling'] = entity_import('rules_config', '{ "rules_dienstmededeling_melding_nieuwe_dienstmededeling" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_dienstmededeling_melding_nieuwe_dienstmededeling'] = entity_import ( 'rules_config', '{ "rules_dienstmededeling_melding_nieuwe_dienstmededeling" : {
       "LABEL" : "Dienstmededeling - Melding nieuwe dienstmededeling",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -58,8 +61,10 @@ function argus_verslagen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_vergadering'] = entity_import('rules_config', '{ "rules_vergadering" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_vergadering'] = entity_import ( 'rules_config', '{ "rules_vergadering" : {
       "LABEL" : "Vergadering",
       "PLUGIN" : "reaction rule",
       "ACTIVE" : false,
@@ -124,6 +129,7 @@ function argus_verslagen_default_rules_configuration() {
         }
       ]
     }
-  }');
-  return $items;
+  }' );
+	}
+	return $items;
 }

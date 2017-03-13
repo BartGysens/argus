@@ -1,5 +1,13 @@
 **Releases:
 
+v7.x-3.3
+---------
+- Update in menu config and preparation for module installation
+
+v7.x-3.2
+---------
+- Added install scripts
+
 v7.x-3.1
 ---------
 - Security update

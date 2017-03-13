@@ -1,0 +1,918 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_contracten_install() {
+	// Rebuild and define new content type
+	$type = 'contract'; // replace with your content type name
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	// Add the body field with specified label
+	node_add_body_field ( $types [$type], $label = t ( 'Opmerkingen' ) ); // replace your label or remove if no body-field necessary
+	                                                                      
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_contracten_field_default_field_bases()
+	foreach ( argus_contracten_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_contracten_field_default_field_instances()
+	foreach ( argus_contracten_field_default_field_instances () as $fieldinstance ) {
+		$fieldinstance ['entity_type'] = 'node';
+		$fieldinstance ['bundle'] = $type;
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => '64a17bd1c99e51b8e779d1c47fa843cf', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'contracten' . chr ( 13 ) . 'contracten/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			) // replace with your title
+ 
+	);
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_contracten_uninstall() {
+	// Remove all nodes of new content type
+	$type = 'contract'; // replace with your content type name
+	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+	$result = db_query ( $sql, array (
+			':type' => $type 
+	) );
+	$nodeids = array ();
+	foreach ( $result as $row ) {
+		$nodeids [] = $row->nid;
+	}
+	node_delete_multiple ( $nodeids );
+	
+	// Delete all related fields
+	foreach ( argus_contracten_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	$instances = field_info_instances ( 'node', $type );
+	foreach ( $instances as $instance_name => $fieldinstance ) {
+		field_delete_instance ( $fieldinstance );
+	}
+	
+	// Remove new content type
+	node_type_delete ( $type );
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_contracten' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ */
+function argus_contracten_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_bedrag'.
+	$field_bases ['field_bedrag'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_bedrag',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (
+					'decimal_separator' => '.',
+					'precision' => 10,
+					'scale' => 2 
+			),
+			'translatable' => 0,
+			'type' => 'number_decimal' 
+	);
+	
+	// Exported field_base: 'field_betalingstermijn'.
+	$field_bases ['field_betalingstermijn'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_betalingstermijn',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_bijlage'.
+	$field_bases ['field_bijlage'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_bijlage',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'fid' => array (
+							0 => 'fid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'file',
+			'settings' => array (
+					'display_default' => 0,
+					'display_field' => 0,
+					'uri_scheme' => 'private' 
+			),
+			'translatable' => 0,
+			'type' => 'file' 
+	);
+	
+	// Exported field_base: 'field_contractnummer'.
+	$field_bases ['field_contractnummer'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_contractnummer',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_klantnummer'.
+	$field_bases ['field_klantnummer'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klantnummer',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_leverancier'.
+	$field_bases ['field_leverancier'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_leverancier',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (
+											0 => 'leverancier' 
+									),
+									'display_name' => 'entityreference_organisaties',
+									'view_name' => 'organisaties' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_looptijd'.
+	$field_bases ['field_looptijd'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_looptijd',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 'hour',
+							'minute' => 'minute',
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => '',
+					'todate' => 'optional',
+					'tz_handling' => 'none' 
+			),
+			'translatable' => 0,
+			'type' => 'date' 
+	);
+	
+	// Exported field_base: 'field_opzegdatum'.
+	$field_bases ['field_opzegdatum'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_opzegdatum',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 0,
+							'minute' => 0,
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => '',
+					'todate' => '',
+					'tz_handling' => 'none' 
+			),
+			'translatable' => 0,
+			'type' => 'date' 
+	);
+	
+	// Exported field_base: 'field_opzegtermijn'.
+	$field_bases ['field_opzegtermijn'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_opzegtermijn',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_verlengingsmethode'.
+	$field_bases ['field_verlengingsmethode'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_verlengingsmethode',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'overeenkomst van bepaalde duur' => 'overeenkomst van bepaalde duur',
+							'stilzwijgende verlenging' => 'stilzwijgende verlenging' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function argus_contracten_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-contract-field_bedrag'.
+	$field_instances ['node-contract-field_bedrag'] = array (
+			'bundle' => 'contract',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 2,
+									'thousand_separator' => '' 
+							),
+							'type' => 'number_decimal',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_bedrag',
+			'label' => 'Bedrag',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => 'euro',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_betalingstermijn'.
+	$field_instances ['node-contract-field_betalingstermijn'] = array (
+			'bundle' => 'contract',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => '' 
+							),
+							'type' => 'number_integer',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_betalingstermijn',
+			'label' => 'Betalingstermijn',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => 'dagen',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_bijlage'.
+	$field_instances ['node-contract-field_bijlage'] = array (
+			'bundle' => 'contract',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'file',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'file_default',
+							'weight' => 12 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_bijlage',
+			'label' => 'Bijlage',
+			'required' => 0,
+			'settings' => array (
+					'description_field' => 0,
+					'file_directory' => 'WPL/contracten',
+					'file_extensions' => 'txt pdf doc docx xls xlsx',
+					'max_filesize' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'file',
+					'settings' => array (
+							'allowed_schemes' => array (
+									'private' => 'private',
+									'public' => 'public' 
+							),
+							'allowed_types' => array (
+									'audio' => 0,
+									'default' => 0,
+									'image' => 'image',
+									'video' => 0 
+							),
+							'filefield_sources' => array (
+									'filefield_sources' => array (),
+									'source_attach' => array (
+											'absolute' => 0,
+											'attach_mode' => 'move',
+											'path' => 'file_attach' 
+									),
+									'source_imce' => array (
+											'imce_mode' => 0 
+									),
+									'source_reference' => array (
+											'autocomplete' => 0 
+									) 
+							),
+							'progress_indicator' => 'throbber' 
+					),
+					'type' => 'file_generic',
+					'weight' => 10 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_contractnummer'.
+	$field_instances ['node-contract-field_contractnummer'] = array (
+			'bundle' => 'contract',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_contractnummer',
+			'label' => 'Contractnummer',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_klantnummer'.
+	$field_instances ['node-contract-field_klantnummer'] = array (
+			'bundle' => 'contract',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klantnummer',
+			'label' => 'Klantnummer',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_leverancier'.
+	$field_instances ['node-contract-field_leverancier'] = array (
+			'bundle' => 'contract',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => FALSE 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 11 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_leverancier',
+			'label' => 'Leverancier',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'entityreference',
+					'settings' => array (
+							'match_operator' => 'CONTAINS',
+							'path' => '',
+							'size' => 60 
+					),
+					'type' => 'entityreference_autocomplete',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_looptijd'.
+	$field_instances ['node-contract-field_looptijd'] = array (
+			'bundle' => 'contract',
+			'deleted' => 0,
+			'description' => 'start- en einddatum van het contract',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_looptijd',
+			'label' => 'Looptijd',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_opzegdatum'.
+	$field_instances ['node-contract-field_opzegdatum'] = array (
+			'bundle' => 'contract',
+			'deleted' => 0,
+			'description' => 'markeer wanneer een contract moet opgezegd worden',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 10 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_opzegdatum',
+			'label' => 'Opzegdatum',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_opzegtermijn'.
+	$field_instances ['node-contract-field_opzegtermijn'] = array (
+			'bundle' => 'contract',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => '' 
+							),
+							'type' => 'number_integer',
+							'weight' => 8 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_opzegtermijn',
+			'label' => 'Opzegtermijn',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => 'dagen',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 8 
+			) 
+	);
+	
+	// Exported field_instance: 'node-contract-field_verlengingsmethode'.
+	$field_instances ['node-contract-field_verlengingsmethode'] = array (
+			'bundle' => 'contract',
+			'default_value' => array (
+					0 => array (
+							'value' => 'stilzwijgende verlenging' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 9 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_verlengingsmethode',
+			'label' => 'Verlengingsmethode',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_buttons',
+					'weight' => 7 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Bedrag' );
+	t ( 'Betalingstermijn' );
+	t ( 'Bijlage' );
+	t ( 'Comment' );
+	t ( 'Contractnummer' );
+	t ( 'Klantnummer' );
+	t ( 'Leverancier' );
+	t ( 'Looptijd' );
+	t ( 'Opmerkingen' );
+	t ( 'Opzegdatum' );
+	t ( 'Opzegtermijn' );
+	t ( 'Verlengingsmethode' );
+	t ( 'markeer wanneer een contract moet opgezegd worden' );
+	t ( 'start- en einddatum van het contract' );
+	t ( 'welke afspraken werden er gemaakt met de firma?
+welke bijzondere maatregelen dienen we te handhaven?' );
+	
+	return $field_instances;
+}
+

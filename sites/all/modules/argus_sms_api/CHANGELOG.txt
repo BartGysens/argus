@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.4
+---------
+- Module preparation for install purposes
+
 v7.x-1.3
 ---------
 - Update Smartschool API: message verzenden op juiste plaats 3 x nieuw icoon voor nieuwe modules

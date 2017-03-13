@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.12
+---------
+- Preparation for module installation
+
 v7.x-1.11-1
 ---------
 - Fix in SMS-sync voor email

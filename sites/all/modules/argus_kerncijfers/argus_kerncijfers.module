@@ -26,13 +26,19 @@
  * Implements argus_kerncijfers_menu().
  */
 function argus_kerncijfers_menu() {
+	if (menu_load('menu-modules')){
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
     $items = array();
     $items['kerncijfers'] = array(
         'title' => t('Kerncijfers'),
         'description' => 'Bekijk je gegevens in grafieken en statistieken.',
         'page callback' => 'argus_kerncijfers_overview',
         'access arguments' => array('access argus_kerncijfers content'),
-        'menu_name' => 'menu-modules',
+        'menu_name' => $menu,
     );
     $items['kerncijfers/%/%'] = array(
         'title' => t('Kerncijfers: details'),
@@ -86,7 +92,12 @@ function argus_kerncijfers_block_info() {
     $blocks = array(
 	    'overview_filter_block' => array(
 	        'info' => t('Kerncijfers: filter'),
-	        'title' => t('Filter'),
+			'cache' => DRUPAL_CACHE_GLOBAL,
+			'weight' => 2,
+			'status' => 1,
+			'region' => 'sidebar_first',
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => 'kerncijfers' . chr ( 13 ) . 'kerncijfers/*' 
 	    ),
     );
 
@@ -102,8 +113,7 @@ function argus_kerncijfers_block_view($delta='') {
 	$variables = array( 'plugins' => argus_kerncijfers_get_plugins());
 	switch ($delta) {
 		case 'overview_filter_block':
-			$block['title'] = 'Filter';
-			$block['subject'] = 'Kerncijfers: filter';
+			$block['subject'] = 'Filter';
 			$block['content'] = theme('argus_kerncijfers--overview_filter_block', $variables);
 			break;
 	}

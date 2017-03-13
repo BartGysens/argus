@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.2
+---------
+- Disabled Features, recreated as full module
+
 v7.x-1.1
 ---------
 - View voor wetboek

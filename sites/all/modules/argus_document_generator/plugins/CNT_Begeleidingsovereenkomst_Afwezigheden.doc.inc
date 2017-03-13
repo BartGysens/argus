@@ -39,7 +39,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Afwezigheden_form
         '#title' => t('Leerling'),
         '#description' => t('Selecteer de leerling waarvoor dit document moet worden aangemaakt.'),
         '#options' => argus_get_user_select_options('leerling'),
-        '#required' => true,
+        '#required' => false,
     );
     $form['submit'] = array(
         '#type' => 'submit',
@@ -66,9 +66,12 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Afwezigheden_form
     $uid = $form_state['values']['leerling'];
     $u = user_load($uid);
     
+    if($u){
     if (count($u->field_user_sms_geboortedatum)){
         $birthday = new DateTime($u->field_user_sms_geboortedatum[LANGUAGE_NONE][0]['value']);
     }
+    }
+    $age=0;
     if (isset($birthday)){
         $age = date_diff($birthday,new DateTime('now'))->format('%y');
     }

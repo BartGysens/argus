@@ -1,5 +1,10 @@
 **Releases:
 
+
+v7.x-6.2
+---------
+- Feature base disabled and reconfigured as full custom Drupal module
+
 v7.x-6.1
 ---------
 - Gebruikersprofiel LKR: volledige update met nieuwe features en grafieken

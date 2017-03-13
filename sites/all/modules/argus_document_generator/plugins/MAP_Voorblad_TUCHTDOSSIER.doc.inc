@@ -39,7 +39,7 @@ function argus_document_generator_MAP_Voorblad_TUCHTDOSSIER_form($form, &$form_s
         '#title' => t('Leerling'),
         '#description' => t('Selecteer de leerling waarvoor dit document moet worden aangemaakt.'),
         '#options' => argus_get_user_select_options('leerling'),
-        '#required' => true,
+        '#required' => false,
     );
     $form['date_file'] = array(
         '#type' => 'date_select',

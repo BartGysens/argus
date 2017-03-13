@@ -1,7 +1,691 @@
 <?php
-/**
- * @file
- * Code for the Begeleidingsovereenkomsten feature.
+/*
+ * Copyright (C) 2017 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'argus_begeleidingsovereenkomsten.features.inc';
+/* Drupal Hooks */
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_begeleidingsovereenkomsten_node_info() {
+	$items = array (
+			'msl_begeleidingsovereenkomst' => array (
+					'name' => t ( 'MSL - Begeleidingsovereenkomst' ),
+					'base' => 'node_content',
+					'description' => t ( 'Een <em>begeleidingsovereenkomst</em> kan afgesloten worden voor volgende redenen: gedrag, afwezigheden, pesten of een laattijdige inschrijving. De procedure houdt in dat een leerling, tijdens het verloop van de overeenkomst, elke week een evaluatie krijgt van de betrokken leerkracht, klastitularis of begeleider. Deze procedure vind je terug in het Intern KwaliteitsZorgsysteem.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Titel' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_begeleidingsovereenkomsten_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function argus_begeleidingsovereenkomsten_views_api() {
+	return array (
+			'api' => 3.0,
+			'path' => drupal_get_path ( 'module', 'argus_begeleidingsovereenkomsten' ) 
+	) // replace demo with your content type
+;
+}
+
+/**
+ * Implementation of hook_views_default_views().
+ *
+ * Views export creates code that you have to paste in this function.
+ *
+ * Administration > Structure > Views : click the button behind the view you need and export
+ * /admin/structure/views
+ */
+function argus_begeleidingsovereenkomsten_views_default_views() {
+	$export = array ();
+	
+	$view = new view ();
+	$view->name = 'msl_begeleidingsovereenkomsten';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'MSL - Begeleidingsovereenkomsten';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+	
+	/* Display: Master */
+	$handler = $view->new_display ( 'default', 'Master', 'default' );
+	$handler->display->display_options ['title'] = 'Begeleidingsovereenkomsten';
+	$handler->display->display_options ['use_more_always'] = FALSE;
+	$handler->display->display_options ['use_more_text'] = 'meer';
+	$handler->display->display_options ['group_by'] = TRUE;
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '21600';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '21600';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0 
+			),
+			'node' => array (
+					'msl_begeleidingsovereenkomst' => 'msl_begeleidingsovereenkomst' 
+			),
+			'node_only' => array (
+					'node_changed' => 0 
+			) 
+	);
+	$handler->display->display_options ['query'] ['type'] = 'views_query';
+	$handler->display->display_options ['exposed_form'] ['type'] = 'better_exposed_filters';
+	$handler->display->display_options ['exposed_form'] ['options'] ['submit_button'] = 'Toepassen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button'] = TRUE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button_label'] = 'Opnieuw instellen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['exposed_sorts_label'] = 'Sorteren op';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_asc_label'] = 'Oplopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_desc_label'] = 'Aflopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['autosubmit'] = FALSE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['bef'] = array (
+			'general' => array (
+					'allow_secondary' => 0,
+					'secondary_label' => 'Uitgebreide opties' 
+			),
+			'name' => array (
+					'bef_format' => 'default',
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_msl_bo_type_value' => array (
+					'bef_format' => 'bef',
+					'more_options' => array (
+							'bef_select_all_none' => '1',
+							'bef_collapsible' => 0,
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_msl_bo_einddatum_value' => array (
+					'bef_format' => 'bef',
+					'slider_options' => array (
+							'bef_slider_min' => '0',
+							'bef_slider_max' => '99999',
+							'bef_slider_step' => '1',
+							'bef_slider_animate' => '',
+							'bef_slider_orientation' => 'horizontal' 
+					),
+					'more_options' => array (
+							'bef_select_all_none' => FALSE,
+							'bef_collapsible' => 0,
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_msl_bo_volgkaart_value' => array (
+					'bef_format' => 'bef',
+					'more_options' => array (
+							'bef_select_all_none' => FALSE,
+							'bef_collapsible' => 0,
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			) 
+	);
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'counter' => 'counter',
+			'nid' => 'nid',
+			'field_msl_bo_volgkaart' => 'field_msl_bo_volgkaart',
+			'field_user_sms_gebruikersnaam' => 'field_user_sms_gebruikersnaam',
+			'realname' => 'realname',
+			'field_msl_bo_type' => 'field_msl_bo_type',
+			'field_msl_bo_startdatum' => 'field_msl_bo_startdatum',
+			'field_msl_bo_einddatum' => 'field_msl_bo_einddatum',
+			'field_msl_bo_meldingen' => 'field_msl_bo_meldingen',
+			'field_msl_bo_aanleiding' => 'field_msl_bo_aanleiding',
+			'views_conditional' => 'views_conditional' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = 'realname';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'counter' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_msl_bo_volgkaart' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_user_sms_gebruikersnaam' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_msl_bo_type' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_msl_bo_startdatum' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_msl_bo_einddatum' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_msl_bo_meldingen' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_msl_bo_aanleiding' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'views_conditional' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['label'] = 'Begeleidingsovereenkomst toevoegen';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/msl-begeleidingsovereenkomst">Een nieuwe begeleidingsovereenkomst toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options ['footer'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['label'] = 'Begeleidingsovereenkomst toevoegen';
+	$handler->display->display_options ['footer'] ['area'] ['content'] = '<a href="/node/add/msl-begeleidingsovereenkomst">Een nieuwe begeleidingsovereenkomst toevoegen</a>';
+	$handler->display->display_options ['footer'] ['area'] ['format'] = 'filtered_html';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_msl_bo_leerling_target_id'] ['id'] = 'field_msl_bo_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['field_msl_bo_leerling_target_id'] ['table'] = 'field_data_field_msl_bo_leerling';
+	$handler->display->display_options ['relationships'] ['field_msl_bo_leerling_target_id'] ['field'] = 'field_msl_bo_leerling_target_id';
+	/* Veld: Algemeen: Resultatenteller weergeven */
+	$handler->display->display_options ['fields'] ['counter'] ['id'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['counter'] ['field'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['label'] = 'Nr.';
+	$handler->display->display_options ['fields'] ['counter'] ['counter_start'] = '1';
+	$handler->display->display_options ['fields'] ['counter'] ['reverse'] = 0;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Volgkaart */
+	$handler->display->display_options ['fields'] ['field_msl_bo_volgkaart'] ['id'] = 'field_msl_bo_volgkaart';
+	$handler->display->display_options ['fields'] ['field_msl_bo_volgkaart'] ['table'] = 'field_data_field_msl_bo_volgkaart';
+	$handler->display->display_options ['fields'] ['field_msl_bo_volgkaart'] ['field'] = 'field_msl_bo_volgkaart';
+	$handler->display->display_options ['fields'] ['field_msl_bo_volgkaart'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Gebruiker: Gebruikersnaam */
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['id'] = 'field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['table'] = 'field_data_field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['field'] = 'field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['relationship'] = 'field_msl_bo_leerling_target_id';
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['exclude'] = TRUE;
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['relationship'] = 'field_msl_bo_leerling_target_id';
+	$handler->display->display_options ['fields'] ['realname'] ['label'] = 'Leerling';
+	/* Veld: Inhoud: Type */
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['id'] = 'field_msl_bo_type';
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['table'] = 'field_data_field_msl_bo_type';
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['field'] = 'field_msl_bo_type';
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['alter'] ['absolute'] = TRUE;
+	/* Veld: Inhoud: Startdatum */
+	$handler->display->display_options ['fields'] ['field_msl_bo_startdatum'] ['id'] = 'field_msl_bo_startdatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_startdatum'] ['table'] = 'field_data_field_msl_bo_startdatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_startdatum'] ['field'] = 'field_msl_bo_startdatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_startdatum'] ['settings'] = array (
+			'format_type' => 'datum_kort_',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_repeat_rule' => 'show' 
+	);
+	/* Veld: Inhoud: Einddatum */
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['id'] = 'field_msl_bo_einddatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['table'] = 'field_data_field_msl_bo_einddatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['field'] = 'field_msl_bo_einddatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['type'] = 'editable';
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['settings'] = array (
+			'click_to_edit' => '1',
+			'click_to_edit_style' => 'button',
+			'empty_text' => '',
+			'fallback_format' => 'date_default',
+			'fallback_settings' => array (
+					'format_type' => 'datum_kort_',
+					'fromto' => 'both',
+					'multiple_number' => '',
+					'multiple_from' => '',
+					'multiple_to' => '',
+					'show_remaining_days' => 0,
+					'show_repeat_rule' => 'show' 
+			) 
+	);
+	/* Veld: COUNT(DISTINCT Inhoud: Meldingen) */
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['id'] = 'field_msl_bo_meldingen';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['table'] = 'field_data_field_msl_bo_meldingen';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['field'] = 'field_msl_bo_meldingen';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['separator'] = ', ';
+	/* Veld: Inhoud: Aanleiding */
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['id'] = 'field_msl_bo_aanleiding';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['table'] = 'field_data_field_msl_bo_aanleiding';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['field'] = 'field_msl_bo_aanleiding';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['max_length'] = '300';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['more_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['more_link_text'] = '(meer)';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['more_link_path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['trim'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['type'] = 'text_plain';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['settings'] = array (
+			'trim_length' => '300',
+			'trim_type' => 'chars',
+			'trim_suffix' => '...',
+			'more_link' => '1',
+			'more_text' => ' (meer)',
+			'trim_options' => array (
+					'text' => 'text' 
+			) 
+	);
+	/* Veld: Overzichten: Views Conditional */
+	$handler->display->display_options ['fields'] ['views_conditional'] ['id'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['table'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['field'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['label'] = 'Volgkaarten';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['if'] = 'field_msl_bo_volgkaart';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['condition'] = '6';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['then'] = '<a href="/volgkaarten/overzicht?name=[field_user_sms_gebruikersnaam]">bekijk</a>';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['or'] = 'nvt.';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['strip_tags'] = 0;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'msl_begeleidingsovereenkomst' => 'msl_begeleidingsovereenkomst' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name'] ['id'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['relationship'] = 'field_msl_bo_leerling_target_id';
+	$handler->display->display_options ['filters'] ['name'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator_id'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['label'] = 'Leerling';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['identifier'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Type (field_msl_bo_type) */
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['id'] = 'field_msl_bo_type_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['table'] = 'field_data_field_msl_bo_type';
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['field'] = 'field_msl_bo_type_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['expose'] ['operator_id'] = 'field_msl_bo_type_value_op';
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['expose'] ['label'] = 'Type';
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['expose'] ['operator'] = 'field_msl_bo_type_value_op';
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['expose'] ['identifier'] = 'field_msl_bo_type_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['expose'] ['multiple'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_msl_bo_type_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: COUNT(Inhoud: Einddatum (field_msl_bo_einddatum)) */
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['id'] = 'field_msl_bo_einddatum_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['table'] = 'field_data_field_msl_bo_einddatum';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['field'] = 'field_msl_bo_einddatum_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['group_type'] = 'count';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['expose'] ['operator_id'] = 'field_msl_bo_einddatum_value_op';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['expose'] ['label'] = 'Einddatum (field_msl_bo_einddatum)';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['expose'] ['operator'] = 'field_msl_bo_einddatum_value_op';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['expose'] ['identifier'] = 'field_msl_bo_einddatum_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['is_grouped'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['group_info'] ['label'] = 'Status';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['group_info'] ['identifier'] = 'field_msl_bo_einddatum_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_einddatum_value'] ['group_info'] ['group_items'] = array (
+			1 => array (
+					'title' => 'lopend',
+					'operator' => '=',
+					'value' => array (
+							'value' => '0',
+							'min' => '',
+							'max' => '' 
+					) 
+			),
+			2 => array (
+					'title' => 'afgesloten',
+					'operator' => '=',
+					'value' => array (
+							'value' => '1',
+							'min' => '',
+							'max' => '' 
+					) 
+			) 
+	);
+	/* Filtercriterium: Inhoud: Volgkaart (field_msl_bo_volgkaart) */
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['id'] = 'field_msl_bo_volgkaart_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['table'] = 'field_data_field_msl_bo_volgkaart';
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['field'] = 'field_msl_bo_volgkaart_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['value'] = array (
+			1 => '1' 
+	);
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['expose'] ['operator_id'] = 'field_msl_bo_volgkaart_value_op';
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['expose'] ['operator'] = 'field_msl_bo_volgkaart_value_op';
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['expose'] ['identifier'] = 'field_msl_bo_volgkaart_value';
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['expose'] ['multiple'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['expose'] ['reduce'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_msl_bo_volgkaart_value'] ['reduce_duplicates'] = TRUE;
+	
+	/* Display: Overzicht: begeleidingsovereenkomsten */
+	$handler = $view->new_display ( 'page', 'Overzicht: begeleidingsovereenkomsten', 'msl_begeleidingsovereenkomsten' );
+	$handler->display->display_options ['display_description'] = 'Een overzicht van alle begeleidingsovereenkomsten.';
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Algemeen: Resultatenteller weergeven */
+	$handler->display->display_options ['fields'] ['counter'] ['id'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['counter'] ['field'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['label'] = 'Nr.';
+	$handler->display->display_options ['fields'] ['counter'] ['counter_start'] = '1';
+	$handler->display->display_options ['fields'] ['counter'] ['reverse'] = 0;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Volgkaart */
+	$handler->display->display_options ['fields'] ['field_msl_bo_volgkaart'] ['id'] = 'field_msl_bo_volgkaart';
+	$handler->display->display_options ['fields'] ['field_msl_bo_volgkaart'] ['table'] = 'field_data_field_msl_bo_volgkaart';
+	$handler->display->display_options ['fields'] ['field_msl_bo_volgkaart'] ['field'] = 'field_msl_bo_volgkaart';
+	$handler->display->display_options ['fields'] ['field_msl_bo_volgkaart'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Gebruiker: Gebruikersnaam */
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['id'] = 'field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['table'] = 'field_data_field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['field'] = 'field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['relationship'] = 'field_msl_bo_leerling_target_id';
+	$handler->display->display_options ['fields'] ['field_user_sms_gebruikersnaam'] ['exclude'] = TRUE;
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['relationship'] = 'field_msl_bo_leerling_target_id';
+	$handler->display->display_options ['fields'] ['realname'] ['label'] = 'Leerling';
+	/* Veld: Inhoud: Type */
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['id'] = 'field_msl_bo_type';
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['table'] = 'field_data_field_msl_bo_type';
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['field'] = 'field_msl_bo_type';
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_msl_bo_type'] ['alter'] ['absolute'] = TRUE;
+	/* Veld: Inhoud: Startdatum */
+	$handler->display->display_options ['fields'] ['field_msl_bo_startdatum'] ['id'] = 'field_msl_bo_startdatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_startdatum'] ['table'] = 'field_data_field_msl_bo_startdatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_startdatum'] ['field'] = 'field_msl_bo_startdatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_startdatum'] ['settings'] = array (
+			'format_type' => 'datum_kort_',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_repeat_rule' => 'show' 
+	);
+	/* Veld: Inhoud: Einddatum */
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['id'] = 'field_msl_bo_einddatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['table'] = 'field_data_field_msl_bo_einddatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['field'] = 'field_msl_bo_einddatum';
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['type'] = 'editable';
+	$handler->display->display_options ['fields'] ['field_msl_bo_einddatum'] ['settings'] = array (
+			'click_to_edit' => '1',
+			'click_to_edit_style' => 'button',
+			'empty_text' => '',
+			'fallback_format' => 'date_default',
+			'fallback_settings' => array (
+					'format_type' => 'datum_kort_',
+					'fromto' => 'both',
+					'multiple_number' => '',
+					'multiple_from' => '',
+					'multiple_to' => '',
+					'show_remaining_days' => 0,
+					'show_repeat_rule' => 'show' 
+			) 
+	);
+	/* Veld: COUNT(DISTINCT Inhoud: Meldingen) */
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['id'] = 'field_msl_bo_meldingen';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['table'] = 'field_data_field_msl_bo_meldingen';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['field'] = 'field_msl_bo_meldingen';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_meldingen'] ['separator'] = ', ';
+	/* Veld: Inhoud: Aanleiding */
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['id'] = 'field_msl_bo_aanleiding';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['table'] = 'field_data_field_msl_bo_aanleiding';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['field'] = 'field_msl_bo_aanleiding';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['max_length'] = '300';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['more_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['more_link_text'] = '(meer)';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['more_link_path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['alter'] ['trim'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['type'] = 'text_plain';
+	$handler->display->display_options ['fields'] ['field_msl_bo_aanleiding'] ['settings'] = array (
+			'trim_length' => '300',
+			'trim_type' => 'chars',
+			'trim_suffix' => '...',
+			'more_link' => '1',
+			'more_text' => ' (meer)',
+			'trim_options' => array (
+					'text' => 'text' 
+			) 
+	);
+	/* Veld: Overzichten: Views Conditional */
+	$handler->display->display_options ['fields'] ['views_conditional'] ['id'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['table'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['field'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['label'] = 'Volgkaarten';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['if'] = 'field_msl_bo_volgkaart';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['condition'] = '6';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['then'] = '<a href="/volgkaarten/overzicht?name=[field_user_sms_gebruikersnaam]">bekijk</a>';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['or'] = 'nvt.';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['strip_tags'] = 0;
+	$handler->display->display_options ['path'] = 'begeleidingsovereenkomsten/overzicht';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Begeleidingsovereenkomsten';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$translatables ['msl_begeleidingsovereenkomsten'] = array (
+			t ( 'Master' ),
+			t ( 'Begeleidingsovereenkomsten' ),
+			t ( 'meer' ),
+			t ( 'Toepassen' ),
+			t ( 'Opnieuw instellen' ),
+			t ( 'Sorteren op' ),
+			t ( 'Oplopend' ),
+			t ( 'Aflopend' ),
+			t ( 'Uitgebreide opties' ),
+			t ( 'Items per pagina' ),
+			t ( '- Alle -' ),
+			t ( 'Startpunt' ),
+			t ( '« eerste' ),
+			t ( '‹ vorige' ),
+			t ( 'volgende ›' ),
+			t ( 'laatste »' ),
+			t ( 'Begeleidingsovereenkomst toevoegen' ),
+			t ( '<a href="/node/add/msl-begeleidingsovereenkomst">Een nieuwe begeleidingsovereenkomst toevoegen</a>' ),
+			t ( 'Gebruiker entiteit gerefereerd vanaf field_msl_bo_leerling' ),
+			t ( 'Nr.' ),
+			t ( 'Volgkaart' ),
+			t ( 'Gebruikersnaam' ),
+			t ( 'Leerling' ),
+			t ( 'Type' ),
+			t ( 'Startdatum' ),
+			t ( 'Einddatum' ),
+			t ( 'Meldingen' ),
+			t ( 'Aanleiding' ),
+			t ( '(meer)' ),
+			t ( 'Volgkaarten' ),
+			t ( 'Einddatum (field_msl_bo_einddatum)' ),
+			t ( 'Status' ),
+			t ( 'Overzicht: begeleidingsovereenkomsten' ),
+			t ( 'Een overzicht van alle begeleidingsovereenkomsten.' ) 
+	);
+	
+	$views [$view->name] = $view;
+	return $views;
+}

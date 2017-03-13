@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-3.1
+---------
+- Feature disabled, created full module
+
 v7.x-3.0
 ---------
 - Printerbeheer: snelbewerken geactiveerd in overzicht

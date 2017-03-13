@@ -1,0 +1,311 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_preventieregister_install() {
+	function _get_mlid($path, $menu_name) {
+		$mlid = db_select ( 'menu_links', 'ml' )->condition ( 'ml.link_path', $path )->condition ( 'ml.menu_name', $menu_name )->fields ( 'ml', array (
+				'mlid' 
+		) )->execute ()->fetchField ();
+		return $mlid;
+	}
+	
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
+	global $user;
+	
+	/* ----- Generate main page ----- */
+	
+	$page = 'Preventieregister';
+	$mainpath = 'preventieregister';
+	$node = new stdClass ();
+	$node->title = $page;
+	$node->type = 'page';
+	node_object_prepare ( $node );
+	$node->language = LANGUAGE_NONE;
+	$node->uid = $user->uid;
+	$node->status = 1;
+	$node->promote = 1;
+	$node->comment = 0;
+	
+	$node->path ['alias'] = $mainpath;
+	$node->path ['pathauto'] = FALSE;
+	$node->menu ['menu_name'] = $menu;
+	$node->menu ['enabled'] = TRUE;
+	$node->menu ['link_title'] = $page;
+	$node->menu ['description'] = '';
+	
+	$node->link_title = $page;
+	$node->link_path = $mainpath;
+	
+	$node->body [$node->language] [0] ['format'] = 'full_html';
+	
+	$node->body [$node->language] [0] ['value'] = '<p>Bron:&nbsp;<a href="http://pro.g-o.be/gezondheid-en-preventie/preventie/preventieregister" style="color:#C60450" target="_blank">http://pro.g-o.be/gezondheid-en-preventie/preventie/preventieregister</a></p>
+
+<hr />
+<p>De onderwijsinstelling (school,&nbsp;centrum voor volwassenenonderwijs, centrum voor deeltijds onderwijs, academie of internaat/tehuis) stelt een dossier ‘Preventie en Bescherming’ ter beschikking van o.a. de inspectie en de preventieadviseur.&nbsp;&nbsp;<br />
+Dit dossier wordt ‘preventieregister’ genoemd en bevat gegevens&nbsp;waarmee de instelling kan aantonen dat zij een welzijnsbeleid voert conform de wet van 4 augustus 1996. De instelling heeft een belangrijke taak inzake preventie en welzijn. Daarbij zijn heel veel personen betrokken. Het opstellen en bijhouden van het preventieregister&nbsp;is een verantwoordelijkheid van de werkgever. In heel wat instellingen houdt de directie/beheerder en de contactpersoon preventie en bescherming het preventieregister up-to-date.<br />
+<br />
+Van alle werken in functie van de veiligheid wordt een logboek bijgehouden.</p>
+
+<p>Het preventieregister is verdeeld in verschillende rubrieken:</p>';
+	
+	foreach ( argus_preventieregister_default_pages () as $title => $pages ) {
+		$path = base_path().'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) );
+		$node->body [$node->language] [0] ['value'] .= '<p><span style="font-size:20px"><strong><a href="' . $path . '" style="color: rgb(198, 4, 80); line-height: 20.8px;">' . $title . '</a></strong></span><ul>';
+		
+		foreach ( $pages as $page ) {
+			$path = base_path().'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) ) . '/' . drupal_clean_css_identifier ( drupal_html_class ( $page ) );
+			$node->body [$node->language] [0] ['value'] .= '<li><a href="' . $path . '">' . $page . '</a></li>';
+		}
+		
+		$node->body [$node->language] [0] ['value'] .= '</ul></p>';
+	}
+	
+	$node->body [$node->language] [0] ['value'] .= '<div><u>Opmerking</u><em>: * = (nog) niet van toepassing op onze organisatie</em></div>
+<br />
+<span style="font-size:10px">(</span><span style="color:rgb(198, 4, 80); font-size:10px">roze&nbsp;</span><span style="font-size:10px">= Gemeenschappelijke Preventiedienst,&nbsp;</span><span style="color:rgb(0, 51, 204); font-size:10px">blauw&nbsp;</span><span style="font-size:10px">= Interne Preventiedienst)</span>';
+	
+	$node = node_submit ( $node ); // Prepare node for saving
+	node_save ( $node );
+	
+	// Keep id for uninstall
+	variable_set ( $mainpath, $node->nid );
+	
+	/* ----- Generate detail pages ----- */
+	
+	$mainid = _get_mlid ( 'node/' . $node->nid, $menu );
+	foreach ( argus_preventieregister_default_pages () as $title => $pages ) {
+		
+		/* ----- Generate sub pages ----- */
+		
+		$path = 'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) );
+		$node = new stdClass ();
+		$node->title = $title;
+		$node->type = 'page';
+		node_object_prepare ( $node );
+		$node->language = LANGUAGE_NONE;
+		$node->uid = $user->uid;
+		$node->status = 1;
+		$node->promote = 0;
+		$node->comment = 0;
+		
+		$node->path ['alias'] = $path;
+		$node->path ['pathauto'] = FALSE;
+		$node->menu ['menu_name'] = $menu;
+		$node->menu ['enabled'] = TRUE;
+		$node->menu ['link_title'] = $title;
+		$node->menu ['description'] = '';
+		$node->menu ['plid'] = $mainid;
+		
+		$node->link_title = $title;
+		$node->link_path = $path;
+		
+		$node->body [$node->language] [0] ['format'] = 'full_html';
+		
+		$node->body [$node->language] [0] ['value'] = '<p>Bron:&nbsp;<a href="http://pro.g-o.be/gezondheid-en-preventie/preventie/preventieregister" style="color:#C60450" target="_blank">http://pro.g-o.be/gezondheid-en-preventie/preventie/preventieregister</a></p>
+		
+<hr />
+<p>De onderwijsinstelling (school,&nbsp;centrum voor volwassenenonderwijs, centrum voor deeltijds onderwijs, academie of internaat/tehuis) stelt een dossier ‘Preventie en Bescherming’ ter beschikking van o.a. de inspectie en de preventieadviseur.&nbsp;&nbsp;<br />
+Dit dossier wordt ‘preventieregister’ genoemd en bevat gegevens&nbsp;waarmee de instelling kan aantonen dat zij een welzijnsbeleid voert conform de wet van 4 augustus 1996. De instelling heeft een belangrijke taak inzake preventie en welzijn. Daarbij zijn heel veel personen betrokken. Het opstellen en bijhouden van het preventieregister&nbsp;is een verantwoordelijkheid van de werkgever. In heel wat instellingen houdt de directie/beheerder en de contactpersoon preventie en bescherming het preventieregister up-to-date.</p>
+		
+	<ul>';
+		
+		foreach ( $pages as $page ) {
+			$subpath = base_path().'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) ) . '/' . drupal_clean_css_identifier ( drupal_html_class ( $page ) );
+			$node->body [$node->language] [0] ['value'] .= '<li><a href="' . $subpath . '">' . $page . '</a></li>';
+		}
+		
+		$node->body [$node->language] [0] ['value'] .= '</ul>
+		
+<div><span style="font-size:10px"><u>Opmerking</u><em>: * = (nog) niet van toepassing op onze organisatie</em></span></div>';
+		
+		$node = node_submit ( $node ); // Prepare node for saving
+		node_save ( $node );
+		
+		// Keep id for uninstall
+		variable_set ( $path, $node->nid );
+		
+		$plid = _get_mlid ( 'node/' . $node->nid, $menu );
+		foreach ( $pages as $page ) {
+			$path = 'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) ) . '/' . drupal_clean_css_identifier ( drupal_html_class ( $page ) );
+			$node = new stdClass ();
+			$node->title = $page;
+			$node->type = 'page';
+			node_object_prepare ( $node );
+			$node->language = LANGUAGE_NONE;
+			$node->uid = $user->uid;
+			$node->status = 1;
+			$node->promote = 0;
+			$node->comment = 0;
+			
+			$node->path ['alias'] = $path;
+			$node->path ['pathauto'] = FALSE;
+			$node->menu ['menu_name'] = $menu;
+			$node->menu ['enabled'] = TRUE;
+			$node->menu ['link_title'] = $page;
+			$node->menu ['description'] = '';
+			$node->menu ['plid'] = $plid;
+			
+			$node->link_title = $page;
+			$node->link_path = $path;
+			
+			$node->body [$node->language] [0] ['format'] = 'full_html';
+			
+			$node->body [$node->language] [0] ['value'] = '<p>Bron: <a href="http://pro.g-o.be/gezondheid-en-preventie/preventie/preventieregister/" style="color: #C60450" target="_blank">http://pro.g-o.be/gezondheid-en-preventie/preventie/preventieregister</a></p>
+
+<hr />
+<h2>Procedure</h2>
+
+<p><strong>Korte beschrijving:</strong></p>
+
+...
+
+<p><strong>Wetgeving: </strong></p>
+
+...
+
+<p><strong>Periodiciteit:</strong></p>
+
+...
+
+<p><strong>Uitvoering:</strong></p>
+
+...
+
+<h2>Documenten</h2>
+
+<p>Selectie van documenten van toepassing binnen onze werking:</p>
+
+<ul>
+	<li>...</li>
+</ul>
+
+<p><span style="font-size:10px">(<span style="color:#C60450">roze</span> = Gemeenschappelijke Preventiedienst van het GO!, <span style="color:rgb(0, 51, 204)">blauw</span> = Interne Preventiedienst)</span></p>';
+			
+			$node = node_submit ( $node ); // Prepare node for saving
+			node_save ( $node );
+			
+			// Keep id for uninstall
+			variable_set ( $path, $node->nid );
+		}
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_preventieregister_uninstall() {
+	foreach ( argus_preventieregister_default_pages () as $title => $pages ) {
+		foreach ( $pages as $page ) {
+			$path = 'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) ) . '/' . drupal_clean_css_identifier ( drupal_html_class ( $page ) );
+			node_delete ( variable_get ( $path ) );
+		}
+		$path = 'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) );
+		node_delete ( variable_get ( $path ) );
+	}
+	node_delete ( variable_get ( 'preventieregister' ) );
+}
+
+/**
+ * Declare pages
+ */
+function argus_preventieregister_default_pages() {
+	$pages = array (
+			'A - Documenten' => array (
+					'A01 Bestelbon - Aankoopprocedure',
+					'A02 CE-attesten en Comformiteitsattesten',
+					'A03 Globaal Preventieplan',
+					'A04 Interventiedossier',
+					'A05 Identificatiedocument',
+					'A06 Jaaractieplan',
+					'A07 Noodprocedures',
+					'A08 Onderhoudssteekkaarten',
+					'A09 Onthaalbrochure',
+					'A10 Opleidingen',
+					'A11 Preventiebeleidsverklaring',
+					'A12 Veiligheidsinstructiekaarten',
+					'A13 Legionella (Veteranenziekte)',
+					'A14 Werken met derden',
+					'A15 Stagedoende jongeren',
+					'A16 CLB',
+					'A17 Arbeidsreglementen',
+					'A18.1 Explosieveiligheidsdocument',
+					'A18.2 Zoneringsdossier',
+					'A19.1 Rookbeleid',
+					'A19.2 Beleid alcohol en andere drugs',
+					'A20 Elektrische installatie - installatieverantwoordelijke en werkverantwoordelijke',
+					'A21 Register van feiten door derden',
+					'A22 Evacuatieplannen',
+					'A23 Brandbestrijdingsdienst',
+					'A24 Brandpreventie',
+					'A25 Andere' 
+			),
+			'B - Inventarisatie' => array (
+					'B01 Asbest',
+					'B02 EHBO',
+					'B03 Gevaarlijke stoffen en preparaten',
+					'B04 Machines, arbeidsmiddelen, persoonlijke en collectieve beschermingsmiddelen',
+					'B05 Ongevallen',
+					'B06 Controlelijsten',
+					'B07 Speeltoestellen en speelterreinen',
+					'B08 Psychosociale risico\'s',
+					'B09 Andere' 
+			),
+			'C - Keuringen en periodieke controles' => array (
+					'C01 Brandalarminstallatie',
+					'C02 Brandbestrijdingsmiddelen',
+					'C03 Centrifuges',
+					'C04 Hefwerktuigen',
+					'C05 Hoogspanning',
+					'C06 Laagspanning',
+					'C07 Gasinstallatie',
+					'C08 Gasopslagplaats',
+					'C09 Ladders en verplaatsbare trappen',
+					'C10 Liften',
+					'C11 Luchtcompressoren',
+					'C12 PBM en CBM',
+					'C13 Rook- en gasdetectoren',
+					'C14 Stellingen',
+					'C15 Stookolietanks',
+					'C16 Veiligheidsverlichting',
+					'C17.1 Verwarmingsinstallaties: stookolie',
+					'C17.2 Verwarmingsinstallaties: (aard)gas',
+					'C18 Lasmateriaal',
+					'C19 Ioniserende stralingen',
+					'C20 Sport- en turntoestellen',
+					'C21 Andere​' 
+			),
+			'D - Vergunningen' => array (
+					'D01 Keukens - Voedselveiligheid',
+					'D02 Milieuvergunning',
+					'D03 Ioniserende stralingen',
+					'D04 Werkvergunning',
+					'D05 Farmaceutische producten',
+					'D06 Andere' 
+			),
+			'E - Verslagen' => array (
+					'E01 Evacuatieoefening',
+					'E02 Jaarverslag FOD WASO',
+					'E03 Brandpreventieverslag - Brandrisico',
+					'E04 Indienst- en buitengebruik- stellingsverslagen',
+					'E05 Inspectieverslagen',
+					'E06 Basiscomité / Tussencomité (BC en TC)',
+					'E07 Preventieverslagen IDPBW',
+					'E08 Preventieverslagen EDPBW',
+					'E09 Andere' 
+			) 
+	);
+	
+	return $pages;
+}

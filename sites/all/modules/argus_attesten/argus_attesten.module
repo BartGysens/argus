@@ -1,7 +1,452 @@
 <?php
-/**
- * @file
- * Code for the Attesten feature.
+/*
+ * Copyright (C) 2017 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'argus_attesten.features.inc';
+/* Drupal Hooks */
+
+/**
+ * Implements hook_views_api().
+ */
+function argus_attesten_views_api($module = NULL, $api = NULL) {
+	return array (
+			"api" => "3.0" 
+	);
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_attesten_node_info() {
+	$items = array (
+			'attest' => array (
+					'name' => t ( 'Attest' ),
+					'base' => 'node_content',
+					'description' => t ( 'Allerhande <em>attesten</em>; zowel persoonlijk als voor de organisatie.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_attesten_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
+
+/**
+ * Implements hook_views_default_views().
+ */
+function argus_attesten_views_default_views() {
+	$export = array();
+
+	$view = new view();
+	$view->name = 'attesten';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'Attesten';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+	/* Display: Master */
+	$handler = $view->new_display('default', 'Master', 'default');
+	$handler->display->display_options['title'] = 'Attesten: leerlingvolgsysteem';
+	$handler->display->display_options['use_more_always'] = FALSE;
+	$handler->display->display_options['use_more_text'] = 'meer';
+	$handler->display->display_options['access']['type'] = 'role';
+	$handler->display->display_options['access']['role'] = array(
+			3 => '3',
+			86 => '86',
+			225 => '225',
+			88 => '88',
+			218 => '218',
+			219 => '219',
+	);
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0 
+			),
+			'node' => array (
+					'attest' => 'attest' 
+			),
+			'node_only' => array (
+					'node_changed' => 'node_changed' 
+			) 
+	);
+	$handler->display->display_options['query']['type'] = 'views_query';
+	$handler->display->display_options['exposed_form']['type'] = 'basic';
+	$handler->display->display_options['exposed_form']['options']['submit_button'] = 'Toepassen';
+	$handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
+	$handler->display->display_options['exposed_form']['options']['reset_button_label'] = 'Opnieuw instellen';
+	$handler->display->display_options['exposed_form']['options']['exposed_sorts_label'] = 'Sorteren op';
+	$handler->display->display_options['exposed_form']['options']['sort_asc_label'] = 'Oplopend';
+	$handler->display->display_options['exposed_form']['options']['sort_desc_label'] = 'Aflopend';
+	$handler->display->display_options['exposed_form']['options']['autosubmit'] = FALSE;
+	$handler->display->display_options['pager']['type'] = 'full';
+	$handler->display->display_options['pager']['options']['items_per_page'] = '25';
+	$handler->display->display_options['pager']['options']['offset'] = '0';
+	$handler->display->display_options['pager']['options']['id'] = '0';
+	$handler->display->display_options['pager']['options']['quantity'] = '9';
+	$handler->display->display_options['pager']['options']['expose']['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options['pager']['options']['expose']['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options['pager']['options']['expose']['offset_label'] = 'Startpunt';
+	$handler->display->display_options['pager']['options']['tags']['first'] = '« eerste';
+	$handler->display->display_options['pager']['options']['tags']['previous'] = '‹ vorige';
+	$handler->display->display_options['pager']['options']['tags']['next'] = 'volgende ›';
+	$handler->display->display_options['pager']['options']['tags']['last'] = 'laatste »';
+	$handler->display->display_options['style_plugin'] = 'table';
+	$handler->display->display_options['style_options']['columns'] = array(
+			'field_user_sms_voornaam' => 'field_user_sms_voornaam',
+			'uid' => 'uid',
+			'title' => 'title',
+			'field_user_sms_naam_1' => 'field_user_sms_naam_1',
+			'field_attest_ingescand_document' => 'field_attest_ingescand_document',
+			'last_updated' => 'last_updated',
+	);
+	$handler->display->display_options['style_options']['default'] = 'last_updated';
+	$handler->display->display_options['style_options']['info'] = array(
+			'field_user_sms_voornaam' => array(
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+			'uid' => array(
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+			'title' => array(
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+			'field_user_sms_naam_1' => array(
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+			'field_attest_ingescand_document' => array(
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+			'last_updated' => array(
+					'sortable' => 1,
+					'default_sort_order' => 'desc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+	);
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options['header']['area']['id'] = 'area';
+	$handler->display->display_options['header']['area']['table'] = 'views';
+	$handler->display->display_options['header']['area']['field'] = 'area';
+	$handler->display->display_options['header']['area']['content'] = '<a href="/node/add/attest">Een nieuw attest toevoegen</a>';
+	$handler->display->display_options['header']['area']['format'] = 'filtered_html';
+	/* Voet: Algemeen: Samenvatting van het resultaat */
+	$handler->display->display_options['footer']['result']['id'] = 'result';
+	$handler->display->display_options['footer']['result']['table'] = 'views';
+	$handler->display->display_options['footer']['result']['field'] = 'result';
+	$handler->display->display_options['footer']['result']['content'] = 'Getoond @start - @end van @total';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options['footer']['area']['id'] = 'area';
+	$handler->display->display_options['footer']['area']['table'] = 'views';
+	$handler->display->display_options['footer']['area']['field'] = 'area';
+	$handler->display->display_options['footer']['area']['content'] = '<a href="/node/add/attest">Een nieuw attest toevoegen</a>';
+	$handler->display->display_options['footer']['area']['format'] = 'filtered_html';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options['relationships']['field_attest_persoon_target_id']['id'] = 'field_attest_persoon_target_id';
+	$handler->display->display_options['relationships']['field_attest_persoon_target_id']['table'] = 'field_data_field_attest_persoon';
+	$handler->display->display_options['relationships']['field_attest_persoon_target_id']['field'] = 'field_attest_persoon_target_id';
+	$handler->display->display_options['relationships']['field_attest_persoon_target_id']['label'] = 'Gebruiker entity referenced from field_attest_persoon';
+	/* Veld: Gebruiker: Voornaam */
+	$handler->display->display_options['fields']['field_user_sms_voornaam']['id'] = 'field_user_sms_voornaam';
+	$handler->display->display_options['fields']['field_user_sms_voornaam']['table'] = 'field_data_field_user_sms_voornaam';
+	$handler->display->display_options['fields']['field_user_sms_voornaam']['field'] = 'field_user_sms_voornaam';
+	$handler->display->display_options['fields']['field_user_sms_voornaam']['relationship'] = 'field_attest_persoon_target_id';
+	$handler->display->display_options['fields']['field_user_sms_voornaam']['label'] = '';
+	$handler->display->display_options['fields']['field_user_sms_voornaam']['exclude'] = TRUE;
+	$handler->display->display_options['fields']['field_user_sms_voornaam']['element_label_colon'] = FALSE;
+	/* Veld: Gebruiker: Uid */
+	$handler->display->display_options['fields']['uid']['id'] = 'uid';
+	$handler->display->display_options['fields']['uid']['table'] = 'users';
+	$handler->display->display_options['fields']['uid']['field'] = 'uid';
+	$handler->display->display_options['fields']['uid']['relationship'] = 'field_attest_persoon_target_id';
+	$handler->display->display_options['fields']['uid']['label'] = '';
+	$handler->display->display_options['fields']['uid']['exclude'] = TRUE;
+	$handler->display->display_options['fields']['uid']['alter']['text'] = '[field_user_sms_naam_1], [field_user_sms_voornaam]';
+	$handler->display->display_options['fields']['uid']['element_label_colon'] = FALSE;
+	$handler->display->display_options['fields']['uid']['link_to_user'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options['fields']['title']['id'] = 'title';
+	$handler->display->display_options['fields']['title']['table'] = 'node';
+	$handler->display->display_options['fields']['title']['field'] = 'title';
+	$handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+	$handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+	/* Veld: Gebruiker: Achternaam */
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['id'] = 'field_user_sms_naam_1';
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['table'] = 'field_data_field_user_sms_naam';
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['field'] = 'field_user_sms_naam';
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['relationship'] = 'field_attest_persoon_target_id';
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['label'] = 'Persoon';
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['alter']['alter_text'] = TRUE;
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['alter']['text'] = '[field_user_sms_naam_1], [field_user_sms_voornaam]';
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['alter']['make_link'] = TRUE;
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['alter']['path'] = 'users/[field_user_sms_naam_1]-[field_user_sms_voornaam]';
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['alter']['absolute'] = TRUE;
+	$handler->display->display_options['fields']['field_user_sms_naam_1']['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Ingescand document */
+	$handler->display->display_options['fields']['field_attest_ingescand_document']['id'] = 'field_attest_ingescand_document';
+	$handler->display->display_options['fields']['field_attest_ingescand_document']['table'] = 'field_data_field_attest_ingescand_document';
+	$handler->display->display_options['fields']['field_attest_ingescand_document']['field'] = 'field_attest_ingescand_document';
+	$handler->display->display_options['fields']['field_attest_ingescand_document']['click_sort_column'] = 'fid';
+	/* Veld: Inhoud: Bijgewerkte/laatste reactiedatum */
+	$handler->display->display_options['fields']['last_updated']['id'] = 'last_updated';
+	$handler->display->display_options['fields']['last_updated']['table'] = 'node_comment_statistics';
+	$handler->display->display_options['fields']['last_updated']['field'] = 'last_updated';
+	$handler->display->display_options['fields']['last_updated']['date_format'] = 'dag_en_datum_lang_';
+	$handler->display->display_options['fields']['last_updated']['second_date_format'] = 'long';
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options['filters']['status']['id'] = 'status';
+	$handler->display->display_options['filters']['status']['table'] = 'node';
+	$handler->display->display_options['filters']['status']['field'] = 'status';
+	$handler->display->display_options['filters']['status']['value'] = 1;
+	$handler->display->display_options['filters']['status']['group'] = 1;
+	$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options['filters']['type']['id'] = 'type';
+	$handler->display->display_options['filters']['type']['table'] = 'node';
+	$handler->display->display_options['filters']['type']['field'] = 'type';
+	$handler->display->display_options['filters']['type']['value'] = array(
+			'attest' => 'attest',
+	);
+	/* Filtercriterium: Inhoud: Categorie (field_attest_categorie) */
+	$handler->display->display_options['filters']['field_attest_categorie_value']['id'] = 'field_attest_categorie_value';
+	$handler->display->display_options['filters']['field_attest_categorie_value']['table'] = 'field_data_field_attest_categorie';
+	$handler->display->display_options['filters']['field_attest_categorie_value']['field'] = 'field_attest_categorie_value';
+	$handler->display->display_options['filters']['field_attest_categorie_value']['value'] = array(
+			'Leerlingvolgsysteem' => 'Leerlingvolgsysteem',
+	);
+	$handler->display->display_options['filters']['field_attest_categorie_value']['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Inhoud: Ingescand document (field_attest_ingescand_document:description) */
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['id'] = 'field_attest_ingescand_document_description';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['table'] = 'field_data_field_attest_ingescand_document';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['field'] = 'field_attest_ingescand_document_description';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['operator'] = 'contains';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['exposed'] = TRUE;
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['operator_id'] = 'field_attest_ingescand_document_description_op';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['label'] = 'Ingescand document';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['operator'] = 'field_attest_ingescand_document_description_op';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['identifier'] = 'field_attest_ingescand_document_description';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['remember_roles'] = array();
+	/* Filtercriterium: Gebruiker: Gebruikersnaam (field_user_sms_gebruikersnaam) */
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['id'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['table'] = 'field_data_field_user_sms_gebruikersnaam';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['field'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['relationship'] = 'field_attest_persoon_target_id';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['operator'] = 'contains';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['exposed'] = TRUE;
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['expose']['operator_id'] = 'field_user_sms_gebruikersnaam_value_op';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['expose']['label'] = 'Persoon';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['expose']['operator'] = 'field_user_sms_gebruikersnaam_value_op';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['expose']['identifier'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options['filters']['field_user_sms_gebruikersnaam_value']['expose']['remember_roles'] = array();
+
+	/* Display: Overzicht: leerlingvolgsysteem */
+	$handler = $view->new_display('page', 'Overzicht: leerlingvolgsysteem', 'attest_overzicht');
+	$handler->display->display_options['display_description'] = 'Lijst van alle attesten binnen de categorie \'leerlingvolgsysteem\'';
+	$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+	$handler->display->display_options['style_plugin'] = 'table';
+	$handler->display->display_options['style_options']['columns'] = array(
+			'field_attest_persoon' => 'field_attest_persoon',
+			'title' => 'title',
+			'field_attest_ingescand_document' => 'field_attest_ingescand_document',
+			'last_updated' => 'last_updated',
+	);
+	$handler->display->display_options['style_options']['default'] = 'field_attest_persoon';
+	$handler->display->display_options['style_options']['info'] = array(
+			'field_attest_persoon' => array(
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+			'title' => array(
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+			'field_attest_ingescand_document' => array(
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+			'last_updated' => array(
+					'sortable' => 1,
+					'default_sort_order' => 'desc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+			),
+	);
+	$handler->display->display_options['defaults']['style_options'] = FALSE;
+	$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+	$handler->display->display_options['defaults']['row_options'] = FALSE;
+	$handler->display->display_options['exposed_block'] = TRUE;
+	$handler->display->display_options['defaults']['fields'] = FALSE;
+	/* Veld: Inhoud: Persoon */
+	$handler->display->display_options['fields']['field_attest_persoon']['id'] = 'field_attest_persoon';
+	$handler->display->display_options['fields']['field_attest_persoon']['table'] = 'field_data_field_attest_persoon';
+	$handler->display->display_options['fields']['field_attest_persoon']['field'] = 'field_attest_persoon';
+	$handler->display->display_options['fields']['field_attest_persoon']['settings'] = array(
+			'link' => 1,
+	);
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options['fields']['title']['id'] = 'title';
+	$handler->display->display_options['fields']['title']['table'] = 'node';
+	$handler->display->display_options['fields']['title']['field'] = 'title';
+	$handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+	$handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+	/* Veld: Inhoud: Ingescand document */
+	$handler->display->display_options['fields']['field_attest_ingescand_document']['id'] = 'field_attest_ingescand_document';
+	$handler->display->display_options['fields']['field_attest_ingescand_document']['table'] = 'field_data_field_attest_ingescand_document';
+	$handler->display->display_options['fields']['field_attest_ingescand_document']['field'] = 'field_attest_ingescand_document';
+	$handler->display->display_options['fields']['field_attest_ingescand_document']['click_sort_column'] = 'fid';
+	/* Veld: Inhoud: Bijgewerkte/laatste reactiedatum */
+	$handler->display->display_options['fields']['last_updated']['id'] = 'last_updated';
+	$handler->display->display_options['fields']['last_updated']['table'] = 'node_comment_statistics';
+	$handler->display->display_options['fields']['last_updated']['field'] = 'last_updated';
+	$handler->display->display_options['fields']['last_updated']['date_format'] = 'dag_en_datum_lang_';
+	$handler->display->display_options['fields']['last_updated']['second_date_format'] = 'long';
+	$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+	$handler->display->display_options['defaults']['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options['filters']['status']['id'] = 'status';
+	$handler->display->display_options['filters']['status']['table'] = 'node';
+	$handler->display->display_options['filters']['status']['field'] = 'status';
+	$handler->display->display_options['filters']['status']['value'] = 1;
+	$handler->display->display_options['filters']['status']['group'] = 1;
+	$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options['filters']['type']['id'] = 'type';
+	$handler->display->display_options['filters']['type']['table'] = 'node';
+	$handler->display->display_options['filters']['type']['field'] = 'type';
+	$handler->display->display_options['filters']['type']['value'] = array(
+			'attest' => 'attest',
+	);
+	/* Filtercriterium: Inhoud: Categorie (field_attest_categorie) */
+	$handler->display->display_options['filters']['field_attest_categorie_value']['id'] = 'field_attest_categorie_value';
+	$handler->display->display_options['filters']['field_attest_categorie_value']['table'] = 'field_data_field_attest_categorie';
+	$handler->display->display_options['filters']['field_attest_categorie_value']['field'] = 'field_attest_categorie_value';
+	$handler->display->display_options['filters']['field_attest_categorie_value']['value'] = array(
+			'Leerlingvolgsysteem' => 'Leerlingvolgsysteem',
+	);
+	$handler->display->display_options['filters']['field_attest_categorie_value']['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Inhoud: Ingescand document (field_attest_ingescand_document:description) */
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['id'] = 'field_attest_ingescand_document_description';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['table'] = 'field_data_field_attest_ingescand_document';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['field'] = 'field_attest_ingescand_document_description';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['operator'] = 'contains';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['exposed'] = TRUE;
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['operator_id'] = 'field_attest_ingescand_document_description_op';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['label'] = 'Ingescand document';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['operator'] = 'field_attest_ingescand_document_description_op';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['identifier'] = 'field_attest_ingescand_document_description';
+	$handler->display->display_options['filters']['field_attest_ingescand_document_description']['expose']['remember_roles'] = array();
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options['filters']['realname']['id'] = 'realname';
+	$handler->display->display_options['filters']['realname']['table'] = 'realname';
+	$handler->display->display_options['filters']['realname']['field'] = 'realname';
+	$handler->display->display_options['filters']['realname']['relationship'] = 'field_attest_persoon_target_id';
+	$handler->display->display_options['filters']['realname']['operator'] = 'contains';
+	$handler->display->display_options['filters']['realname']['exposed'] = TRUE;
+	$handler->display->display_options['filters']['realname']['expose']['operator_id'] = 'realname_op';
+	$handler->display->display_options['filters']['realname']['expose']['label'] = 'Persoon';
+	$handler->display->display_options['filters']['realname']['expose']['operator'] = 'realname_op';
+	$handler->display->display_options['filters']['realname']['expose']['identifier'] = 'realname';
+	$handler->display->display_options['filters']['realname']['expose']['remember_roles'] = array();
+	$handler->display->display_options['qtip_instance'] = 'standaard';
+	$handler->display->display_options['path'] = 'attesten/leerlingvolgsysteem';
+	$handler->display->display_options['menu']['type'] = 'normal';
+	$handler->display->display_options['menu']['title'] = 'Attesten';
+	$handler->display->display_options['menu']['weight'] = '0';
+	if (menu_load('menu-modules')){
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options['menu']['context'] = 0;
+	$handler->display->display_options['menu']['context_only_inline'] = 0;
+	$translatables['attesten'] = array(
+			t('Master'),
+			t('Attesten: leerlingvolgsysteem'),
+			t('meer'),
+			t('Toepassen'),
+			t('Opnieuw instellen'),
+			t('Sorteren op'),
+			t('Oplopend'),
+			t('Aflopend'),
+			t('Items per pagina'),
+			t('- Alle -'),
+			t('Startpunt'),
+			t('« eerste'),
+			t('‹ vorige'),
+			t('volgende ›'),
+			t('laatste »'),
+			t('<a href="/node/add/attest">Een nieuw attest toevoegen</a>'),
+			t('Getoond @start - @end van @total'),
+			t('Gebruiker entity referenced from field_attest_persoon'),
+			t('[field_user_sms_naam_1], [field_user_sms_voornaam]'),
+			t('Titel'),
+			t('Persoon'),
+			t('Ingescand document'),
+			t('Bijgewerkte/laatste reactiedatum'),
+			t('Overzicht: leerlingvolgsysteem'),
+			t('Lijst van alle attesten binnen de categorie \'leerlingvolgsysteem\''),
+	);
+	$export['attesten'] = $view;
+
+	return $export;
+}
