@@ -1090,12 +1090,14 @@ function views_break_phrase_string($str, &$handler = NULL) {
   }
 
   // Determine if the string has 'or' operators (plus signs) or 'and' operators
-  // (commas) and split the string accordingly.
-  $or_wildcard = '[^+,]';
+  // (commas) and split the string accordingly. If we have an 'and' operator,
+  // spaces are treated as part of the word being split, but otherwise they are
+  // treated the same as a plus sign.
+  $or_wildcard = '[^\s+,]';
   $and_wildcard = '[^+,]';
-  if (preg_match("/^({$or_wildcard}+[+])+{$or_wildcard}+$/", $str)) {
+  if (preg_match("/^({$or_wildcard}+[+ ])+{$or_wildcard}+$/", $str)) {
     $handler->operator = 'or';
-    $handler->value = preg_split('/[+]/', $str);
+    $handler->value = preg_split('/[+ ]/', $str);
   }
   elseif (preg_match("/^({$and_wildcard}+,)*{$and_wildcard}+$/", $str)) {
     $handler->operator = 'and';
@@ -1586,7 +1588,7 @@ class views_join {
             $extras[] = $extra;
           }
           // Otherwise - and if we have a value - use it for a field-to-value condition.
-          elseif (!empty($info['value'])) {
+          elseif (isset($info['value'])) {
             // Convert a single-valued array of values to the single-value case,
             // and transform from IN() notation to = notation
             if (is_array($info['value']) && count($info['value']) == 1) {

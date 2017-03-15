@@ -200,10 +200,7 @@ function field_views_field_default_views_data($field) {
     $aliases = array();
     $also_known = array();
     foreach ($all_labels as $entity_name => $labels) {
-	if (!isset($groups[$entity_name])) {
-		continue;
-	}      
-	foreach ($labels as $label_name => $true) {
+      foreach ($labels as $label_name => $true) {
         if ($type == FIELD_LOAD_CURRENT) {
           if ($group_name != $groups[$entity_name] || $label != $label_name) {
             $aliases[] = array(
@@ -312,14 +309,8 @@ function field_views_field_default_views_data($field) {
       $aliases = array();
       $also_known = array();
       foreach ($all_labels as $entity_name => $labels) {
-        if (!isset($groups[$entity_name])) {
-          continue;
-        }
         foreach ($labels as $label_name => $true) {
-          if (!isset($groups[$entity_name])) {
-	    continue;
-	  }
-	  if ($group_name != $groups[$entity_name] || $label != $label_name) {
+          if ($group_name != $groups[$entity_name] || $label != $label_name) {
             if (count($field['columns']) == 1 || $column == 'value') {
               $alias_title = t('@label (!name)', array('@label' => $label_name, '!name' => $field['field_name']));
               // CCK used the first 10 characters of $label. Probably doesn't matter.

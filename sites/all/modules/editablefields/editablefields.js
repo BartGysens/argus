@@ -6,12 +6,27 @@ Drupal.behaviors.editablefields_submit = {
 
       // There is only one editable field in that form, we can hide the submit
       // button.
-      if ($this.find('input[type=text],textarea,select').length == 1) {
-        $this.find('input.form-submit').hide();
-        $this.find('input[type=text],textarea,select').change(function() {
-          $this.find('input.form-submit').triggerHandler('click');
+      if ($this.find('input[type=text],input[type=checkbox],textarea,select').length == 1 || $this.find('input[type=radio] ').length > 1) {
+        $this.find('.form-submit').hide();
+        $this.find('input[type=text],input[type=checkbox],input[type=radio],textarea,select').change(function() {
+          $this.find('.form-submit').triggerHandler('click');
         });
       }
+
+      var submitName = '.form-submit.editablefield-edit-hover';
+      var linkName = '.editablefield-hover-link';
+
+      var $submit = $this.find(submitName);
+      $submit.hide().after('<a href="#" class="editablefield-hover-link">' + $submit.attr('value') + '</a>');
+
+      $this.find(linkName).hide().click(function () {
+        $this.find(submitName).click();
+        return false;
+      });
+
+      $this.hover(function () {
+        $this.find(linkName).fadeToggle('fast');
+      });
     });
   }
 };

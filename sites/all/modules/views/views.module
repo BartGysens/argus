@@ -100,47 +100,45 @@ function views_theme($existing, $type, $theme, $path) {
   $plugins = views_fetch_plugin_data();
 
   // Register theme functions for all style plugins
-  if (is_array($plugins) > 0){
-	  foreach ($plugins as $type => $info) {
-	    foreach ($info as $plugin => $def) {
-	      if (isset($def['theme']) && (!isset($def['register theme']) || !empty($def['register theme']))) {
-	        $hooks[$def['theme']] = array(
-	          'pattern' => $def['theme'] . '__',
-	          'file' => $def['theme file'],
-	          'path' => $def['theme path'],
-	          'variables' => $variables[$type],
-	        );
-	
-	        $include = DRUPAL_ROOT . '/' . $def['theme path'] . '/' . $def['theme file'];
-	        if (file_exists($include)) {
-	          require_once $include;
-	        }
-	
-	        if (!function_exists('theme_' . $def['theme'])) {
-	          $hooks[$def['theme']]['template'] = drupal_clean_css_identifier($def['theme']);
-	        }
-	      }
-	      if (isset($def['additional themes'])) {
-	        foreach ($def['additional themes'] as $theme => $theme_type) {
-	          if (empty($theme_type)) {
-	            $theme = $theme_type;
-	            $theme_type = $type;
-	          }
-	
-	          $hooks[$theme] = array(
-	            'pattern' => $theme . '__',
-	            'file' => $def['theme file'],
-	            'path' => $def['theme path'],
-	            'variables' => $variables[$theme_type],
-	          );
-	
-	          if (!function_exists('theme_' . $theme)) {
-	            $hooks[$theme]['template'] = drupal_clean_css_identifier($theme);
-	          }
-	        }
-	      }
-	    }
-	  }
+  foreach ($plugins as $type => $info) {
+    foreach ($info as $plugin => $def) {
+      if (isset($def['theme']) && (!isset($def['register theme']) || !empty($def['register theme']))) {
+        $hooks[$def['theme']] = array(
+          'pattern' => $def['theme'] . '__',
+          'file' => $def['theme file'],
+          'path' => $def['theme path'],
+          'variables' => $variables[$type],
+        );
+
+        $include = DRUPAL_ROOT . '/' . $def['theme path'] . '/' . $def['theme file'];
+        if (file_exists($include)) {
+          require_once $include;
+        }
+
+        if (!function_exists('theme_' . $def['theme'])) {
+          $hooks[$def['theme']]['template'] = drupal_clean_css_identifier($def['theme']);
+        }
+      }
+      if (isset($def['additional themes'])) {
+        foreach ($def['additional themes'] as $theme => $theme_type) {
+          if (empty($theme_type)) {
+            $theme = $theme_type;
+            $theme_type = $type;
+          }
+
+          $hooks[$theme] = array(
+            'pattern' => $theme . '__',
+            'file' => $def['theme file'],
+            'path' => $def['theme path'],
+            'variables' => $variables[$theme_type],
+          );
+
+          if (!function_exists('theme_' . $theme)) {
+            $hooks[$theme]['template'] = drupal_clean_css_identifier($theme);
+          }
+        }
+      }
+    }
   }
 
   $hooks['views_form_views_form'] = $base + array(

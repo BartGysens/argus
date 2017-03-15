@@ -125,7 +125,7 @@ function _views_data_process_entity_types(&$data) {
  */
 function _views_fetch_plugin_data($type = NULL, $plugin = NULL, $reset = FALSE) {
   static $cache = NULL;
-  if (!isset($cache) || empty($cache) || $reset) {
+  if (!isset($cache) || $reset) {
     // Load necessary code once.
     if (!isset($cache)) {
       views_include('plugins');
