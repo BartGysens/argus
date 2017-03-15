@@ -1,0 +1,2038 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_ikz_install() {
+	// Rebuild and define new content type
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_ikz_field_default_field_bases()
+	foreach ( argus_ikz_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_ikz_field_default_field_instances()
+	foreach ( argus_ikz_field_default_field_instances () as $fieldinstance ) {
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => '-exp-IKZ-overzicht_ikz', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'ikz', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '9d3ad5dee3d9c8d21a6b1a14ff396791', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'ikz/afkortingen' . chr ( 13 ) . 'ikz/afkortingen/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '25a4a6791f9fe58f23df0a8bce40f5a8', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'ikz/formulieren' . chr ( 13 ) . 'ikz/formulieren/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '595d26e6d50e7ac796576a3696a6a0b7', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'ikz/procedures' . chr ( 13 ) . 'ikz/procedures/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+	);
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_ikz_uninstall() {
+	$newTypes = array (
+			'ikz_afkortingen',
+			'ikz_documenten',
+			'ikz_formulier',
+			'ikz_procedure' 
+	);
+	
+	foreach ( $newTypes as $type ) {
+		// Remove all nodes of new content type
+		$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+		$result = db_query ( $sql, array (
+				':type' => $type 
+		) );
+		$nodeids = array ();
+		foreach ( $result as $row ) {
+			$nodeids [] = $row->nid;
+		}
+		node_delete_multiple ( $nodeids );
+	}
+	
+	// Delete all related fields
+	foreach ( argus_ikz_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	
+	foreach ( $newTypes as $type ) {
+		$instances = field_info_instances ( 'node', $type );
+		foreach ( $instances as $instance_name => $fieldinstance ) {
+			field_delete_instance ( $fieldinstance );
+		}
+	}
+	
+	foreach ( $newTypes as $type ) {
+		// Remove new content type
+		node_type_delete ( $type );
+	}
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_ikz' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ */
+function argus_ikz_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_ikz_afkorting'.
+	$field_bases ['field_ikz_afkorting'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_afkorting',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_ikz_afkorting_categorie'.
+	$field_bases ['field_ikz_afkorting_categorie'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_afkorting_categorie',
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'studierichting' => 'studierichting' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_ikz_auditor'.
+	$field_bases ['field_ikz_auditor'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_auditor',
+			'field_permissions' => array (
+					'type' => 2 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (
+											0 => 90 
+									),
+									'display_name' => 'users',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_ikz_auditplanning'.
+	$field_bases ['field_ikz_auditplanning'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_auditplanning',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 0,
+							'minute' => 0,
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => '',
+					'todate' => '',
+					'tz_handling' => 'none' 
+			),
+			'translatable' => 0,
+			'type' => 'datetime' 
+	);
+	
+	// Exported field_base: 'field_ikz_bijlage'.
+	$field_bases ['field_ikz_bijlage'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_bijlage',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'fid' => array (
+							0 => 'fid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'file',
+			'settings' => array (
+					'display_default' => 0,
+					'display_field' => 0,
+					'uri_scheme' => 'public' 
+			),
+			'translatable' => 0,
+			'type' => 'file' 
+	);
+	
+	// Exported field_base: 'field_ikz_datum'.
+	$field_bases ['field_ikz_datum'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_datum',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 0,
+							'minute' => 0,
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => '',
+					'todate' => '',
+					'tz_handling' => 'none' 
+			),
+			'translatable' => 0,
+			'type' => 'datetime' 
+	);
+	
+	// Exported field_base: 'field_ikz_documentnaam'.
+	$field_bases ['field_ikz_documentnaam'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_documentnaam',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_ikz_doel'.
+	$field_bases ['field_ikz_doel'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_doel',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_ikz_formulier'.
+	$field_bases ['field_ikz_formulier'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_formulier',
+			'indexes' => array (
+					'fid' => array (
+							0 => 'fid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'file',
+			'settings' => array (
+					'display_default' => 0,
+					'display_field' => 0,
+					'uri_scheme' => 'public' 
+			),
+			'translatable' => 0,
+			'type' => 'file' 
+	);
+	
+	// Exported field_base: 'field_ikz_middelen'.
+	$field_bases ['field_ikz_middelen'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_middelen',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_ikz_nummer'.
+	$field_bases ['field_ikz_nummer'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_nummer',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 7 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_ikz_process'.
+	$field_bases ['field_ikz_process'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_process',
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							0 => 'Actief',
+							1 => 'In bewerking' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_boolean' 
+	);
+	
+	// Exported field_base: 'field_ikz_referenties'.
+	$field_bases ['field_ikz_referenties'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_referenties',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_ikz_revisie'.
+	$field_bases ['field_ikz_revisie'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_revisie',
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_ikz_status'.
+	$field_bases ['field_ikz_status'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_status',
+			'field_permissions' => array (
+					'type' => 1 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'Goedgekeurd' => 'Goedgekeurd',
+							'In bewerking' => 'In bewerking',
+							'Klaar voor goedkeuring' => 'Klaar voor goedkeuring',
+							'In ontwerp' => 'In ontwerp' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_ikz_toepassingsgebied'.
+	$field_bases ['field_ikz_toepassingsgebied'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_toepassingsgebied',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_ikz_verantw_omschrijving'.
+	$field_bases ['field_ikz_verantw_omschrijving'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_verantw_omschrijving',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_ikz_verantw_rol'.
+	$field_bases ['field_ikz_verantw_rol'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_verantw_rol',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'role_field',
+			'settings' => array (
+					'exclusive' => 0,
+					'roles' => array () 
+			),
+			'translatable' => 0,
+			'type' => 'role' 
+	);
+	
+	// Exported field_base: 'field_ikz_verantwoordelijkheden'.
+	$field_bases ['field_ikz_verantwoordelijkheden'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_verantwoordelijkheden',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'revision_id' => array (
+							0 => 'revision_id' 
+					),
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'field_collection',
+			'settings' => array (
+					'hide_blank_items' => 1,
+					'hide_initial_item' => FALSE,
+					'path' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'field_collection' 
+	);
+	
+	// Exported field_base: 'field_ikz_werkwijze'.
+	$field_bases ['field_ikz_werkwijze'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_ikz_werkwijze',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_tags'.
+	$field_bases ['field_tags'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_tags',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'tid' => array (
+							0 => 'tid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'taxonomy',
+			'settings' => array (
+					'allowed_values' => array (
+							0 => array (
+									'vocabulary' => 'tags',
+									'parent' => 0 
+							) 
+					) 
+			),
+			'translatable' => 0,
+			'type' => 'taxonomy_term_reference' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function argus_ikz_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance:
+	// 'field_collection_item-field_ikz_verantwoordelijkheden-field_ikz_verantw_omschrijving'.
+	$field_instances ['field_collection_item-field_ikz_verantwoordelijkheden-field_ikz_verantw_omschrijving'] = array (
+			'bundle' => 'field_ikz_verantwoordelijkheden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'hidden',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 2 
+					) 
+			),
+			'entity_type' => 'field_collection_item',
+			'field_name' => 'field_ikz_verantw_omschrijving',
+			'label' => 'Verantwoordelijkheid',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'field_collection_item-field_ikz_verantwoordelijkheden-field_ikz_verantw_rol'.
+	$field_instances ['field_collection_item-field_ikz_verantwoordelijkheden-field_ikz_verantw_rol'] = array (
+			'bundle' => 'field_ikz_verantwoordelijkheden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'hidden',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 1 
+					) 
+			),
+			'entity_type' => 'field_collection_item',
+			'field_name' => 'field_ikz_verantw_rol',
+			'label' => 'Rol',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 0 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_afkortingen-field_ikz_afkorting'.
+	$field_instances ['node-ikz_afkortingen-field_ikz_afkorting'] = array (
+			'bundle' => 'ikz_afkortingen',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_afkorting',
+			'label' => 'Afkorting',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 41 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-ikz_afkortingen-field_ikz_afkorting_categorie'.
+	$field_instances ['node-ikz_afkortingen-field_ikz_afkorting_categorie'] = array (
+			'bundle' => 'ikz_afkortingen',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Tot welke categorie behoort deze afkorting',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_afkorting_categorie',
+			'label' => 'Categorie',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 42 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_documenten-field_ikz_bijlage'.
+	$field_instances ['node-ikz_documenten-field_ikz_bijlage'] = array (
+			'bundle' => 'ikz_documenten',
+			'deleted' => 0,
+			'description' => 'Document',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'file',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'file_default',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_bijlage',
+			'label' => 'Bijlage',
+			'required' => 0,
+			'settings' => array (
+					'description_field' => 1,
+					'file_directory' => 'documenten',
+					'file_extensions' => 'txt doc docx xls xlsx ppt pptx dot dotx jpg jpeg png gif pdf',
+					'max_filesize' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'file',
+					'settings' => array (
+							'filefield_sources' => array (
+									'filefield_sources' => array (
+											'attach' => 0,
+											'clipboard' => 0,
+											'reference' => 0,
+											'remote' => 0,
+											'upload' => 'upload' 
+									),
+									'source_attach' => array (
+											'absolute' => 0,
+											'attach_mode' => 'move',
+											'path' => 'file_attach' 
+									),
+									'source_imce' => array (
+											'imce_mode' => 0 
+									),
+									'source_reference' => array (
+											'autocomplete' => 0 
+									) 
+							),
+							'progress_indicator' => 'throbber' 
+					),
+					'type' => 'file_generic',
+					'weight' => 43 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_documenten-field_ikz_documentnaam'.
+	$field_instances ['node-ikz_documenten-field_ikz_documentnaam'] = array (
+			'bundle' => 'ikz_documenten',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_documentnaam',
+			'label' => 'Documentnaam',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 41 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_documenten-field_tags'.
+	$field_instances ['node-ikz_documenten-field_tags'] = array (
+			'bundle' => 'ikz_documenten',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'taxonomy',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'taxonomy_term_reference_link',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_tags',
+			'label' => 'Tags',
+			'required' => FALSE,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'module' => 'taxonomy',
+					'settings' => array (
+							'autocomplete_path' => 'taxonomy/autocomplete',
+							'size' => 60 
+					),
+					'type' => 'taxonomy_autocomplete',
+					'weight' => 45 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_formulier-field_ikz_datum'.
+	$field_instances ['node-ikz_formulier-field_ikz_datum'] = array (
+			'bundle' => 'ikz_formulier',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'short',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_datum',
+			'label' => 'Datum',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 7 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_formulier-field_ikz_doel'.
+	$field_instances ['node-ikz_formulier-field_ikz_doel'] = array (
+			'bundle' => 'ikz_formulier',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Waarvoor dient het formulier?',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_doel',
+			'label' => 'Doel',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 10 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_formulier-field_ikz_formulier'.
+	$field_instances ['node-ikz_formulier-field_ikz_formulier'] = array (
+			'bundle' => 'ikz_formulier',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'hidden',
+							'module' => 'file',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'file_default',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_formulier',
+			'label' => 'Formulier',
+			'required' => 1,
+			'settings' => array (
+					'description_field' => 1,
+					'file_directory' => 'ikz/formulieren',
+					'file_extensions' => 'pdf doc docx xls xlsx ppt pptx jpg jpeg png',
+					'max_filesize' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'file',
+					'settings' => array (
+							'filefield_sources' => array (
+									'filefield_sources' => array (),
+									'source_attach' => array (
+											'absolute' => 0,
+											'attach_mode' => 'move',
+											'path' => 'file_attach' 
+									),
+									'source_imce' => array (
+											'imce_mode' => 0 
+									),
+									'source_reference' => array (
+											'autocomplete' => 0 
+									) 
+							),
+							'progress_indicator' => 'throbber' 
+					),
+					'type' => 'file_generic',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_formulier-field_ikz_nummer'.
+	$field_instances ['node-ikz_formulier-field_ikz_nummer'] = array (
+			'bundle' => 'ikz_formulier',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'hidden',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_nummer',
+			'label' => 'Nummer',
+			'required' => 0,
+			'settings' => array (
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_formulier-field_ikz_process'.
+	$field_instances ['node-ikz_formulier-field_ikz_process'] = array (
+			'bundle' => 'ikz_formulier',
+			'default_value' => array (
+					0 => array (
+							'value' => 0 
+					) 
+			),
+			'deleted' => 0,
+			'description' => 'Procedure of formulier wordt behandeld door de verantwoordelijke. Na bewerking krijgt de procedure of het formulier een nieuwe datum en revisienummer.',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_process',
+			'label' => 'In bewerking',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'display_label' => 0 
+					),
+					'type' => 'options_onoff',
+					'weight' => 8 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_formulier-field_ikz_revisie'.
+	$field_instances ['node-ikz_formulier-field_ikz_revisie'] = array (
+			'bundle' => 'ikz_formulier',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_revisie',
+			'label' => 'Revisie',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_formulier-field_ikz_status'.
+	$field_instances ['node-ikz_formulier-field_ikz_status'] = array (
+			'bundle' => 'ikz_formulier',
+			'default_value' => array (
+					0 => array (
+							'value' => 'Goedgekeurd' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 8 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_status',
+			'label' => 'Status',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_auditor'.
+	$field_instances ['node-ikz_procedure-field_ikz_auditor'] = array (
+			'bundle' => 'ikz_procedure',
+			'deleted' => 0,
+			'description' => 'Auditors zijn de leden van de rol kwaliteitscoördinator (90)',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => FALSE 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 12 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_auditor',
+			'label' => 'Auditor',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'multiselect',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'multiselect',
+					'weight' => 15 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_auditplanning'.
+	$field_instances ['node-ikz_procedure-field_ikz_auditplanning'] = array (
+			'bundle' => 'ikz_procedure',
+			'deleted' => 0,
+			'description' => 'In welke maand vindt de volgende audit plaats?',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'quickedit' => array (
+											'editor' => 'form' 
+									),
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_auditplanning',
+			'label' => 'Volgende audit',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 14 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_bijlage'.
+	$field_instances ['node-ikz_procedure-field_ikz_bijlage'] = array (
+			'bundle' => 'ikz_procedure',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'file',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'file_default',
+							'weight' => 10 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_bijlage',
+			'label' => 'Bijlage',
+			'required' => 0,
+			'settings' => array (
+					'description_field' => 0,
+					'file_directory' => 'ikz/bijlagen',
+					'file_extensions' => 'pdf doc docx xls xlsx ppt pptx jpg jpeg png',
+					'max_filesize' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'file',
+					'settings' => array (
+							'filefield_sources' => array (
+									'filefield_sources' => array (),
+									'source_attach' => array (
+											'absolute' => 0,
+											'attach_mode' => 'move',
+											'path' => 'file_attach' 
+									),
+									'source_imce' => array (
+											'imce_mode' => 0 
+									),
+									'source_reference' => array (
+											'autocomplete' => 0 
+									) 
+							),
+							'progress_indicator' => 'throbber' 
+					),
+					'type' => 'file_generic',
+					'weight' => 12 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_datum'.
+	$field_instances ['node-ikz_procedure-field_ikz_datum'] = array (
+			'bundle' => 'ikz_procedure',
+			'deleted' => 0,
+			'description' => 'Datum waarop deze revisie van de procedure definitief in voege treedt.',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'quickedit' => array (
+											'editor' => 'form' 
+									),
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_datum',
+			'label' => 'Datum',
+			'required' => 1,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'Y-m-d H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'none',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_doel'.
+	$field_instances ['node-ikz_procedure-field_ikz_doel'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Korte omschrijving van het doel van de procedure.',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_doel',
+			'label' => 'Doel',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_middelen'.
+	$field_instances ['node-ikz_procedure-field_ikz_middelen'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Overzicht van de te gebruiken middelen voor deze procedure.',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_middelen',
+			'label' => 'Middelen',
+			'required' => 0,
+			'settings' => array (
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_nummer'.
+	$field_instances ['node-ikz_procedure-field_ikz_nummer'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => array (
+					0 => array (
+							'value' => 'P' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => 'Identificatienummer van het document (bv. PADM001)',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_nummer',
+			'label' => 'Nummer',
+			'required' => 1,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 10 
+					),
+					'type' => 'text_textfield',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_referenties'.
+	$field_instances ['node-ikz_procedure-field_ikz_referenties'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Lijst met gelinkte inhoud en links naar meer informatie.',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 8 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_referenties',
+			'label' => 'Referenties',
+			'required' => 0,
+			'settings' => array (
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 10 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_revisie'.
+	$field_instances ['node-ikz_procedure-field_ikz_revisie'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => array (
+					0 => array (
+							'value' => 0 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'quickedit' => array (
+											'editor' => 'form' 
+									),
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_revisie',
+			'label' => 'Revisie',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => 0,
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_status'.
+	$field_instances ['node-ikz_procedure-field_ikz_status'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => array (
+					0 => array (
+							'value' => 'In bewerking' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'form' 
+									) 
+							),
+							'type' => 'list_default',
+							'weight' => 11 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_status',
+			'label' => 'Status',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 13 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_toepassingsgebied'.
+	$field_instances ['node-ikz_procedure-field_ikz_toepassingsgebied'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Op wie is deze procedure van toepassing?',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_toepassingsgebied',
+			'label' => 'Toepassingsgebied',
+			'required' => 0,
+			'settings' => array (
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 8 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-ikz_procedure-field_ikz_verantwoordelijkheden'.
+	$field_instances ['node-ikz_procedure-field_ikz_verantwoordelijkheden'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'field_collection',
+							'settings' => array (
+									'add' => 'Toevoegen',
+									'conditions' => array (),
+									'delete' => 'Verwijderen',
+									'description' => TRUE,
+									'edit' => 'Bewerken',
+									'quickedit' => array (
+											'editor' => 'form' 
+									),
+									'view_mode' => 'full' 
+							),
+							'type' => 'field_collection_view',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_verantwoordelijkheden',
+			'label' => 'Verantwoordelijkheden',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'field_collection',
+					'settings' => array (),
+					'type' => 'field_collection_embed',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance: 'node-ikz_procedure-field_ikz_werkwijze'.
+	$field_instances ['node-ikz_procedure-field_ikz_werkwijze'] = array (
+			'bundle' => 'ikz_procedure',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'De eigenlijke inhoud van de procedure.',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array (),
+									'quickedit' => array (
+											'editor' => 'plain_text' 
+									) 
+							),
+							'type' => 'text_default',
+							'weight' => 9 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_ikz_werkwijze',
+			'label' => 'Werkwijze',
+			'required' => 1,
+			'settings' => array (
+					'text_processing' => 1,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 20 
+					),
+					'type' => 'text_textarea',
+					'weight' => 11 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Afkorting' );
+	t ( 'Auditor' );
+	t ( 'Auditors zijn de leden van de rol kwaliteitscoördinator (90)' );
+	t ( 'Bijlage' );
+	t ( 'Categorie' );
+	t ( 'Datum' );
+	t ( 'Datum waarop deze revisie van de procedure definitief in voege treedt.' );
+	t ( 'De eigenlijke inhoud van de procedure.' );
+	t ( 'Document' );
+	t ( 'Documentnaam' );
+	t ( 'Doel' );
+	t ( 'Formulier' );
+	t ( 'Identificatienummer van het document (bv. PADM001)' );
+	t ( 'In bewerking' );
+	t ( 'In welke maand vindt de volgende audit plaats?' );
+	t ( 'Korte omschrijving van het doel van de procedure.' );
+	t ( 'Lijst met gelinkte inhoud en links naar meer informatie.' );
+	t ( 'Middelen' );
+	t ( 'Nummer' );
+	t ( 'Op wie is deze procedure van toepassing?' );
+	t ( 'Overzicht van de te gebruiken middelen voor deze procedure.' );
+	t ( 'Procedure of formulier wordt behandeld door de verantwoordelijke. Na bewerking krijgt de procedure of het formulier een nieuwe datum en revisienummer.' );
+	t ( 'Referenties' );
+	t ( 'Revisie' );
+	t ( 'Rol' );
+	t ( 'Status' );
+	t ( 'Tags' );
+	t ( 'Toepassingsgebied' );
+	t ( 'Tot welke categorie behoort deze afkorting' );
+	t ( 'Verantwoordelijkheden' );
+	t ( 'Verantwoordelijkheid' );
+	t ( 'Volgende audit' );
+	t ( 'Waarvoor dient het formulier?' );
+	t ( 'Werkwijze' );
+	
+	return $field_instances;
+}
+

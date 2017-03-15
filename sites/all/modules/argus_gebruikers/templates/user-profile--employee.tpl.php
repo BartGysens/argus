@@ -29,29 +29,29 @@ if (count($account->field_user_sms_geboortedatum)){
             <div id="profile-admin-left">
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Naam, voornaam:&nbsp;</div>
-                    <div class="field-items"><?php print smartschool_render('user', $account, 'field_user_sms_naam'); ?>, <?php print smartschool_render('user', $account, 'field_user_sms_voornaam'); ?></div>
+                    <div class="field-items"><?php print argus_render('user', $account, 'field_user_sms_naam'); ?>, <?php print argus_render('user', $account, 'field_user_sms_voornaam'); ?></div>
                 </div>
 
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Geboortegegevens:&nbsp;</div>
-                    <div class="field-items"><?php if (isset($birthday)) { print ($birthday->format('d/m/Y')); } ?>, <?php print smartschool_render('user', $account, 'field_user_sms_geboorteplaats'); ?> - <?php print smartschool_render('user', $account, 'field_user_sms_geboorteland'); ?>, <?php print date_diff($birthday,new DateTime('now'))->format('%y jaar'); ?></div>
+                    <div class="field-items"><?php if (isset($birthday)) { print ($birthday->format('d/m/Y')); } ?>, <?php print argus_render('user', $account, 'field_user_sms_geboorteplaats'); ?> - <?php print argus_render('user', $account, 'field_user_sms_geboorteland'); ?>, <?php print date_diff($birthday,new DateTime('now'))->format('%y jaar'); ?></div>
                 </div>
 
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Adres:&nbsp;</div>
-                    <div class="field-items"><?php print smartschool_render('user', $account, 'field_user_sms_straat'); ?> <?php print smartschool_render('user', $account, 'field_user_sms_huisnummer'); ?> <?php print smartschool_render('user', $account, 'field_user_sms_busnummer'); ?>, <?php print smartschool_render('user', $account, 'field_user_sms_postcode'); ?> <?php print smartschool_render('user', $account, 'field_user_sms_woonplaats'); ?></div>
+                    <div class="field-items"><?php print argus_render('user', $account, 'field_user_sms_straat'); ?> <?php print argus_render('user', $account, 'field_user_sms_huisnummer'); ?> <?php print argus_render('user', $account, 'field_user_sms_busnummer'); ?>, <?php print argus_render('user', $account, 'field_user_sms_postcode'); ?> <?php print argus_render('user', $account, 'field_user_sms_woonplaats'); ?></div>
                 </div>
             </div>
 
             <div id="profile-admin-right">
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Telefoon:&nbsp;</div>
-                    <div class="field-items"><?php print implode('&nbsp;-&nbsp;', array_filter(array(smartschool_render('user', $account, 'field_user_sms_telefoonnummer'), smartschool_render('user', $account, 'field_user_sms_mobielnummer')))); ?></div>
+                    <div class="field-items"><?php print implode('&nbsp;-&nbsp;', array_filter(array(argus_render('user', $account, 'field_user_sms_telefoonnummer'), argus_render('user', $account, 'field_user_sms_mobielnummer')))); ?></div>
                 </div>
 
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">E-mail:&nbsp;</div>
-                    <div class="field-items"><?php print smartschool_render('user', $account, 'field_user_sms_emailadres', 0, TRUE); ?></div>
+                    <div class="field-items"><?php print argus_render('user', $account, 'field_user_sms_emailadres', 0, TRUE); ?></div>
                 </div>
             </div>
 

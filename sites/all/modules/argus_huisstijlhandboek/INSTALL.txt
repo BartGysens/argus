@@ -7,3 +7,4 @@ directory of your Drupal installation.  This is probably sites/all/modules/
 2. Enable the argus_huisstijlhandboek module in the administration tools.
 3. If you're not using Drupal's default administrative account, make sure 
  "administer argus huisstijlhandboek" is enabled through access control
+4. Check permission

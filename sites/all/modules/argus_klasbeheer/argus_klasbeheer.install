@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Copyright (C) 2015 bartgysens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -9,41 +9,1126 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* Install */
 
-include_once 'includes/argus_klasbeheer.field_base.inc';
-include_once 'includes/argus_klasbeheer.field_instance.inc';
-include_once 'includes/argus_klasbeheer.menu_links.inc';
-include_once 'includes/argus_klasbeheer.user_role.inc';
-
 /**
- * Implements hook_install().
+ * Implementation of hook_install().
  */
 function argus_klasbeheer_install() {
-    node_types_rebuild();
-    foreach (_argus_klasbeheer_installed_fields() as $field) {
-        field_create_field($field);
-    }
-    foreach (_argus_klasbeheer_installed_instances() as $fieldinstance) {
-        field_create_instance($fieldinstance);
-    }
-    foreach (_argus_klasbeheer_installed_user_roles() as $user_role) {
-        $role_exists = user_role_load_by_name($user_role['name']);
-        if (!$role_exists){
-            $role = new stdClass();
-            $role->name = $user_role['name'];
-            $role->weight = $user_role['weigth'];
-            user_role_save($role);
-        }
-    }
-    foreach (_argus_klasbeheer_installed_menu_links() as $menu_link) {
-        menu_link_save($menu_link);
-    }
+	// Rebuild and define new content type
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_klasbeheer_field_default_field_bases()
+	foreach ( argus_klasbeheer_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_klasbeheer_field_default_field_instances()
+	foreach ( argus_klasbeheer_field_default_field_instances () as $fieldinstance ) {
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Add user roles
+	foreach ( argus_klasbeheer_installed_user_roles () as $user_role ) {
+		$role_exists = user_role_load_by_name ( $user_role ['name'] );
+		if (! $role_exists) {
+			$role = new stdClass ();
+			$role->name = $user_role ['name'];
+			$role->weight = $user_role ['weight'];
+			user_role_save ( $role );
+		}
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => '-exp-klassen-klassen_ktt', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'klastitularissen', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '-exp-klassen-klassen_overzicht', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'klassen/overzicht' . chr ( 13 ) . 'klassen/overzicht/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => '08f0770555577f144ac24cff247eb57e', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'klassen/administratief', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					'delta' => 'f03f4006e8e05ab17cd35eaeda4c9c03', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'klassen/lessentabellen' . chr ( 13 ) . 'klassen/lessentabellen/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			),
+	); // replace with your title
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_klasbeheer_uninstall() {
+	// Remove all nodes of new content type
+	$type = 'klas'; // replace with your content type name
+	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+	$result = db_query ( $sql, array (
+			':type' => $type 
+	) );
+	$nodeids = array ();
+	foreach ( $result as $row ) {
+		$nodeids [] = $row->nid;
+	}
+	node_delete_multiple ( $nodeids );
+	
+	// Delete all related fields
+	foreach ( argus_klasbeheer_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	$instances = field_info_instances ( 'node', $type );
+	foreach ( $instances as $instance_name => $fieldinstance ) {
+		field_delete_instance ( $fieldinstance );
+	}
+	
+	// Remove new content type
+	node_type_delete ( $type );
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_klasbeheer' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ *
+ * This function is copied from the file generated by the Features module: demo.features.field_base.inc
+ */
+function argus_klasbeheer_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_klas_graad'
+	$field_bases ['field_klas_graad'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_graad',
+			'foreign keys' => array (),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_klas_hulpklastitularis'
+	$field_bases ['field_klas_hulpklastitularis'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_hulpklastitularis',
+			'foreign keys' => array (
+					'users' => array (
+							'columns' => array (
+									'target_id' => 'uid' 
+							),
+							'table' => 'users' 
+					) 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users_lkr',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_klas_klastitularis'
+	$field_bases ['field_klas_klastitularis'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_klastitularis',
+			'foreign keys' => array (
+					'users' => array (
+							'columns' => array (
+									'target_id' => 'uid' 
+							),
+							'table' => 'users' 
+					) 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users_lkr',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_klas_leerjaar'
+	$field_bases ['field_klas_leerjaar'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_leerjaar',
+			'foreign keys' => array (),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_klas_leerkrachten'
+	$field_bases ['field_klas_leerkrachten'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_leerkrachten',
+			'foreign keys' => array (
+					'users' => array (
+							'columns' => array (
+									'target_id' => 'uid' 
+							),
+							'table' => 'users' 
+					) 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users_lkr',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_klas_leerlingen'
+	$field_bases ['field_klas_leerlingen'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_leerlingen',
+			'foreign keys' => array (
+					'users' => array (
+							'columns' => array (
+									'target_id' => 'uid' 
+							),
+							'table' => 'users' 
+					) 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users_lln',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_klas_omschrijving'
+	$field_bases ['field_klas_omschrijving'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_omschrijving',
+			'foreign keys' => array (
+					'format' => array (
+							'columns' => array (
+									'format' => 'format' 
+							),
+							'table' => 'filter_format' 
+					) 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_klas_onderwijsvorm'
+	$field_bases ['field_klas_onderwijsvorm'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_onderwijsvorm',
+			'foreign keys' => array (),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'A.S.O.' => 'A.S.O.',
+							'B.S.O.' => 'B.S.O.',
+							'K.S.O.' => 'K.S.O.',
+							'T.S.O.' => 'T.S.O.' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_klas_sms_code'
+	$field_bases ['field_klas_sms_code'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_sms_code',
+			'foreign keys' => array (
+					'format' => array (
+							'columns' => array (
+									'format' => 'format' 
+							),
+							'table' => 'filter_format' 
+					) 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_klas_sms_id'
+	$field_bases ['field_klas_sms_id'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_sms_id',
+			'foreign keys' => array (),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_klas_sms_status'
+	$field_bases ['field_klas_sms_status'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_sms_status',
+			'foreign keys' => array (),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'uitgeschakeld' => 'uitgeschakeld',
+							'actief' => 'actief' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_klas_structuuronderdeel'
+	$field_bases ['field_klas_structuuronderdeel'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_klas_structuuronderdeel',
+			'foreign keys' => array (),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'1ste leerjaar A' => '1ste leerjaar A',
+							'1ste leerjaar B' => '1ste leerjaar B',
+							'Auto' => 'Auto',
+							'Carrosserie' => 'Carrosserie',
+							'Basismechanica' => 'Basismechanica',
+							'Drukken en Afwerken' => 'Drukken en Afwerken',
+							'Drukken en Voorbereiden' => 'Drukken en Voorbereiden',
+							'Elektrische installaties' => 'Elektrische installaties',
+							'Elektromechanica' => 'Elektromechanica',
+							'Grafische Communicatie en Media' => 'Grafische Communicatie en Media',
+							'Grafische Media' => 'Grafische Media',
+							'Hout' => 'Hout',
+							'Industriële wetenschappen' => 'Industriële wetenschappen',
+							'Informaticabeheer' => 'Informaticabeheer',
+							'Moderne wetenschappen' => 'Moderne wetenschappen',
+							'Multimedia' => 'Multimedia',
+							'Specialisatiejaar' => 'Specialisatiejaar',
+							'Werktuigmachines' => 'Werktuigmachines' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ *
+ * This function is copied from the file generated by the Features module: demo.features.field_base.inc
+ */
+function argus_klasbeheer_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-klas-field_klas_graad'
+	$field_instances ['node-klas-field_klas_graad'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 9 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_graad',
+			'label' => 'Graad',
+			'required' => 0,
+			'settings' => array (
+					'max' => 3,
+					'min' => 1,
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_hulpklastitularis'
+	$field_instances ['node-klas-field_klas_hulpklastitularis'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_hulpklastitularis',
+			'label' => 'Hulpklastitularis',
+			'required' => 0,
+			'settings' => array (
+					'jquery_ui_multiselect' => array (
+							'dividerLocation' => 0.5,
+							'doubleClickable' => 1,
+							'dragToAdd' => 1,
+							'enabled' => 1,
+							'height' => 0,
+							'includeAddAll' => 1,
+							'includeRemoveAll' => 1,
+							'searchable' => 1,
+							'selectedContainerOnLeft' => 1,
+							'sortable' => 1,
+							'width' => 0 
+					),
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'entityreference',
+					'settings' => array (
+							'match_operator' => 'CONTAINS',
+							'path' => '',
+							'size' => 60 
+					),
+					'type' => 'entityreference_autocomplete',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_klastitularis'
+	$field_instances ['node-klas-field_klas_klastitularis'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_klastitularis',
+			'label' => 'Klastitularis',
+			'required' => 0,
+			'settings' => array (
+					'jquery_ui_multiselect' => array (
+							'dividerLocation' => 0.5,
+							'doubleClickable' => 1,
+							'dragToAdd' => 1,
+							'enabled' => 0,
+							'height' => 0,
+							'includeAddAll' => 1,
+							'includeRemoveAll' => 1,
+							'searchable' => 1,
+							'selectedContainerOnLeft' => 1,
+							'sortable' => 1,
+							'width' => 0 
+					),
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'entityreference',
+					'settings' => array (
+							'match_operator' => 'CONTAINS',
+							'path' => '',
+							'size' => 60 
+					),
+					'type' => 'entityreference_autocomplete',
+					'weight' => 8 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_leerjaar'
+	$field_instances ['node-klas-field_klas_leerjaar'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 8 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_leerjaar',
+			'label' => 'Leerjaar',
+			'required' => 0,
+			'settings' => array (
+					'max' => 3,
+					'min' => 1,
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_leerkrachten'
+	$field_instances ['node-klas-field_klas_leerkrachten'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'entityreference',
+							'settings' => array (
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_leerkrachten',
+			'label' => 'Leerkrachten',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'multiselect',
+					'settings' => array (),
+					'type' => 'multiselect',
+					'weight' => 7 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_leerlingen'
+	$field_instances ['node-klas-field_klas_leerlingen'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'entityreference',
+							'settings' => array (
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_leerlingen',
+			'label' => 'Leerlingen',
+			'required' => 0,
+			'settings' => array (
+					'jquery_ui_multiselect' => array (
+							'dividerLocation' => 0.5,
+							'doubleClickable' => 1,
+							'dragToAdd' => 1,
+							'enabled' => 1,
+							'height' => 0,
+							'includeAddAll' => 1,
+							'includeRemoveAll' => 1,
+							'searchable' => 1,
+							'selectedContainerOnLeft' => 1,
+							'sortable' => 1,
+							'width' => 0 
+					),
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'multiselect',
+					'settings' => array (),
+					'type' => 'multiselect',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_omschrijving'
+	$field_instances ['node-klas-field_klas_omschrijving'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (),
+							'type' => 'text_default',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_omschrijving',
+			'label' => 'Omschrijving',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Search',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_onderwijsvorm'
+	$field_instances ['node-klas-field_klas_onderwijsvorm'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (),
+							'type' => 'list_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_onderwijsvorm',
+			'label' => 'Onderwijsvorm',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_sms_code'
+	$field_instances ['node-klas-field_klas_sms_code'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (),
+							'type' => 'text_default',
+							'weight' => 12 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_sms_code',
+			'label' => 'Code (Smartschool)',
+			'required' => FALSE,
+			'settings' => array (
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 14 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_sms_id'
+	$field_instances ['node-klas-field_klas_sms_id'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 11 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_sms_id',
+			'label' => 'ID (Smartschool)',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 13 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_sms_status'
+	$field_instances ['node-klas-field_klas_sms_status'] = array (
+			'bundle' => 'klas',
+			'default_value' => array (
+					0 => array (
+							'value' => 'actief' 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (),
+							'type' => 'list_default',
+							'weight' => 13 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_sms_status',
+			'label' => 'Status (Smartschool)',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => 0 
+					),
+					'type' => 'options_select',
+					'weight' => 15 
+			) 
+	);
+	
+	// Exported field_instance: 'node-klas-field_klas_structuuronderdeel'
+	$field_instances ['node-klas-field_klas_structuuronderdeel'] = array (
+			'bundle' => 'klas',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (),
+							'type' => 'list_default',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_klas_structuuronderdeel',
+			'label' => 'Structuuronderdeel',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 3 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Code (Smartschool)' );
+	t ( 'Comment' );
+	t ( 'Graad' );
+	t ( 'Hulpklastitularis' );
+	t ( 'ID (Smartschool)' );
+	t ( 'Klastitularis' );
+	t ( 'Leerjaar' );
+	t ( 'Leerkrachten' );
+	t ( 'Leerlingen' );
+	t ( 'Omschrijving' );
+	t ( 'Onderwijsvorm' );
+	t ( 'Status (Smartschool)' );
+	t ( 'Structuuronderdeel' );
+	
+	return $field_instances;
+}
+
+/**
+ * Implements hook_user_default_roles().
+ */
+function argus_klasbeheer_installed_user_roles() {
+	$roles = array ();
+	
+	// Exported role: hulpklastitularis.
+	$roles ['hulpklastitularis'] = array (
+			'name' => 'hulpklastitularis',
+			'weight' => 87 
+	);
+	
+	// Exported role: klastitularis.
+	$roles ['klastitularis'] = array (
+			'name' => 'klastitularis',
+			'weight' => 88 
+	);
+	
+	return $roles;
 }

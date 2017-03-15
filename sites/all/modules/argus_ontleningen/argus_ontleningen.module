@@ -1,7 +1,550 @@
 <?php
-/**
- * @file
- * Code for the Ontleningen feature.
+/*
+ * Copyright (C) 2017 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'argus_ontleningen.features.inc';
+/* Drupal Hooks */
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function argus_ontleningen_ctools_plugin_api($module = NULL, $api = NULL) {
+	if ($module == "field_group" && $api == "field_group") {
+		return array (
+				"version" => "1" 
+		);
+	}
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_ontleningen_node_info() {
+	$items = array (
+			'ontlening' => array (
+					'name' => t ( 'Ontlening' ),
+					'base' => 'node_content',
+					'description' => t ( 'Gebruik <em>ontlening</em> om als gebruiker, eigendommen van de school te ontlenen' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Ontlening' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_ontleningen_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function argus_ontleningen_views_api() {
+	return array (
+			'api' => 3.0,
+			'path' => drupal_get_path ( 'module', 'argus_ontleningen' ) 
+	) // replace demo with your content type
+;
+}
+
+/**
+ * Implements hook_views_default_views().
+ */
+function argus_ontleningen_views_default_views() {
+	$view = new view ();
+	$view->name = 'ontlening';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'Ontlening';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+	/* Display: Master */
+	$handler = $view->new_display ( 'default', 'Master', 'default' );
+	$handler->display->display_options ['title'] = 'Ontlening';
+	$handler->display->display_options ['use_more_always'] = FALSE;
+	$handler->display->display_options ['use_more_text'] = 'meer';
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0
+			),
+			'node' => array (
+					'ontlening' => 'ontlening'
+			),
+			'node_only' => array (
+					'node_changed' => 'node_changed'
+			)
+	);
+	$handler->display->display_options ['query'] ['type'] = 'views_query';
+	$handler->display->display_options ['exposed_form'] ['type'] = 'basic';
+	$handler->display->display_options ['exposed_form'] ['options'] ['submit_button'] = 'Toepassen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button'] = TRUE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button_label'] = 'Opnieuw instellen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['exposed_sorts_label'] = 'Sorteren op';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_asc_label'] = 'Oplopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_desc_label'] = 'Aflopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['autosubmit'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'none';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['style_plugin'] = 'views_aggregator';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'nid' => 'nid',
+			'field_ontleen_inventarisnummer' => 'field_ontleen_inventarisnummer',
+			'field_ontleen_materiaal' => 'field_ontleen_materiaal',
+			'field_inventarisitem' => 'field_inventarisitem',
+			'nothing' => 'nothing',
+			'realname_1' => 'realname_1',
+			'field_ontleen_periode' => 'field_ontleen_periode',
+			'field_ontleen_terugop' => 'field_ontleen_terugop',
+			'edit_node' => 'edit_node'
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => '1',
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first',
+							'views_aggregator_group_and_compress' => 'views_aggregator_group_and_compress'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			),
+			'field_ontleen_inventarisnummer' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			),
+			'field_ontleen_materiaal' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			),
+			'field_inventarisitem' => array (
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			),
+			'nothing' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			),
+			'realname_1' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			),
+			'field_ontleen_periode' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			),
+			'field_ontleen_terugop' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			),
+			'edit_node' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first'
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => ''
+			)
+	);
+	$handler->display->display_options ['style_options'] ['column_aggregation'] ['totals_per_page'] = '1';
+	$handler->display->display_options ['style_options'] ['column_aggregation'] ['totals_row_position'] = array (
+			1 => 0,
+			2 => '2'
+	);
+	$handler->display->display_options ['style_options'] ['column_aggregation'] ['precision'] = '2';
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/ontlening">Een nieuwe ontlening toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	/* Voet: Algemeen: Samenvatting van het resultaat */
+	$handler->display->display_options ['footer'] ['result'] ['id'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['result'] ['field'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['content'] = 'Getoond @start - @end van @total';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options ['footer'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['content'] = '<a href="/node/add/ontlening">Een nieuwe ontlening toevoegen</a>';
+	$handler->display->display_options ['footer'] ['area'] ['format'] = 'filtered_html';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_gebruiker_target_id'] ['id'] = 'field_gebruiker_target_id';
+	$handler->display->display_options ['relationships'] ['field_gebruiker_target_id'] ['table'] = 'field_data_field_gebruiker';
+	$handler->display->display_options ['relationships'] ['field_gebruiker_target_id'] ['field'] = 'field_gebruiker_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_inventarisitem_target_id'] ['id'] = 'field_inventarisitem_target_id';
+	$handler->display->display_options ['relationships'] ['field_inventarisitem_target_id'] ['table'] = 'field_data_field_inventarisitem';
+	$handler->display->display_options ['relationships'] ['field_inventarisitem_target_id'] ['field'] = 'field_inventarisitem_target_id';
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Inventarisnummer */
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['id'] = 'field_ontleen_inventarisnummer';
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['table'] = 'field_data_field_ontleen_inventarisnummer';
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['field'] = 'field_ontleen_inventarisnummer';
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['alter'] ['text'] = ' ([field_ontleen_inventarisnummer])';
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_ontleen_inventarisnummer'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => ''
+					)
+			)
+	);
+	/* Veld: Inhoud: Materiaal */
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['id'] = 'field_ontleen_materiaal';
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['table'] = 'field_data_field_ontleen_materiaal';
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['field'] = 'field_ontleen_materiaal';
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['alter'] ['text'] = '[field_ontleen_materiaal][field_ontleen_inventarisnummer]<br />';
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_ontleen_materiaal'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => ''
+					)
+			)
+	);
+	/* Veld: Inhoud: Inventarisitem */
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['id'] = 'field_inventarisitem';
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['table'] = 'field_data_field_inventarisitem';
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['field'] = 'field_inventarisitem';
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['alter'] ['text'] = '[field_inventarisitem]<br />';
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['settings'] = array (
+			'link' => '1',
+			'conditions' => array (
+					0 => array (
+							'condition' => ''
+					)
+			)
+	);
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['delta_offset'] = '0';
+	$handler->display->display_options ['fields'] ['field_inventarisitem'] ['separator'] = '';
+	/* Veld: Algemeen: Aangepaste tekst */
+	$handler->display->display_options ['fields'] ['nothing'] ['id'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['nothing'] ['field'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['label'] = 'Materiaal';
+	$handler->display->display_options ['fields'] ['nothing'] ['alter'] ['text'] = '[field_inventarisitem][field_ontleen_materiaal]';
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['fields'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['relationship'] = 'field_gebruiker_target_id';
+	$handler->display->display_options ['fields'] ['realname_1'] ['label'] = 'Ontlener';
+	$handler->display->display_options ['fields'] ['realname_1'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Periode */
+	$handler->display->display_options ['fields'] ['field_ontleen_periode'] ['id'] = 'field_ontleen_periode';
+	$handler->display->display_options ['fields'] ['field_ontleen_periode'] ['table'] = 'field_data_field_ontleen_periode';
+	$handler->display->display_options ['fields'] ['field_ontleen_periode'] ['field'] = 'field_ontleen_periode';
+	$handler->display->display_options ['fields'] ['field_ontleen_periode'] ['settings'] = array (
+			'format_type' => 'datum_kort_',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show',
+			'conditions' => array (
+					0 => array (
+							'condition' => ''
+					)
+			)
+	);
+	/* Veld: Inhoud: Terug op */
+	$handler->display->display_options ['fields'] ['field_ontleen_terugop'] ['id'] = 'field_ontleen_terugop';
+	$handler->display->display_options ['fields'] ['field_ontleen_terugop'] ['table'] = 'field_data_field_ontleen_terugop';
+	$handler->display->display_options ['fields'] ['field_ontleen_terugop'] ['field'] = 'field_ontleen_terugop';
+	$handler->display->display_options ['fields'] ['field_ontleen_terugop'] ['settings'] = array (
+			'format_type' => 'datum_kort_',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show',
+			'conditions' => array (
+					0 => array (
+							'condition' => ''
+					)
+			)
+	);
+	/* Veld: Inhoud: Bewerkingslink */
+	$handler->display->display_options ['fields'] ['edit_node'] ['id'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['table'] = 'views_entity_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['field'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['edit_node'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['edit_node'] ['alter'] ['text'] = '[edit_node] - <a href="/documenten_generator.get/CNT_Ontlening/id=[nid]">contract</a>';
+	$handler->display->display_options ['fields'] ['edit_node'] ['element_label_colon'] = FALSE;
+	/* Sorteercriterium: Inhoud: Datum van inzending */
+	$handler->display->display_options ['sorts'] ['created'] ['id'] = 'created';
+	$handler->display->display_options ['sorts'] ['created'] ['table'] = 'node';
+	$handler->display->display_options ['sorts'] ['created'] ['field'] = 'created';
+	$handler->display->display_options ['sorts'] ['created'] ['order'] = 'DESC';
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'ontlening' => 'ontlening'
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname_1'] ['relationship'] = 'field_gebruiker_target_id';
+	$handler->display->display_options ['filters'] ['realname_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['realname_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['operator_id'] = 'realname_1_op';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['label'] = 'Ontlener';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['operator'] = 'realname_1_op';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['identifier'] = 'realname_1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_field'] = 'realname_1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_dependent'] = 0;
+	/* Filtercriterium: Inhoud: Materiaal (field_ontleen_materiaal) */
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['id'] = 'field_ontleen_materiaal_value';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['table'] = 'field_data_field_ontleen_materiaal';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['field'] = 'field_ontleen_materiaal_value';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['operator_id'] = 'field_ontleen_materiaal_value_op';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['label'] = 'Materiaal';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['operator'] = 'field_ontleen_materiaal_value_op';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['identifier'] = 'field_ontleen_materiaal_value';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['autocomplete_min_chars'] = '2';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['autocomplete_field'] = 'field_ontleen_materiaal_1';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['field_ontleen_materiaal_value'] ['expose'] ['autocomplete_dependent'] = '1';
+	/* Filtercriterium: Inhoud: Inventarisnummer (field_ontleen_inventarisnummer) */
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['id'] = 'field_ontleen_inventarisnummer_value';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['table'] = 'field_data_field_ontleen_inventarisnummer';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['field'] = 'field_ontleen_inventarisnummer_value';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['operator_id'] = 'field_ontleen_inventarisnummer_value_op';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['label'] = 'Inventarisnummer';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['operator'] = 'field_ontleen_inventarisnummer_value_op';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['identifier'] = 'field_ontleen_inventarisnummer_value';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['autocomplete_field'] = 'field_ontleen_inventarisnummer';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['field_ontleen_inventarisnummer_value'] ['expose'] ['autocomplete_dependent'] = 0;
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['relationship'] = 'field_inventarisitem_target_id';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Inventarisitem';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['autocomplete_dependent'] = 0;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+
+	/* Display: Overzicht */
+	$handler = $view->new_display ( 'page', 'Overzicht', 'overzicht_ontleningen' );
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'ontleningen';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Ontleningen';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	$translatables ['ontlening'] = array (
+			t ( 'Master' ),
+			t ( 'Ontlening' ),
+			t ( 'meer' ),
+			t ( 'Toepassen' ),
+			t ( 'Opnieuw instellen' ),
+			t ( 'Sorteren op' ),
+			t ( 'Oplopend' ),
+			t ( 'Aflopend' ),
+			t ( '<a href="/node/add/ontlening">Een nieuwe ontlening toevoegen</a>' ),
+			t ( 'Getoond @start - @end van @total' ),
+			t ( 'Gebruiker entity referenced from field_gebruiker' ),
+			t ( 'Inhoud entity referenced from field_inventarisitem' ),
+			t ( ' ([field_ontleen_inventarisnummer])' ),
+			t ( '[field_ontleen_materiaal][field_ontleen_inventarisnummer]<br />' ),
+			t ( '[field_inventarisitem]<br />' ),
+			t ( 'Materiaal' ),
+			t ( '[field_inventarisitem][field_ontleen_materiaal]' ),
+			t ( 'Ontlener' ),
+			t ( 'Periode' ),
+			t ( 'Terug op' ),
+			t ( '[edit_node] - <a href="/documenten_generator.get/CNT_Ontlening/id=[nid]">contract</a>' ),
+			t ( 'Inventarisnummer' ),
+			t ( 'Inventarisitem' ),
+			t ( 'Overzicht' )
+	);
+	
+	$views [$view->name] = $view;
+	return $views;
+}

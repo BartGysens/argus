@@ -1,7 +1,55 @@
 <?php
-/**
- * @file
- * Code for the Opruimkalender feature.
+/*
+ * Copyright (C) 2017 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'argus_opruimkalender.features.inc';
+/* Drupal Hooks */
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function argus_opruimkalender_ctools_plugin_api($module = NULL, $api = NULL) {
+	if ($module == "feeds" && $api == "feeds_importer_default") {
+		return array (
+				"version" => "1" 
+		);
+	}
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_opruimkalender_node_info() {
+	$items = array (
+			'event_opruim_speelplaats' => array (
+					'name' => t ( 'Event - opruim speelplaats' ),
+					'base' => 'node_content',
+					'description' => t ( 'Inhoudstype voor events in de opruimkalender.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_opruimkalender_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}

@@ -1,0 +1,1384 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_leerplichtbegeleiding_install() {
+	// Rebuild and define new content type
+	$type = 'lvs_leerplichtbegeleiding'; // replace with your content type name
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	// Add the body field with specified label
+	node_add_body_field ( $types [$type], $label = t ( 'Beschrijving' ) ); // replace your label or remove if no body-field necessary
+	                                                                       
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_leerplichtbegeleiding_field_default_field_bases()
+	foreach ( argus_leerplichtbegeleiding_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_leerplichtbegeleiding_field_default_field_instances()
+	foreach ( argus_leerplichtbegeleiding_field_default_field_instances () as $fieldinstance ) {
+		$fieldinstance ['entity_type'] = 'node';
+		$fieldinstance ['bundle'] = $type;
+		field_create_instance ( $fieldinstance );
+	}
+	
+	if (function_exists ( 'argus_leerplichtbegeleiding_field_group_info' )) {
+		// Add field groups which are copied from your Features-based module
+		// More details function argus_leerplichtbegeleiding_field_group_info()
+		foreach ( argus_leerplichtbegeleiding_field_group_info () as $fieldgroup ) {
+			$fieldgroup->label = $fieldgroup->data ['label'];
+			$fieldgroup->weight = $fieldgroup->data ['weight'];
+			$fieldgroup->children = $fieldgroup->data ['children'];
+			$fieldgroup->format_type = $fieldgroup->data ['format_type'];
+			$fieldgroup->format_settings = $fieldgroup->data ['format_settings'];
+			
+			field_group_group_save ( $fieldgroup );
+		}
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => '64d18b59aed4ff9fcf925936577b3f40', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'leerplichtbegeleiding' . chr ( 13 ) . 'leerplichtbegeleiding/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			) 
+	); // replace with your title
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_leerplichtbegeleiding_uninstall() {
+	// Remove all nodes of new content type
+	$type = 'lvs_leerplichtbegeleiding'; // replace with your content type name
+	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+	$result = db_query ( $sql, array (
+			':type' => $type 
+	) );
+	$nodeids = array ();
+	foreach ( $result as $row ) {
+		$nodeids [] = $row->nid;
+	}
+	node_delete_multiple ( $nodeids );
+	
+	// Delete all related fields
+	foreach ( argus_leerplichtbegeleiding_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	$instances = field_info_instances ( 'node', $type );
+	foreach ( $instances as $instance_name => $fieldinstance ) {
+		field_delete_instance ( $fieldinstance );
+	}
+	
+	if (function_exists ( 'argus_leerplichtbegeleiding_field_group_info' )) {
+		// Delete all field-groups
+		foreach ( argus_leerplichtbegeleiding_field_group_info () as $fieldgroup ) {
+			$fieldgroup = field_group_load_field_group_by_identifier ( $fieldgroup->identifier );
+			if ($fieldgroup) {
+				field_group_group_export_delete ( $fieldgroup );
+			}
+		}
+	}
+	
+	// Remove new content type
+	node_type_delete ( $type );
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_leerplichtbegeleiding' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ */
+function argus_leerplichtbegeleiding_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_bijlage'.
+	$field_bases ['field_bijlage'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_bijlage',
+			'field_permissions' => array (
+					'type' => 1 
+			),
+			'indexes' => array (
+					'fid' => array (
+							0 => 'fid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'file',
+			'settings' => array (
+					'display_default' => 0,
+					'display_field' => 0,
+					'uri_scheme' => 'private' 
+			),
+			'translatable' => 0,
+			'type' => 'file' 
+	);
+	
+	// Exported field_base: 'field_datum'.
+	$field_bases ['field_datum'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_datum',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 0,
+							'minute' => 0,
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => '',
+					'todate' => 'optional',
+					'tz_handling' => 'none' 
+			),
+			'translatable' => 0,
+			'type' => 'datetime' 
+	);
+	
+	// Exported field_base: 'field_gebruiker'.
+	$field_bases ['field_gebruiker'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_gebruiker',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_lb_clb_contact_via'.
+	$field_bases ['field_lb_clb_contact_via'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_clb_contact_via',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_lb_lln_afspraken'.
+	$field_bases ['field_lb_lln_afspraken'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_lln_afspraken',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_lb_lln_contact_via'.
+	$field_bases ['field_lb_lln_contact_via'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_lln_contact_via',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_lb_lln_datum'.
+	$field_bases ['field_lb_lln_datum'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_lln_datum',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 'hour',
+							'minute' => 'minute',
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => 'UTC',
+					'todate' => '',
+					'tz_handling' => 'site' 
+			),
+			'translatable' => 0,
+			'type' => 'datetime' 
+	);
+	
+	// Exported field_base: 'field_lb_lln_resultaten'.
+	$field_bases ['field_lb_lln_resultaten'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_lln_resultaten',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_lb_ouders_afspraken'.
+	$field_bases ['field_lb_ouders_afspraken'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_ouders_afspraken',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_lb_ouders_contact_via'.
+	$field_bases ['field_lb_ouders_contact_via'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_ouders_contact_via',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_lb_ouders_datum'.
+	$field_bases ['field_lb_ouders_datum'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_ouders_datum',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 'hour',
+							'minute' => 'minute',
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => 'UTC',
+					'todate' => '',
+					'tz_handling' => 'site' 
+			),
+			'translatable' => 0,
+			'type' => 'datetime' 
+	);
+	
+	// Exported field_base: 'field_lb_ouders_resultaten'.
+	$field_bases ['field_lb_ouders_resultaten'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_lb_ouders_resultaten',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_leerling'.
+	$field_bases ['field_leerling'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_leerling',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 1 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'users_lln',
+									'view_name' => 'gebruikers' 
+							) 
+					),
+					'target_type' => 'user' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function argus_leerplichtbegeleiding_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-lvs_leerplichtbegeleiding-field_bijlage'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_bijlage'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'file',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'file_default',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_bijlage',
+			'label' => 'Bijlage',
+			'required' => 0,
+			'settings' => array (
+					'description_field' => 0,
+					'file_directory' => 'leerplichtbegeleiding',
+					'file_extensions' => 'txt pdf doc docx xls xlsx ppt pptx',
+					'max_filesize' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'file',
+					'settings' => array (
+							'filefield_sources' => array (
+									'filefield_sources' => array (
+											'attach' => 0,
+											'clipboard' => 0,
+											'imce' => 0,
+											'reference' => 0,
+											'remote' => 0,
+											'upload' => 'upload' 
+									),
+									'source_attach' => array (
+											'absolute' => 0,
+											'attach_mode' => 'move',
+											'path' => 'file_attach' 
+									),
+									'source_imce' => array (
+											'imce_mode' => 0 
+									),
+									'source_reference' => array (
+											'autocomplete' => 0,
+											'search_all_fields' => 0 
+									) 
+							),
+							'progress_indicator' => 'throbber' 
+					),
+					'type' => 'file_generic',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-lvs_leerplichtbegeleiding-field_datum'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_datum'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_datum',
+			'label' => 'Eerste melding',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-lvs_leerplichtbegeleiding-field_gebruiker'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_gebruiker'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_gebruiker',
+			'label' => 'Contactpersoon CLB',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'entityreference',
+					'settings' => array (
+							'match_operator' => 'CONTAINS',
+							'path' => '',
+							'size' => 60 
+					),
+					'type' => 'entityreference_autocomplete',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_clb_contact_via'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_clb_contact_via'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_clb_contact_via',
+			'label' => 'Contact via',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_lln_afspraken'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_lln_afspraken'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_plain',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_lln_afspraken',
+			'label' => 'Afspraken',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 12 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_lln_contact_via'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_lln_contact_via'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Op welke manier werd er contact opgenomen met de leerling?',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_lln_contact_via',
+			'label' => 'Contact via',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 11 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_lln_datum'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_lln_datum'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_lln_datum',
+			'label' => 'Datum',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 10 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_lln_resultaten'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_lln_resultaten'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_plain',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_lln_resultaten',
+			'label' => 'Resultaten',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 13 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_ouders_afspraken'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_ouders_afspraken'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_plain',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_ouders_afspraken',
+			'label' => 'Afspraken',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 11 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_ouders_contact_via'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_ouders_contact_via'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Op welke manier werd er contact opgenomen met de ouders?',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_ouders_contact_via',
+			'label' => 'Contact via',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 10 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_ouders_datum'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_ouders_datum'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_ouders_datum',
+			'label' => 'Datum',
+			'required' => 1,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-lvs_leerplichtbegeleiding-field_lb_ouders_resultaten'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_lb_ouders_resultaten'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_plain',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_lb_ouders_resultaten',
+			'label' => 'Resultaten',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 12 
+			) 
+	);
+	
+	// Exported field_instance: 'node-lvs_leerplichtbegeleiding-field_leerling'.
+	$field_instances ['node-lvs_leerplichtbegeleiding-field_leerling'] = array (
+			'bundle' => 'lvs_leerplichtbegeleiding',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_leerling',
+			'label' => 'Leerling',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'entityreference',
+					'settings' => array (
+							'match_operator' => 'CONTAINS',
+							'path' => '',
+							'size' => 60 
+					),
+					'type' => 'entityreference_autocomplete',
+					'weight' => 0 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Afspraken' );
+	t ( 'Bijlage' );
+	t ( 'Contact via' );
+	t ( 'Contactpersoon CLB' );
+	t ( 'Datum' );
+	t ( 'Eerste melding' );
+	t ( 'Leerling' );
+	t ( 'Op welke manier werd er contact opgenomen met de leerling?' );
+	t ( 'Op welke manier werd er contact opgenomen met de ouders?' );
+	t ( 'Resultaten' );
+	
+	return $field_instances;
+}
+
+/**
+ * Implements hook_field_group_info().
+ */
+function argus_leerplichtbegeleiding_field_group_info() {
+	$field_groups = array ();
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_clb|node|leerplichtbegeleiding|form';
+	$field_group->group_name = 'group_clb';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'lvs_leerplichtbegeleiding';
+	$field_group->mode = 'form';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'CLB',
+			'weight' => '3',
+			'children' => array (
+					0 => 'field_gebruiker',
+					1 => 'field_datum',
+					2 => 'field_lb_clb_contact_via' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-clb field-group-fieldset',
+							'required_fields' => 1,
+							'id' => '' 
+					) 
+			) 
+	);
+	$field_groups ['group_clb|node|leerplichtbegeleiding|form'] = $field_group;
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_clb|node|lvs_leerplichtbegeleiding|default';
+	$field_group->group_name = 'group_clb';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'lvs_leerplichtbegeleiding';
+	$field_group->mode = 'default';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'CLB',
+			'weight' => '3',
+			'children' => array (
+					0 => 'field_gebruiker',
+					1 => 'field_datum',
+					2 => 'field_lb_clb_contact_via' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-clb field-group-fieldset',
+							'id' => '' 
+					) 
+			) 
+	);
+	$field_groups ['group_clb|node|lvs_leerplichtbegeleiding|default'] = $field_group;
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_lln|node|leerplichtbegeleiding|form';
+	$field_group->group_name = 'group_lln';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'lvs_leerplichtbegeleiding';
+	$field_group->mode = 'form';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'Contacten met de leerling',
+			'weight' => '2',
+			'children' => array (
+					0 => 'field_lb_lln_datum',
+					1 => 'field_lb_lln_contact_via',
+					2 => 'field_lb_lln_afspraken',
+					3 => 'field_lb_lln_resultaten' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-lln field-group-fieldset',
+							'required_fields' => 1,
+							'id' => '' 
+					) 
+			) 
+	);
+	$field_groups ['group_lln|node|leerplichtbegeleiding|form'] = $field_group;
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_lln|node|lvs_leerplichtbegeleiding|default';
+	$field_group->group_name = 'group_lln';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'lvs_leerplichtbegeleiding';
+	$field_group->mode = 'default';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'Contacten met de leerling',
+			'weight' => '2',
+			'children' => array (
+					0 => 'field_lb_lln_datum',
+					1 => 'field_lb_lln_contact_via',
+					2 => 'field_lb_lln_afspraken',
+					3 => 'field_lb_lln_resultaten' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-lln field-group-fieldset',
+							'id' => '' 
+					) 
+			) 
+	);
+	$field_groups ['group_lln|node|lvs_leerplichtbegeleiding|default'] = $field_group;
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_ouders|node|leerplichtbegeleiding|form';
+	$field_group->group_name = 'group_ouders';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'lvs_leerplichtbegeleiding';
+	$field_group->mode = 'form';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'Contacten met de ouders / voogd',
+			'weight' => '1',
+			'children' => array (
+					0 => 'field_lb_ouders_contact_via',
+					1 => 'field_lb_ouders_datum',
+					2 => 'field_lb_ouders_afspraken',
+					3 => 'field_lb_ouders_resultaten' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-ouders field-group-fieldset',
+							'required_fields' => 1,
+							'id' => '' 
+					) 
+			) 
+	);
+	$field_groups ['group_ouders|node|leerplichtbegeleiding|form'] = $field_group;
+	
+	$field_group = new stdClass ();
+	$field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+	$field_group->api_version = 1;
+	$field_group->identifier = 'group_ouders|node|lvs_leerplichtbegeleiding|default';
+	$field_group->group_name = 'group_ouders';
+	$field_group->entity_type = 'node';
+	$field_group->bundle = 'lvs_leerplichtbegeleiding';
+	$field_group->mode = 'default';
+	$field_group->parent_name = '';
+	$field_group->data = array (
+			'label' => 'Contacten met de ouders / voogd',
+			'weight' => '1',
+			'children' => array (
+					0 => 'field_lb_ouders_contact_via',
+					1 => 'field_lb_ouders_datum',
+					2 => 'field_lb_ouders_afspraken',
+					3 => 'field_lb_ouders_resultaten' 
+			),
+			'format_type' => 'fieldset',
+			'format_settings' => array (
+					'formatter' => 'collapsible',
+					'instance_settings' => array (
+							'description' => '',
+							'classes' => 'group-ouders field-group-fieldset',
+							'id' => '' 
+					) 
+			) 
+	);
+	$field_groups ['group_ouders|node|lvs_leerplichtbegeleiding|default'] = $field_group;
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'CLB' );
+	t ( 'Contacten met de leerling' );
+	t ( 'Contacten met de ouders / voogd' );
+	
+	return $field_groups;
+}
+

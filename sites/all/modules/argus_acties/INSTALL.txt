@@ -8,3 +8,4 @@ directory of your Drupal installation.  This is probably sites/all/modules/
 3. If you're not using Drupal's default administrative account, make sure 
  "administer argus acties" is enabled through access control
  administration.
+4. Activate the submodule Date Popup and Date Views (Date module)

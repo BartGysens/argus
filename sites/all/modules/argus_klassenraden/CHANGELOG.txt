@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.8
+---------
+- Features disabled, recreated with full module
+
 v7.x-1.7-1
 ---------
 - Fix Klassenraad notulen

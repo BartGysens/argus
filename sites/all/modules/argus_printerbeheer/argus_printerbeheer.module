@@ -1,7 +1,700 @@
 <?php
-/**
- * @file
- * Code for the Printerbeheer feature.
+/*
+ * Copyright (C) 2017 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-include_once 'argus_printerbeheer.features.inc';
+/* Drupal Hooks */
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function argus_printerbeheer_ctools_plugin_api($module = NULL, $api = NULL) {
+	if ($module == "ds" && $api == "ds") {
+		return array (
+				"version" => "1" 
+		);
+	}
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_printerbeheer_node_info() {
+	$items = array (
+			'printer' => array (
+					'name' => t ( 'Printer' ),
+					'base' => 'node_content',
+					'description' => t ( 'Gegevensfiche over <em>printers</em> in deze organisatie' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			),
+			'printer_accessoire' => array (
+					'name' => t ( 'Printer - accessoire' ),
+					'base' => 'node_content',
+					'description' => t ( 'Beheer de <em>accessoires</em> die gekoppeld kunnen worden aan de printers via het Printerbeheer.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_printerbeheer_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function argus_printerbeheer_views_api() {
+	return array (
+			'api' => 3.0,
+			'path' => drupal_get_path ( 'module', 'argus_printerbeheer' ) 
+	) // replace demo with your content type
+;
+}
+
+/**
+ * Implementation of hook_views_default_views().
+ *
+ * Views export creates code that you have to paste in this function.
+ *
+ * Administration > Structure > Views : click the button behind the view you need and export
+ * /admin/structure/views
+ */
+function argus_printerbeheer_views_default_views() {
+	$view = new view ();
+	$view->name = 'printerbeheer';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'Printerbeheer';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+	
+	/* Display: Master */
+	$handler = $view->new_display ( 'default', 'Master', 'default' );
+	$handler->display->display_options ['title'] = 'Printerbeheer';
+	$handler->display->display_options ['use_more_always'] = FALSE;
+	$handler->display->display_options ['use_more_text'] = 'meer';
+	$handler->display->display_options ['group_by'] = TRUE;
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0 
+			),
+			'node' => array (
+					'printer' => 'printer',
+					'printer_accessoire' => 'printer_accessoire' 
+			),
+			'node_only' => array (
+					'node_changed' => 'node_changed' 
+			) 
+	);
+	$handler->display->display_options ['query'] ['type'] = 'views_query';
+	$handler->display->display_options ['exposed_form'] ['type'] = 'better_exposed_filters';
+	$handler->display->display_options ['exposed_form'] ['options'] ['submit_button'] = 'Toepassen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button'] = TRUE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button_label'] = 'Opnieuw instellen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['exposed_sorts_label'] = 'Sorteren op';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_asc_label'] = 'Oplopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_desc_label'] = 'Aflopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['autosubmit'] = FALSE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['bef'] = array (
+			'general' => array (
+					'allow_secondary' => 0,
+					'secondary_label' => 'Uitgebreide opties' 
+			),
+			'pager' => array (
+					'bef_format' => 'default',
+					'is_secondary' => 0 
+			),
+			'title' => array (
+					'bef_format' => 'default',
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_printer_acces_merk_target_id' => array (
+					'bef_format' => 'default',
+					'slider_options' => array (
+							'bef_slider_min' => '0',
+							'bef_slider_max' => '99999',
+							'bef_slider_step' => '1',
+							'bef_slider_animate' => '',
+							'bef_slider_orientation' => 'horizontal' 
+					),
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_printer_acces_model_value' => array (
+					'bef_format' => 'default',
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_printer_acces_type_value' => array (
+					'bef_format' => 'bef',
+					'more_options' => array (
+							'bef_select_all_none' => 0,
+							'bef_collapsible' => 0,
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_printer_acces_in_voorraad_value' => array (
+					'bef_format' => 'default',
+					'slider_options' => array (
+							'bef_slider_min' => '0',
+							'bef_slider_max' => '10',
+							'bef_slider_step' => '1',
+							'bef_slider_animate' => '',
+							'bef_slider_orientation' => 'horizontal' 
+					),
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_lokaal_afkorting_value' => array (
+					'bef_format' => 'default',
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			) 
+	);
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '25';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page'] = TRUE;
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options'] = '5, 10, 25, 100';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all'] = TRUE;
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['grouping'] = array (
+			0 => array (
+					'field' => 'title',
+					'rendered' => 1,
+					'rendered_strip' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'field_printer_merk' => 'field_printer_merk',
+			'field_printer_model' => 'field_printer_model',
+			'nid' => 'nid',
+			'title' => 'title',
+			'field_printer_locatie' => 'field_printer_locatie',
+			'field_printer_vast_ip_adres' => 'field_printer_vast_ip_adres',
+			'nid_1' => 'nid_1',
+			'field_printer_acces_type' => 'field_printer_acces_type',
+			'field_printer_acces_merk' => 'field_printer_acces_merk',
+			'field_printer_acces_model' => 'field_printer_acces_model',
+			'field_printer_acces_prijs' => 'field_printer_acces_prijs',
+			'field_printer_acces_in_voorraad' => 'field_printer_acces_in_voorraad',
+			'field_printer_acces_bestellen' => 'field_printer_acces_bestellen' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'field_printer_merk' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_model' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'title' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_locatie' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_vast_ip_adres' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid_1' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_acces_type' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_acces_merk' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_acces_model' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_acces_prijs' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_acces_in_voorraad' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_printer_acces_bestellen' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_printer_locatie_target_id'] ['id'] = 'field_printer_locatie_target_id';
+	$handler->display->display_options ['relationships'] ['field_printer_locatie_target_id'] ['table'] = 'field_data_field_printer_locatie';
+	$handler->display->display_options ['relationships'] ['field_printer_locatie_target_id'] ['field'] = 'field_printer_locatie_target_id';
+	$handler->display->display_options ['relationships'] ['field_printer_locatie_target_id'] ['label'] = 'Inhoud entity referenced from field_printer_locatie';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_printer_merk_target_id'] ['id'] = 'field_printer_merk_target_id';
+	$handler->display->display_options ['relationships'] ['field_printer_merk_target_id'] ['table'] = 'field_data_field_printer_merk';
+	$handler->display->display_options ['relationships'] ['field_printer_merk_target_id'] ['field'] = 'field_printer_merk_target_id';
+	$handler->display->display_options ['relationships'] ['field_printer_merk_target_id'] ['label'] = 'Inhoud entity referenced from field_printer_merk';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_printer_accessoires_target_id'] ['id'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['relationships'] ['field_printer_accessoires_target_id'] ['table'] = 'field_data_field_printer_accessoires';
+	$handler->display->display_options ['relationships'] ['field_printer_accessoires_target_id'] ['field'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['relationships'] ['field_printer_accessoires_target_id'] ['label'] = 'Inhoud entity referenced from field_printer_accessoires';
+	/* Veld: Inhoud: Merk */
+	$handler->display->display_options ['fields'] ['field_printer_merk'] ['id'] = 'field_printer_merk';
+	$handler->display->display_options ['fields'] ['field_printer_merk'] ['table'] = 'field_data_field_printer_merk';
+	$handler->display->display_options ['fields'] ['field_printer_merk'] ['field'] = 'field_printer_merk';
+	$handler->display->display_options ['fields'] ['field_printer_merk'] ['relationship'] = 'field_printer_merk_target_id';
+	$handler->display->display_options ['fields'] ['field_printer_merk'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_printer_merk'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_printer_merk'] ['settings'] = array (
+			'link' => 0 
+	);
+	/* Veld: Inhoud: Model */
+	$handler->display->display_options ['fields'] ['field_printer_model'] ['id'] = 'field_printer_model';
+	$handler->display->display_options ['fields'] ['field_printer_model'] ['table'] = 'field_data_field_printer_model';
+	$handler->display->display_options ['fields'] ['field_printer_model'] ['field'] = 'field_printer_model';
+	$handler->display->display_options ['fields'] ['field_printer_model'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_printer_model'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_model'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['alter'] ['text'] = '[field_printer_merk] [field_printer_model]';
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Vast IP-adres */
+	$handler->display->display_options ['fields'] ['field_printer_vast_ip_adres'] ['id'] = 'field_printer_vast_ip_adres';
+	$handler->display->display_options ['fields'] ['field_printer_vast_ip_adres'] ['table'] = 'field_data_field_printer_vast_ip_adres';
+	$handler->display->display_options ['fields'] ['field_printer_vast_ip_adres'] ['field'] = 'field_printer_vast_ip_adres';
+	$handler->display->display_options ['fields'] ['field_printer_vast_ip_adres'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_printer_vast_ip_adres'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_vast_ip_adres'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['title'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['text'] = '[title] - [field_printer_vast_ip_adres]';
+	$handler->display->display_options ['fields'] ['title'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Locatie */
+	$handler->display->display_options ['fields'] ['field_printer_locatie'] ['id'] = 'field_printer_locatie';
+	$handler->display->display_options ['fields'] ['field_printer_locatie'] ['table'] = 'field_data_field_printer_locatie';
+	$handler->display->display_options ['fields'] ['field_printer_locatie'] ['field'] = 'field_printer_locatie';
+	$handler->display->display_options ['fields'] ['field_printer_locatie'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_printer_locatie'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_locatie'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_printer_locatie'] ['settings'] = array (
+			'link' => 0 
+	);
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid_1'] ['id'] = 'nid_1';
+	$handler->display->display_options ['fields'] ['nid_1'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid_1'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid_1'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['fields'] ['nid_1'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid_1'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid_1'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Type */
+	$handler->display->display_options ['fields'] ['field_printer_acces_type'] ['id'] = 'field_printer_acces_type';
+	$handler->display->display_options ['fields'] ['field_printer_acces_type'] ['table'] = 'field_data_field_printer_acces_type';
+	$handler->display->display_options ['fields'] ['field_printer_acces_type'] ['field'] = 'field_printer_acces_type';
+	$handler->display->display_options ['fields'] ['field_printer_acces_type'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['fields'] ['field_printer_acces_type'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_acces_type'] ['alter'] ['path'] = 'node/[nid_1]/edit';
+	$handler->display->display_options ['fields'] ['field_printer_acces_type'] ['alter'] ['absolute'] = TRUE;
+	/* Veld: Inhoud: Merk */
+	$handler->display->display_options ['fields'] ['field_printer_acces_merk'] ['id'] = 'field_printer_acces_merk';
+	$handler->display->display_options ['fields'] ['field_printer_acces_merk'] ['table'] = 'field_data_field_printer_acces_merk';
+	$handler->display->display_options ['fields'] ['field_printer_acces_merk'] ['field'] = 'field_printer_acces_merk';
+	$handler->display->display_options ['fields'] ['field_printer_acces_merk'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['fields'] ['field_printer_acces_merk'] ['settings'] = array (
+			'link' => 1 
+	);
+	$handler->display->display_options ['fields'] ['field_printer_acces_merk'] ['group_column'] = 'entity_id';
+	/* Veld: Inhoud: Model */
+	$handler->display->display_options ['fields'] ['field_printer_acces_model'] ['id'] = 'field_printer_acces_model';
+	$handler->display->display_options ['fields'] ['field_printer_acces_model'] ['table'] = 'field_data_field_printer_acces_model';
+	$handler->display->display_options ['fields'] ['field_printer_acces_model'] ['field'] = 'field_printer_acces_model';
+	$handler->display->display_options ['fields'] ['field_printer_acces_model'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['fields'] ['field_printer_acces_model'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_acces_model'] ['alter'] ['path'] = 'node/[nid_1]/edit';
+	$handler->display->display_options ['fields'] ['field_printer_acces_model'] ['alter'] ['absolute'] = TRUE;
+	/* Veld: Inhoud: Prijs */
+	$handler->display->display_options ['fields'] ['field_printer_acces_prijs'] ['id'] = 'field_printer_acces_prijs';
+	$handler->display->display_options ['fields'] ['field_printer_acces_prijs'] ['table'] = 'field_data_field_printer_acces_prijs';
+	$handler->display->display_options ['fields'] ['field_printer_acces_prijs'] ['field'] = 'field_printer_acces_prijs';
+	$handler->display->display_options ['fields'] ['field_printer_acces_prijs'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['fields'] ['field_printer_acces_prijs'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_acces_prijs'] ['alter'] ['path'] = 'node/[nid_1]/edit';
+	$handler->display->display_options ['fields'] ['field_printer_acces_prijs'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_acces_prijs'] ['settings'] = array (
+			'thousand_separator' => ' ',
+			'decimal_separator' => '.',
+			'scale' => '2',
+			'prefix_suffix' => 1 
+	);
+	/* Veld: Inhoud: Aantal in voorraad */
+	$handler->display->display_options ['fields'] ['field_printer_acces_in_voorraad'] ['id'] = 'field_printer_acces_in_voorraad';
+	$handler->display->display_options ['fields'] ['field_printer_acces_in_voorraad'] ['table'] = 'field_data_field_printer_acces_in_voorraad';
+	$handler->display->display_options ['fields'] ['field_printer_acces_in_voorraad'] ['field'] = 'field_printer_acces_in_voorraad';
+	$handler->display->display_options ['fields'] ['field_printer_acces_in_voorraad'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['fields'] ['field_printer_acces_in_voorraad'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_acces_in_voorraad'] ['alter'] ['path'] = 'node/[nid_1]/edit';
+	$handler->display->display_options ['fields'] ['field_printer_acces_in_voorraad'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_printer_acces_in_voorraad'] ['settings'] = array (
+			'thousand_separator' => ' ',
+			'prefix_suffix' => 1 
+	);
+	/* Veld: Inhoud: Link om te bestellen */
+	$handler->display->display_options ['fields'] ['field_printer_acces_bestellen'] ['id'] = 'field_printer_acces_bestellen';
+	$handler->display->display_options ['fields'] ['field_printer_acces_bestellen'] ['table'] = 'field_data_field_printer_acces_bestellen';
+	$handler->display->display_options ['fields'] ['field_printer_acces_bestellen'] ['field'] = 'field_printer_acces_bestellen';
+	$handler->display->display_options ['fields'] ['field_printer_acces_bestellen'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['fields'] ['field_printer_acces_bestellen'] ['click_sort_column'] = 'url';
+	$handler->display->display_options ['fields'] ['field_printer_acces_bestellen'] ['group_column'] = 'entity_id';
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'printer' => 'printer' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Printer merk/model';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Vast IP-adres (field_printer_vast_ip_adres) */
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['id'] = 'field_printer_vast_ip_adres_value';
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['table'] = 'field_data_field_printer_vast_ip_adres';
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['field'] = 'field_printer_vast_ip_adres_value';
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['expose'] ['operator_id'] = 'field_printer_vast_ip_adres_value_op';
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['expose'] ['label'] = 'Vast IP-adres';
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['expose'] ['operator'] = 'field_printer_vast_ip_adres_value_op';
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['expose'] ['identifier'] = 'field_printer_vast_ip_adres_value';
+	$handler->display->display_options ['filters'] ['field_printer_vast_ip_adres_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Merk (field_printer_acces_merk) */
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['id'] = 'field_printer_acces_merk_target_id';
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['table'] = 'field_data_field_printer_acces_merk';
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['field'] = 'field_printer_acces_merk_target_id';
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['expose'] ['operator_id'] = 'field_printer_acces_merk_target_id_op';
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['expose'] ['label'] = 'Merk (accessoire)';
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['expose'] ['operator'] = 'field_printer_acces_merk_target_id_op';
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['expose'] ['identifier'] = 'field_printer_acces_merk_target_id';
+	$handler->display->display_options ['filters'] ['field_printer_acces_merk_target_id'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Model (field_printer_acces_model) */
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['id'] = 'field_printer_acces_model_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['table'] = 'field_data_field_printer_acces_model';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['field'] = 'field_printer_acces_model_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['expose'] ['operator_id'] = 'field_printer_acces_model_value_op';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['expose'] ['label'] = 'Model (accessoire)';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['expose'] ['operator'] = 'field_printer_acces_model_value_op';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['expose'] ['identifier'] = 'field_printer_acces_model_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_model_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Type (field_printer_acces_type) */
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['id'] = 'field_printer_acces_type_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['table'] = 'field_data_field_printer_acces_type';
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['field'] = 'field_printer_acces_type_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['expose'] ['operator_id'] = 'field_printer_acces_type_value_op';
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['expose'] ['label'] = 'Type (accessoire)';
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['expose'] ['operator'] = 'field_printer_acces_type_value_op';
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['expose'] ['identifier'] = 'field_printer_acces_type_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['expose'] ['multiple'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_printer_acces_type_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Inhoud: Aantal in voorraad (field_printer_acces_in_voorraad) */
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['id'] = 'field_printer_acces_in_voorraad_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['table'] = 'field_data_field_printer_acces_in_voorraad';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['field'] = 'field_printer_acces_in_voorraad_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['relationship'] = 'field_printer_accessoires_target_id';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['expose'] ['operator_id'] = 'field_printer_acces_in_voorraad_value_op';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['expose'] ['label'] = 'Aantal in voorraad (accessoire)';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['expose'] ['operator'] = 'field_printer_acces_in_voorraad_value_op';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['expose'] ['identifier'] = 'field_printer_acces_in_voorraad_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['is_grouped'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['group_info'] ['label'] = 'Aantal in voorraad (accessoire)';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['group_info'] ['identifier'] = 'field_printer_acces_in_voorraad_value';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['group_info'] ['widget'] = 'radios';
+	$handler->display->display_options ['filters'] ['field_printer_acces_in_voorraad_value'] ['group_info'] ['group_items'] = array (
+			1 => array (
+					'title' => 'In voorraad',
+					'operator' => '!=',
+					'value' => array (
+							'value' => '0',
+							'min' => '',
+							'max' => '' 
+					) 
+			),
+			2 => array (
+					'title' => 'Niet in voorraad',
+					'operator' => '=',
+					'value' => array (
+							'value' => '0',
+							'min' => '',
+							'max' => '' 
+					) 
+			) 
+	);
+	/* Filtercriterium: Inhoud: Afkorting (field_lokaal_afkorting) */
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['id'] = 'field_lokaal_afkorting_value';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['table'] = 'field_data_field_lokaal_afkorting';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['field'] = 'field_lokaal_afkorting_value';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['relationship'] = 'field_printer_locatie_target_id';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['expose'] ['operator_id'] = 'field_lokaal_afkorting_value_op';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['expose'] ['label'] = 'Locatie';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['expose'] ['operator'] = 'field_lokaal_afkorting_value_op';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['expose'] ['identifier'] = 'field_lokaal_afkorting_value';
+	$handler->display->display_options ['filters'] ['field_lokaal_afkorting_value'] ['expose'] ['remember_roles'] = array ();
+	
+	/* Display: Overzicht */
+	$handler = $view->new_display ( 'page', 'Overzicht', 'printer_overzicht' );
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['path'] = 'printerbeheer';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Printerbeheer';
+	$handler->display->display_options ['menu'] ['description'] = 'Beheer je printers en hun accessoires.';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	$translatables ['printerbeheer'] = array (
+			t ( 'Master' ),
+			t ( 'Printerbeheer' ),
+			t ( 'meer' ),
+			t ( 'Toepassen' ),
+			t ( 'Opnieuw instellen' ),
+			t ( 'Sorteren op' ),
+			t ( 'Oplopend' ),
+			t ( 'Aflopend' ),
+			t ( 'Uitgebreide opties' ),
+			t ( 'Items per pagina' ),
+			t ( '- Alle -' ),
+			t ( 'Startpunt' ),
+			t ( '« eerste' ),
+			t ( '‹ vorige' ),
+			t ( 'volgende ›' ),
+			t ( 'laatste »' ),
+			t ( 'Inhoud entity referenced from field_printer_locatie' ),
+			t ( 'Inhoud entity referenced from field_printer_merk' ),
+			t ( 'Inhoud entity referenced from field_printer_accessoires' ),
+			t ( '[field_printer_merk] [field_printer_model]' ),
+			t ( '[title] - [field_printer_vast_ip_adres]' ),
+			t ( 'Type' ),
+			t ( 'Merk' ),
+			t ( 'Model' ),
+			t ( 'Prijs' ),
+			t ( 'Aantal in voorraad' ),
+			t ( 'Link om te bestellen' ),
+			t ( 'Printer merk/model' ),
+			t ( 'Vast IP-adres' ),
+			t ( 'Merk (accessoire)' ),
+			t ( 'Model (accessoire)' ),
+			t ( 'Type (accessoire)' ),
+			t ( 'Aantal in voorraad (accessoire)' ),
+			t ( 'Locatie' ),
+			t ( 'Overzicht' ) 
+	);
+	
+	$views [$view->name] = $view;
+	return $views;
+}

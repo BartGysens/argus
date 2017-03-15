@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.1
+---------
+- Replaced Features version with full module
+
 v7.x-1.0
 ---------
 - First initial release - featured based

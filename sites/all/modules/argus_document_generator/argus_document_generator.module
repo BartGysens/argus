@@ -22,6 +22,12 @@
  * Implements argus_document_generator_menu().
  */
 function argus_document_generator_menu() {
+	if (menu_load('menu-modules')){
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
 	$items = array ();
 	
 	// Setup
@@ -51,7 +57,7 @@ function argus_document_generator_menu() {
 			'access arguments' => array (
 					'access argus_document_generator content' 
 			),
-			'menu_name' => 'menu-modules' 
+			'menu_name' => $menu
 	);
 	
 	// AJAX-calls
@@ -177,7 +183,7 @@ function argus_document_generator_setup_form($form, &$form_state) {
 					}
 				}
 			} else {
-				argus_report('De plugin ":plugin" kan niet worden geactiveerd. Error: missing dependent module (:deps)', array(':plugin' => $ref, ':deps' => implode(', ', $detail['dependencies'])), 'error');
+				argus_report('De plugin ":plugin" kan niet worden geactiveerd. Error: missing dependent module (:deps)', array(':plugin' => $ref, ':deps' => implode(', ', $detail['dependencies'])), 'warning');
 			}
 		} else {
 			argus_report('De plugin ":plugin" werd niet correct gecodeerd - gelieve de handleiding te raadplegen. Error: missing function ..._init()', array(':plugin' => $ref), 'error');

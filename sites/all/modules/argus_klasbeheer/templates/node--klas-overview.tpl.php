@@ -80,11 +80,14 @@
  */
 ?>
 
+<?php if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){ ?>
+
 <div class="view">
     <div class="view-header">
         <p><a href="<?php print base_path() . 'node/' . $nid . '/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
     </div>
 </div>
+<?php } ?>
 
 <div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
 
@@ -99,6 +102,8 @@
             <?php print $submitted; ?>
         </div>
     <?php endif; ?>
+
+	<?php if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){ ?>
 
     <div class="content"<?php print $content_attributes; ?>>
         <h3>Klasbeeld</h3>
@@ -351,7 +356,7 @@
                     foreach($averages['eduyear'] as $aclass => $averageClass){
                         foreach($averageClass as $a => $average){
                             print '<td class="views-field views-field-counter views-align-center '.$aclass.'">';
-                            if (is_numeric($average)){
+                            if (is_numeric($average) && $averages['eduyear-total']>0){
                                 print round($average/$averages['eduyear-total'],2);
                             }
                             print '</td>';
@@ -365,7 +370,7 @@
                     foreach($averages['grade'] as $aclass => $averageClass){
                         foreach($averageClass as $a => $average){
                             print '<td class="views-field views-field-counter views-align-center '.$aclass.'">';
-                            if (is_numeric($average)){
+                            if (is_numeric($average) && $averages['eduyear-total']>0){
                                 print round($average/$averages['grade-total'],2);
                             }
                             print '</td>';
@@ -379,7 +384,7 @@
                     foreach($averages['type'] as $aclass => $averageClass){
                         foreach($averageClass as $a => $average){
                             print '<td class="views-field views-field-counter views-align-center '.$aclass.'">';
-                            if (is_numeric($average)){
+                            if (is_numeric($average) && $averages['eduyear-total']>0){
                                 print round($average/$averages['type-total'],2);
                             }
                             print '</td>';
@@ -393,7 +398,7 @@
                     foreach($averages['school'] as $aclass => $averageClass){
                         foreach($averageClass as $a => $average){
                             print '<td class="views-field views-field-counter views-align-center '.$aclass.'">';
-                            if (is_numeric($average)){
+                            if (is_numeric($average) && $averages['eduyear-total']>0){
                                 print round($average/$averages['school-total'],2);
                             }
                             print '</td>';
@@ -409,19 +414,23 @@
         <h3>Leerkrachten / vakken</h3>
         
         <div class="profile">
+        	<?php if (array_key_exists(LANGUAGE_NONE, $node->field_klas_klastitularis)){ ?>
             <div id="profile-admin-left">
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Klastitularis:&nbsp;</div>
                     <div class="field-items"><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$node->field_klas_klastitularis[LANGUAGE_NONE][0]['target_id']).'">'.argus_get_user_realname($node->field_klas_klastitularis[LANGUAGE_NONE][0]['target_id']).'</a>'; ?></div>
                 </div>
             </div>
-
+            <?php } ?>
+			
+			<?php if (array_key_exists(LANGUAGE_NONE, $node->field_klas_hulpklastitularis)){ ?>
             <div id="profile-admin-right">
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Hulpklastitularis:&nbsp;</div>
                     <div class="field-items"><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$node->field_klas_hulpklastitularis[LANGUAGE_NONE][0]['target_id']).'">'.argus_get_user_realname($node->field_klas_hulpklastitularis[LANGUAGE_NONE][0]['target_id']).'</a>'; ?></div>
                 </div>
             </div>
+            <?php } ?>
         </div>
         
         <table class="views-table">
@@ -435,53 +444,58 @@
             <tbody>
                 <?php
                 $i = 1;
-                foreach ($node->field_klas_leerkrachten[LANGUAGE_NONE] as $teacher){
-                    if (isset($teachers[$teacher['target_id']])){
-                        print '<tr class="'.($i%2 == 0 ? "even" : "odd").' views-row-first">';
-                            print '<td class="views-field views-field-counter views-align-left"><div class="user">'.$i.'. <a href="'.base_path().drupal_lookup_path('alias', 'user/'.$teacher['target_id']).'" id="user'.$teacher['target_id'].'">'.argus_get_user_realname($teacher['target_id']).'</a>';
-                            if (variable_get('user_pictures', 0)){
-                                if ($teacher['entity']->picture){
-                                    if (!empty($teacher['entity']->picture->uri)) {
-                                        $filepath = $teacher['entity']->picture->uri;
-                                    }
-                                    if (isset($filepath)) {
-                                        $profile_url = file_create_url($filepath);
-                                        print '<div id="profile-photo-'.$teacher['target_id'].'" class="profile-photo-class-overview"><img src="'.$profile_url.'" /></div>';
-                                        print '<script type="text/javascript">
-                                            jQuery(document).ready(function($) {
-                                                jQuery("#user'.$teacher['target_id'].'").mouseover(function (){
-                                                    jQuery("#profile-photo-'.$teacher['target_id'].'").show(10);
-                                                });
-                                                jQuery("#user'.$teacher['target_id'].'").mouseout(function (){
-                                                    jQuery("#profile-photo-'.$teacher['target_id'].'").hide(10);
-                                                });
-                                            });
-                                        </script>';
-                                    }
-                                }
-                            }
-                            print '</div></td>';
-
-                            print '<td class="views-field views-field-counter views-align-left">';
-                            foreach ($teachers[$teacher['target_id']] as $c => $course){
-                                print $course['long'].' ('.$course['short'].')<br />';
-                            }
-                            print '</td>';
-
-                            print '<td class="views-field views-field-counter views-align-center">';
-                            foreach ($teachers[$teacher['target_id']] as $c => $course){
-                                print $course['amount'].'<br />';
-                            }
-                            print '</td>';
-
-                        print '</tr>';
-                        $i++;
-                    }
+                
+                if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerkrachten)) {
+	                foreach ($node->field_klas_leerkrachten[LANGUAGE_NONE] as $teacher){
+	                    if (isset($teachers[$teacher['target_id']])){
+	                        print '<tr class="'.($i%2 == 0 ? "even" : "odd").' views-row-first">';
+	                            print '<td class="views-field views-field-counter views-align-left"><div class="user">'.$i.'. <a href="'.base_path().drupal_lookup_path('alias', 'user/'.$teacher['target_id']).'" id="user'.$teacher['target_id'].'">'.argus_get_user_realname($teacher['target_id']).'</a>';
+	                            if (variable_get('user_pictures', 0)){
+	                                if ($teacher['entity']->picture){
+	                                    if (!empty($teacher['entity']->picture->uri)) {
+	                                        $filepath = $teacher['entity']->picture->uri;
+	                                    }
+	                                    if (isset($filepath)) {
+	                                        $profile_url = file_create_url($filepath);
+	                                        print '<div id="profile-photo-'.$teacher['target_id'].'" class="profile-photo-class-overview"><img src="'.$profile_url.'" /></div>';
+	                                        print '<script type="text/javascript">
+	                                            jQuery(document).ready(function($) {
+	                                                jQuery("#user'.$teacher['target_id'].'").mouseover(function (){
+	                                                    jQuery("#profile-photo-'.$teacher['target_id'].'").show(10);
+	                                                });
+	                                                jQuery("#user'.$teacher['target_id'].'").mouseout(function (){
+	                                                    jQuery("#profile-photo-'.$teacher['target_id'].'").hide(10);
+	                                                });
+	                                            });
+	                                        </script>';
+	                                    }
+	                                }
+	                            }
+	                            print '</div></td>';
+	
+	                            print '<td class="views-field views-field-counter views-align-left">';
+	                            foreach ($teachers[$teacher['target_id']] as $c => $course){
+	                                print $course['long'].' ('.$course['short'].')<br />';
+	                            }
+	                            print '</td>';
+	
+	                            print '<td class="views-field views-field-counter views-align-center">';
+	                            foreach ($teachers[$teacher['target_id']] as $c => $course){
+	                                print $course['amount'].'<br />';
+	                            }
+	                            print '</td>';
+	
+	                        print '</tr>';
+	                        $i++;
+	                    }
+	                }
                 }
                 ?>
             </tbody>
         </table>
     </div>
+    
+    <?php } else { print 'deze klas heeft geen leerlingen'; } ?>
 
 </div>
 

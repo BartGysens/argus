@@ -7,3 +7,4 @@ core = 7.x
 project = argus_bitbucket
 datestamp = 1484041585
 project status url = http://www.projectargus.be/release-history
+dependencies[] = argus_engine

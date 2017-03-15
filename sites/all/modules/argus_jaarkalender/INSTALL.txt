@@ -12,3 +12,6 @@ directory of your Drupal installation.  This is probably sites/all/modules/
 feed for import:
  - feed settings: /admin/structure/feeds/events_jaarkalender
  - import through this link: /import/events_jaarkalender
+5a. Install full_calender javascript library: https://www.drupal.org/project/fullcalendar
+5b. Install iCalcreator javascript library: https://www.drupal.org/project/date_ical
+6. Activate Date Repeate Field submodule under Date/Time in admin/modules

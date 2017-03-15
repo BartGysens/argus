@@ -4,8 +4,11 @@ package = argus - a Quality control extension
 core = 7.x
 php = 5.2
 configure = admin/config/argus/buscheck
-
-version = 7.x-1.2
+dependencies[] = argus_engine
+files[] = argus_buscheck.module
+files[] = css/argus_buscheck.css
+dependencies[] = argus_engine
+version = 7.x-1.4
 project = argus_buscheck
 datestamp = 1400618928
 project status url = http://www.projectargus.be/release-history

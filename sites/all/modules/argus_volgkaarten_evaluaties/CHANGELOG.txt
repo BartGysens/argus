@@ -1,6 +1,10 @@
 **Releases:
 
 
+v7.x-1.1
+---------
+- Features disabled; full custom module
+
 v7.x-1.0-alfa1
 ---------
 - First initial release - featured based

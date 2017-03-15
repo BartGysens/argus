@@ -1,0 +1,215 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_huisstijlhandboek_enable() {
+	global $user;
+	$node = new stdClass ();
+	$node->title = 'Huisstijlhandboek';
+	$node->type = 'page';
+	node_object_prepare ( $node );
+	$node->language = LANGUAGE_NONE;
+	$node->uid = $user->uid;
+	$node->status = 1;
+	$node->promote = 1;
+	$node->comment = 0;
+	
+	$node->path ['alias'] = 'huisstijlhandboek';
+	$node->path ['pathauto'] = FALSE;
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$node->menu ['menu_name'] = $menu;
+	$node->menu ['enabled'] = TRUE;
+	$node->menu ['link_title'] = 'Huisstijlhandboek';
+	$node->menu ['description'] = '';
+	
+	$node->link_title = 'Huisstijlhandboek';
+	$node->link_path = 'huisstijlhandboek';
+	
+	$node->body [$node->language] [0] ['format'] = 'full_html';
+	
+	$imgPath = drupal_get_path ( 'module', 'argus_huisstijlhandboek' ) . '/images/';
+	$node->body [$node->language] [0] ['value'] = '<h2>1. Logo</h2>
+Om een logo te downloaden kan je er op klikken en kiezen voor "Opslaan als".<br />
+<br />
+Logo rechthoekig (kleur)<br />
+<a href="#link" target="_blank"><img alt="logo_lang.jpg" src="' . $imgPath . 'image.jpg" style="height:95px; width:300px" /></a><br />
+<br />
+Logo rechthoekig (zwart/wit)<br />
+<a href="#link" style="line-height: 20.8px;" target="_blank"><img alt="logo_rechts.jpg" src="' . $imgPath . 'image.jpg" style="height:95px; width:300px" /></a><br />
+<br />
+Logo langwerpig&nbsp;(kleur)<br />
+<a href="#link" style="line-height: 20.8px;" target="_blank"><img alt="logo_lang.jpg" src="' . $imgPath . 'image.jpg" style="height:42px; width:500px" /></a><br />
+<br />
+Logo langwerpig&nbsp;(zwart/wit)<br />
+<a href="#link" style="line-height: 20.8px;" target="_blank"><img alt="logo_lang_zw.jpg" src="' . $imgPath . 'image.jpg" style="height:42px; width:500px" /></a><br />
+<br />
+Logo vierkant (kleur)<br />
+<a href="#link" style="line-height: 20.8px;" target="_blank"><img alt="logo_vierkant.jpg" src="' . $imgPath . 'image.jpg" style="height:150px; width:150px" /></a><br />
+<br />
+Logo vierkant&nbsp;(zwart/wit)<br />
+<a href="#link" style="line-height: 20.8px;" target="_blank"><img alt="logo_vierkant_zw.jpg" src="' . $imgPath . 'image.jpg" style="height:150px; width:150px" /></a><br />
+<br />
+<u>Extra formaten in Adobe Illustrator</u>
+
+<ul>
+	<li><a href="#link">logo_lang.ai</a></li>
+	<li><a href="#link">logo_rechts.ai</a></li>
+	<li><a href="#link">logo_vierkant.ai</a></li>
+</ul>
+
+<h2>2. Kleurenpallet</h2>
+
+<table border="1" cellpadding="5" cellspacing="1" style="border-color:#fff; width:100%">
+	<tbody>
+		<tr>
+			<td style="background-color:rgb(246, 168, 0); width:50%"><strong>RGB : 246,168,0<br />
+			CMYK: 1,39,96,0</strong> in %<br />
+			<strong>HSB: 41° 100% 96%<br />
+			HTML: #f6a800</strong></td>
+			<td style="background-color:rgb(1, 99, 48)"><span style="color:#FFFFFF"><strong>RGB: 1,99,48<br />
+			CMYK: 90,34,98,28</strong> in %<br />
+			<strong>HSB: 149° 99% 39%<br />
+			HTML: #016330</strong></span></td>
+		</tr>
+		<tr>
+			<td style="background-color:rgb(161, 13, 89)"><span style="color:#FFFFFF"><strong>RGB: 161,13,89<br />
+			CMYK: 28,100,28,19</strong> in %<br />
+			<strong>HSB: 329° 92% 63%<br />
+			​HTML: #a10d59</strong></span></td>
+			<td style="background-color:rgb(0, 111, 180)"><span style="color:#FFFFFF"><strong>RGB: 0,111,180<br />
+			CMYK: 87,50,3,0</strong> in %<br />
+			<strong>HSB: 203° 100% 71%<br />
+			​HTML: #006fb4</strong></span></td>
+		</tr>
+	</tbody>
+</table>
+
+<h2>3. Lettertype</h2>
+
+<table border="1" cellpadding="5" cellspacing="1" style="border-color:gray; width:100%">
+	<tbody>
+		<tr>
+			<td style="background-color:rgb(238, 238, 238); width:50%"><strong>Drukwerk</strong></td>
+			<td style="background-color:rgb(238, 238, 238)"><strong>Online</strong></td>
+		</tr>
+		<tr>
+			<td style="vertical-align:top"><strong><span style="color:#FF0000">Calibri, Verdana</span></strong><br />
+			<br />
+			<span style="font-family:verdana,geneva,sans-serif"><span style="font-size:11px">abcdefghijklmnopqrstuvwxyz</span><br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ<br />
+			<br />
+			<strong><span style="font-size:11px">abcdefghijklmnopqrstuvwxyz</span><br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</strong><br />
+			<br />
+			<em><span style="font-size:11px">abcdefghijklmnopqrstuvwxyz</span><br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</em><br />
+			<br />
+			<em><strong><span style="font-size:11px">abcdefghijklmnopqrstuvwxyz</span><br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</strong></em><br />
+			<br />
+			KOP1 (20pt, vet)<br />
+			<span style="font-size:20px"><strong>abcdefghijklmnopqrstuvwxyz<br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</strong></span><br />
+			<br />
+			KOP2 (18pt, onderstreept)<br />
+			<u><span style="font-size:18px">abcdefghijklmnopqrstuvwxyz<br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</span></u><br />
+			<br />
+			KOP3 (16pt, onderstreept)<br />
+			<u><span style="font-size:16px">abcdefghijklmnopqrstuvwxyz<br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</span></u><br />
+			<br />
+			KOP4 (14pt, onderstreept + schuin)<br />
+			<em><span style="font-size:14px"><u>abcdefghijklmnopqrstuvwxyz<br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</u></span></em></span></td>
+			<td style="vertical-align:top"><strong><span style="color:rgb(255, 0, 0)">\'Lato\', Helvetica Neu, Arial</span></strong><br />
+			<br />
+			<span style="font-family:arial,helvetica,sans-serif"><span style="font-size:11px">abcdefghijklmnopqrstuvwxyz</span><br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ<br />
+			<br />
+			<strong><span style="font-size:11px">abcdefghijklmnopqrstuvwxyz</span><br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</strong><br />
+			<br />
+			<em><span style="font-size:11px">abcdefghijklmnopqrstuvwxyz</span><br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</em><br />
+			<br />
+			<em><strong><span style="font-size:11px">abcdefghijklmnopqrstuvwxyz</span><br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</strong></em><br />
+			<br />
+			KOP1 (20pt, vet)<br />
+			<span style="font-size:20px"><strong>abcdefghijklmnopqrstuvwxyz<br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</strong></span><br />
+			<br />
+			KOP2 (18pt, onderstreept)<br />
+			<u><span style="font-size:18px">abcdefghijklmnopqrstuvwxyz<br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</span></u><br />
+			<br />
+			KOP3 (16pt, onderstreept)<br />
+			<u><span style="font-size:16px">abcdefghijklmnopqrstuvwxyz<br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</span></u><br />
+			<br />
+			KOP4 (14pt, onderstreept + schuin)<br />
+			<em><span style="font-size:14px"><u>abcdefghijklmnopqrstuvwxyz<br />
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ</u></span></em></span></td>
+		</tr>
+	</tbody>
+</table>
+
+<h2>4. Voorbeelddocumenten</h2>
+
+<ul>
+	<li>Briefhoofden
+	<ul>
+		<li><a href="#link">brief_kleur.docx</a></li>
+		<li><a href="#link">brief_zw.docx</a></li>
+	</ul>
+	</li>
+	<li>Covers
+	<ul>
+		<li><a href="#link">voorblad.docx</a></li>
+		<li><a href="#link">fax.doc</a></li>
+	</ul>
+	</li>
+	<li>Documenten
+	<ul>
+		<li><a href="#link">toets.doc</a></li>
+		<li><a href="#link">examenvragen.docx</a></li>
+		<li><a href="#link">cursus.docx</a></li>
+		<li><a href="#link">presentatie.pptx</a></li>
+		<li>​<a href="#link">mapje.pdf</a></li>
+		<li><a href="#link">naamkaartjes_print.pdf</a></li>
+		<li><a href="#link">omslag_a4_druk.pdf</a></li>
+		<li><a href="#link">omslag_af_druk.pdf</a></li>
+		<li><a href="#link">vriendelijkegroetenkaart.pdf</a></li>
+		<li><a href="#link">algemene infobrochure.pdf</a>&nbsp;- druk: <a href="#link">algemene_infobrochure_druk.pdf</a></li>
+		<li><a href="#link">infobrochure_eerste_graad.pdf</a> - druk: <a href="#link">infobrochure_eerste_graad_druk.pdf</a></li>
+	</ul>
+	</li>
+</ul>
+
+<h2>A. Aanvullende huisstijl GO!</h2>
+<img alt="" src="' . $imgPath . 'logo_GO.png" style="height:84px; width:300px" /><br />
+Het huisstijlhandboek kan je vinden op&nbsp;<a href="http://pro.g-o.be/over-go/huisstijl" target="_blank">http://pro.g-o.be/over-go/huisstijl</a>';
+	$node = node_submit ( $node ); // Prepare node for saving
+	node_save ( $node );
+	
+	// Keep id for uninstall
+	variable_set ( 'argus_huisstijlhandboek_page', $node->nid );
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_huisstijlhandboek_uninstall() {
+	node_delete ( variable_get ( 'argus_huisstijlhandboek_page' ) );
+}

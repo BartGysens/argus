@@ -1,0 +1,1027 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_printerbeheer_install() {
+	// Rebuild and define new content type
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_printerbeheer_field_default_field_bases()
+	foreach ( argus_printerbeheer_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_printerbeheer_field_default_field_instances()
+	foreach ( argus_printerbeheer_field_default_field_instances () as $fieldinstance ) {
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					'delta' => '6bd74993e5af53578eeb2d6930c1d63f', // copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'sidebar_first', // replace with the target region for your theme
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => 'printerbeheer' . chr ( 13 ) . 'printerbeheer/*', // replace with your list of pages
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					'title' => 'Filter' 
+			) 
+	); // replace with your title
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_printerbeheer_uninstall() {
+	// Remove all nodes of new content type
+	$newTypes = array (
+			'printer_accessoire',
+			'printer' 
+	);
+	
+	foreach ( $newTypes as $type ) {
+		// Remove all nodes of new content type
+		$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+		$result = db_query ( $sql, array (
+				':type' => $type 
+		) );
+		$nodeids = array ();
+		foreach ( $result as $row ) {
+			$nodeids [] = $row->nid;
+		}
+		node_delete_multiple ( $nodeids );
+	}
+	
+	// Delete all related fields
+	foreach ( argus_printerbeheer_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) { // Check if field is enabled for other modules
+			field_delete_field ( $field_name );
+		}
+	}
+	foreach ( $newTypes as $type ) {
+		$instances = field_info_instances ( 'node', $type );
+		foreach ( $instances as $instance_name => $fieldinstance ) {
+			field_delete_instance ( $fieldinstance );
+		}
+		
+		// Remove new content type
+		node_type_delete ( $type );
+	}
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_printerbeheer' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ */
+function argus_printerbeheer_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_printer_acces_bestellen'.
+	$field_bases ['field_printer_acces_bestellen'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_acces_bestellen',
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'link',
+			'settings' => array (
+					'attributes' => array (
+							'class' => '',
+							'rel' => '',
+							'target' => 'default' 
+					),
+					'display' => array (
+							'url_cutoff' => 80 
+					),
+					'enable_tokens' => 1,
+					'title' => 'optional',
+					'title_maxlength' => 128,
+					'title_value' => '',
+					'url' => 0 
+			),
+			'translatable' => 0,
+			'type' => 'link_field' 
+	);
+	
+	// Exported field_base: 'field_printer_acces_in_voorraad'.
+	$field_bases ['field_printer_acces_in_voorraad'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_acces_in_voorraad',
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_printer_acces_inventarisnr'.
+	$field_bases ['field_printer_acces_inventarisnr'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_acces_inventarisnr',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_printer_acces_merk'.
+	$field_bases ['field_printer_acces_merk'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_acces_merk',
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'merk' => 'merk' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_printer_acces_model'.
+	$field_bases ['field_printer_acces_model'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_acces_model',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_printer_acces_prijs'.
+	$field_bases ['field_printer_acces_prijs'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_acces_prijs',
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (
+					'decimal_separator' => '.',
+					'precision' => 10,
+					'scale' => 2 
+			),
+			'translatable' => 0,
+			'type' => 'number_decimal' 
+	);
+	
+	// Exported field_base: 'field_printer_acces_type'.
+	$field_bases ['field_printer_acces_type'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_acces_type',
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'drum' => 'drum',
+							'fuser' => 'fuser',
+							'image transfer unit (ITU)' => 'image transfer unit (ITU)',
+							'inktpatroon' => 'inktpatroon',
+							'onderhoudskit' => 'onderhoudskit',
+							'toner' => 'toner',
+							'waste toner container (WTC)' => 'waste toner container (WTC)' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_printer_accessoires'.
+	$field_bases ['field_printer_accessoires'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_accessoires',
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'printer_accessoire' => 'printer_accessoire' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_printer_locatie'.
+	$field_bases ['field_printer_locatie'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_locatie',
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'base',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'sort' => array (
+									'direction' => 'ASC',
+									'property' => 'title',
+									'type' => 'property' 
+							),
+							'target_bundles' => array (
+									'lokaal' => 'lokaal' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_printer_merk'.
+	$field_bases ['field_printer_merk'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_merk',
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (
+											0 => 'field_merk_toepassingsdomein_value=ICT' 
+									),
+									'display_name' => 'entityreference_1',
+									'view_name' => 'merken' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_printer_model'.
+	$field_bases ['field_printer_model'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_model',
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_printer_vast_ip_adres'.
+	$field_bases ['field_printer_vast_ip_adres'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_printer_vast_ip_adres',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function argus_printerbeheer_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-printer-field_printer_accessoires'.
+	$field_instances ['node-printer-field_printer_accessoires'] = array (
+			'bundle' => 'printer',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_accessoires',
+			'label' => 'Accessoire',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'multiselect',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'multiselect',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-printer-field_printer_locatie'.
+	$field_instances ['node-printer-field_printer_locatie'] = array (
+			'bundle' => 'printer',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => 0 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_locatie',
+			'label' => 'Locatie',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance: 'node-printer-field_printer_merk'.
+	$field_instances ['node-printer-field_printer_merk'] = array (
+			'bundle' => 'printer',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => FALSE 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_merk',
+			'label' => 'Merk',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance: 'node-printer-field_printer_model'.
+	$field_instances ['node-printer-field_printer_model'] = array (
+			'bundle' => 'printer',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_model',
+			'label' => 'Model',
+			'required' => 1,
+			'settings' => array (
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance: 'node-printer-field_printer_vast_ip_adres'.
+	$field_instances ['node-printer-field_printer_vast_ip_adres'] = array (
+			'bundle' => 'printer',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'Gelieve het IP-adres in volgend formaat in te geven: <em>xxx.xxx.xxx.xxx</em>',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_vast_ip_adres',
+			'label' => 'Vast IP-adres',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-printer_accessoire-field_printer_acces_bestellen'.
+	$field_instances ['node-printer_accessoire-field_printer_acces_bestellen'] = array (
+			'bundle' => 'printer_accessoire',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'link',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'link_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_acces_bestellen',
+			'label' => 'Link om te bestellen',
+			'required' => 0,
+			'settings' => array (
+					'absolute_url' => 1,
+					'attributes' => array (
+							'class' => '',
+							'configurable_class' => 0,
+							'configurable_title' => 0,
+							'rel' => '',
+							'target' => '_blank',
+							'title' => '' 
+					),
+					'display' => array (
+							'url_cutoff' => 80 
+					),
+					'enable_tokens' => 1,
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'rel_remove' => 'default',
+					'title' => 'optional',
+					'title_label_use_field_label' => 0,
+					'title_maxlength' => 128,
+					'title_value' => '',
+					'url' => 0,
+					'user_register_form' => FALSE,
+					'validate_url' => 1 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'link',
+					'settings' => array (),
+					'type' => 'link_field',
+					'weight' => 9 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-printer_accessoire-field_printer_acces_in_voorraad'.
+	$field_instances ['node-printer_accessoire-field_printer_acces_in_voorraad'] = array (
+			'bundle' => 'printer_accessoire',
+			'default_value' => array (
+					0 => array (
+							'value' => 0 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_acces_in_voorraad',
+			'label' => 'Aantal in voorraad',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 8 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-printer_accessoire-field_printer_acces_inventarisnr'.
+	$field_instances ['node-printer_accessoire-field_printer_acces_inventarisnr'] = array (
+			'bundle' => 'printer_accessoire',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_integer',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_acces_inventarisnr',
+			'label' => 'Inventarisnummer',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-printer_accessoire-field_printer_acces_merk'.
+	$field_instances ['node-printer_accessoire-field_printer_acces_merk'] = array (
+			'bundle' => 'printer_accessoire',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'conditions' => array (),
+									'link' => FALSE 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_acces_merk',
+			'label' => 'Merk',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-printer_accessoire-field_printer_acces_model'.
+	$field_instances ['node-printer_accessoire-field_printer_acces_model'] = array (
+			'bundle' => 'printer_accessoire',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_acces_model',
+			'label' => 'Model',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-printer_accessoire-field_printer_acces_prijs'.
+	$field_instances ['node-printer_accessoire-field_printer_acces_prijs'] = array (
+			'bundle' => 'printer_accessoire',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 2,
+									'thousand_separator' => ' ' 
+							),
+							'type' => 'number_decimal',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_acces_prijs',
+			'label' => 'Prijs',
+			'required' => 0,
+			'settings' => array (
+					'max' => '',
+					'min' => '',
+					'prefix' => '€',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 7 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-printer_accessoire-field_printer_acces_type'.
+	$field_instances ['node-printer_accessoire-field_printer_acces_type'] = array (
+			'bundle' => 'printer_accessoire',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_printer_acces_type',
+			'label' => 'Type',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 4 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Aantal in voorraad' );
+	t ( 'Accessoire' );
+	t ( 'Comment' );
+	t ( 'Gelieve het IP-adres in volgend formaat in te geven: <em>xxx.xxx.xxx.xxx</em>' );
+	t ( 'Inventarisnummer' );
+	t ( 'Link om te bestellen' );
+	t ( 'Locatie' );
+	t ( 'Merk' );
+	t ( 'Model' );
+	t ( 'Prijs' );
+	t ( 'Type' );
+	t ( 'Vast IP-adres' );
+	
+	return $field_instances;
+}
+

@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Copyright (C) 2015 bartgysens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -9,243 +9,1380 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* Drupal Hooks */
 
 /**
- * Implements hook_views_api().
+ * Implementation of hook_views_api().
  */
-include_once 'argus_meldingen.views_default.inc';
-function argus_meldingen_views_api($module = NULL, $api = NULL) {
-  return array("api" => "3.0");
+function argus_meldingen_views_api() {
+	return array (
+			'api' => 3.0,
+			'path' => drupal_get_path ( 'module', 'argus_meldingen' ) 
+	) // replace demo with your content type
+;
 }
 
 /**
- * Implements hook_node_info().
+ * Implementation of hook_views_default_views().
+ *
+ * Views export creates code that you have to paste in this function.
+ *
+ * Administration > Structure > Views : click the button behind the view you need and export
+ * /admin/structure/views
+ */
+function argus_meldingen_views_default_views() {
+	$view = new view ();
+	$view->name = 'lvs_meldingen';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'LVS - Meldingen';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+	
+	/* Display: Master */
+	$handler = $view->new_display ( 'default', 'Master', 'default' );
+	$handler->display->display_options ['title'] = 'Meldingen';
+	$handler->display->display_options ['use_more_always'] = FALSE;
+	$handler->display->display_options ['use_more_text'] = 'meer';
+	$handler->display->display_options ['group_by'] = TRUE;
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0 
+			),
+			'node' => array (
+					'lvs_melding' => 'lvs_melding' 
+			),
+			'node_only' => array (
+					'node_changed' => 'node_changed' 
+			) 
+	);
+	$handler->display->display_options ['query'] ['type'] = 'views_query';
+	$handler->display->display_options ['exposed_form'] ['type'] = 'better_exposed_filters';
+	$handler->display->display_options ['exposed_form'] ['options'] ['submit_button'] = 'Toepassen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button'] = TRUE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button_label'] = 'Opnieuw instellen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['exposed_sorts_label'] = 'Sorteren op';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_asc_label'] = 'Oplopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_desc_label'] = 'Aflopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['autosubmit'] = FALSE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['bef'] = array (
+			'general' => array (
+					'allow_secondary' => 0,
+					'secondary_label' => 'Uitgebreide opties' 
+			),
+			'realname' => array (
+					'bef_format' => 'default',
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'realname_1' => array (
+					'bef_format' => 'default',
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_lvs_melding_onderwerp_value' => array (
+					'bef_format' => 'default',
+					'more_options' => array (
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			),
+			'field_lvs_melding_studie_target_id_entityreference_filter' => array (
+					'bef_format' => 'bef',
+					'more_options' => array (
+							'bef_select_all_none' => 0,
+							'bef_collapsible' => 0,
+							'is_secondary' => 0,
+							'any_label' => '',
+							'bef_filter_description' => '',
+							'tokens' => array (
+									'available' => array (
+											0 => 'global_types' 
+									) 
+							),
+							'rewrite' => array (
+									'filter_rewrite_values' => '' 
+							) 
+					) 
+			) 
+	);
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '50';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['grouping'] = array (
+			0 => array (
+					'field' => 'field_lvs_melding_datum_feit',
+					'rendered' => 1,
+					'rendered_strip' => 1 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'nid' => 'nid',
+			'field_lvs_melding_dringend' => 'field_lvs_melding_dringend',
+			'field_lvs_melding_prive' => 'field_lvs_melding_prive',
+			'field_lvs_melding_datum_feit' => 'field_lvs_melding_datum_feit',
+			'field_lvs_melding_leerling' => 'field_lvs_melding_leerling',
+			'title' => 'title',
+			'name' => 'name',
+			'views_conditional' => 'views_conditional',
+			'field_lvs_melding_onderwerp' => 'field_lvs_melding_onderwerp',
+			'field_lvs_melding_betreft' => 'field_lvs_melding_betreft',
+			'views_conditional_1' => 'views_conditional_1',
+			'field_lvs_melding_status' => 'field_lvs_melding_status' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_dringend' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_prive' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_datum_feit' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'desc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_leerling' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'title' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'name' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'views_conditional' => array (
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_onderwerp' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_betreft' => array (
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'views_conditional_1' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_status' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['label'] = 'Nieuwe melding';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/lvs-melding">Een nieuwe melding toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options ['footer'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['label'] = 'Melding toevoegen';
+	$handler->display->display_options ['footer'] ['area'] ['content'] = '<a href="/node/add/lvs-melding">Een nieuwe melding toevoegen</a>';
+	$handler->display->display_options ['footer'] ['area'] ['format'] = 'filtered_html';
+	/* Relatie: Inhoud: Auteur */
+	$handler->display->display_options ['relationships'] ['uid'] ['id'] = 'uid';
+	$handler->display->display_options ['relationships'] ['uid'] ['table'] = 'node';
+	$handler->display->display_options ['relationships'] ['uid'] ['field'] = 'uid';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['id'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['table'] = 'field_data_field_lvs_melding_leerling';
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['field'] = 'field_lvs_melding_leerling_target_id';
+	/* Relatie: Referentie naar een entiteit: Refererende entiteit */
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['id'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['table'] = 'users';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['field'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['label'] = 'Inhoud referencing Gebruiker from field_klas_leerlingen';
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Dringend */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_dringend'] ['id'] = 'field_lvs_melding_dringend';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_dringend'] ['table'] = 'field_data_field_lvs_melding_dringend';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_dringend'] ['field'] = 'field_lvs_melding_dringend';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_dringend'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_dringend'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_dringend'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_dringend'] ['type'] = 'list_key';
+	/* Veld: Inhoud: Privé */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_prive'] ['id'] = 'field_lvs_melding_prive';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_prive'] ['table'] = 'field_data_field_lvs_melding_prive';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_prive'] ['field'] = 'field_lvs_melding_prive';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_prive'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_prive'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_prive'] ['alter'] ['text'] = 'x';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_prive'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Datum van het feit */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['id'] = 'field_lvs_melding_datum_feit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['table'] = 'field_data_field_lvs_melding_datum_feit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['field'] = 'field_lvs_melding_datum_feit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['alter'] ['path'] = 'node/[nid]/edit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit'] ['settings'] = array (
+			'format_type' => 'dag_en_datum_lang_',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_repeat_rule' => 'show' 
+	);
+	/* Veld: Inhoud: Leerling */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_leerling'] ['id'] = 'field_lvs_melding_leerling';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_leerling'] ['table'] = 'field_data_field_lvs_melding_leerling';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_leerling'] ['field'] = 'field_lvs_melding_leerling';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_leerling'] ['settings'] = array (
+			'link' => 1 
+	);
+	$handler->display->display_options ['fields'] ['field_lvs_melding_leerling'] ['group_rows'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_leerling'] ['delta_offset'] = '0';
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['relationship'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['fields'] ['title'] ['label'] = 'Klas';
+	/* Veld: Gebruiker: Naam */
+	$handler->display->display_options ['fields'] ['name'] ['id'] = 'name';
+	$handler->display->display_options ['fields'] ['name'] ['table'] = 'users';
+	$handler->display->display_options ['fields'] ['name'] ['field'] = 'name';
+	$handler->display->display_options ['fields'] ['name'] ['relationship'] = 'uid';
+	$handler->display->display_options ['fields'] ['name'] ['label'] = 'Gemeld door';
+	/* Veld: Overzichten: Views Conditional */
+	$handler->display->display_options ['fields'] ['views_conditional'] ['id'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['table'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['field'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['views_conditional'] ['if'] = 'field_lvs_melding_dringend';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['condition'] = '1';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['equalto'] = '1';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['then'] = '<strong>!</strong>';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['strip_tags'] = 0;
+	/* Veld: Inhoud: Onderwerp */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['id'] = 'field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['table'] = 'field_data_field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['field'] = 'field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['alter'] ['path'] = 'node/[nid]/edit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['alter'] ['absolute'] = TRUE;
+	/* Veld: Inhoud: Betreft */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_betreft'] ['id'] = 'field_lvs_melding_betreft';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_betreft'] ['table'] = 'field_data_field_lvs_melding_betreft';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_betreft'] ['field'] = 'field_lvs_melding_betreft';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_betreft'] ['group_column'] = 'entity_id';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_betreft'] ['delta_offset'] = '0';
+	/* Veld: Overzichten: Views Conditional */
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['id'] = 'views_conditional_1';
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['table'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['field'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['if'] = 'field_lvs_melding_prive';
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['condition'] = '1';
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['equalto'] = '1';
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['then'] = '<div class="sms_locked"></div>';
+	$handler->display->display_options ['fields'] ['views_conditional_1'] ['strip_tags'] = 0;
+	/* Veld: Inhoud: Status */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_status'] ['id'] = 'field_lvs_melding_status';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_status'] ['table'] = 'field_data_field_lvs_melding_status';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_status'] ['field'] = 'field_lvs_melding_status';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_status'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_status'] ['alter'] ['path'] = 'node/[nid]/edit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_status'] ['alter'] ['absolute'] = TRUE;
+	/* Sorteercriterium: Inhoud: Datum van het feit (field_lvs_melding_datum_feit) */
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['id'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['table'] = 'field_data_field_lvs_melding_datum_feit';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['field'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['order'] = 'DESC';
+	/* Sorteercriterium: Gebruiker: Achternaam (field_user_sms_naam) */
+	$handler->display->display_options ['sorts'] ['field_user_sms_naam_value'] ['id'] = 'field_user_sms_naam_value';
+	$handler->display->display_options ['sorts'] ['field_user_sms_naam_value'] ['table'] = 'field_data_field_user_sms_naam';
+	$handler->display->display_options ['sorts'] ['field_user_sms_naam_value'] ['field'] = 'field_user_sms_naam_value';
+	$handler->display->display_options ['sorts'] ['field_user_sms_naam_value'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	/* Sorteercriterium: Gebruiker: Voornaam (field_user_sms_voornaam) */
+	$handler->display->display_options ['sorts'] ['field_user_sms_voornaam_value'] ['id'] = 'field_user_sms_voornaam_value';
+	$handler->display->display_options ['sorts'] ['field_user_sms_voornaam_value'] ['table'] = 'field_data_field_user_sms_voornaam';
+	$handler->display->display_options ['sorts'] ['field_user_sms_voornaam_value'] ['field'] = 'field_user_sms_voornaam_value';
+	$handler->display->display_options ['sorts'] ['field_user_sms_voornaam_value'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'lvs_melding' => 'lvs_melding' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Betreft (field_lvs_melding_betreft) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value'] ['id'] = 'field_lvs_melding_betreft_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value'] ['table'] = 'field_data_field_lvs_melding_betreft';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value'] ['field'] = 'field_lvs_melding_betreft_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value'] ['value'] = array (
+			'positief gedrag' => 'positief gedrag',
+			'studiebegeleiding' => 'studiebegeleiding',
+			'negatief gedrag' => 'negatief gedrag',
+			'afwezigheden' => 'afwezigheden',
+			'andere (enkel financieel, medisch, familiaal)' => 'andere (enkel financieel, medisch, familiaal)' 
+	);
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name'] ['id'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['filters'] ['name'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator_id'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['label'] = 'Leerling';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['identifier'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['relationship'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Klas';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'klas';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name_1'] ['id'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name_1'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name_1'] ['relationship'] = 'uid';
+	$handler->display->display_options ['filters'] ['name_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator_id'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['label'] = 'Gemeld door';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['identifier'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Betreft (field_lvs_melding_betreft) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['id'] = 'field_lvs_melding_betreft_value_1';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['table'] = 'field_data_field_lvs_melding_betreft';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['field'] = 'field_lvs_melding_betreft_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['value'] = array (
+			'positief gedrag' => 'positief gedrag',
+			'studiebegeleiding' => 'studiebegeleiding',
+			'negatief gedrag' => 'negatief gedrag',
+			'afwezigheden' => 'afwezigheden',
+			'andere (enkel financieel, medisch, familiaal)' => 'andere (enkel financieel, medisch, familiaal)' 
+	);
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['expose'] ['operator_id'] = 'field_lvs_melding_betreft_value_1_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['expose'] ['label'] = 'Betreft';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['expose'] ['operator'] = 'field_lvs_melding_betreft_value_1_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['expose'] ['identifier'] = 'field_lvs_melding_betreft_value_1';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['expose'] ['multiple'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['expose'] ['reduce'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_betreft_value_1'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Inhoud: Onderwerp (field_lvs_melding_onderwerp) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['id'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['table'] = 'field_data_field_lvs_melding_onderwerp';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['field'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['operator_id'] = 'field_lvs_melding_onderwerp_value_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['label'] = 'Onderwerp';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['operator'] = 'field_lvs_melding_onderwerp_value_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['identifier'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Datum van het feit (field_lvs_melding_datum_feit) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['id'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['table'] = 'field_data_field_lvs_melding_datum_feit';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['field'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['operator'] = 'between';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['expose'] ['operator_id'] = 'field_lvs_melding_datum_feit_value_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['expose'] ['label'] = 'Datum';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['expose'] ['use_operator'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['expose'] ['operator'] = 'field_lvs_melding_datum_feit_value_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['expose'] ['identifier'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['form_type'] = 'date_popup';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_datum_feit_value'] ['year_range'] = '-5:+0';
+	
+	/* Display: LVS - Meldingen (inclusief privé-berichten) */
+	$handler = $view->new_display ( 'page', 'LVS - Meldingen (inclusief privé-berichten)', 'meldingen_overview' );
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['path'] = 'meldingen/lvs/overzicht';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Meldingen';
+	$handler->display->display_options ['menu'] ['description'] = 'Meldingen voor de leerlingbegeleiding';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Remediëringen */
+	$handler = $view->new_display ( 'page', 'Remediëringen', 'meldingen_study_overview' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Remediëringen';
+	$handler->display->display_options ['defaults'] ['pager'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '50';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['grouping'] = array (
+			0 => array (
+					'field' => 'title',
+					'rendered' => 1,
+					'rendered_strip' => 0 
+			),
+			1 => array (
+					'field' => 'realname_1',
+					'rendered' => 1,
+					'rendered_strip' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'title' => 'title',
+			'realname_1' => 'realname_1',
+			'nid' => 'nid',
+			'field_lvs_melding_datum_feit_1' => 'field_lvs_melding_datum_feit_1',
+			'field_lvs_melding_studie' => 'field_lvs_melding_studie',
+			'field_lvs_melding_onderwerp' => 'field_lvs_melding_onderwerp',
+			'realname' => 'realname' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'title' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname_1' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_datum_feit_1' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'desc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_studie' => array (
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_lvs_melding_onderwerp' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['header'] = FALSE;
+	$handler->display->display_options ['defaults'] ['footer'] = FALSE;
+	$handler->display->display_options ['defaults'] ['empty'] = FALSE;
+	$handler->display->display_options ['defaults'] ['relationships'] = FALSE;
+	/* Relatie: Inhoud: Auteur */
+	$handler->display->display_options ['relationships'] ['uid'] ['id'] = 'uid';
+	$handler->display->display_options ['relationships'] ['uid'] ['table'] = 'node';
+	$handler->display->display_options ['relationships'] ['uid'] ['field'] = 'uid';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['id'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['table'] = 'field_data_field_lvs_melding_leerling';
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['field'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['label'] = 'leerling (ref)';
+	/* Relatie: Referentie naar een entiteit: Refererende entiteit */
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['id'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['table'] = 'users';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['field'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['label'] = 'klas (ref)';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['relationship'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['fields'] ['title'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['title'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['title'] ['element_label_colon'] = FALSE;
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['fields'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['fields'] ['realname_1'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['realname_1'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['realname_1'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Datum van het feit */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['id'] = 'field_lvs_melding_datum_feit_1';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['table'] = 'field_data_field_lvs_melding_datum_feit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['field'] = 'field_lvs_melding_datum_feit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['label'] = 'Datum';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['settings'] = array (
+			'format_type' => 'datum_kort_',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_repeat_rule' => 'show' 
+	);
+	/* Veld: Inhoud: Studiebegeleiding */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['id'] = 'field_lvs_melding_studie';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['table'] = 'field_data_field_lvs_melding_studie';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['field'] = 'field_lvs_melding_studie';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['alter'] ['path'] = '[nid]';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['settings'] = array (
+			'link' => 1 
+	);
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['group_column'] = 'entity_id';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['delta_offset'] = '0';
+	/* Veld: Inhoud: Onderwerp */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['id'] = 'field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['table'] = 'field_data_field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['field'] = 'field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['alter'] ['absolute'] = TRUE;
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['relationship'] = 'uid';
+	$handler->display->display_options ['fields'] ['realname'] ['label'] = 'Gemeld door';
+	$handler->display->display_options ['defaults'] ['sorts'] = FALSE;
+	/* Sorteercriterium: Inhoud: Titel */
+	$handler->display->display_options ['sorts'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['sorts'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['sorts'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['sorts'] ['title'] ['relationship'] = 'reverse_field_klas_leerlingen_node';
+	/* Sorteercriterium: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['sorts'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['sorts'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['sorts'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['sorts'] ['realname'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	/* Sorteercriterium: Inhoud: Datum van het feit (field_lvs_melding_datum_feit) */
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['id'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['table'] = 'field_data_field_lvs_melding_datum_feit';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['field'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['order'] = 'DESC';
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status_1'] ['id'] = 'status_1';
+	$handler->display->display_options ['filters'] ['status_1'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status_1'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_1'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_1'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'lvs_melding' => 'lvs_melding' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Studiebegeleiding (field_lvs_melding_studie) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['id'] = 'field_lvs_melding_studie_target_id_1';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['table'] = 'field_data_field_lvs_melding_studie';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['field'] = 'field_lvs_melding_studie_target_id';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['operator'] = 'not empty';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['group'] = 1;
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['relationship'] = 'uid';
+	$handler->display->display_options ['filters'] ['realname'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['realname'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator_id'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Gemeld door';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname_1'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['filters'] ['realname_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['realname_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['operator_id'] = 'realname_1_op';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['label'] = 'Leerling';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['operator'] = 'realname_1_op';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['identifier'] = 'realname_1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['relationship'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Klas';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Onderwerp (field_lvs_melding_onderwerp) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['id'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['table'] = 'field_data_field_lvs_melding_onderwerp';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['field'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['operator_id'] = 'field_lvs_melding_onderwerp_value_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['label'] = 'Onderwerp';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['operator'] = 'field_lvs_melding_onderwerp_value_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['identifier'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Studiebegeleiding (field_lvs_melding_studie) (reference filter) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['id'] = 'field_lvs_melding_studie_target_id_entityreference_filter';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['table'] = 'field_data_field_lvs_melding_studie';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['field'] = 'field_lvs_melding_studie_target_id_entityreference_filter';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['operator_id'] = 'field_lvs_melding_studie_target_id_entityreference_filter_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['label'] = 'Studiebegeleiding';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['operator'] = 'field_lvs_melding_studie_target_id_entityreference_filter_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['identifier'] = 'field_lvs_melding_studie_target_id_entityreference_filter';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['multiple'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['reference_display'] = 'maatregelen:selectielijst_maatregelen';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['reference_arguments'] = 'Studiebegeleiding';
+	$handler->display->display_options ['path'] = 'meldingen/lvs/remedieringen';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Remediëringen';
+	$handler->display->display_options ['menu'] ['description'] = 'Remediëringen per leerling';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Remediëringen (export) */
+	$handler = $view->new_display ( 'page', 'Remediëringen (export)', 'meldingen_study_export' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Remediëringen';
+	$handler->display->display_options ['defaults'] ['pager'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'list';
+	$handler->display->display_options ['style_options'] ['grouping'] = array (
+			0 => array (
+					'field' => 'title',
+					'rendered' => 1,
+					'rendered_strip' => 0 
+			),
+			1 => array (
+					'field' => 'realname_1',
+					'rendered' => 1,
+					'rendered_strip' => 0 
+			) 
+	);
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['row_plugin'] = 'fields';
+	$handler->display->display_options ['row_options'] ['inline'] = array (
+			'field_lvs_melding_datum_feit_1' => 'field_lvs_melding_datum_feit_1',
+			'field_lvs_melding_studie' => 'field_lvs_melding_studie',
+			'field_lvs_melding_onderwerp' => 'field_lvs_melding_onderwerp',
+			'realname' => 'realname' 
+	);
+	$handler->display->display_options ['row_options'] ['separator'] = '-';
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['header'] = FALSE;
+	$handler->display->display_options ['defaults'] ['footer'] = FALSE;
+	$handler->display->display_options ['defaults'] ['empty'] = FALSE;
+	$handler->display->display_options ['defaults'] ['relationships'] = FALSE;
+	/* Relatie: Inhoud: Auteur */
+	$handler->display->display_options ['relationships'] ['uid'] ['id'] = 'uid';
+	$handler->display->display_options ['relationships'] ['uid'] ['table'] = 'node';
+	$handler->display->display_options ['relationships'] ['uid'] ['field'] = 'uid';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['id'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['table'] = 'field_data_field_lvs_melding_leerling';
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['field'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['field_lvs_melding_leerling_target_id'] ['label'] = 'leerling (ref)';
+	/* Relatie: Referentie naar een entiteit: Refererende entiteit */
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['id'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['table'] = 'users';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['field'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['relationships'] ['reverse_field_klas_leerlingen_node'] ['label'] = 'klas (ref)';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['relationship'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['fields'] ['title'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['title'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['title'] ['element_label_colon'] = FALSE;
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['fields'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['fields'] ['realname_1'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['realname_1'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['realname_1'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Inhoud: Datum van het feit */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['id'] = 'field_lvs_melding_datum_feit_1';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['table'] = 'field_data_field_lvs_melding_datum_feit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['field'] = 'field_lvs_melding_datum_feit';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_datum_feit_1'] ['settings'] = array (
+			'format_type' => 'datum_kort_',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_repeat_rule' => 'show' 
+	);
+	/* Veld: Inhoud: Studiebegeleiding */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['id'] = 'field_lvs_melding_studie';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['table'] = 'field_data_field_lvs_melding_studie';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['field'] = 'field_lvs_melding_studie';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['alter'] ['path'] = '[nid]';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['element_type'] = 'strong';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['settings'] = array (
+			'link' => 0 
+	);
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['group_column'] = 'entity_id';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_studie'] ['delta_offset'] = '0';
+	/* Veld: Inhoud: Onderwerp */
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['id'] = 'field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['table'] = 'field_data_field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['field'] = 'field_lvs_melding_onderwerp';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_lvs_melding_onderwerp'] ['element_label_colon'] = FALSE;
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['relationship'] = 'uid';
+	$handler->display->display_options ['fields'] ['realname'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['realname'] ['element_type'] = 'em';
+	$handler->display->display_options ['fields'] ['realname'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['realname'] ['link_to_user'] = FALSE;
+	$handler->display->display_options ['defaults'] ['sorts'] = FALSE;
+	/* Sorteercriterium: Inhoud: Titel */
+	$handler->display->display_options ['sorts'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['sorts'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['sorts'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['sorts'] ['title'] ['relationship'] = 'reverse_field_klas_leerlingen_node';
+	/* Sorteercriterium: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['sorts'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['sorts'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['sorts'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['sorts'] ['realname'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	/* Sorteercriterium: Inhoud: Datum van het feit (field_lvs_melding_datum_feit) */
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['id'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['table'] = 'field_data_field_lvs_melding_datum_feit';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['field'] = 'field_lvs_melding_datum_feit_value';
+	$handler->display->display_options ['sorts'] ['field_lvs_melding_datum_feit_value'] ['order'] = 'DESC';
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status_1'] ['id'] = 'status_1';
+	$handler->display->display_options ['filters'] ['status_1'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status_1'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_1'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_1'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'lvs_melding' => 'lvs_melding' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Studiebegeleiding (field_lvs_melding_studie) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['id'] = 'field_lvs_melding_studie_target_id_1';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['table'] = 'field_data_field_lvs_melding_studie';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['field'] = 'field_lvs_melding_studie_target_id';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['operator'] = 'not empty';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_1'] ['group'] = 1;
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['relationship'] = 'uid';
+	$handler->display->display_options ['filters'] ['realname'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['realname'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator_id'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Gemeld door';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname_1'] ['relationship'] = 'field_lvs_melding_leerling_target_id';
+	$handler->display->display_options ['filters'] ['realname_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['realname_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['operator_id'] = 'realname_1_op';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['label'] = 'Leerling';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['operator'] = 'realname_1_op';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['identifier'] = 'realname_1';
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['relationship'] = 'reverse_field_klas_leerlingen_node';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Klas';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Onderwerp (field_lvs_melding_onderwerp) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['id'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['table'] = 'field_data_field_lvs_melding_onderwerp';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['field'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['operator_id'] = 'field_lvs_melding_onderwerp_value_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['label'] = 'Onderwerp';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['operator'] = 'field_lvs_melding_onderwerp_value_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['identifier'] = 'field_lvs_melding_onderwerp_value';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_onderwerp_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Studiebegeleiding (field_lvs_melding_studie) (reference filter) */
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['id'] = 'field_lvs_melding_studie_target_id_entityreference_filter';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['table'] = 'field_data_field_lvs_melding_studie';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['field'] = 'field_lvs_melding_studie_target_id_entityreference_filter';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['operator_id'] = 'field_lvs_melding_studie_target_id_entityreference_filter_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['label'] = 'Studiebegeleiding';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['operator'] = 'field_lvs_melding_studie_target_id_entityreference_filter_op';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['identifier'] = 'field_lvs_melding_studie_target_id_entityreference_filter';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['multiple'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['reference_display'] = 'maatregelen:selectielijst_maatregelen';
+	$handler->display->display_options ['filters'] ['field_lvs_melding_studie_target_id_entityreference_filter'] ['reference_arguments'] = 'Studiebegeleiding';
+	$handler->display->display_options ['path'] = 'meldingen/lvs/remedieringen/export';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Export - rapport';
+	$handler->display->display_options ['menu'] ['description'] = 'Remediëringen per leerling (bestemd voor het rapport)';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	$translatables ['lvs_meldingen'] = array (
+			t ( 'Master' ),
+			t ( 'Meldingen' ),
+			t ( 'meer' ),
+			t ( 'Toepassen' ),
+			t ( 'Opnieuw instellen' ),
+			t ( 'Sorteren op' ),
+			t ( 'Oplopend' ),
+			t ( 'Aflopend' ),
+			t ( 'Uitgebreide opties' ),
+			t ( 'Items per pagina' ),
+			t ( '- Alle -' ),
+			t ( 'Startpunt' ),
+			t ( '« eerste' ),
+			t ( '‹ vorige' ),
+			t ( 'volgende ›' ),
+			t ( 'laatste »' ),
+			t ( 'Nieuwe melding' ),
+			t ( '<a href="/node/add/lvs-melding">Een nieuwe melding toevoegen</a>' ),
+			t ( 'Melding toevoegen' ),
+			t ( 'auteur' ),
+			t ( 'Gebruiker entiteit gerefereerd vanaf field_lvs_melding_leerling' ),
+			t ( 'Inhoud referencing Gebruiker from field_klas_leerlingen' ),
+			t ( 'x' ),
+			t ( 'Leerling' ),
+			t ( 'Klas' ),
+			t ( 'Gemeld door' ),
+			t ( 'Onderwerp' ),
+			t ( 'Betreft' ),
+			t ( 'Status' ),
+			t ( 'Datum' ),
+			t ( 'LVS - Meldingen (inclusief privé-berichten)' ),
+			t ( 'Remediëringen' ),
+			t ( 'leerling (ref)' ),
+			t ( 'klas (ref)' ),
+			t ( 'Studiebegeleiding' ),
+			t ( 'Remediëringen (export)' ) 
+	);
+	
+	$views [$view->name] = $view;
+	return $views;
+}
+
+/**
+ * Implements hook_node_info()
  */
 function argus_meldingen_node_info() {
-  $items = array(
-    'lvs_melding' => array(
-      'name' => t('LVS - Melding'),
-      'base' => 'node_content',
-      'description' => t('Elk personeelslid kan een <em>melding</em> doen over verschillende interacties met leerlingen, ouders of anderen. Deze kunnen handelen over studiebegeleiding, gedrag, afwezigheden of andere zaken.'),
-      'has_title' => '1',
-      'title_label' => t('Titel'),
-      'help' => '',
-    ),
-  );
-  drupal_alter('node_info', $items);
-  return $items;
+	// Replace demo with your content type definitions
+	$items = array (
+			'lvs_melding' => array (
+					'name' => t ( 'LVS - Melding' ),
+					'base' => 'node_content',
+					'description' => t ( 'Elk personeelslid kan een <em>melding</em> doen over verschillende interacties met leerlingen, ouders of anderen. Deze kunnen handelen over studiebegeleiding, gedrag, afwezigheden of andere zaken.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Titel' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
 }
 
 /**
-* Implements hook_block_info().
-*/
-function argus_meldingen_block_info() {
-    $blocks = array();
-    $blocks['meldingen'] = array(
-        'info' => t('Meldingen'),
-        'title' => t('Meldingen'),
-    );
+ * Implement hook_form()
+ */
+function argus_meldingen_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
 
-    return $blocks;
+/**
+ * Implements hook_block_info().
+ */
+function argus_meldingen_block_info() {
+	$blocks = array ();
+	$blocks ['meldingen'] = array (
+			'info' => t ( 'Meldingen' ),
+			'title' => t ( 'Meldingen' ) 
+	);
+	
+	return $blocks;
 }
 
 /**
  * Implements hook_block_view().
  */
 function argus_meldingen_block_view($delta = '') {
-    $block = array();
-    $variables = array();
-    $today = new DateTime('NOW');
-
-    /* Filter data only for this schoolyear (active schoolyear) */
-    $schoolyear = (array) argus_schoolyear(0);
-    
-    global $user;
-    $query = 'SELECT DISTINCT n.nid AS nid, '
-        . 'l.entity_id AS id, '
-        . 'l.field_lvs_melding_leerling_target_id AS uid, '
-        . 'k.field_klas_leerlingen_target_id AS cid, '
-        . 'o.field_lvs_melding_onderwerp_value AS title, '
-        . 'n.uid AS author, '
-        . 'd.field_lvs_melding_datum_feit_value AS factdate, '
-        . 'p.field_lvs_melding_prive_value AS private, '
-        . 'b.field_lvs_melding_betreft_value AS about, '
-        . 'v.field_lvs_melding_verslag_value AS report '
-        . 'FROM {field_data_field_lvs_melding_leerling} AS l '
-        . 'LEFT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = l.field_lvs_melding_leerling_target_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  '
-        . 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id '
-        . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid '
-        . 'WHERE d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
-    $params = array(':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']);
-    
-    // Setup query for pupil
-    if (argus_get_user_has_role($user->uid,'pupil')){
-        $query .= 'AND l.field_lvs_melding_leerling_target_id = :uid ';
-        $params[':uid'] = $user->uid;
-        
-        // TODO: check policy -> only private messages for ILB & Staff !
-        $query .= 'AND p.field_lvs_melding_prive_value != :private ';
-        $params[':private'] = 1;
-        
-        $variables['reportType'] = 'pupil';
-    }
-    
-    // Setup query for ktt/hktt
-    if (argus_get_user_has_role($user->uid,'ktt')){
-        $q2 = 'SELECT n.nid AS id, '
-            . 'n.title AS title '
-            . 'FROM {node} AS n '
-            . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id '
-            . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id '
-            . 'WHERE ktt.field_klas_klastitularis_target_id = :uid '
-            . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
-        $variables['myClasses'] = db_query($q2, array(':uid' => $user->uid))->fetchAllKeyed();
-        
-        if (count($variables['myClasses'])){
-            $query .= 'AND k.entity_id IN (:cids) ';
-            $params[':cids'] = array_keys($variables['myClasses']);
-
-            // TODO: check policy -> only private messages for ILB & Staff !
-            $query .= 'AND p.field_lvs_melding_prive_value != :private ';
-            $params[':private'] = 1;
-
-            $variables['reportType'] = 'ktt';
-        }
-    }
-    
-    // Setup query for ilb
-    if (argus_get_user_has_role($user->uid,'ilb')){
-        $variables['reportType'] = 'ilb';
-    }
-    
-    // Setup query for staff
-    if (argus_get_user_has_role($user->uid,'staff')){
-        $variables['reportType'] = 'staff';
-    }
-    
-    $query .= 'ORDER BY d.field_lvs_melding_datum_feit_value DESC ';
-    
-    $allowedReports = array('negatief gedrag', 'positief gedrag', 'studiebegeleiding', 'afwezigheden', 'andere (enkel financieel, medisch, familiaal)');
-    
-    if (isset($variables['reportType'])){
-        $variables['reports'] = db_query($query, $params)->fetchAll();
-        
-        $variables['graph'] = array([
-            t('Maand'),
-            '+', array('role' => 'certainty'),
-            '-', array('role' => 'certainty'),
-            'S', array('role' => 'certainty'),
-            'A', array('role' => 'certainty'),
-            '.', array('role' => 'certainty')]);
-        foreach ($variables['reports'] as $report){
-            if ($report->about){
-            	if (in_array($report->about, $allowedReports)){
-	                if (isset($variables['graph'][$report->about][date('n',strtotime($report->factdate))])){
-	                    $variables['graph'][$report->about][date('n',strtotime($report->factdate))]++;
-	                } else {
-	                    $variables['graph'][$report->about][date('n',strtotime($report->factdate))] = 1;
-	                }
-            	}
-            }
-        }
-        $maxReports = 0;
-        for ($m = 1; $m < 11; $m++){
-            if ($m<5){
-                $month = $m+8;
-            } else {
-                $month = $m-4;
-            }
-            
-            if (isset($variables['graph']['negatief gedrag'][$month])){
-                $neg = $variables['graph']['negatief gedrag'][$month];
-            } else {
-                $neg = 0;
-            }
-            if (isset($variables['graph']['positief gedrag'][$month])){
-                $pos = $variables['graph']['positief gedrag'][$month];
-            } else {
-                $pos = 0;
-            }
-            if (isset($variables['graph']['studiebegeleiding'][$month])){
-                $study = $variables['graph']['studiebegeleiding'][$month];
-            } else {
-                $study = 0;
-            }
-            if (isset($variables['graph']['afwezigheden'][$month])){
-                $absence = $variables['graph']['afwezigheden'][$month];
-            } else {
-                $absence = 0;
-            }
-            if (isset($variables['graph']['andere (enkel financieel, medisch, familiaal)'][$month])){
-                $other = $variables['graph']['andere (enkel financieel, medisch, familiaal)'][$month];
-            } else {
-                $other = 0;
-            }
-
-            if ($neg > $maxReports) $maxReports = $neg;
-            if ($pos > $maxReports) $maxReports = $pos;
-            if ($study > $maxReports) $maxReports = $study;
-            if ($absence > $maxReports) $maxReports = $absence;
-            if ($other > $maxReports) $maxReports = $other;
-
-            $month = t(date('M', strtotime('2000-'.$month.'-01')));
-
-            $variables['graph'][] = [
-                $month,
-                $pos, ($month != t(date('M'))),
-                $neg, ($month != t(date('M'))),
-                $study, ($month != t(date('M'))),
-                $absence, ($month != t(date('M'))),
-                $other, ($month != t(date('M')))];
-        }
-        unset($variables['graph']['negatief gedrag']);
-        unset($variables['graph']['positief gedrag']);
-        unset($variables['graph']['studiebegeleiding']);
-        unset($variables['graph']['afwezigheden']);
-        unset($variables['graph']['andere (enkel financieel, medisch, familiaal)']);
-        
-        $variables['graphMaxReports'] = $maxReports;
-    }
-    
-    switch ($delta) {
-        default:
-            $block['subject'] = 'Meldingen';
-            $block['content'] = theme('argus_meldingen_block_LST', $variables);
-            break;
-    }
-    
-    drupal_add_js("https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}");
-    
-    return $block;
+	$block = array ();
+	$variables = array ();
+	$today = new DateTime ( 'NOW' );
+	
+	/* Filter data only for this schoolyear (active schoolyear) */
+	$schoolyear = ( array ) argus_schoolyear ( 0 );
+	
+	global $user;
+	$query = 'SELECT DISTINCT n.nid AS nid, ' . 'l.entity_id AS id, ' . 'l.field_lvs_melding_leerling_target_id AS uid, ' . 'k.field_klas_leerlingen_target_id AS cid, ' . 'o.field_lvs_melding_onderwerp_value AS title, ' . 'n.uid AS author, ' . 'd.field_lvs_melding_datum_feit_value AS factdate, ' . 'p.field_lvs_melding_prive_value AS private, ' . 'b.field_lvs_melding_betreft_value AS about, ' . 'v.field_lvs_melding_verslag_value AS report ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = l.field_lvs_melding_leerling_target_id ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ' . 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ' . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ' . 'WHERE d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+	$params = array (
+			':startdate' => $schoolyear ['start'],
+			':enddate' => $schoolyear ['end'] 
+	);
+	
+	// Setup query for pupil
+	if (argus_get_user_has_role ( $user->uid, 'pupil' )) {
+		$query .= 'AND l.field_lvs_melding_leerling_target_id = :uid ';
+		$params [':uid'] = $user->uid;
+		
+		// TODO: check policy -> only private messages for ILB & Staff !
+		$query .= 'AND p.field_lvs_melding_prive_value != :private ';
+		$params [':private'] = 1;
+		
+		$variables ['reportType'] = 'pupil';
+	}
+	
+	// Setup query for ktt/hktt
+	if (argus_get_user_has_role ( $user->uid, 'ktt' )) {
+		$q2 = 'SELECT n.nid AS id, ' . 'n.title AS title ' . 'FROM {node} AS n ' . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id ' . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id ' . 'WHERE ktt.field_klas_klastitularis_target_id = :uid ' . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
+		$variables ['myClasses'] = db_query ( $q2, array (
+				':uid' => $user->uid 
+		) )->fetchAllKeyed ();
+		
+		if (count ( $variables ['myClasses'] )) {
+			$query .= 'AND k.entity_id IN (:cids) ';
+			$params [':cids'] = array_keys ( $variables ['myClasses'] );
+			
+			// TODO: check policy -> only private messages for ILB & Staff !
+			$query .= 'AND p.field_lvs_melding_prive_value != :private ';
+			$params [':private'] = 1;
+			
+			$variables ['reportType'] = 'ktt';
+		}
+	}
+	
+	// Setup query for ilb
+	if (argus_get_user_has_role ( $user->uid, 'ilb' )) {
+		$variables ['reportType'] = 'ilb';
+	}
+	
+	// Setup query for staff
+	if (argus_get_user_has_role ( $user->uid, 'staff' )) {
+		$variables ['reportType'] = 'staff';
+	}
+	
+	$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value DESC ';
+	
+	$allowedReports = array (
+			'negatief gedrag',
+			'positief gedrag',
+			'studiebegeleiding',
+			'afwezigheden',
+			'andere (enkel financieel, medisch, familiaal)' 
+	);
+	
+	if (isset ( $variables ['reportType'] )) {
+		$variables ['reports'] = db_query ( $query, $params )->fetchAll ();
+		
+		$variables ['graph'] = array (
+				[ 
+						t ( 'Maand' ),
+						'+',
+						array (
+								'role' => 'certainty' 
+						),
+						'-',
+						array (
+								'role' => 'certainty' 
+						),
+						'S',
+						array (
+								'role' => 'certainty' 
+						),
+						'A',
+						array (
+								'role' => 'certainty' 
+						),
+						'.',
+						array (
+								'role' => 'certainty' 
+						) 
+				] 
+		);
+		foreach ( $variables ['reports'] as $report ) {
+			if ($report->about) {
+				if (in_array ( $report->about, $allowedReports )) {
+					if (isset ( $variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] )) {
+						$variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] ++;
+					} else {
+						$variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] = 1;
+					}
+				}
+			}
+		}
+		$maxReports = 0;
+		for($m = 1; $m < 11; $m ++) {
+			if ($m < 5) {
+				$month = $m + 8;
+			} else {
+				$month = $m - 4;
+			}
+			
+			if (isset ( $variables ['graph'] ['negatief gedrag'] [$month] )) {
+				$neg = $variables ['graph'] ['negatief gedrag'] [$month];
+			} else {
+				$neg = 0;
+			}
+			if (isset ( $variables ['graph'] ['positief gedrag'] [$month] )) {
+				$pos = $variables ['graph'] ['positief gedrag'] [$month];
+			} else {
+				$pos = 0;
+			}
+			if (isset ( $variables ['graph'] ['studiebegeleiding'] [$month] )) {
+				$study = $variables ['graph'] ['studiebegeleiding'] [$month];
+			} else {
+				$study = 0;
+			}
+			if (isset ( $variables ['graph'] ['afwezigheden'] [$month] )) {
+				$absence = $variables ['graph'] ['afwezigheden'] [$month];
+			} else {
+				$absence = 0;
+			}
+			if (isset ( $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] [$month] )) {
+				$other = $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] [$month];
+			} else {
+				$other = 0;
+			}
+			
+			if ($neg > $maxReports)
+				$maxReports = $neg;
+			if ($pos > $maxReports)
+				$maxReports = $pos;
+			if ($study > $maxReports)
+				$maxReports = $study;
+			if ($absence > $maxReports)
+				$maxReports = $absence;
+			if ($other > $maxReports)
+				$maxReports = $other;
+			
+			$month = t ( date ( 'M', strtotime ( '2000-' . $month . '-01' ) ) );
+			
+			$variables ['graph'] [] = [ 
+					$month,
+					$pos,
+					($month != t ( date ( 'M' ) )),
+					$neg,
+					($month != t ( date ( 'M' ) )),
+					$study,
+					($month != t ( date ( 'M' ) )),
+					$absence,
+					($month != t ( date ( 'M' ) )),
+					$other,
+					($month != t ( date ( 'M' ) )) 
+			];
+		}
+		unset ( $variables ['graph'] ['negatief gedrag'] );
+		unset ( $variables ['graph'] ['positief gedrag'] );
+		unset ( $variables ['graph'] ['studiebegeleiding'] );
+		unset ( $variables ['graph'] ['afwezigheden'] );
+		unset ( $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] );
+		
+		$variables ['graphMaxReports'] = $maxReports;
+	}
+	
+	switch ($delta) {
+		default :
+			$block ['subject'] = 'Meldingen';
+			$block ['content'] = theme ( 'argus_meldingen_block_LST', $variables );
+			break;
+	}
+	
+	drupal_add_js ( "https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}" );
+	
+	return $block;
 }
 
-/** 
+/**
  * Implement hook_theme()
  */
 function argus_meldingen_theme() {
-    return array(
-        'argus_meldingen_block_LST' => array(
-            'variables' => array(
-                'content' => NULL,
-                'popular_content' => NULL,
-            ),
-            'template' => 'templates/argus_meldingen--LST_block',
-        ),
-    );
+	return array (
+			'argus_meldingen_block_LST' => array (
+					'variables' => array (
+							'content' => NULL,
+							'popular_content' => NULL 
+					),
+					'template' => 'templates/argus_meldingen--LST_block' 
+			) 
+	);
 }
-
 
 /**
  * Custom module functionality
@@ -253,40 +1390,36 @@ function argus_meldingen_theme() {
 
 /**
  * Retrieve an array with options for select - deducted by only this user
- * 
- * @param uid integer
- *   Get reports for specified user
  *
- * @param type array
- *   Specify type of returned reports:
- *   - positief gedrag
- *   - negatief gedrag
- *   - studiebegeleiding
- *   - afwezigheden
- *   - andere
- *   
+ * @param
+ *        	uid integer
+ *        	Get reports for specified user
+ *        	
+ * @param
+ *        	type array
+ *        	Specify type of returned reports:
+ *        	- positief gedrag
+ *        	- negatief gedrag
+ *        	- studiebegeleiding
+ *        	- afwezigheden
+ *        	- andere
+ *        	
  * @return array
  */
-function argus_meldingen_get_user_select_options($uid, $type = array()){
-    $query = 'SELECT n.nid AS id, o.field_lvs_melding_onderwerp_value AS title, d.field_lvs_melding_datum_feit_value AS factdate, un.field_user_sms_naam_value AS name, uv.field_user_sms_voornaam_value AS firstname '
-        . 'FROM {node} AS n '
-        . 'LEFT JOIN {field_data_field_lvs_melding_leerling} AS l ON n.nid = l.entity_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON n.nid = b.entity_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON n.nid = o.entity_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON n.nid = d.entity_id '
-        . 'LEFT JOIN {field_data_field_user_sms_naam} AS un ON n.uid = un.entity_id '
-        . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS uv ON n.uid = uv.entity_id '
-        . 'WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value IN (:type)'
-        . 'ORDER BY field_lvs_melding_datum_feit_value DESC';
-    $reports = db_query($query, array(':uid' => $uid, ':type' => $type))->fetchAll();
-    
-    $options = array();
-    $options[''] = t('- Selecteren -');
-    if (count($reports)){
-        foreach($reports as $r){
-            $option = date('d/m/Y', strtotime($r->factdate)).': '.$r->title.' ('.$r->name.', '.$r->firstname.')';
-            $options[$r->id] = $option;
-        }
-    }
-    return $options;
+function argus_meldingen_get_user_select_options($uid, $type = array()) {
+	$query = 'SELECT n.nid AS id, o.field_lvs_melding_onderwerp_value AS title, d.field_lvs_melding_datum_feit_value AS factdate, un.field_user_sms_naam_value AS name, uv.field_user_sms_voornaam_value AS firstname ' . 'FROM {node} AS n ' . 'LEFT JOIN {field_data_field_lvs_melding_leerling} AS l ON n.nid = l.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON n.nid = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON n.nid = o.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON n.nid = d.entity_id ' . 'LEFT JOIN {field_data_field_user_sms_naam} AS un ON n.uid = un.entity_id ' . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS uv ON n.uid = uv.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value IN (:type)' . 'ORDER BY field_lvs_melding_datum_feit_value DESC';
+	$reports = db_query ( $query, array (
+			':uid' => $uid,
+			':type' => $type 
+	) )->fetchAll ();
+	
+	$options = array ();
+	$options [''] = t ( '- Selecteren -' );
+	if (count ( $reports )) {
+		foreach ( $reports as $r ) {
+			$option = date ( 'd/m/Y', strtotime ( $r->factdate ) ) . ': ' . $r->title . ' (' . $r->name . ', ' . $r->firstname . ')';
+			$options [$r->id] = $option;
+		}
+	}
+	return $options;
 }

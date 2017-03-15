@@ -1,5 +1,8 @@
 **Releases:
 
+v7.x-4.3
+---------
+- Features disabled, full custom module
 
 v7.x-4.2
 ---------

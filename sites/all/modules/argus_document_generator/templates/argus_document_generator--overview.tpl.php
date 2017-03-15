@@ -20,7 +20,9 @@
 
 <h2><?php print t('Overzicht'); ?></h2>
 
-<div><em>Opmerking: de afkorting van drie letters verwijst naar het <a href="<?php print base_path(); ?>ikz">Intern Kwaliteitszorgsysteem</a></em></div>
+<?php if (module_exists('argus_ikz')){ ?>
+	<div><em>Opmerking: de afkorting van drie letters verwijst naar het <a href="<?php print base_path(); ?>ikz">Intern Kwaliteitszorgsysteem</a></em></div>
+<?php } ?>
 
 <p>Volgende documenten zijn beschikbaar:</p>
 

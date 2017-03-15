@@ -949,14 +949,6 @@ div#content .region-highlighted div.sms.block{
     color: inherit;
 }
 
-.view-legend{
-	width: 10px;
-    height: 10px;
-    border: 1px solid gray;
-    display: -webkit-inline-box;
-    display: inline-block;
-}
-
 .blockFloat-processed{
 	z-index: 100; /* Stay just under admin-menu topbar and overlay admin */
 }

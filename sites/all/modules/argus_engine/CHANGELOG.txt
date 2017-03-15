@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.5
+---------
+- Preparation for module install
+
 v7.x-1.4
 ---------
 - Update setup pagina: mogelijkheid om periodes te definiëren

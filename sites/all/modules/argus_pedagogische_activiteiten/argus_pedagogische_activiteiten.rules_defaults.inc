@@ -8,8 +8,9 @@
  * Implements hook_default_rules_configuration().
  */
 function argus_pedagogische_activiteiten_default_rules_configuration() {
-  $items = array();
-  $items['rules_pedagogische_act_melding_van_nieuwe_aanvraag_ped_act_'] = entity_import('rules_config', '{ "rules_pedagogische_act_melding_van_nieuwe_aanvraag_ped_act_" : {
+	$items = array ();
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_pedagogische_act_melding_van_nieuwe_aanvraag_ped_act_'] = entity_import ( 'rules_config', '{ "rules_pedagogische_act_melding_van_nieuwe_aanvraag_ped_act_" : {
       "LABEL" : "Pedagogische activiteit - melding nieuwe aanvraag",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -28,8 +29,10 @@ function argus_pedagogische_activiteiten_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_pedagogische_activiteit_automatische_goedkeuring'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_automatische_goedkeuring" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_pedagogische_activiteit_automatische_goedkeuring'] = entity_import ( 'rules_config', '{ "rules_pedagogische_activiteit_automatische_goedkeuring" : {
       "LABEL" : "Pedagogische activiteit - automatische goedkeuring",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -54,8 +57,10 @@ function argus_pedagogische_activiteiten_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_pedagogische_activiteit_en_nascholing_reactie_a'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_en_nascholing_reactie_a" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_pedagogische_activiteit_en_nascholing_reactie_a'] = entity_import ( 'rules_config', '{ "rules_pedagogische_activiteit_en_nascholing_reactie_a" : {
       "LABEL" : "Pedagogische activiteit en nascholing - reactie a",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -80,8 +85,10 @@ function argus_pedagogische_activiteiten_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_pedagogische_activiteit_en_nascholing_reactie_b'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_en_nascholing_reactie_b" : {
+  }' );
+	}
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_pedagogische_activiteit_en_nascholing_reactie_b'] = entity_import ( 'rules_config', '{ "rules_pedagogische_activiteit_en_nascholing_reactie_b" : {
       "LABEL" : "Pedagogische activiteit en nascholing - reactie b",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -106,8 +113,9 @@ function argus_pedagogische_activiteiten_default_rules_configuration() {
         }
       ]
     }
-  }');
-  $items['rules_pedagogische_activiteit_melding_van_wijziging_ped_act_'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_melding_van_wijziging_ped_act_" : {
+  }' );
+	}
+	$items ['rules_pedagogische_activiteit_melding_van_wijziging_ped_act_'] = entity_import ( 'rules_config', '{ "rules_pedagogische_activiteit_melding_van_wijziging_ped_act_" : {
       "LABEL" : "Pedagogische activiteit - melding van wijziging ped. act.",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -119,8 +127,9 @@ function argus_pedagogische_activiteiten_default_rules_configuration() {
       ],
       "DO" : []
     }
-  }');
-  $items['rules_pedagogische_activiteit_verandering_van_status'] = entity_import('rules_config', '{ "rules_pedagogische_activiteit_verandering_van_status" : {
+  }' );
+	if (module_exists ( 'argus_sms_api' )) {
+		$items ['rules_pedagogische_activiteit_verandering_van_status'] = entity_import ( 'rules_config', '{ "rules_pedagogische_activiteit_verandering_van_status" : {
       "LABEL" : "Pedagogische activiteit - verandering van status",
       "PLUGIN" : "reaction rule",
       "OWNER" : "rules",
@@ -154,6 +163,7 @@ function argus_pedagogische_activiteiten_default_rules_configuration() {
         }
       ]
     }
-  }');
-  return $items;
+  }' );
+	}
+	return $items;
 }

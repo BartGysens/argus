@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-4.13
+---------
+- Preparations for install
+- Made all forms bullet proof
+
 v7.x-4.12
 ---------
 - Nieuw automatisch document Contract Ontlening - huurovereenkomst

@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Code for the HRM feature.
- */
-include_once 'argus_hrm.features.inc';
-
 /*
  * Copyright (C) 2016 bartgysens
  *
@@ -28,6 +22,12 @@ include_once 'argus_hrm.features.inc';
  * Implements argus_hrm_menu().
  */
 function argus_hrm_menu() {
+	if (menu_load('menu-modules')){
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
 	$items = array ();
 	$items ['admin/config/argus/hrm'] = array (
 			'title' => 'HRM: workload',
@@ -50,7 +50,7 @@ function argus_hrm_menu() {
 					'access argus_hrm content' 
 			),
 			'type' => MENU_NORMAL_ITEM,
-			'menu_name' => 'menu-modules' 
+			'menu_name' => $menu 
 	);
 	return $items;
 }
@@ -75,6 +75,1569 @@ function argus_hrm_permission() {
 					'title' => t ( 'Belasting van personeelsleden bekijken' ) 
 			) 
 	);
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function argus_hrm_ctools_plugin_api($module = NULL, $api = NULL) {
+	// paste all plugins which are used for your Features based module version
+	if ($module == "field_group" && $api == "field_group") {
+		return array (
+				"version" => "1" 
+		);
+	}
+}
+
+/**
+ * Implements hook_node_info()
+ */
+function argus_hrm_node_info() {
+	$items = array (
+			'hrm_evaluatiegesprek' => array (
+					'name' => t ( 'HRM - Evaluatiegesprek' ),
+					'base' => 'node_content',
+					'description' => t ( 'Stel een gedetailleerde beoordeling op van je personeelslid aan de hand van het <em>evaluatiegesprek</em>.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			),
+			'hrm_flitsbezoek' => array (
+					'name' => t ( 'HRM - Flitsbezoek' ),
+					'base' => 'node_content',
+					'description' => t ( 'Tijdens een flitsbezoek richt u zich op de onderwijspraktijk van de leraar: welke keuzes en beslissingen maakt de leraar met betrekking tot de activiteiten en interventies in relatie tot het leerdoel? Met de daaraan gekoppelde reflectieve dialoog ontwikkelt u bij de leraar een reflectieve houding. U stimuleert de leraar om bewust na te denken over zijn onderwijspraktijk en over zijn eigen gedrag. Hierdoor ontstaat een continue cyclus van zelfanalyse en verbetering. Flitsbezoek levert een positieve bijdrage aan uw onderwijskundig leiderschap en aan het handelen van de leraren.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			),
+			'hrm_functioneringsgesprek' => array (
+					'name' => t ( 'HRM - Functioneringsgesprek' ),
+					'base' => 'node_content',
+					'description' => t ( 'Om je personeelslid goed te kunnen begeleiden, worden afspraken geformaliseerd tijdens een <em>functioneringsgesprek</em>.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			),
+			'hrm_klasbezoek' => array (
+					'name' => t ( 'HRM - Klasbezoek' ),
+					'base' => 'node_content',
+					'description' => t ( 'Begeleid je medewerkers via een <em>klasbezoek</em>; aan de hand van een structuur gebaseerd op de DOKK-tool. Dit is geen evaluatie-instrument, maar legt de nadruk op observeren, analyseren en feedback geven in een ontwikkelend perspectief. De professionele ontwikkeling van de leerkracht staat centraal, niet de evaluatie. (http://pro.g-o.be/blog/Documents/20150305_DOKK-tool_so.pdf)' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			),
+			'hrm_planningsgesprek' => array (
+					'name' => t ( 'HRM - Planningsgesprek' ),
+					'base' => 'node_content',
+					'description' => t ( 'Als onderdeel van het evaluatietraject van personeelsleden, is het <em>planningsgesprek</em> de eerste stap in de start van deze procedure.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Title' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_hrm_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function argus_hrm_views_api() {
+	return array (
+			'api' => 3.0,
+			'path' => drupal_get_path ( 'module', 'argus_hrm' ) 
+	) // replace demo with your content type
+;
+}
+
+/**
+ * Implementation of hook_views_default_views().
+ *
+ * Views export creates code that you have to paste in this function.
+ *
+ * Administration > Structure > Views : click the button behind the view you need and export
+ * /admin/structure/views
+ */
+function argus_hrm_views_default_views() {
+	$view = new view ();
+	$view->name = 'hrm';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'HRM';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+	
+	/* Display: Master */
+	$handler = $view->new_display ( 'default', 'Master', 'default' );
+	$handler->display->display_options ['title'] = 'HRM';
+	$handler->display->display_options ['use_more_always'] = FALSE;
+	$handler->display->display_options ['use_more_text'] = 'meer';
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0 
+			),
+			'node' => array (
+					'hrm_klasbezoek' => 'hrm_klasbezoek',
+					'hrm_evaluatiegesprek' => 'hrm_evaluatiegesprek',
+					'hrm_flitsbezoek' => 'hrm_flitsbezoek',
+					'hrm_functioneringsgesprek' => 'hrm_functioneringsgesprek',
+					'hrm_planningsgesprek' => 'hrm_planningsgesprek' 
+			),
+			'node_only' => array (
+					'node_changed' => 'node_changed' 
+			) 
+	);
+	$handler->display->display_options ['query'] ['type'] = 'views_query';
+	$handler->display->display_options ['exposed_form'] ['type'] = 'basic';
+	$handler->display->display_options ['exposed_form'] ['options'] ['submit_button'] = 'Toepassen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button'] = TRUE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button_label'] = 'Opnieuw instellen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['exposed_sorts_label'] = 'Sorteren op';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_asc_label'] = 'Oplopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_desc_label'] = 'Aflopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['autosubmit'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '50';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'nid' => 'nid',
+			'counter' => 'counter',
+			'field_personeelslid' => 'field_personeelslid',
+			'field_tijdstip' => 'field_tijdstip',
+			'field_functioneringsg_status' => 'field_functioneringsg_status',
+			'field_planningsgesprek_status_1' => 'field_planningsgesprek_status_1',
+			'field_evaluatiegesprek_status' => 'field_evaluatiegesprek_status',
+			'nothing_1' => 'nothing_1',
+			'type' => 'type',
+			'edit_node' => 'edit_node',
+			'nothing' => 'nothing' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'counter' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_personeelslid' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_tijdstip' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_functioneringsg_status' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_planningsgesprek_status_1' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_evaluatiegesprek_status' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nothing_1' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'type' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'edit_node' => array (
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nothing' => array (
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/hrm-evaluatiegesprek">Een evaluatiegesprek toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	/* Voet: Algemeen: Samenvatting van het resultaat */
+	$handler->display->display_options ['footer'] ['result'] ['id'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['result'] ['field'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['content'] = 'Getoond @start - @end van @total';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options ['footer'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['content'] = '<a href="/node/add/hrm-evaluatiegesprek">Een evaluatiegesprek toevoegen</a>';
+	$handler->display->display_options ['footer'] ['area'] ['format'] = 'filtered_html';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_personeelslid_target_id'] ['id'] = 'field_personeelslid_target_id';
+	$handler->display->display_options ['relationships'] ['field_personeelslid_target_id'] ['table'] = 'field_data_field_personeelslid';
+	$handler->display->display_options ['relationships'] ['field_personeelslid_target_id'] ['field'] = 'field_personeelslid_target_id';
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Resultatenteller weergeven */
+	$handler->display->display_options ['fields'] ['counter'] ['id'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['counter'] ['field'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['label'] = 'Nr.';
+	$handler->display->display_options ['fields'] ['counter'] ['counter_start'] = '1';
+	$handler->display->display_options ['fields'] ['counter'] ['reverse'] = 0;
+	/* Veld: Inhoud: Personeelslid */
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['id'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['table'] = 'field_data_field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['field'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['settings'] = array (
+			'link' => '1',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Tijdstip */
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['id'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['table'] = 'field_data_field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['field'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['settings'] = array (
+			'format_type' => 'long',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: status - functioneringsgesprek */
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['id'] = 'field_functioneringsg_status';
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['table'] = 'field_data_field_functioneringsg_status';
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['field'] = 'field_functioneringsg_status';
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['ui_name'] = 'status - functioneringsgesprek';
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: status - planningsgesprek */
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status_1'] ['id'] = 'field_planningsgesprek_status_1';
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status_1'] ['table'] = 'field_data_field_planningsgesprek_status';
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status_1'] ['field'] = 'field_planningsgesprek_status';
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status_1'] ['ui_name'] = 'status - planningsgesprek';
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status_1'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status_1'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status_1'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status_1'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: status - evaluatiegesprek */
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['id'] = 'field_evaluatiegesprek_status';
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['table'] = 'field_data_field_evaluatiegesprek_status';
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['field'] = 'field_evaluatiegesprek_status';
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['ui_name'] = 'status - evaluatiegesprek';
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Algemeen: Aangepaste tekst */
+	$handler->display->display_options ['fields'] ['nothing_1'] ['id'] = 'nothing_1';
+	$handler->display->display_options ['fields'] ['nothing_1'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['nothing_1'] ['field'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing_1'] ['label'] = 'Status';
+	$handler->display->display_options ['fields'] ['nothing_1'] ['alter'] ['text'] = '[field_functioneringsg_status][field_planningsgesprek_status_1][field_evaluatiegesprek_status]';
+	/* Veld: Inhoud: Type */
+	$handler->display->display_options ['fields'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['fields'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['type'] ['field'] = 'type';
+	/* Veld: Inhoud: Bewerkingslink */
+	$handler->display->display_options ['fields'] ['edit_node'] ['id'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['table'] = 'views_entity_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['field'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['edit_node'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['edit_node'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Aangepaste tekst */
+	$handler->display->display_options ['fields'] ['nothing'] ['id'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['nothing'] ['field'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['label'] = 'Acties';
+	$handler->display->display_options ['fields'] ['nothing'] ['alter'] ['text'] = '[edit_node] - <a href="/documenten_generator.get/BRF_HRM_Planningsgesprek_uitnodiging/id=[nid]">uitnodiging</a> - <a href="/documenten_generator.get/VSG_HRM_Planningsgesprek/id=[nid]">verslag</a>';
+	/* Sorteercriterium: Inhoud: Datum van inzending */
+	$handler->display->display_options ['sorts'] ['created'] ['id'] = 'created';
+	$handler->display->display_options ['sorts'] ['created'] ['table'] = 'node';
+	$handler->display->display_options ['sorts'] ['created'] ['field'] = 'created';
+	$handler->display->display_options ['sorts'] ['created'] ['order'] = 'DESC';
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'hrm_evaluatiegesprek' => 'hrm_evaluatiegesprek',
+			'hrm_functioneringsgesprek' => 'hrm_functioneringsgesprek',
+			'hrm_planningsgesprek' => 'hrm_planningsgesprek' 
+	);
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['relationship'] = 'field_personeelslid_target_id';
+	$handler->display->display_options ['filters'] ['realname'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator_id'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Personeelslid';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_dependent'] = 0;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	
+	/* Display: Planningsgesprekken */
+	$handler = $view->new_display ( 'page', 'Planningsgesprekken', 'hrm_planningsgesprekken_overview' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Planningsgesprekken';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'counter' => 'counter',
+			'field_personeelslid' => 'field_personeelslid',
+			'field_tijdstip' => 'field_tijdstip',
+			'field_planningsgesprek_status' => 'field_planningsgesprek_status',
+			'type' => 'type',
+			'nid' => 'nid',
+			'edit_node' => 'edit_node',
+			'nothing' => 'nothing' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'counter' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_personeelslid' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_tijdstip' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_planningsgesprek_status' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'type' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'edit_node' => array (
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nothing' => array (
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['header'] = FALSE;
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/hrm-planningsgesprek">Een planningsgesprek toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['footer'] = FALSE;
+	/* Voet: Algemeen: Samenvatting van het resultaat */
+	$handler->display->display_options ['footer'] ['result'] ['id'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['result'] ['field'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['content'] = 'Getoond @start - @end van @total';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options ['footer'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['content'] = '<a href="/node/add/hrm-planningsgesprek">Een planningsgesprek toevoegen</a>';
+	$handler->display->display_options ['footer'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Resultatenteller weergeven */
+	$handler->display->display_options ['fields'] ['counter'] ['id'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['counter'] ['field'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['label'] = 'Nr.';
+	$handler->display->display_options ['fields'] ['counter'] ['counter_start'] = '1';
+	$handler->display->display_options ['fields'] ['counter'] ['reverse'] = 0;
+	/* Veld: Inhoud: Personeelslid */
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['id'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['table'] = 'field_data_field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['field'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['settings'] = array (
+			'link' => '1',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Tijdstip */
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['id'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['table'] = 'field_data_field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['field'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['settings'] = array (
+			'format_type' => 'long',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Status */
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status'] ['id'] = 'field_planningsgesprek_status';
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status'] ['table'] = 'field_data_field_planningsgesprek_status';
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status'] ['field'] = 'field_planningsgesprek_status';
+	$handler->display->display_options ['fields'] ['field_planningsgesprek_status'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Type */
+	$handler->display->display_options ['fields'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['fields'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['type'] ['field'] = 'type';
+	/* Veld: Inhoud: Bewerkingslink */
+	$handler->display->display_options ['fields'] ['edit_node'] ['id'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['table'] = 'views_entity_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['field'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['edit_node'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['edit_node'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Aangepaste tekst */
+	$handler->display->display_options ['fields'] ['nothing'] ['id'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['nothing'] ['field'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['label'] = 'Acties';
+	$handler->display->display_options ['fields'] ['nothing'] ['alter'] ['text'] = '[edit_node] - <a href="/documenten_generator.get/BRF_HRM_Planningsgesprek_uitnodiging/id=[nid]">uitnodiging</a> - <a href="/documenten_generator.get/VSG_HRM_Planningsgesprek/id=[nid]">verslag</a>';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'hrm_planningsgesprek' => 'hrm_planningsgesprek' 
+	);
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['relationship'] = 'field_personeelslid_target_id';
+	$handler->display->display_options ['filters'] ['realname'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator_id'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Personeelslid';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_dependent'] = 0;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'hrm/planningsgesprekken';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Planningsgesprekken';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Functioneringsgesprekken */
+	$handler = $view->new_display ( 'page', 'Functioneringsgesprekken', 'hrm_functioneringsgesprekken_overview' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Functioneringsgesprekken';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'counter' => 'counter',
+			'field_personeelslid' => 'field_personeelslid',
+			'field_tijdstip' => 'field_tijdstip',
+			'field_functioneringsg_status' => 'field_functioneringsg_status',
+			'type' => 'type',
+			'nid' => 'nid',
+			'edit_node' => 'edit_node',
+			'nothing' => 'nothing' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'counter' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_personeelslid' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_tijdstip' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_functioneringsg_status' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'type' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'edit_node' => array (
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nothing' => array (
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['header'] = FALSE;
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/hrm-functioneringsgesprek">Een functioneringsgesprek toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['footer'] = FALSE;
+	/* Voet: Algemeen: Samenvatting van het resultaat */
+	$handler->display->display_options ['footer'] ['result'] ['id'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['result'] ['field'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['content'] = 'Getoond @start - @end van @total';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options ['footer'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['content'] = '<a href="/node/add/hrm-functioneringsgesprek">Een functioneringsgesprek toevoegen</a>';
+	$handler->display->display_options ['footer'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Resultatenteller weergeven */
+	$handler->display->display_options ['fields'] ['counter'] ['id'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['counter'] ['field'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['label'] = 'Nr.';
+	$handler->display->display_options ['fields'] ['counter'] ['counter_start'] = '1';
+	$handler->display->display_options ['fields'] ['counter'] ['reverse'] = 0;
+	/* Veld: Inhoud: Personeelslid */
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['id'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['table'] = 'field_data_field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['field'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['settings'] = array (
+			'link' => '1',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Tijdstip */
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['id'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['table'] = 'field_data_field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['field'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['settings'] = array (
+			'format_type' => 'long',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Status */
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['id'] = 'field_functioneringsg_status';
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['table'] = 'field_data_field_functioneringsg_status';
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['field'] = 'field_functioneringsg_status';
+	$handler->display->display_options ['fields'] ['field_functioneringsg_status'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Type */
+	$handler->display->display_options ['fields'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['fields'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['type'] ['field'] = 'type';
+	/* Veld: Inhoud: Bewerkingslink */
+	$handler->display->display_options ['fields'] ['edit_node'] ['id'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['table'] = 'views_entity_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['field'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['edit_node'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['edit_node'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Aangepaste tekst */
+	$handler->display->display_options ['fields'] ['nothing'] ['id'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['nothing'] ['field'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['label'] = 'Acties';
+	$handler->display->display_options ['fields'] ['nothing'] ['alter'] ['text'] = '[edit_node] - <a href="/documenten_generator.get/BRF_HRM_Functioneringsgesprek_uitnodiging/id=[nid]">uitnodiging</a> - <a href="/documenten_generator.get/VSG_HRM_Functioneringsgesprek/id=[nid]">verslag</a>';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'hrm_functioneringsgesprek' => 'hrm_functioneringsgesprek' 
+	);
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['relationship'] = 'field_personeelslid_target_id';
+	$handler->display->display_options ['filters'] ['realname'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator_id'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Personeelslid';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_dependent'] = 0;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'hrm/functioneringsgesprekken';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Functioneringsgesprekken';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Evaluatiegesprekken */
+	$handler = $view->new_display ( 'page', 'Evaluatiegesprekken', 'hrm_evaluatiegesprekken_overview' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Evaluatiegesprekken';
+	$handler->display->display_options ['defaults'] ['access'] = FALSE;
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'counter' => 'counter',
+			'field_personeelslid' => 'field_personeelslid',
+			'field_tijdstip' => 'field_tijdstip',
+			'field_evaluatiegesprek_status' => 'field_evaluatiegesprek_status',
+			'type' => 'type',
+			'nid' => 'nid',
+			'edit_node' => 'edit_node',
+			'nothing' => 'nothing' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'counter' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_personeelslid' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_tijdstip' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_evaluatiegesprek_status' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'type' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'edit_node' => array (
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nothing' => array (
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['header'] = FALSE;
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/hrm-evaluatiegesprek">Een evaluatiegesprek toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Resultatenteller weergeven */
+	$handler->display->display_options ['fields'] ['counter'] ['id'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['counter'] ['field'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['label'] = 'Nr.';
+	$handler->display->display_options ['fields'] ['counter'] ['counter_start'] = '1';
+	$handler->display->display_options ['fields'] ['counter'] ['reverse'] = 0;
+	/* Veld: Inhoud: Personeelslid */
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['id'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['table'] = 'field_data_field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['field'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['settings'] = array (
+			'link' => '1',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Tijdstip */
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['id'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['table'] = 'field_data_field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['field'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['settings'] = array (
+			'format_type' => 'long',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Status */
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['id'] = 'field_evaluatiegesprek_status';
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['table'] = 'field_data_field_evaluatiegesprek_status';
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['field'] = 'field_evaluatiegesprek_status';
+	$handler->display->display_options ['fields'] ['field_evaluatiegesprek_status'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Type */
+	$handler->display->display_options ['fields'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['fields'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['type'] ['field'] = 'type';
+	/* Veld: Inhoud: Bewerkingslink */
+	$handler->display->display_options ['fields'] ['edit_node'] ['id'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['table'] = 'views_entity_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['field'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['edit_node'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['edit_node'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Aangepaste tekst */
+	$handler->display->display_options ['fields'] ['nothing'] ['id'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['nothing'] ['field'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['label'] = 'Acties';
+	$handler->display->display_options ['fields'] ['nothing'] ['alter'] ['text'] = '[edit_node] - <a href="/documenten_generator.get/BRF_HRM_Evaluatiegesprek_uitnodiging/id=[nid]">uitnodiging</a> - <a href="/documenten_generator.get/VSG_HRM_Evaluatiegesprek/id=[nid]">verslag</a>';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'hrm_evaluatiegesprek' => 'hrm_evaluatiegesprek' 
+	);
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['relationship'] = 'field_personeelslid_target_id';
+	$handler->display->display_options ['filters'] ['realname'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator_id'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Personeelslid';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_dependent'] = 0;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'hrm/evaluatiegesprekken';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Evaluatiegesprekken';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Flitsbezoeken */
+	$handler = $view->new_display ( 'page', 'Flitsbezoeken', 'hrm_flitsbezoeken_overzicht' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Flitsbezoeken';
+	$handler->display->display_options ['defaults'] ['access'] = FALSE;
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'counter' => 'counter',
+			'field_personeelslid' => 'field_personeelslid',
+			'field_tijdstip' => 'field_tijdstip',
+			'field_evaluatiegesprek_status' => 'field_evaluatiegesprek_status',
+			'type' => 'type',
+			'nid' => 'nid',
+			'edit_node' => 'edit_node',
+			'nothing' => 'nothing' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'counter' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_personeelslid' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_tijdstip' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_evaluatiegesprek_status' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'type' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'edit_node' => array (
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nothing' => array (
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['header'] = FALSE;
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/hrm-flitsbezoek">Een flitsbezoek toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['footer'] = FALSE;
+	/* Voet: Algemeen: Samenvatting van het resultaat */
+	$handler->display->display_options ['footer'] ['result'] ['id'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['result'] ['field'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['content'] = 'Getoond @start - @end van @total';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options ['footer'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['content'] = '<a href="/node/add/hrm-flitsbezoek">Een flitsbezoek toevoegen</a>';
+	$handler->display->display_options ['footer'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Resultatenteller weergeven */
+	$handler->display->display_options ['fields'] ['counter'] ['id'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['counter'] ['field'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['label'] = 'Nr.';
+	$handler->display->display_options ['fields'] ['counter'] ['counter_start'] = '1';
+	$handler->display->display_options ['fields'] ['counter'] ['reverse'] = 0;
+	/* Veld: Inhoud: Personeelslid */
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['id'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['table'] = 'field_data_field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['field'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['settings'] = array (
+			'link' => '1',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Tijdstip */
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['id'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['table'] = 'field_data_field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['field'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['settings'] = array (
+			'format_type' => 'long',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Bewerkingslink */
+	$handler->display->display_options ['fields'] ['edit_node'] ['id'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['table'] = 'views_entity_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['field'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['edit_node'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['edit_node'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Aangepaste tekst */
+	$handler->display->display_options ['fields'] ['nothing'] ['id'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['nothing'] ['field'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['label'] = 'Acties';
+	$handler->display->display_options ['fields'] ['nothing'] ['alter'] ['text'] = '[edit_node] - <a href="/documenten_generator.get/VSG_HRM_Flitsbezoek/id=[nid]">verslag</a>';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'hrm_flitsbezoek' => 'hrm_flitsbezoek' 
+	);
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['relationship'] = 'field_personeelslid_target_id';
+	$handler->display->display_options ['filters'] ['realname'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator_id'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Personeelslid';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_dependent'] = 0;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'hrm/flitsbezoeken';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Flitsbezoeken';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Klasbezoeken */
+	$handler = $view->new_display ( 'page', 'Klasbezoeken', 'hrm_klasbezoeken_overzicht' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Klasbezoeken';
+	$handler->display->display_options ['defaults'] ['access'] = FALSE;
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array ();
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'counter' => 'counter',
+			'field_personeelslid' => 'field_personeelslid',
+			'field_tijdstip' => 'field_tijdstip',
+			'field_evaluatiegesprek_status' => 'field_evaluatiegesprek_status',
+			'type' => 'type',
+			'nid' => 'nid',
+			'edit_node' => 'edit_node',
+			'nothing' => 'nothing' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'counter' => array (
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_personeelslid' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_tijdstip' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_evaluatiegesprek_status' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'type' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nid' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'edit_node' => array (
+					'align' => '',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'nothing' => array (
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['header'] = FALSE;
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['empty'] = TRUE;
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<a href="/node/add/hrm-klasbezoek">Een klasbezoek toevoegen</a>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['footer'] = FALSE;
+	/* Voet: Algemeen: Samenvatting van het resultaat */
+	$handler->display->display_options ['footer'] ['result'] ['id'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['result'] ['field'] = 'result';
+	$handler->display->display_options ['footer'] ['result'] ['content'] = 'Getoond @start - @end van @total';
+	/* Voet: Algemeen: Tekstveld */
+	$handler->display->display_options ['footer'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['footer'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['footer'] ['area'] ['content'] = '<a href="/node/add/hrm-klasbezoek">Een klasbezoek toevoegen</a>';
+	$handler->display->display_options ['footer'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Nid */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['nid'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['nid'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Resultatenteller weergeven */
+	$handler->display->display_options ['fields'] ['counter'] ['id'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['counter'] ['field'] = 'counter';
+	$handler->display->display_options ['fields'] ['counter'] ['label'] = 'Nr.';
+	$handler->display->display_options ['fields'] ['counter'] ['counter_start'] = '1';
+	$handler->display->display_options ['fields'] ['counter'] ['reverse'] = 0;
+	/* Veld: Inhoud: Personeelslid */
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['id'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['table'] = 'field_data_field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['field'] = 'field_personeelslid';
+	$handler->display->display_options ['fields'] ['field_personeelslid'] ['settings'] = array (
+			'link' => '1',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Tijdstip */
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['id'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['table'] = 'field_data_field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['field'] = 'field_tijdstip';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['path'] = 'node/[nid]';
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['alter'] ['absolute'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_tijdstip'] ['settings'] = array (
+			'format_type' => 'long',
+			'fromto' => 'both',
+			'multiple_number' => '',
+			'multiple_from' => '',
+			'multiple_to' => '',
+			'show_remaining_days' => 0,
+			'show_repeat_rule' => 'show',
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Didactische competenties */
+	$handler->display->display_options ['fields'] ['field_klasbezoek_did_comp'] ['id'] = 'field_klasbezoek_did_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_did_comp'] ['table'] = 'field_data_field_klasbezoek_did_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_did_comp'] ['field'] = 'field_klasbezoek_did_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_did_comp'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	$handler->display->display_options ['fields'] ['field_klasbezoek_did_comp'] ['delta_offset'] = '0';
+	/* Veld: Inhoud: Organisatorische competenties */
+	$handler->display->display_options ['fields'] ['field_klasbezoek_org_comp'] ['id'] = 'field_klasbezoek_org_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_org_comp'] ['table'] = 'field_data_field_klasbezoek_org_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_org_comp'] ['field'] = 'field_klasbezoek_org_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_org_comp'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	$handler->display->display_options ['fields'] ['field_klasbezoek_org_comp'] ['delta_offset'] = '0';
+	/* Veld: Inhoud: Pedagogische competenties */
+	$handler->display->display_options ['fields'] ['field_klasbezoek_ped_comp'] ['id'] = 'field_klasbezoek_ped_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_ped_comp'] ['table'] = 'field_data_field_klasbezoek_ped_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_ped_comp'] ['field'] = 'field_klasbezoek_ped_comp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_ped_comp'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	$handler->display->display_options ['fields'] ['field_klasbezoek_ped_comp'] ['delta_offset'] = '0';
+	/* Veld: Inhoud: Taalcompetenties */
+	$handler->display->display_options ['fields'] ['field_klasbezoek_taalcomp'] ['id'] = 'field_klasbezoek_taalcomp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_taalcomp'] ['table'] = 'field_data_field_klasbezoek_taalcomp';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_taalcomp'] ['field'] = 'field_klasbezoek_taalcomp';
+	/* Veld: Inhoud: Andere focus */
+	$handler->display->display_options ['fields'] ['field_klasbezoek_andere_focus'] ['id'] = 'field_klasbezoek_andere_focus';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_andere_focus'] ['table'] = 'field_data_field_klasbezoek_andere_focus';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_andere_focus'] ['field'] = 'field_klasbezoek_andere_focus';
+	$handler->display->display_options ['fields'] ['field_klasbezoek_andere_focus'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Inhoud: Bewerkingslink */
+	$handler->display->display_options ['fields'] ['edit_node'] ['id'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['table'] = 'views_entity_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['field'] = 'edit_node';
+	$handler->display->display_options ['fields'] ['edit_node'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['edit_node'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['edit_node'] ['element_label_colon'] = FALSE;
+	/* Veld: Algemeen: Aangepaste tekst */
+	$handler->display->display_options ['fields'] ['nothing'] ['id'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['table'] = 'views';
+	$handler->display->display_options ['fields'] ['nothing'] ['field'] = 'nothing';
+	$handler->display->display_options ['fields'] ['nothing'] ['label'] = 'Acties';
+	$handler->display->display_options ['fields'] ['nothing'] ['alter'] ['text'] = '[edit_node] - <a href="/documenten_generator.get/VSG_HRM_Klasbezoek/id=[nid]">verslag</a>';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'hrm_klasbezoek' => 'hrm_klasbezoek' 
+	);
+	/* Filtercriterium: Echte naam: Naam */
+	$handler->display->display_options ['filters'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['relationship'] = 'field_personeelslid_target_id';
+	$handler->display->display_options ['filters'] ['realname'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['realname'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator_id'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Personeelslid';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_dependent'] = 0;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'hrm/klasbezoeken';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Klasbezoeken';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	$translatables ['hrm'] = array (
+			t ( 'Master' ),
+			t ( 'HRM' ),
+			t ( 'meer' ),
+			t ( 'Toepassen' ),
+			t ( 'Opnieuw instellen' ),
+			t ( 'Sorteren op' ),
+			t ( 'Oplopend' ),
+			t ( 'Aflopend' ),
+			t ( 'Items per pagina' ),
+			t ( '- Alle -' ),
+			t ( 'Startpunt' ),
+			t ( '« eerste' ),
+			t ( '‹ vorige' ),
+			t ( 'volgende ›' ),
+			t ( 'laatste »' ),
+			t ( '<a href="/node/add/hrm-evaluatiegesprek">Een evaluatiegesprek toevoegen</a>' ),
+			t ( 'Getoond @start - @end van @total' ),
+			t ( 'Gebruiker entity referenced from field_personeelslid' ),
+			t ( 'Nr.' ),
+			t ( 'Personeelslid' ),
+			t ( 'Tijdstip' ),
+			t ( 'Status' ),
+			t ( '[field_functioneringsg_status][field_planningsgesprek_status_1][field_evaluatiegesprek_status]' ),
+			t ( 'Type' ),
+			t ( 'Acties' ),
+			t ( '[edit_node] - <a href="/documenten_generator.get/BRF_HRM_Planningsgesprek_uitnodiging/id=[nid]">uitnodiging</a> - <a href="/documenten_generator.get/VSG_HRM_Planningsgesprek/id=[nid]">verslag</a>' ),
+			t ( 'Planningsgesprekken' ),
+			t ( '<a href="/node/add/hrm-planningsgesprek">Een planningsgesprek toevoegen</a>' ),
+			t ( 'Functioneringsgesprekken' ),
+			t ( '<a href="/node/add/hrm-functioneringsgesprek">Een functioneringsgesprek toevoegen</a>' ),
+			t ( '[edit_node] - <a href="/documenten_generator.get/BRF_HRM_Functioneringsgesprek_uitnodiging/id=[nid]">uitnodiging</a> - <a href="/documenten_generator.get/VSG_HRM_Functioneringsgesprek/id=[nid]">verslag</a>' ),
+			t ( 'Evaluatiegesprekken' ),
+			t ( '[edit_node] - <a href="/documenten_generator.get/BRF_HRM_Evaluatiegesprek_uitnodiging/id=[nid]">uitnodiging</a> - <a href="/documenten_generator.get/VSG_HRM_Evaluatiegesprek/id=[nid]">verslag</a>' ),
+			t ( 'Flitsbezoeken' ),
+			t ( '<a href="/node/add/hrm-flitsbezoek">Een flitsbezoek toevoegen</a>' ),
+			t ( '[edit_node] - <a href="/documenten_generator.get/VSG_HRM_Flitsbezoek/id=[nid]">verslag</a>' ),
+			t ( 'Klasbezoeken' ),
+			t ( '<a href="/node/add/hrm-klasbezoek">Een klasbezoek toevoegen</a>' ),
+			t ( 'Didactische competenties' ),
+			t ( 'Organisatorische competenties' ),
+			t ( 'Pedagogische competenties' ),
+			t ( 'Taalcompetenties' ),
+			t ( 'Andere focus' ),
+			t ( '[edit_node] - <a href="/documenten_generator.get/VSG_HRM_Klasbezoek/id=[nid]">verslag</a>' ) 
+	);
+	
+	$views [$view->name] = $view;
+	return $views;
 }
 
 /**

@@ -28,6 +28,12 @@
  * Implements argus_buscheck_menu().
  */
 function argus_buscheck_menu() {
+	if (menu_load('menu-modules')){
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
     $items = array();
     $items['admin/config/argus/buscheck'] = array(
         'title' => 'Buscontrole De Lijn',
@@ -44,7 +50,7 @@ function argus_buscheck_menu() {
         'page callback' => 'drupal_get_form',
         'page arguments' => array('argus_buscheck_form'),
         'access arguments' => array('access argus_buscheck content'),
-        'menu_name' => 'menu-modules',
+        'menu_name' => $menu,
     );
     return $items;
 }

@@ -8,7 +8,7 @@
  * Implements hook_field_group_info().
  */
 function argus_uurrooster_field_group_info() {
-  $export = array();
+  $field_groups = array();
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -21,7 +21,7 @@ function argus_uurrooster_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'GP Untis',
-    'weight' => '8',
+    'weight' => '10',
     'children' => array(
       0 => 'field_uurrooster_les_id_untis',
     ),
@@ -35,7 +35,7 @@ function argus_uurrooster_field_group_info() {
       ),
     ),
   );
-  $export['group_untis|node|uurrooster_les|form'] = $field_group;
+  $field_groups['group_untis|node|uurrooster_les|form'] = $field_group;
 
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
@@ -66,7 +66,11 @@ function argus_uurrooster_field_group_info() {
       ),
     ),
   );
-  $export['group_untis|node|uurrooster_periode|form'] = $field_group;
+  $field_groups['group_untis|node|uurrooster_periode|form'] = $field_group;
 
-  return $export;
+  // Translatables
+  // Included for use with string extractors like potx.
+  t('GP Untis');
+
+  return $field_groups;
 }

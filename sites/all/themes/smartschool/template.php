@@ -207,42 +207,6 @@ function smartschool_date_in_schoolyear($y = 0, $m = 0, $d = 0, $schoolyear = 0)
 }
 
 /**
- * Render field values
- * 
- * @param type $ntype
- * @param type $entity
- * @param type $field
- * @param type $item
- * @return type
- */
-function smartschool_render($ntype, $entity, $field, $item = 0, $active = FALSE){
-    if (stristr($field, 'field_')){
-    	$field_items = field_get_items($ntype, $entity, $field);
-    	if (is_array($field_items)){
-			if (array_key_exists('value', $field_items[$item])){
-			    return $field_items[$item]['value'];
-		    } elseif (array_key_exists('email', $field_items[$item])){
-		    	if ($active){
-		    		return '<a href="mailto:'.$field_items[$item]['email'].'">'.$field_items[$item]['email'].'</a>';
-		    	} else {
-		    		return $field_items[$item]['email'];
-		    	}
-		    }
-    	}
-    } else {
-    	$entity = (array) $entity;
-    	if (array_key_exists($field, $entity)){
-    		if ($active){
-	    		return '<a href="mailto:'.$entity[$field].'">'.$entity[$field].'</a>';
-	    	} else {
-	    		return $entity[$field];
-	    	}
-    	}
-    }
-    return '/'; // no valid value to render
-}
-
-/**
  * Retrieve all users by their role.
  *
  * @param $role_name

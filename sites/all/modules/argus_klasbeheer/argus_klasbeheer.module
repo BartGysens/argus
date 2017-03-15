@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Copyright (C) 2015 bartgysens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -9,11 +9,11 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* Drupal Hooks */
@@ -24,376 +24,2261 @@
 function argus_klasbeheer_permission() {
 	return array (
 			'access argus_klasbeheer_overview content' => array (
-					'title' => t ( 'Status van de klas bekijken' ),
-			),
+					'title' => t ( 'Status van de klas bekijken' ) 
+			) 
 	);
 }
 
 /**
  * Implements hook_ctools_plugin_api().
  */
-include_once 'includes/argus_klasbeheer.field_group.inc';
 function argus_klasbeheer_ctools_plugin_api($module = NULL, $api = NULL) {
-  if ($module == "field_group" && $api == "field_group") {
-    return array("version" => "1");
-  }
+	if ($module == "field_group" && $api == "field_group") {
+		return array (
+				"version" => "1" 
+		);
+	}
 }
 
 /**
  * Implements hook_views_api().
  */
-include_once 'includes/argus_klasbeheer.views_default.inc';
 function argus_klasbeheer_views_api($module = NULL, $api = NULL) {
-  return array("api" => "3.0");
+	return array (
+			"api" => "3.0" 
+	);
+}
+
+/**
+ * Implementation of hook_views_default_views().
+ *
+ * Views export creates code that you have to paste in this function.
+ *
+ * Administration > Structure > Views : click the button behind the view you need and export
+ * /admin/structure/views
+ */
+function argus_klasbeheer_views_default_views() {
+	$view = new view ();
+	$view->name = 'klassen';
+	$view->description = '';
+	$view->tag = 'default';
+	$view->base_table = 'node';
+	$view->human_name = 'Klassen';
+	$view->core = 7;
+	$view->api_version = '3.0';
+	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+	
+	/* Display: Master */
+	$handler = $view->new_display ( 'default', 'Master', 'default' );
+	$handler->display->display_options ['title'] = 'Klastitularissen en hulpklastitularissen';
+	$handler->display->display_options ['use_more_always'] = FALSE;
+	$handler->display->display_options ['use_more_text'] = 'meer';
+	$handler->display->display_options ['group_by'] = TRUE;
+	$handler->display->display_options ['access'] ['type'] = 'perm';
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '518400';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0 
+			),
+			'node' => array (
+					'klas' => 'klas' 
+			),
+			'node_only' => array (
+					'node_changed' => 'node_changed' 
+			) 
+	);
+	$handler->display->display_options ['query'] ['type'] = 'views_query';
+	$handler->display->display_options ['exposed_form'] ['type'] = 'basic';
+	$handler->display->display_options ['exposed_form'] ['options'] ['submit_button'] = 'Toepassen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button'] = TRUE;
+	$handler->display->display_options ['exposed_form'] ['options'] ['reset_button_label'] = 'Opnieuw instellen';
+	$handler->display->display_options ['exposed_form'] ['options'] ['exposed_sorts_label'] = 'Sorteren op';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_asc_label'] = 'Oplopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['sort_desc_label'] = 'Aflopend';
+	$handler->display->display_options ['exposed_form'] ['options'] ['autosubmit'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '10';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'title' => 'title',
+			'field_klas_omschrijving' => 'field_klas_omschrijving',
+			'realname' => 'realname',
+			'realname_1' => 'realname_1',
+			'field_klas_leerlingen' => 'field_klas_leerlingen',
+			'field_klas_leerkrachten' => 'field_klas_leerkrachten' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = 'title';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'title' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_omschrijving' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname_1' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_leerlingen' => array (
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_leerkrachten' => array (
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['id'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['table'] = 'field_data_field_klas_leerkrachten';
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['field'] = 'field_klas_leerkrachten_target_id';
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['word_boundary'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['ellipsis'] = FALSE;
+	/* Veld: Inhoud: Omschrijving */
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['id'] = 'field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['field'] = 'field_klas_omschrijving';
+	/* Veld: Inhoud: Klastitularis */
+	$handler->display->display_options ['fields'] ['field_klas_klastitularis'] ['id'] = 'field_klas_klastitularis';
+	$handler->display->display_options ['fields'] ['field_klas_klastitularis'] ['table'] = 'field_data_field_klas_klastitularis';
+	$handler->display->display_options ['fields'] ['field_klas_klastitularis'] ['field'] = 'field_klas_klastitularis';
+	$handler->display->display_options ['fields'] ['field_klas_klastitularis'] ['settings'] = array (
+			'link' => 1 
+	);
+	/* Veld: Inhoud: Hulpklastitularis */
+	$handler->display->display_options ['fields'] ['field_klas_hulpklastitularis'] ['id'] = 'field_klas_hulpklastitularis';
+	$handler->display->display_options ['fields'] ['field_klas_hulpklastitularis'] ['table'] = 'field_data_field_klas_hulpklastitularis';
+	$handler->display->display_options ['fields'] ['field_klas_hulpklastitularis'] ['field'] = 'field_klas_hulpklastitularis';
+	$handler->display->display_options ['fields'] ['field_klas_hulpklastitularis'] ['settings'] = array (
+			'link' => 1 
+	);
+	/* Veld: COUNT(DISTINCT Inhoud: Leerlingen) */
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['id'] = 'field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['field'] = 'field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['separator'] = ' - ';
+	/* Veld: COUNT(DISTINCT Inhoud: Leerkrachten) */
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['id'] = 'field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['table'] = 'field_data_field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['field'] = 'field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['separator'] = ' - ';
+	/* Contextueel filter: Inhoud: Code (Smartschool) (field_klas_sms_code) */
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['id'] = 'field_klas_sms_code_value';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['table'] = 'field_data_field_klas_sms_code';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['field'] = 'field_klas_sms_code_value';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['exception'] ['title'] = 'Alle';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['default_argument_type'] = 'fixed';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary'] ['number_of_records'] = '0';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary'] ['format'] = 'default_summary';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary_options'] ['items_per_page'] = '25';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['limit'] = '0';
+	/* Contextueel filter: SUM(Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'sum';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['default_action'] = 'summary';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['exception'] ['title'] = 'Alle';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['default_argument_type'] = 'fixed';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['summary'] ['number_of_records'] = '0';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['summary'] ['format'] = 'default_summary';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['summary_options'] ['items_per_page'] = '25';
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Gebruiker: Actief */
+	$handler->display->display_options ['filters'] ['status_1'] ['id'] = 'status_1';
+	$handler->display->display_options ['filters'] ['status_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['status_1'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_1'] ['relationship'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['status_1'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_1'] ['group'] = 1;
+	/* Filtercriterium: Gebruiker: Actief */
+	$handler->display->display_options ['filters'] ['status_2'] ['id'] = 'status_2';
+	$handler->display->display_options ['filters'] ['status_2'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['status_2'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_2'] ['relationship'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['filters'] ['status_2'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_2'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Titel';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Omschrijving (field_klas_omschrijving) */
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['id'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['field'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator_id'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['label'] = 'Omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['identifier'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name'] ['id'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['relationship'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['filters'] ['name'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator_id'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['label'] = 'Klastitularis';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['identifier'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name_1'] ['id'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name_1'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name_1'] ['relationship'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['name_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator_id'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['label'] = 'Hulpklastitularis';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['identifier'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: COUNT(DISTINCT Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group'] = 1;
+	/* Filtercriterium: Gebruiker: Gebruikersnaam (field_user_sms_gebruikersnaam) */
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['id'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['table'] = 'field_data_field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['field'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['relationship'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['operator_id'] = 'field_user_sms_gebruikersnaam_value_op';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['label'] = 'Leerling';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['operator'] = 'field_user_sms_gebruikersnaam_value_op';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['identifier'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Gebruiker: Gebruikersnaam (field_user_sms_gebruikersnaam) */
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['id'] = 'field_user_sms_gebruikersnaam_value_1';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['table'] = 'field_data_field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['field'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['relationship'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['operator_id'] = 'field_user_sms_gebruikersnaam_value_1_op';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['label'] = 'Leerkracht';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['operator'] = 'field_user_sms_gebruikersnaam_value_1_op';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['identifier'] = 'field_user_sms_gebruikersnaam_value_1';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['remember_roles'] = array ();
+	
+	/* Display: Klassen */
+	$handler = $view->new_display ( 'page', 'Klassen', 'klassen_overzicht' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Klassen';
+	$handler->display->display_options ['display_description'] = 'Overzicht van alle klassen.';
+	$handler->display->display_options ['defaults'] ['pager'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '1';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['relationships'] = FALSE;
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['id'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['table'] = 'field_data_field_klas_leerkrachten';
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['field'] = 'field_klas_leerkrachten_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['id'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['table'] = 'field_data_field_klas_hulpklastitularis';
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['field'] = 'field_klas_hulpklastitularis_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['id'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['table'] = 'field_data_field_klas_klastitularis';
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['field'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['word_boundary'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['ellipsis'] = FALSE;
+	/* Veld: Inhoud: Omschrijving */
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['id'] = 'field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['field'] = 'field_klas_omschrijving';
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['relationship'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['fields'] ['realname'] ['label'] = 'Klastitularis';
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['fields'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['relationship'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['fields'] ['realname_1'] ['label'] = 'Hulpklastitularis';
+	/* Veld: Inhoud: Leerlingen */
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['id'] = 'field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['field'] = 'field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['settings'] = array (
+			'link' => 1 
+	);
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['group_column'] = 'entity_id';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['delta_offset'] = '0';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['multi_type'] = 'ol';
+	/* Veld: Inhoud: Leerkrachten */
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['id'] = 'field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['table'] = 'field_data_field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['field'] = 'field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['settings'] = array (
+			'link' => 1 
+	);
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['group_column'] = 'entity_id';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['delta_offset'] = '0';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['multi_type'] = 'ol';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: COUNT(DISTINCT Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Titel';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Omschrijving (field_klas_omschrijving) */
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['id'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['field'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator_id'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['label'] = 'Omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['identifier'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Klastitularis */
+	$handler->display->display_options ['filters'] ['name'] ['id'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['relationship'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['filters'] ['name'] ['ui_name'] = 'Klastitularis';
+	$handler->display->display_options ['filters'] ['name'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator_id'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['label'] = 'Klastitularis';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['identifier'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['autocomplete_dependent'] = 0;
+	/* Filtercriterium: Hulpklastitularis */
+	$handler->display->display_options ['filters'] ['name_1'] ['id'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name_1'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name_1'] ['relationship'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['filters'] ['name_1'] ['ui_name'] = 'Hulpklastitularis';
+	$handler->display->display_options ['filters'] ['name_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator_id'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['label'] = 'Hulpklastitularis';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['identifier'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['autocomplete_dependent'] = 0;
+	/* Filtercriterium: Leerling */
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['id'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['table'] = 'field_data_field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['field'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['relationship'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['ui_name'] = 'Leerling';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['operator_id'] = 'field_user_sms_gebruikersnaam_value_op';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['label'] = 'Leerling';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['operator'] = 'field_user_sms_gebruikersnaam_value_op';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['identifier'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value'] ['expose'] ['autocomplete_dependent'] = 0;
+	/* Filtercriterium: Leerkracht */
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['id'] = 'field_user_sms_gebruikersnaam_value_1';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['table'] = 'field_data_field_user_sms_gebruikersnaam';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['field'] = 'field_user_sms_gebruikersnaam_value';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['relationship'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['ui_name'] = 'Leerkracht';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['operator_id'] = 'field_user_sms_gebruikersnaam_value_1_op';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['label'] = 'Leerkracht';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['operator'] = 'field_user_sms_gebruikersnaam_value_1_op';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['identifier'] = 'field_user_sms_gebruikersnaam_value_1';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['autocomplete_items'] = '10';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['autocomplete_min_chars'] = '0';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['autocomplete_raw_dropdown'] = '1';
+	$handler->display->display_options ['filters'] ['field_user_sms_gebruikersnaam_value_1'] ['expose'] ['autocomplete_dependent'] = 0;
+	$handler->display->display_options ['path'] = 'klassen/overzicht';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Klassen';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	
+	/* Display: Klastitularissen */
+	$handler = $view->new_display ( 'page', 'Klastitularissen', 'klassen_ktt' );
+	$handler->display->display_options ['display_description'] = 'Overzicht van alle klastitularissen en hulpklastitularissen.';
+	$handler->display->display_options ['defaults'] ['pager'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'title' => 'title',
+			'field_klas_omschrijving' => 'field_klas_omschrijving',
+			'realname' => 'realname',
+			'realname_1' => 'realname_1',
+			'field_klas_leerlingen' => 'field_klas_leerlingen',
+			'field_klas_leerkrachten' => 'field_klas_leerkrachten' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = 'title';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'title' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_omschrijving' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname_1' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_leerlingen' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_leerkrachten' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['relationships'] = FALSE;
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['id'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['table'] = 'field_data_field_klas_leerkrachten';
+	$handler->display->display_options ['relationships'] ['field_klas_leerkrachten_target_id'] ['field'] = 'field_klas_leerkrachten_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['id'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['table'] = 'field_data_field_klas_hulpklastitularis';
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['field'] = 'field_klas_hulpklastitularis_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['id'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['table'] = 'field_data_field_klas_klastitularis';
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['field'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['word_boundary'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['ellipsis'] = FALSE;
+	/* Veld: Inhoud: Omschrijving */
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['id'] = 'field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['field'] = 'field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['settings'] = array (
+			'conditions' => array (
+					0 => array (
+							'condition' => '' 
+					) 
+			) 
+	);
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['relationship'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['fields'] ['realname'] ['label'] = 'Klastitularis';
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['fields'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['relationship'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['fields'] ['realname_1'] ['label'] = 'Hulpklastitularis';
+	/* Veld: COUNT(DISTINCT Inhoud: Leerlingen) */
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['id'] = 'field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['field'] = 'field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['separator'] = ' - ';
+	/* Veld: COUNT(DISTINCT Inhoud: Leerkrachten) */
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['id'] = 'field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['table'] = 'field_data_field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['field'] = 'field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['separator'] = ' - ';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: COUNT(DISTINCT Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Titel';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Omschrijving (field_klas_omschrijving) */
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['id'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['field'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator_id'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['label'] = 'Omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['identifier'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name'] ['id'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['relationship'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['filters'] ['name'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator_id'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['label'] = 'Klastitularis';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['identifier'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name_1'] ['id'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name_1'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name_1'] ['relationship'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['filters'] ['name_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator_id'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['label'] = 'Hulpklastitularis';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['identifier'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['path'] = 'klastitularissen';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Klastitularissen';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Klassen: administratieve gegevens */
+	$handler = $view->new_display ( 'page', 'Klassen: administratieve gegevens', 'klassen_administratief' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Klassen: administratief';
+	$handler->display->display_options ['display_description'] = 'Overzicht van alle administratieve klasgegevens.';
+	$handler->display->display_options ['defaults'] ['pager'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'title' => 'title',
+			'field_klas_omschrijving' => 'field_klas_omschrijving',
+			'field_klas_graad' => 'field_klas_graad',
+			'field_klas_leerjaar' => 'field_klas_leerjaar',
+			'field_klas_onderwijsvorm' => 'field_klas_onderwijsvorm',
+			'field_klas_structuuronderdeel' => 'field_klas_structuuronderdeel',
+			'realname' => 'realname',
+			'realname_1' => 'realname_1',
+			'field_klas_leerlingen' => 'field_klas_leerlingen',
+			'field_klas_leerkrachten' => 'field_klas_leerkrachten' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = 'title';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'title' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_omschrijving' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_graad' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_leerjaar' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_onderwijsvorm' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_structuuronderdeel' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'realname_1' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_leerlingen' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_leerkrachten' => array (
+					'sortable' => 1,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-center',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['relationships'] = FALSE;
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['id'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['table'] = 'field_data_field_klas_klastitularis';
+	$handler->display->display_options ['relationships'] ['field_klas_klastitularis_target_id'] ['field'] = 'field_klas_klastitularis_target_id';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['id'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['table'] = 'field_data_field_klas_hulpklastitularis';
+	$handler->display->display_options ['relationships'] ['field_klas_hulpklastitularis_target_id'] ['field'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['word_boundary'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['ellipsis'] = FALSE;
+	/* Veld: Inhoud: Omschrijving */
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['id'] = 'field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['field'] = 'field_klas_omschrijving';
+	/* Veld: Inhoud: Graad */
+	$handler->display->display_options ['fields'] ['field_klas_graad'] ['id'] = 'field_klas_graad';
+	$handler->display->display_options ['fields'] ['field_klas_graad'] ['table'] = 'field_data_field_klas_graad';
+	$handler->display->display_options ['fields'] ['field_klas_graad'] ['field'] = 'field_klas_graad';
+	$handler->display->display_options ['fields'] ['field_klas_graad'] ['settings'] = array (
+			'thousand_separator' => ' ',
+			'prefix_suffix' => 1 
+	);
+	/* Veld: Inhoud: Leerjaar */
+	$handler->display->display_options ['fields'] ['field_klas_leerjaar'] ['id'] = 'field_klas_leerjaar';
+	$handler->display->display_options ['fields'] ['field_klas_leerjaar'] ['table'] = 'field_data_field_klas_leerjaar';
+	$handler->display->display_options ['fields'] ['field_klas_leerjaar'] ['field'] = 'field_klas_leerjaar';
+	$handler->display->display_options ['fields'] ['field_klas_leerjaar'] ['settings'] = array (
+			'thousand_separator' => ' ',
+			'prefix_suffix' => 1 
+	);
+	/* Veld: Inhoud: Onderwijsvorm */
+	$handler->display->display_options ['fields'] ['field_klas_onderwijsvorm'] ['id'] = 'field_klas_onderwijsvorm';
+	$handler->display->display_options ['fields'] ['field_klas_onderwijsvorm'] ['table'] = 'field_data_field_klas_onderwijsvorm';
+	$handler->display->display_options ['fields'] ['field_klas_onderwijsvorm'] ['field'] = 'field_klas_onderwijsvorm';
+	/* Veld: Inhoud: Structuuronderdeel */
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['id'] = 'field_klas_structuuronderdeel';
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['table'] = 'field_data_field_klas_structuuronderdeel';
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['field'] = 'field_klas_structuuronderdeel';
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname'] ['id'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname'] ['relationship'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['fields'] ['realname'] ['label'] = 'Klastitularis';
+	/* Veld: Echte naam: Werkelijke naam */
+	$handler->display->display_options ['fields'] ['realname_1'] ['id'] = 'realname_1';
+	$handler->display->display_options ['fields'] ['realname_1'] ['table'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['field'] = 'realname';
+	$handler->display->display_options ['fields'] ['realname_1'] ['relationship'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['fields'] ['realname_1'] ['label'] = 'Hulpklastitularis';
+	/* Veld: COUNT(DISTINCT Inhoud: Leerlingen) */
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['id'] = 'field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['field'] = 'field_klas_leerlingen';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['fields'] ['field_klas_leerlingen'] ['separator'] = ', ';
+	/* Veld: COUNT(DISTINCT Inhoud: Leerkrachten) */
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['id'] = 'field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['table'] = 'field_data_field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['field'] = 'field_klas_leerkrachten';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['fields'] ['field_klas_leerkrachten'] ['separator'] = ', ';
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	/* Contextueel filter: Inhoud: Code (Smartschool) (field_klas_sms_code) */
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['id'] = 'field_klas_sms_code_value';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['table'] = 'field_data_field_klas_sms_code';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['field'] = 'field_klas_sms_code_value';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['exception'] ['title'] = 'Alle';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['default_argument_type'] = 'fixed';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary'] ['number_of_records'] = '0';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary'] ['format'] = 'default_summary';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary_options'] ['items_per_page'] = '25';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['limit'] = '0';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: COUNT(DISTINCT Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Titel';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Omschrijving (field_klas_omschrijving) */
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['id'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['field'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator_id'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['label'] = 'Omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['identifier'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name'] ['id'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['relationship'] = 'field_klas_klastitularis_target_id';
+	$handler->display->display_options ['filters'] ['name'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator_id'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['label'] = 'Klastitularis';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['operator'] = 'name_op';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['identifier'] = 'name';
+	$handler->display->display_options ['filters'] ['name'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Gebruiker: Naam (onbewerkt) */
+	$handler->display->display_options ['filters'] ['name_1'] ['id'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['name_1'] ['field'] = 'name';
+	$handler->display->display_options ['filters'] ['name_1'] ['relationship'] = 'field_klas_hulpklastitularis_target_id';
+	$handler->display->display_options ['filters'] ['name_1'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['name_1'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['name_1'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator_id'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['label'] = 'Hulpklastitularis';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['operator'] = 'name_1_op';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['identifier'] = 'name_1';
+	$handler->display->display_options ['filters'] ['name_1'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Graad (field_klas_graad) */
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['id'] = 'field_klas_graad_value';
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['table'] = 'field_data_field_klas_graad';
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['field'] = 'field_klas_graad_value';
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['expose'] ['operator_id'] = 'field_klas_graad_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['expose'] ['label'] = 'Graad';
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['expose'] ['operator'] = 'field_klas_graad_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['expose'] ['identifier'] = 'field_klas_graad_value';
+	$handler->display->display_options ['filters'] ['field_klas_graad_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Leerjaar (field_klas_leerjaar) */
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['id'] = 'field_klas_leerjaar_value';
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['table'] = 'field_data_field_klas_leerjaar';
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['field'] = 'field_klas_leerjaar_value';
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['expose'] ['operator_id'] = 'field_klas_leerjaar_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['expose'] ['label'] = 'Leerjaar';
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['expose'] ['operator'] = 'field_klas_leerjaar_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['expose'] ['identifier'] = 'field_klas_leerjaar_value';
+	$handler->display->display_options ['filters'] ['field_klas_leerjaar_value'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Onderwijsvorm (field_klas_onderwijsvorm) */
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['id'] = 'field_klas_onderwijsvorm_value';
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['table'] = 'field_data_field_klas_onderwijsvorm';
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['field'] = 'field_klas_onderwijsvorm_value';
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['expose'] ['operator_id'] = 'field_klas_onderwijsvorm_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['expose'] ['label'] = 'Onderwijsvorm';
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['expose'] ['operator'] = 'field_klas_onderwijsvorm_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['expose'] ['identifier'] = 'field_klas_onderwijsvorm_value';
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['expose'] ['multiple'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_klas_onderwijsvorm_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Inhoud: Structuuronderdeel (field_klas_structuuronderdeel) */
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['id'] = 'field_klas_structuuronderdeel_value';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['table'] = 'field_data_field_klas_structuuronderdeel';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['field'] = 'field_klas_structuuronderdeel_value';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['expose'] ['operator_id'] = 'field_klas_structuuronderdeel_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['expose'] ['label'] = 'Structuuronderdeel';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['expose'] ['operator'] = 'field_klas_structuuronderdeel_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['expose'] ['identifier'] = 'field_klas_structuuronderdeel_value';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['expose'] ['multiple'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['reduce_duplicates'] = TRUE;
+	$handler->display->display_options ['path'] = 'klassen/administratief';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Klassen - administratief';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Lessentabellen */
+	$handler = $view->new_display ( 'page', 'Lessentabellen', 'klas_lessentabel' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Lessentabellen';
+	$handler->display->display_options ['defaults'] ['group_by'] = FALSE;
+	$handler->display->display_options ['group_by'] = TRUE;
+	$handler->display->display_options ['defaults'] ['access'] = FALSE;
+	$handler->display->display_options ['access'] ['type'] = 'none';
+	$handler->display->display_options ['defaults'] ['pager'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'views_aggregator';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'field_vak_beschrijving' => 'field_vak_beschrijving',
+			'views_conditional' => 'views_conditional',
+			'nid' => 'nid' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = '-1';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'field_vak_beschrijving' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first' 
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => '' 
+			),
+			'views_conditional' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first' 
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => 0,
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => '' 
+			),
+			'nid' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0,
+					'has_aggr' => 0,
+					'aggr' => array (
+							'views_aggregator_first' => 'views_aggregator_first' 
+					),
+					'aggr_par' => '',
+					'has_aggr_column' => '1',
+					'aggr_column' => 'views_aggregator_sum',
+					'aggr_par_column' => '' 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['column_aggregation'] ['totals_per_page'] = '1';
+	$handler->display->display_options ['style_options'] ['column_aggregation'] ['totals_row_position'] = array (
+			1 => 0,
+			2 => '2' 
+	);
+	$handler->display->display_options ['style_options'] ['column_aggregation'] ['precision'] = '2';
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['relationships'] = FALSE;
+	/* Relatie: Referentie naar een entiteit: Refererende entiteit */
+	$handler->display->display_options ['relationships'] ['reverse_field_uurrooster_les_klassen_node'] ['id'] = 'reverse_field_uurrooster_les_klassen_node';
+	$handler->display->display_options ['relationships'] ['reverse_field_uurrooster_les_klassen_node'] ['table'] = 'node';
+	$handler->display->display_options ['relationships'] ['reverse_field_uurrooster_les_klassen_node'] ['field'] = 'reverse_field_uurrooster_les_klassen_node';
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_uurrooster_les_vak_target_id'] ['id'] = 'field_uurrooster_les_vak_target_id';
+	$handler->display->display_options ['relationships'] ['field_uurrooster_les_vak_target_id'] ['table'] = 'field_data_field_uurrooster_les_vak';
+	$handler->display->display_options ['relationships'] ['field_uurrooster_les_vak_target_id'] ['field'] = 'field_uurrooster_les_vak_target_id';
+	$handler->display->display_options ['relationships'] ['field_uurrooster_les_vak_target_id'] ['relationship'] = 'reverse_field_uurrooster_les_klassen_node';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Beschrijving */
+	$handler->display->display_options ['fields'] ['field_vak_beschrijving'] ['id'] = 'field_vak_beschrijving';
+	$handler->display->display_options ['fields'] ['field_vak_beschrijving'] ['table'] = 'field_data_field_vak_beschrijving';
+	$handler->display->display_options ['fields'] ['field_vak_beschrijving'] ['field'] = 'field_vak_beschrijving';
+	$handler->display->display_options ['fields'] ['field_vak_beschrijving'] ['relationship'] = 'field_uurrooster_les_vak_target_id';
+	$handler->display->display_options ['fields'] ['field_vak_beschrijving'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_vak_beschrijving'] ['exclude'] = TRUE;
+	$handler->display->display_options ['fields'] ['field_vak_beschrijving'] ['element_label_colon'] = FALSE;
+	/* Veld: Overzichten: Views Conditional */
+	$handler->display->display_options ['fields'] ['views_conditional'] ['id'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['table'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['field'] = 'views_conditional';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['label'] = 'Vak';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['if'] = 'field_vak_beschrijving';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['condition'] = '1';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['equalto'] = 'AV Niet-confessionele zedenleer';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['then'] = 'AV Levenbeschouwelijke vak (zedenleer en godsdienst)';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['or'] = '[field_vak_beschrijving]';
+	$handler->display->display_options ['fields'] ['views_conditional'] ['strip_tags'] = 0;
+	/* Veld: COUNT(Inhoud: Nid) */
+	$handler->display->display_options ['fields'] ['nid'] ['id'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['nid'] ['field'] = 'nid';
+	$handler->display->display_options ['fields'] ['nid'] ['group_type'] = 'count';
+	$handler->display->display_options ['fields'] ['nid'] ['label'] = 'Aantal uren';
+	/* Veld: Inhoud: ID (Untis) */
+	$handler->display->display_options ['fields'] ['field_uurrooster_les_id_untis_1'] ['id'] = 'field_uurrooster_les_id_untis_1';
+	$handler->display->display_options ['fields'] ['field_uurrooster_les_id_untis_1'] ['table'] = 'field_data_field_uurrooster_les_id_untis';
+	$handler->display->display_options ['fields'] ['field_uurrooster_les_id_untis_1'] ['field'] = 'field_uurrooster_les_id_untis';
+	$handler->display->display_options ['fields'] ['field_uurrooster_les_id_untis_1'] ['relationship'] = 'reverse_field_uurrooster_les_klassen_node';
+	$handler->display->display_options ['fields'] ['field_uurrooster_les_id_untis_1'] ['exclude'] = TRUE;
+	$handler->display->display_options ['defaults'] ['sorts'] = FALSE;
+	/* Sorteercriterium: Inhoud: Beschrijving (field_vak_beschrijving) */
+	$handler->display->display_options ['sorts'] ['field_vak_beschrijving_value'] ['id'] = 'field_vak_beschrijving_value';
+	$handler->display->display_options ['sorts'] ['field_vak_beschrijving_value'] ['table'] = 'field_data_field_vak_beschrijving';
+	$handler->display->display_options ['sorts'] ['field_vak_beschrijving_value'] ['field'] = 'field_vak_beschrijving_value';
+	$handler->display->display_options ['sorts'] ['field_vak_beschrijving_value'] ['relationship'] = 'field_uurrooster_les_vak_target_id';
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	/* Contextueel filter: Inhoud: Code (Smartschool) (field_klas_sms_code) */
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['id'] = 'field_klas_sms_code_value';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['table'] = 'field_data_field_klas_sms_code';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['field'] = 'field_klas_sms_code_value';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['default_action'] = 'empty';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['exception'] ['value'] = '';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['exception'] ['title'] = 'Alle';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['title_enable'] = TRUE;
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['title'] = 'Lessentabel van %1';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['breadcrumb'] = 'opleidingen';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary'] ['number_of_records'] = '0';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary'] ['format'] = 'default_summary';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary_options'] ['items_per_page'] = '25';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['validate'] ['fail'] = 'empty';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['limit'] = '0';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['case'] = 'upper';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Beschrijving (field_vak_beschrijving) */
+	$handler->display->display_options ['filters'] ['field_vak_beschrijving_value'] ['id'] = 'field_vak_beschrijving_value';
+	$handler->display->display_options ['filters'] ['field_vak_beschrijving_value'] ['table'] = 'field_data_field_vak_beschrijving';
+	$handler->display->display_options ['filters'] ['field_vak_beschrijving_value'] ['field'] = 'field_vak_beschrijving_value';
+	$handler->display->display_options ['filters'] ['field_vak_beschrijving_value'] ['relationship'] = 'field_uurrooster_les_vak_target_id';
+	$handler->display->display_options ['filters'] ['field_vak_beschrijving_value'] ['operator'] = 'not';
+	$handler->display->display_options ['filters'] ['field_vak_beschrijving_value'] ['value'] = 'godsdienst';
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'klas/%/lessentabel';
+	
+	/* Display: Klassen: lessentabellen */
+	$handler = $view->new_display ( 'page', 'Klassen: lessentabellen', 'klassen_lessentabellen' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['title'] = 'Klassen: lessentabellen';
+	$handler->display->display_options ['display_description'] = 'Overzicht van alle officiële lessentabellen.';
+	$handler->display->display_options ['defaults'] ['pager'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'full';
+	$handler->display->display_options ['pager'] ['options'] ['items_per_page'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['id'] = '0';
+	$handler->display->display_options ['pager'] ['options'] ['quantity'] = '9';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_label'] = 'Items per pagina';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['items_per_page_options_all_label'] = '- Alle -';
+	$handler->display->display_options ['pager'] ['options'] ['expose'] ['offset_label'] = 'Startpunt';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['first'] = '« eerste';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['previous'] = '‹ vorige';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['next'] = 'volgende ›';
+	$handler->display->display_options ['pager'] ['options'] ['tags'] ['last'] = 'laatste »';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'table';
+	$handler->display->display_options ['style_options'] ['columns'] = array (
+			'title' => 'title',
+			'field_klas_omschrijving' => 'field_klas_omschrijving',
+			'title_1' => 'title_1' 
+	);
+	$handler->display->display_options ['style_options'] ['default'] = 'title';
+	$handler->display->display_options ['style_options'] ['info'] = array (
+			'title' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'field_klas_omschrijving' => array (
+					'sortable' => '1',
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-left',
+					'separator' => '',
+					'empty_column' => 0 
+			),
+			'title_1' => array (
+					'sortable' => 0,
+					'default_sort_order' => 'asc',
+					'align' => 'views-align-right',
+					'separator' => '',
+					'empty_column' => 0 
+			) 
+	);
+	$handler->display->display_options ['style_options'] ['sticky'] = TRUE;
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['exposed_block'] = TRUE;
+	$handler->display->display_options ['defaults'] ['header'] = FALSE;
+	/* Kop: Algemeen: Ongefilterde tekst */
+	$handler->display->display_options ['header'] ['area_text_custom'] ['id'] = 'area_text_custom';
+	$handler->display->display_options ['header'] ['area_text_custom'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area_text_custom'] ['field'] = 'area_text_custom';
+	$handler->display->display_options ['header'] ['area_text_custom'] ['content'] = 'Bron: <a href="http://pro.g-o.be/pedagogische-begeleiding/secundair-onderwijs/leerplannen-en-lessentabellen-secundair-onderwijs" target="_blank">http://pro.g-o.be/pedagogische-begeleiding/secundair-onderwijs/leerplannen-en-lessentabellen-secundair-onderwijs</a>';
+	/* Kop: Algemeen: Tekstveld */
+	$handler->display->display_options ['header'] ['area'] ['id'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['table'] = 'views';
+	$handler->display->display_options ['header'] ['area'] ['field'] = 'area';
+	$handler->display->display_options ['header'] ['area'] ['content'] = '<div style="text-align: left; font-size: 11px; font-style: normal;">Overzicht van de klassen en hun officiële lessentabel zoals opgenomen in Smartschool, Untis en argus; gebaseerd op de officiële lessentabellen van het GO! Secundair onderwijs (SO):</div>';
+	$handler->display->display_options ['header'] ['area'] ['format'] = 'filtered_html';
+	$handler->display->display_options ['defaults'] ['relationships'] = FALSE;
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['word_boundary'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['ellipsis'] = FALSE;
+	/* Veld: Inhoud: Omschrijving */
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['id'] = 'field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['field'] = 'field_klas_omschrijving';
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title_1'] ['id'] = 'title_1';
+	$handler->display->display_options ['fields'] ['title_1'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title_1'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title_1'] ['label'] = 'Lessentabel';
+	$handler->display->display_options ['fields'] ['title_1'] ['alter'] ['alter_text'] = TRUE;
+	$handler->display->display_options ['fields'] ['title_1'] ['alter'] ['text'] = 'bekijken';
+	$handler->display->display_options ['fields'] ['title_1'] ['alter'] ['make_link'] = TRUE;
+	$handler->display->display_options ['fields'] ['title_1'] ['alter'] ['path'] = '/klas/[title_1]/lessentabel';
+	$handler->display->display_options ['fields'] ['title_1'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['title_1'] ['link_to_node'] = FALSE;
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: COUNT(DISTINCT Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Titel */
+	$handler->display->display_options ['filters'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['title'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['title'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator_id'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['label'] = 'Titel';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['operator'] = 'title_op';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['identifier'] = 'title';
+	$handler->display->display_options ['filters'] ['title'] ['expose'] ['remember_roles'] = array ();
+	/* Filtercriterium: Inhoud: Omschrijving (field_klas_omschrijving) */
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['id'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['field'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['operator'] = 'contains';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['exposed'] = TRUE;
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator_id'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['label'] = 'Omschrijving';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['operator'] = 'field_klas_omschrijving_value_op';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['identifier'] = 'field_klas_omschrijving_value';
+	$handler->display->display_options ['filters'] ['field_klas_omschrijving_value'] ['expose'] ['remember_roles'] = array ();
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$handler->display->display_options ['path'] = 'klassen/lessentabellen';
+	$handler->display->display_options ['menu'] ['type'] = 'normal';
+	$handler->display->display_options ['menu'] ['title'] = 'Lessentabellen';
+	$handler->display->display_options ['menu'] ['weight'] = '0';
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	$handler->display->display_options ['menu'] ['name'] = $menu;
+	$handler->display->display_options ['menu'] ['context'] = 0;
+	$handler->display->display_options ['menu'] ['context_only_inline'] = 0;
+	
+	/* Display: Klassen: gepersonaliseerd */
+	$handler = $view->new_display ( 'entityreference', 'Klassen: gepersonaliseerd', 'entityreference_1' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'none';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'entityreference_style';
+	$handler->display->display_options ['style_options'] ['search_fields'] = array (
+			'title' => 'title',
+			'field_klas_omschrijving' => 0 
+	);
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['row_plugin'] = 'entityreference_fields';
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['word_boundary'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['ellipsis'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['link_to_node'] = FALSE;
+	/* Veld: Inhoud: Omschrijving */
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['id'] = 'field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['table'] = 'field_data_field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['field'] = 'field_klas_omschrijving';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_klas_omschrijving'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	/* Contextueel filter: Inhoud: Code (Smartschool) (field_klas_sms_code) */
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['id'] = 'field_klas_sms_code_value';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['table'] = 'field_data_field_klas_sms_code';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['field'] = 'field_klas_sms_code_value';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['exception'] ['title'] = 'Alle';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['default_argument_type'] = 'fixed';
+	$handler->display->display_options ['arguments'] ['field_klas_sms_code_value'] ['summary'] ['format'] = 'default_summary';
+	/* Contextueel filter: SUM(Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'sum';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['default_action'] = 'summary';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['exception'] ['title'] = 'Alle';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['default_argument_type'] = 'fixed';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['summary'] ['number_of_records'] = '0';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['summary'] ['format'] = 'default_summary';
+	$handler->display->display_options ['arguments'] ['field_klas_leerlingen_target_id'] ['summary_options'] ['items_per_page'] = '25';
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Gebruiker: Actief */
+	$handler->display->display_options ['filters'] ['status_1'] ['id'] = 'status_1';
+	$handler->display->display_options ['filters'] ['status_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['status_1'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_1'] ['relationship'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['status_1'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_1'] ['group'] = 1;
+	/* Filtercriterium: Gebruiker: Actief */
+	$handler->display->display_options ['filters'] ['status_2'] ['id'] = 'status_2';
+	$handler->display->display_options ['filters'] ['status_2'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['status_2'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_2'] ['relationship'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['filters'] ['status_2'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_2'] ['group'] = 1;
+	/* Filtercriterium: COUNT(DISTINCT Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group'] = 1;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	
+	/* Display: Structuuronderdelen */
+	$handler = $view->new_display ( 'entityreference', 'Structuuronderdelen', 'entityreference_klas_structuuronderdeel' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['defaults'] ['cache'] = FALSE;
+	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
+	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '21600';
+	$handler->display->display_options ['cache'] ['output_min_lifespan'] = '-1';
+	$handler->display->display_options ['cache'] ['output_max_lifespan'] = '21600';
+	$handler->display->display_options ['cache'] ['keys'] = array (
+			'comment' => array (
+					'changed' => 0 
+			),
+			'node' => array (
+					'klas' => 'klas' 
+			),
+			'node_only' => array (
+					'node_changed' => 0 
+			) 
+	);
+	$handler->display->display_options ['pager'] ['type'] = 'none';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'entityreference_style';
+	$handler->display->display_options ['style_options'] ['search_fields'] = array (
+			'field_klas_structuuronderdeel' => 'field_klas_structuuronderdeel' 
+	);
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['row_plugin'] = 'entityreference_fields';
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Structuuronderdeel */
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['id'] = 'field_klas_structuuronderdeel';
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['table'] = 'field_data_field_klas_structuuronderdeel';
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['field'] = 'field_klas_structuuronderdeel';
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['field_klas_structuuronderdeel'] ['group_column'] = 'entity_id';
+	$handler->display->display_options ['defaults'] ['sorts'] = FALSE;
+	/* Sorteercriterium: Inhoud: Structuuronderdeel (field_klas_structuuronderdeel) */
+	$handler->display->display_options ['sorts'] ['field_klas_structuuronderdeel_value'] ['id'] = 'field_klas_structuuronderdeel_value';
+	$handler->display->display_options ['sorts'] ['field_klas_structuuronderdeel_value'] ['table'] = 'field_data_field_klas_structuuronderdeel';
+	$handler->display->display_options ['sorts'] ['field_klas_structuuronderdeel_value'] ['field'] = 'field_klas_structuuronderdeel_value';
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Gebruiker: Actief */
+	$handler->display->display_options ['filters'] ['status_1'] ['id'] = 'status_1';
+	$handler->display->display_options ['filters'] ['status_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['status_1'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_1'] ['relationship'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['status_1'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_1'] ['group'] = 1;
+	/* Filtercriterium: Gebruiker: Actief */
+	$handler->display->display_options ['filters'] ['status_2'] ['id'] = 'status_2';
+	$handler->display->display_options ['filters'] ['status_2'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['status_2'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_2'] ['relationship'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['filters'] ['status_2'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_2'] ['group'] = 1;
+	/* Filtercriterium: COUNT(DISTINCT Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Structuuronderdeel (field_klas_structuuronderdeel) */
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['id'] = 'field_klas_structuuronderdeel_value';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['table'] = 'field_data_field_klas_structuuronderdeel';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['field'] = 'field_klas_structuuronderdeel_value';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['operator'] = 'not empty';
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['value'] = array (
+			'all' => 'all' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_structuuronderdeel_value'] ['reduce_duplicates'] = TRUE;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	
+	/* Display: Onderwijsvormen */
+	$handler = $view->new_display ( 'entityreference', 'Onderwijsvormen', 'entityreference_klas_onderwijsvorm' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'none';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'entityreference_style';
+	$handler->display->display_options ['style_options'] ['search_fields'] = array (
+			'field_klas_onderwijsvorm' => 'field_klas_onderwijsvorm' 
+	);
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['row_plugin'] = 'entityreference_fields';
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Onderwijsvorm */
+	$handler->display->display_options ['fields'] ['field_klas_onderwijsvorm'] ['id'] = 'field_klas_onderwijsvorm';
+	$handler->display->display_options ['fields'] ['field_klas_onderwijsvorm'] ['table'] = 'field_data_field_klas_onderwijsvorm';
+	$handler->display->display_options ['fields'] ['field_klas_onderwijsvorm'] ['field'] = 'field_klas_onderwijsvorm';
+	$handler->display->display_options ['fields'] ['field_klas_onderwijsvorm'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['field_klas_onderwijsvorm'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['defaults'] ['sorts'] = FALSE;
+	/* Sorteercriterium: Inhoud: Onderwijsvorm (field_klas_onderwijsvorm) */
+	$handler->display->display_options ['sorts'] ['field_klas_onderwijsvorm_value'] ['id'] = 'field_klas_onderwijsvorm_value';
+	$handler->display->display_options ['sorts'] ['field_klas_onderwijsvorm_value'] ['table'] = 'field_data_field_klas_onderwijsvorm';
+	$handler->display->display_options ['sorts'] ['field_klas_onderwijsvorm_value'] ['field'] = 'field_klas_onderwijsvorm_value';
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: Gebruiker: Actief */
+	$handler->display->display_options ['filters'] ['status_1'] ['id'] = 'status_1';
+	$handler->display->display_options ['filters'] ['status_1'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['status_1'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_1'] ['relationship'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['status_1'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_1'] ['group'] = 1;
+	/* Filtercriterium: Gebruiker: Actief */
+	$handler->display->display_options ['filters'] ['status_2'] ['id'] = 'status_2';
+	$handler->display->display_options ['filters'] ['status_2'] ['table'] = 'users';
+	$handler->display->display_options ['filters'] ['status_2'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status_2'] ['relationship'] = 'field_klas_leerkrachten_target_id';
+	$handler->display->display_options ['filters'] ['status_2'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status_2'] ['group'] = 1;
+	/* Filtercriterium: COUNT(DISTINCT Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count_distinct';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group'] = 1;
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	
+	/* Display: Selectielijst: Klassen */
+	$handler = $view->new_display ( 'entityreference', 'Selectielijst: Klassen', 'entityreference_klassen' );
+	$handler->display->display_options ['defaults'] ['title'] = FALSE;
+	$handler->display->display_options ['pager'] ['type'] = 'none';
+	$handler->display->display_options ['pager'] ['options'] ['offset'] = '0';
+	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
+	$handler->display->display_options ['style_plugin'] = 'entityreference_style';
+	$handler->display->display_options ['style_options'] ['search_fields'] = array (
+			'title' => 'title' 
+	);
+	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
+	$handler->display->display_options ['row_plugin'] = 'entityreference_fields';
+	$handler->display->display_options ['defaults'] ['row_options'] = FALSE;
+	$handler->display->display_options ['defaults'] ['relationships'] = FALSE;
+	/* Relatie: Referentie naar een entiteit: Gerefereerde entiteit */
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['relationships'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['defaults'] ['fields'] = FALSE;
+	/* Veld: Inhoud: Titel */
+	$handler->display->display_options ['fields'] ['title'] ['id'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['table'] = 'node';
+	$handler->display->display_options ['fields'] ['title'] ['field'] = 'title';
+	$handler->display->display_options ['fields'] ['title'] ['label'] = '';
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['word_boundary'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['alter'] ['ellipsis'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['element_label_colon'] = FALSE;
+	$handler->display->display_options ['fields'] ['title'] ['link_to_node'] = FALSE;
+	$handler->display->display_options ['defaults'] ['arguments'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filter_groups'] = FALSE;
+	$handler->display->display_options ['defaults'] ['filters'] = FALSE;
+	/* Filtercriterium: Inhoud: Gepubliceerd */
+	$handler->display->display_options ['filters'] ['status'] ['id'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['status'] ['field'] = 'status';
+	$handler->display->display_options ['filters'] ['status'] ['value'] = '1';
+	$handler->display->display_options ['filters'] ['status'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['status'] ['expose'] ['operator'] = FALSE;
+	/* Filtercriterium: Inhoud: Type */
+	$handler->display->display_options ['filters'] ['type'] ['id'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['table'] = 'node';
+	$handler->display->display_options ['filters'] ['type'] ['field'] = 'type';
+	$handler->display->display_options ['filters'] ['type'] ['value'] = array (
+			'klas' => 'klas' 
+	);
+	$handler->display->display_options ['filters'] ['type'] ['group'] = 1;
+	/* Filtercriterium: Inhoud: Status (Smartschool) (field_klas_sms_status) */
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['id'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['table'] = 'field_data_field_klas_sms_status';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['field'] = 'field_klas_sms_status_value';
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['value'] = array (
+			'actief' => 'actief' 
+	);
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['group'] = 1;
+	$handler->display->display_options ['filters'] ['field_klas_sms_status_value'] ['reduce_duplicates'] = TRUE;
+	/* Filtercriterium: COUNT(Inhoud: Leerlingen (field_klas_leerlingen)) */
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['id'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['table'] = 'field_data_field_klas_leerlingen';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['field'] = 'field_klas_leerlingen_target_id';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['group_type'] = 'count';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['operator'] = '>';
+	$handler->display->display_options ['filters'] ['field_klas_leerlingen_target_id'] ['value'] ['value'] = '0';
+	$handler->display->display_options ['qtip_instance'] = 'standaard';
+	$translatables ['klassen'] = array (
+			t ( 'Master' ),
+			t ( 'Klastitularissen en hulpklastitularissen' ),
+			t ( 'meer' ),
+			t ( 'Toepassen' ),
+			t ( 'Opnieuw instellen' ),
+			t ( 'Sorteren op' ),
+			t ( 'Oplopend' ),
+			t ( 'Aflopend' ),
+			t ( 'Items per pagina' ),
+			t ( '- Alle -' ),
+			t ( 'Startpunt' ),
+			t ( '« eerste' ),
+			t ( '‹ vorige' ),
+			t ( 'volgende ›' ),
+			t ( 'laatste »' ),
+			t ( 'Gebruiker entity referenced from field_klas_leerlingen' ),
+			t ( 'Gebruiker entity referenced from field_klas_leerkrachten' ),
+			t ( 'Titel' ),
+			t ( 'Omschrijving' ),
+			t ( 'Klastitularis' ),
+			t ( 'Hulpklastitularis' ),
+			t ( 'Leerlingen' ),
+			t ( 'Leerkrachten' ),
+			t ( 'Alle' ),
+			t ( 'Leerling' ),
+			t ( 'Leerkracht' ),
+			t ( 'Klassen' ),
+			t ( 'Overzicht van alle klassen.' ),
+			t ( 'Gebruiker entity referenced from field_klas_hulpklastitularis' ),
+			t ( 'Gebruiker entity referenced from field_klas_klastitularis' ),
+			t ( 'Klastitularissen' ),
+			t ( 'Overzicht van alle klastitularissen en hulpklastitularissen.' ),
+			t ( 'Klassen: administratieve gegevens' ),
+			t ( 'Klassen: administratief' ),
+			t ( 'Overzicht van alle administratieve klasgegevens.' ),
+			t ( 'Graad' ),
+			t ( 'Leerjaar' ),
+			t ( 'Onderwijsvorm' ),
+			t ( 'Structuuronderdeel' ),
+			t ( 'Lessentabellen' ),
+			t ( 'Inhoud referencing Inhoud from field_uurrooster_les_klassen' ),
+			t ( 'Inhoud entity referenced from field_uurrooster_les_vak' ),
+			t ( 'Vak' ),
+			t ( 'Aantal uren' ),
+			t ( 'ID (Untis)' ),
+			t ( 'Lessentabel van %1' ),
+			t ( 'opleidingen' ),
+			t ( 'Klassen: lessentabellen' ),
+			t ( 'Overzicht van alle officiële lessentabellen.' ),
+			t ( 'Bron: <a href="http://pro.g-o.be/pedagogische-begeleiding/secundair-onderwijs/leerplannen-en-lessentabellen-secundair-onderwijs" target="_blank">http://pro.g-o.be/pedagogische-begeleiding/secundair-onderwijs/leerplannen-en-lessentabellen-secundair-onderwijs</a>' ),
+			t ( '<div style="text-align: left; font-size: 11px; font-style: normal;">Overzicht van de klassen en hun officiële lessentabel zoals opgenomen in Smartschool, Untis en argus; gebaseerd op de officiële lessentabellen van het GO! Secundair onderwijs (SO):</div>' ),
+			t ( 'Lessentabel' ),
+			t ( 'bekijken' ),
+			t ( 'Klassen: gepersonaliseerd' ),
+			t ( 'Structuuronderdelen' ),
+			t ( 'Onderwijsvormen' ),
+			t ( 'Selectielijst: Klassen' ) 
+	);
+	
+	$views [$view->name] = $view;
+	return $views;
 }
 
 /**
  * Implements hook_node_info().
  */
 function argus_klasbeheer_node_info() {
-  $items = array(
-    'klas' => array(
-      'name' => t('Klas'),
-      'base' => 'node_content',
-      'description' => t('Een <em>klas</em> groepeert leerlingen & leerkrachten en laat je toe om extra gegevens in te stellen zoals richting, graad en klastitularis.'),
-      'has_title' => '1',
-      'title_label' => t('Afkorting'),
-      'help' => '',
-    ),
-  );
-  drupal_alter('node_info', $items);
-  return $items;
+	$items = array (
+			'klas' => array (
+					'name' => t ( 'Klas' ),
+					'base' => 'node_content',
+					'description' => t ( 'Een <em>klas</em> groepeert leerlingen & leerkrachten en laat je toe om extra gegevens in te stellen zoals richting, graad en klastitularis.' ),
+					'has_title' => '1',
+					'title_label' => t ( 'Afkorting' ),
+					'help' => '' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
 }
 
+/**
+ * Implement hook_form()
+ */
+function argus_klasbeheer_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
 
 /**
-* Implements hook_block_info().
-*/
+ * Implements hook_block_info().
+ */
 function argus_klasbeheer_block_info() {
-    $blocks = array();
-    $blocks['klasbeeld'] = array(
-        'info' => t('Klasbeeld'),
-        'title' => t('Klasbeeld'),
-    );
-
-    return $blocks;
+	$blocks = array ();
+	$blocks ['klasbeeld'] = array (
+			'info' => t ( 'Klasbeeld' ),
+			'cache' => DRUPAL_CACHE_GLOBAL,
+			'weight' => 2,
+			'status' => 1,
+			'region' => 'sidebar_first',
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => 'klassenraden' . chr ( 13 ) . 'klassenraden/*' . chr ( 13 ) . 'klassenraden-notities' . chr ( 13 ) . 'klassenraden-notities/*' 
+	);
+	
+	return $blocks;
 }
 
 /**
  * Implements hook_block_view().
  */
 function argus_klasbeheer_block_view($delta = '') {
-    $block = array();
-    $variables = array();
-    $today = new DateTime('NOW');
-
-    /* Filter data only for this schoolyear (active schoolyear) */
-    $schoolyear = (array) argus_schoolyear(0);
-    
-    global $user;
-    $query = 'SELECT DISTINCT n.nid AS nid, '
-        . 'l.entity_id AS id, '
-        . 'l.field_lvs_melding_leerling_target_id AS uid, '
-        . 'klas_id.entity_id AS cid, '
-        . 'klas.title AS cname, '
-        . 'n.uid AS author, '
-        . 'd.field_lvs_melding_datum_feit_value AS factdate, '
-        . 'p.field_lvs_melding_prive_value AS private, '
-        . 'b.field_lvs_melding_betreft_value AS about, '
-        . 'name.field_user_sms_naam_value AS name '
-        . 'FROM {field_data_field_lvs_melding_leerling} AS l '
-        . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = l.field_lvs_melding_leerling_target_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
-        . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id '
-        . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid '
-        . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid '
-        . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON l.field_lvs_melding_leerling_target_id = name.entity_id '
-        . 'WHERE d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
-        . 'AND b.field_lvs_melding_betreft_value = :about ';
-    $params = array();
-    
-    $pupils = array();
-    
-    // Setup query for ktt/hktt
-    if (argus_get_user_has_role($user->uid,'ktt')){
-        $q2 = 'SELECT n.nid AS id, '
-            . 'n.title AS title '
-            . 'FROM {node} AS n '
-            . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id '
-            . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id '
-            . 'WHERE ktt.field_klas_klastitularis_target_id = :uid '
-            . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
-        $variables['myClasses'] = db_query($q2, array(':uid' => $user->uid))->fetchAllKeyed();
-        
-        if (count($variables['myClasses'])){
-            $query .= 'AND klas_id.entity_id IN (:cids) ';
-            $params[':cids'] = array_keys($variables['myClasses']);
-            
-            foreach ($params[':cids'] as $cid){
-                $class = node_load($cid);
-				if (array_key_exists(LANGUAGE_NONE, $class->field_klas_leerlingen)){
-                	$pupils[$cid] = $class->field_klas_leerlingen[LANGUAGE_NONE];
-				}
-            }
-
-            // TODO: check policy -> only private messages for ILB & Staff !
-            $query .= 'AND p.field_lvs_melding_prive_value != :private ';
-            $params[':private'] = 1;
-
-            $variables['reportType'] = 'ktt';
-        }
-    }
-    
-    // Setup query for ilb
-    if (argus_get_user_has_role($user->uid,'ilb')){
-        $variables['reportType'] = 'ilb';
-    }
-    
-    // Setup query for staff
-    if (argus_get_user_has_role($user->uid,'staff')){
-        $variables['reportType'] = 'staff';
-    }
-    
-    $query .= 'ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC ';
-    if (isset($variables['reportType'])){
-        // Retrieve data about : absences
-        $codes = array('B', 'D', 'Z', '-', 'G', 'T', 'C', 'H', 'R', 'O', 'Q', 'P', 'J');
-        if ($variables['reportType'] == 'ktt'){
-           	foreach ($params[':cids'] as $cid){
-				if (array_key_exists($cid, $pupils)){
-	                foreach ($pupils[$cid] as $student){
-	                    $variables['absences'][$cid][$student['target_id']]['absence']['last'] = 0;
-	                    $variables['absences'][$cid][$student['target_id']]['late']['last'] = 0;
-			    
-	                    $queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total '
-	                        . 'FROM {argus_lvs_afwezigheden} AS a '
-	                        . 'WHERE a.leerling = :uid '
-	                        . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
-	                    for ($w = 3; $w > 0; $w--){
-	                        // Absences
-	                        $results = db_query($queryAbsences.'AND a.am IN (:code)', array(':uid' => $student['target_id'], ':code' => $codes, ':startdate' => date('Ymd', strtotime('-'.$w.' weeks')), ':enddate' => date('Ymd', strtotime('-'.($w-1).' weeks'))))->fetchAll();
-	                        foreach ($results as $r){
-	                            $variables['absences'][$cid][$student['target_id']]['absence'][$w] = $r->total;
-	                            $variables['absences'][$cid][$student['target_id']]['absence']['last'] += $r->total;
-	                        }
-	                        $results = db_query($queryAbsences.'AND a.pm IN (:code)', array(':uid' => $student['target_id'], ':code' => $codes, ':startdate' => date('Ymd', strtotime('-'.$w.' weeks')), ':enddate' => date('Ymd', strtotime('-'.($w-1).' weeks'))))->fetchAll();
-	                        foreach ($results as $r){
-	                            $variables['absences'][$cid][$student['target_id']]['absence'][$w] += $r->total;
-	                            $variables['absences'][$cid][$student['target_id']]['absence']['last'] += $r->total;
-	                        }
-	                        // Late
-	                        $results = db_query($queryAbsences.'AND (a.am IN (:code) OR a.pm IN (:code))', array(':uid' => $student['target_id'], ':code' => array('L'), ':startdate' => date('Ymd', strtotime('-'.$w.' weeks')), ':enddate' => date('Ymd', strtotime('-'.($w-1).' weeks'))))->fetchAll();
-	                        foreach ($results as $r){
-	                            $variables['absences'][$cid][$student['target_id']]['late'][$w] = $r->total;
-	                            $variables['absences'][$cid][$student['target_id']]['late']['last'] += $r->total;
-	                        }
-	                    }
-	                    $results = db_query($queryAbsences.'AND a.am IN (:code)', array(':uid' => $student['target_id'], ':code' => $codes, ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
-	                    $variables['absences'][$cid][$student['target_id']]['absence']['total'] = $results[0]->total;
-	                    $results = db_query($queryAbsences.'AND a.pm IN (:code)', array(':uid' => $student['target_id'], ':code' => $codes, ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
-	                    $variables['absences'][$cid][$student['target_id']]['absence']['total'] += $results[0]->total;
-	                    
-	                    $results = db_query($queryAbsences.'AND (a.am IN (:code) OR a.pm IN (:code))', array(':uid' => $student['target_id'], ':code' => array('L'), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
-	                    $variables['absences'][$cid][$student['target_id']]['late']['total'] = $results[0]->total;
-	                }
-				}
-		    }
-        } else {
-            $today = date('Ymd');
-            $queryAbsences = 'SELECT DISTINCT a.leerling, klas_id.entity_id AS class_id '
-                . 'FROM {argus_lvs_afwezigheden} AS a '
-                . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = a.leerling '
-                . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid '
-                . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON a.leerling = name.entity_id '
-                . 'WHERE a.datum = :today AND klas_id.entity_id IS NOT NULL ';
-            $results = db_query($queryAbsences.'AND (a.am IN (:code) OR a.pm IN (:code)) ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC', array(':code' => $codes, ':today' => $today))->fetchAll();
-            if ($results){
-                $variables['absencesTotal'] = count($results);
-                foreach ($results as $absence){
-                    $queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total '
-                        . 'FROM {argus_lvs_afwezigheden} AS a '
-                        . 'WHERE a.leerling = :uid '
-                        . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
-                    $resultsSchoolyear = db_query($queryAbsences.'AND a.am IN (:code)', array(':uid' => $absence->leerling, ':code' => $codes, ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
-                    $variables['absences'][$absence->class_id][$absence->leerling]['schoolyear'] = $resultsSchoolyear[0]->total;
-                    $resultsSchoolyear = db_query($queryAbsences.'AND a.pm IN (:code)', array(':uid' => $absence->leerling, ':code' => $codes, ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
-                    $variables['absences'][$absence->class_id][$absence->leerling]['schoolyear'] += $resultsSchoolyear[0]->total;
-                    $cntr = 0;
-                    do {
-                        $cntr++;
-                        $checkdate = strtotime('-'.$cntr.'days',$today);
-                        $queryAbsencesPupil = 'SELECT DISTINCT COUNT(a.id) AS total '
-                            . 'FROM {argus_lvs_afwezigheden} AS a '
-                            . 'WHERE a.leerling = :uid '
-                            . 'AND a.datum = :date '
-                            . 'AND (a.am IN (:code) OR a.pm IN (:code))';
-                        $resultsPupil = db_query($queryAbsencesPupil, array(':uid' => $absence->leerling, ':code' => $codes, ':date' => date('Y-m-d', $checkdate)))->fetchAll();
-                    } while($resultsPupil && date('Y-m-d', $checkdate) > $schoolyear['start']);
-                    $variables['absences'][$absence->class_id][$absence->leerling]['length'] = $cntr;
-                }
-            }
-            
-            $queryAbsences = 'SELECT DISTINCT a.leerling, klas_id.entity_id AS class_id '
-                . 'FROM {argus_lvs_afwezigheden} AS a '
-                . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = a.leerling '
-                . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid '
-                . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON a.leerling = name.entity_id '
-                . 'WHERE a.datum = :today AND klas_id.entity_id IS NOT NULL ';
-            $results = db_query($queryAbsences.'AND (a.am IN (:code) OR a.pm IN (:code)) ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC', array(':code' => array('L'), ':today' => $today))->fetchAll();
-            if ($results){
-                $variables['lateTotal'] = count($results);
-                foreach ($results as $absence){
-                    $queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total '
-                        . 'FROM {argus_lvs_afwezigheden} AS a '
-                        . 'WHERE a.leerling = :uid '
-                        . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
-                    $resultsSchoolyear = db_query($queryAbsences.'AND a.am IN (:code)', array(':uid' => $absence->leerling, ':code' => array('L'), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
-                    $variables['late'][$absence->class_id][$absence->leerling]['schoolyear'] = $resultsSchoolyear[0]->total;
-                    $resultsSchoolyear = db_query($queryAbsences.'AND a.pm IN (:code)', array(':uid' => $absence->leerling, ':code' => array('L'), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
-                    $variables['late'][$absence->class_id][$absence->leerling]['schoolyear'] += $resultsSchoolyear[0]->total;
-                }
-            }
-        }
-        
-        // Retrieve data about : negative behaviour
-        $behaviourParams = array('negatief gedrag', 'positief gedrag');
-        foreach ($behaviourParams as $bp){
-	        $params[':about'] = $bp;
-	        $variables['behaviour'] = array();
-	        
-	            // Get total status
-	            $params[':startdate'] = $schoolyear['start'];
-	            $params[':enddate'] = $schoolyear['end'];
-	            $reports = db_query($query, $params)->fetchAll();
-	            foreach ($reports as $report){
-	                if (isset($variables['behaviour'][$report->cid][$report->uid]['neg'])){
-	                    $variables['behaviour'][$report->cid][$report->uid]['neg']['total']++;
-	                } else {
-	                    $variables['behaviour'][$report->cid][$report->uid]['neg'] = array(
-	                        'total' => 1,
-	                        'today' => 0,
-	                        'previous' => 0,
-	                    );
-	                }
-	            }
-	            // Get current status
-	            $params[':startdate'] = date('Ymd', strtotime('-30days'));
-	            $params[':enddate'] = date('Ymd');
-	            $reports = db_query($query, $params)->fetchAll();
-	            foreach ($reports as $report){
-	                if (isset($variables['behaviour'][$report->cid][$report->uid]['neg'])){
-	                    $variables['behaviour'][$report->cid][$report->uid]['neg']['today']++;
-	                } else {
-	                    $variables['behaviour'][$report->cid][$report->uid]['neg'] = array(
-	                        'total' => 0,
-	                        'today' => 1,
-	                        'previous' => 0,
-	                    );
-	                }
-	            }
-	            // Get previous status
-	            $params[':startdate'] = date('Ymd', strtotime('-60days'));
-	            $params[':enddate'] = date('Ymd', strtotime('-30days'));
-	            $reports = db_query($query, $params)->fetchAll();
-	            foreach ($reports as $report){
-	                if (isset($variables['behaviour'][$report->cid][$report->uid]['neg'])){
-	                    $variables['behaviour'][$report->cid][$report->uid]['neg']['total']++;
-	                } else {
-	                    $variables['behaviour'][$report->cid][$report->uid]['neg'] = array(
-	                        'total' => 1,
-	                        'today' => 0,
-	                        'previous' => 0,
-	                    );
-	                }
-	            }
-        }
-            
-        // Retrieve data about : study
-        $query = 'SELECT id, afkorting '
-            . 'FROM {argus_skore_periode} '
-            . 'ORDER BY volgorde ASC';
-        $variables['periods'] = db_query($query)->fetchAll();
-        if ($variables['reportType'] == 'ktt'){
-            foreach ($params[':cids'] as $cid){
-				if (array_key_exists($cid, $pupils)){
-	                foreach ($pupils[$cid] as $student){
-	                    foreach ($variables['periods'] as $p){
-	                        $query = 'SELECT r.behaald, r.max '
-	                            . 'FROM {argus_skore_resultaten} AS r '
-	                            . 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid';
-	                        $results = db_query($query, array(':uid' => $student['target_id'], ':pid' => $p->id, 'schoolyear' => substr($schoolyear['start'],0,4).'-'.substr($schoolyear['end'],0,4)))->fetchAll();
-	                        $fails = 0;
-	                        $success = 0;
-	                        foreach ($results as $r){
-	                            if (isset($r->behaald)){
-	                                if ((real) $r->behaald < ((real) $r->max)/2){
-	                                    $fails++;
-	                                } else {
-	                                    $success++;
-	                                }
-	                            }
+	$block = array ();
+	$variables = array ();
+	$today = new DateTime ( 'NOW' );
 	
-	                        }
-	                        $variables['study'][$cid][$student['target_id']][$p->afkorting]['fails'] = $fails;
-	                        $variables['study'][$cid][$student['target_id']][$p->afkorting]['success'] = $success;
-	                        $variables['study'][$cid][$student['target_id']][$p->afkorting]['total'] = $success+$fails;
-	                    }
-	                }
+	/* Filter data only for this schoolyear (active schoolyear) */
+	$schoolyear = ( array ) argus_schoolyear ( 0 );
+	
+	global $user;
+	$query = 'SELECT DISTINCT n.nid AS nid, ' . 'l.entity_id AS id, ' . 'l.field_lvs_melding_leerling_target_id AS uid, ' . 'klas_id.entity_id AS cid, ' . 'klas.title AS cname, ' . 'n.uid AS author, ' . 'd.field_lvs_melding_datum_feit_value AS factdate, ' . 'p.field_lvs_melding_prive_value AS private, ' . 'b.field_lvs_melding_betreft_value AS about, ' . 'name.field_user_sms_naam_value AS name ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = l.field_lvs_melding_leerling_target_id ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id ' . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ' . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid ' . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON l.field_lvs_melding_leerling_target_id = name.entity_id ' . 'WHERE d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value = :about ';
+	$params = array ();
+	
+	$pupils = array ();
+	
+	// Setup query for ktt/hktt
+	if (argus_get_user_has_role ( $user->uid, 'ktt' )) {
+		$q2 = 'SELECT n.nid AS id, ' . 'n.title AS title ' . 'FROM {node} AS n ' . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id ' . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id ' . 'WHERE ktt.field_klas_klastitularis_target_id = :uid ' . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
+		$variables ['myClasses'] = db_query ( $q2, array (
+				':uid' => $user->uid 
+		) )->fetchAllKeyed ();
+		
+		if (count ( $variables ['myClasses'] )) {
+			$query .= 'AND klas_id.entity_id IN (:cids) ';
+			$params [':cids'] = array_keys ( $variables ['myClasses'] );
+			
+			foreach ( $params [':cids'] as $cid ) {
+				$class = node_load ( $cid );
+				if (array_key_exists ( LANGUAGE_NONE, $class->field_klas_leerlingen )) {
+					$pupils [$cid] = $class->field_klas_leerlingen [LANGUAGE_NONE];
 				}
-            }
-        } else {
-            // TODO: overzicht van alle klassen met aantal tekorten, %geslaagden!
-        }
-    }
-
-    switch ($delta) {
-        default:
-            $block['title'] = 'Klasbeeld - evolutie';
-            $block['subject'] = 'Klasbeeld';
-            $block['content'] = theme('argus_klasbeheer_block_LST', $variables);
-            break;
-    }
-    drupal_add_css(drupal_get_path('module', 'argus_klasbeheer').'/css/argus_klasbeheer--LST_block.css');
-    drupal_add_js(drupal_get_path('module', 'argus_klasbeheer').'/js/argus_klasbeheer--LST_block.js');
-    
-    return $block;
+			}
+			
+			// TODO: check policy -> only private messages for ILB & Staff !
+			$query .= 'AND p.field_lvs_melding_prive_value != :private ';
+			$params [':private'] = 1;
+			
+			$variables ['reportType'] = 'ktt';
+		}
+	}
+	
+	// Setup query for ilb
+	if (argus_get_user_has_role ( $user->uid, 'ilb' )) {
+		$variables ['reportType'] = 'ilb';
+	}
+	
+	// Setup query for staff
+	if (argus_get_user_has_role ( $user->uid, 'staff' )) {
+		$variables ['reportType'] = 'staff';
+	}
+	
+	$query .= 'ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC ';
+	if (isset ( $variables ['reportType'] )) {
+		// Retrieve data about : absences
+		$codes = array (
+				'B',
+				'D',
+				'Z',
+				'-',
+				'G',
+				'T',
+				'C',
+				'H',
+				'R',
+				'O',
+				'Q',
+				'P',
+				'J' 
+		);
+		if ($variables ['reportType'] == 'ktt') {
+			foreach ( $params [':cids'] as $cid ) {
+				if (array_key_exists ( $cid, $pupils )) {
+					foreach ( $pupils [$cid] as $student ) {
+						$variables ['absences'] [$cid] [$student ['target_id']] ['absence'] ['last'] = 0;
+						$variables ['absences'] [$cid] [$student ['target_id']] ['late'] ['last'] = 0;
+						
+						$queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid ' . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
+						for($w = 3; $w > 0; $w --) {
+							// Absences
+							$results = db_query ( $queryAbsences . 'AND a.am IN (:code)', array (
+									':uid' => $student ['target_id'],
+									':code' => $codes,
+									':startdate' => date ( 'Ymd', strtotime ( '-' . $w . ' weeks' ) ),
+									':enddate' => date ( 'Ymd', strtotime ( '-' . ($w - 1) . ' weeks' ) ) 
+							) )->fetchAll ();
+							foreach ( $results as $r ) {
+								$variables ['absences'] [$cid] [$student ['target_id']] ['absence'] [$w] = $r->total;
+								$variables ['absences'] [$cid] [$student ['target_id']] ['absence'] ['last'] += $r->total;
+							}
+							$results = db_query ( $queryAbsences . 'AND a.pm IN (:code)', array (
+									':uid' => $student ['target_id'],
+									':code' => $codes,
+									':startdate' => date ( 'Ymd', strtotime ( '-' . $w . ' weeks' ) ),
+									':enddate' => date ( 'Ymd', strtotime ( '-' . ($w - 1) . ' weeks' ) ) 
+							) )->fetchAll ();
+							foreach ( $results as $r ) {
+								$variables ['absences'] [$cid] [$student ['target_id']] ['absence'] [$w] += $r->total;
+								$variables ['absences'] [$cid] [$student ['target_id']] ['absence'] ['last'] += $r->total;
+							}
+							// Late
+							$results = db_query ( $queryAbsences . 'AND (a.am IN (:code) OR a.pm IN (:code))', array (
+									':uid' => $student ['target_id'],
+									':code' => array (
+											'L' 
+									),
+									':startdate' => date ( 'Ymd', strtotime ( '-' . $w . ' weeks' ) ),
+									':enddate' => date ( 'Ymd', strtotime ( '-' . ($w - 1) . ' weeks' ) ) 
+							) )->fetchAll ();
+							foreach ( $results as $r ) {
+								$variables ['absences'] [$cid] [$student ['target_id']] ['late'] [$w] = $r->total;
+								$variables ['absences'] [$cid] [$student ['target_id']] ['late'] ['last'] += $r->total;
+							}
+						}
+						$results = db_query ( $queryAbsences . 'AND a.am IN (:code)', array (
+								':uid' => $student ['target_id'],
+								':code' => $codes,
+								':startdate' => $schoolyear ['start'],
+								':enddate' => $schoolyear ['end'] 
+						) )->fetchAll ();
+						$variables ['absences'] [$cid] [$student ['target_id']] ['absence'] ['total'] = $results [0]->total;
+						$results = db_query ( $queryAbsences . 'AND a.pm IN (:code)', array (
+								':uid' => $student ['target_id'],
+								':code' => $codes,
+								':startdate' => $schoolyear ['start'],
+								':enddate' => $schoolyear ['end'] 
+						) )->fetchAll ();
+						$variables ['absences'] [$cid] [$student ['target_id']] ['absence'] ['total'] += $results [0]->total;
+						
+						$results = db_query ( $queryAbsences . 'AND (a.am IN (:code) OR a.pm IN (:code))', array (
+								':uid' => $student ['target_id'],
+								':code' => array (
+										'L' 
+								),
+								':startdate' => $schoolyear ['start'],
+								':enddate' => $schoolyear ['end'] 
+						) )->fetchAll ();
+						$variables ['absences'] [$cid] [$student ['target_id']] ['late'] ['total'] = $results [0]->total;
+					}
+				}
+			}
+		} else {
+			$today = date ( 'Ymd' );
+			$queryAbsences = 'SELECT DISTINCT a.leerling, klas_id.entity_id AS class_id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = a.leerling ' . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid ' . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON a.leerling = name.entity_id ' . 'WHERE a.datum = :today AND klas_id.entity_id IS NOT NULL ';
+			$results = db_query ( $queryAbsences . 'AND (a.am IN (:code) OR a.pm IN (:code)) ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC', array (
+					':code' => $codes,
+					':today' => $today 
+			) )->fetchAll ();
+			if ($results) {
+				$variables ['absencesTotal'] = count ( $results );
+				foreach ( $results as $absence ) {
+					$queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid ' . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
+					$resultsSchoolyear = db_query ( $queryAbsences . 'AND a.am IN (:code)', array (
+							':uid' => $absence->leerling,
+							':code' => $codes,
+							':startdate' => $schoolyear ['start'],
+							':enddate' => $schoolyear ['end'] 
+					) )->fetchAll ();
+					$variables ['absences'] [$absence->class_id] [$absence->leerling] ['schoolyear'] = $resultsSchoolyear [0]->total;
+					$resultsSchoolyear = db_query ( $queryAbsences . 'AND a.pm IN (:code)', array (
+							':uid' => $absence->leerling,
+							':code' => $codes,
+							':startdate' => $schoolyear ['start'],
+							':enddate' => $schoolyear ['end'] 
+					) )->fetchAll ();
+					$variables ['absences'] [$absence->class_id] [$absence->leerling] ['schoolyear'] += $resultsSchoolyear [0]->total;
+					$cntr = 0;
+					do {
+						$cntr ++;
+						$checkdate = strtotime ( '-' . $cntr . 'days', $today );
+						$queryAbsencesPupil = 'SELECT DISTINCT COUNT(a.id) AS total ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid ' . 'AND a.datum = :date ' . 'AND (a.am IN (:code) OR a.pm IN (:code))';
+						$resultsPupil = db_query ( $queryAbsencesPupil, array (
+								':uid' => $absence->leerling,
+								':code' => $codes,
+								':date' => date ( 'Y-m-d', $checkdate ) 
+						) )->fetchAll ();
+					} while ( $resultsPupil && date ( 'Y-m-d', $checkdate ) > $schoolyear ['start'] );
+					$variables ['absences'] [$absence->class_id] [$absence->leerling] ['length'] = $cntr;
+				}
+			}
+			
+			$queryAbsences = 'SELECT DISTINCT a.leerling, klas_id.entity_id AS class_id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS klas_id ON klas_id.field_klas_leerlingen_target_id = a.leerling ' . 'LEFT JOIN {node} AS klas ON klas_id.entity_id = klas.nid ' . 'LEFT JOIN {field_data_field_user_sms_naam} AS name ON a.leerling = name.entity_id ' . 'WHERE a.datum = :today AND klas_id.entity_id IS NOT NULL ';
+			$results = db_query ( $queryAbsences . 'AND (a.am IN (:code) OR a.pm IN (:code)) ORDER BY klas.title ASC,name.field_user_sms_naam_value ASC', array (
+					':code' => array (
+							'L' 
+					),
+					':today' => $today 
+			) )->fetchAll ();
+			if ($results) {
+				$variables ['lateTotal'] = count ( $results );
+				foreach ( $results as $absence ) {
+					$queryAbsences = 'SELECT DISTINCT COUNT(a.id) AS total ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid ' . 'AND (a.datum BETWEEN :startdate AND :enddate) ';
+					$resultsSchoolyear = db_query ( $queryAbsences . 'AND a.am IN (:code)', array (
+							':uid' => $absence->leerling,
+							':code' => array (
+									'L' 
+							),
+							':startdate' => $schoolyear ['start'],
+							':enddate' => $schoolyear ['end'] 
+					) )->fetchAll ();
+					$variables ['late'] [$absence->class_id] [$absence->leerling] ['schoolyear'] = $resultsSchoolyear [0]->total;
+					$resultsSchoolyear = db_query ( $queryAbsences . 'AND a.pm IN (:code)', array (
+							':uid' => $absence->leerling,
+							':code' => array (
+									'L' 
+							),
+							':startdate' => $schoolyear ['start'],
+							':enddate' => $schoolyear ['end'] 
+					) )->fetchAll ();
+					$variables ['late'] [$absence->class_id] [$absence->leerling] ['schoolyear'] += $resultsSchoolyear [0]->total;
+				}
+			}
+		}
+		
+		// Retrieve data about : negative behaviour
+		$behaviourParams = array (
+				'negatief gedrag',
+				'positief gedrag' 
+		);
+		foreach ( $behaviourParams as $bp ) {
+			$params [':about'] = $bp;
+			$variables ['behaviour'] = array ();
+			
+			// Get total status
+			$params [':startdate'] = $schoolyear ['start'];
+			$params [':enddate'] = $schoolyear ['end'];
+			$reports = db_query ( $query, $params )->fetchAll ();
+			foreach ( $reports as $report ) {
+				if (isset ( $variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] )) {
+					$variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] ['total'] ++;
+				} else {
+					$variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] = array (
+							'total' => 1,
+							'today' => 0,
+							'previous' => 0 
+					);
+				}
+			}
+			// Get current status
+			$params [':startdate'] = date ( 'Ymd', strtotime ( '-30days' ) );
+			$params [':enddate'] = date ( 'Ymd' );
+			$reports = db_query ( $query, $params )->fetchAll ();
+			foreach ( $reports as $report ) {
+				if (isset ( $variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] )) {
+					$variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] ['today'] ++;
+				} else {
+					$variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] = array (
+							'total' => 0,
+							'today' => 1,
+							'previous' => 0 
+					);
+				}
+			}
+			// Get previous status
+			$params [':startdate'] = date ( 'Ymd', strtotime ( '-60days' ) );
+			$params [':enddate'] = date ( 'Ymd', strtotime ( '-30days' ) );
+			$reports = db_query ( $query, $params )->fetchAll ();
+			foreach ( $reports as $report ) {
+				if (isset ( $variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] )) {
+					$variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] ['total'] ++;
+				} else {
+					$variables ['behaviour'] [$report->cid] [$report->uid] ['neg'] = array (
+							'total' => 1,
+							'today' => 0,
+							'previous' => 0 
+					);
+				}
+			}
+		}
+		
+		// Retrieve data about : study
+		$query = 'SELECT id, afkorting ' . 'FROM {argus_skore_periode} ' . 'ORDER BY volgorde ASC';
+		$variables ['periods'] = db_query ( $query )->fetchAll ();
+		if ($variables ['reportType'] == 'ktt') {
+			foreach ( $params [':cids'] as $cid ) {
+				if (array_key_exists ( $cid, $pupils )) {
+					foreach ( $pupils [$cid] as $student ) {
+						foreach ( $variables ['periods'] as $p ) {
+							$query = 'SELECT r.behaald, r.max ' . 'FROM {argus_skore_resultaten} AS r ' . 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid';
+							$results = db_query ( $query, array (
+									':uid' => $student ['target_id'],
+									':pid' => $p->id,
+									'schoolyear' => substr ( $schoolyear ['start'], 0, 4 ) . '-' . substr ( $schoolyear ['end'], 0, 4 ) 
+							) )->fetchAll ();
+							$fails = 0;
+							$success = 0;
+							foreach ( $results as $r ) {
+								if (isset ( $r->behaald )) {
+									if (( real ) $r->behaald < (( real ) $r->max) / 2) {
+										$fails ++;
+									} else {
+										$success ++;
+									}
+								}
+							}
+							$variables ['study'] [$cid] [$student ['target_id']] [$p->afkorting] ['fails'] = $fails;
+							$variables ['study'] [$cid] [$student ['target_id']] [$p->afkorting] ['success'] = $success;
+							$variables ['study'] [$cid] [$student ['target_id']] [$p->afkorting] ['total'] = $success + $fails;
+						}
+					}
+				}
+			}
+		} else {
+			// TODO: overzicht van alle klassen met aantal tekorten, %geslaagden!
+		}
+	}
+	
+	switch ($delta) {
+		default :
+			$block ['subject'] = 'Klasbeeld - evolutie';
+			$block ['content'] = theme ( 'argus_klasbeheer_block_LST', $variables );
+			break;
+	}
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_klasbeheer' ) . '/css/argus_klasbeheer--LST_block.css' );
+	drupal_add_js ( drupal_get_path ( 'module', 'argus_klasbeheer' ) . '/js/argus_klasbeheer--LST_block.js' );
+	
+	return $block;
 }
 
-/** 
+/**
  * Implement hook_theme()
  */
 function argus_klasbeheer_theme() {
-    return array(
-        'argus_klasbeheer_block_LST' => array(
-            'variables' => array(
-                'content' => NULL,
-                'popular_content' => NULL,
-            ),
-            'template' => 'templates/argus_klasbeheer--LST_block',
-        ),
-    	'node__klas' => array(
-    				'render element' => 'content',
-    				'base hook' => 'node',
-    				'template' => 'node--klas',
-    				'path' => drupal_get_path('module', 'argus_klasbeheer') . '/templates',
-    		),
-    );
+	return array (
+			'argus_klasbeheer_block_LST' => array (
+					'variables' => array (
+							'content' => NULL,
+							'popular_content' => NULL 
+					),
+					'template' => 'templates/argus_klasbeheer--LST_block' 
+			),
+			'node__klas' => array (
+					'render element' => 'content',
+					'base hook' => 'node',
+					'template' => 'node--klas',
+					'path' => drupal_get_path ( 'module', 'argus_klasbeheer' ) . '/templates' 
+			) 
+	);
 }
 
 /**
  * Hook preprocess for node
  *
- * @param type $variables
+ * @param type $variables        	
  */
 function argus_klasbeheer_preprocess_node(&$variables) {
-	switch ($variables['node']->type){
-		case 'klas':
-			if (user_access('access argus_klasbeheer_overview content')){
+	switch ($variables ['node']->type) {
+		case 'klas' :
+			if (user_access ( 'access argus_klasbeheer_overview content' )) {
 				include_once 'includes/node--klas--preprocessor.inc.php';
 			} else {
-				drupal_access_denied();
-				exit;
+				drupal_access_denied ();
+				exit ();
 			}
 			break;
 	}
@@ -409,16 +2294,18 @@ function argus_klasbeheer_preprocess_node(&$variables) {
  * Function returns an array
  *
  * @param $cid int
- *   Node id
- *
+ *        	Node id
+ *        	
  * @return array int
  */
 function argus_klasbeheer_get_teachers($cid) {
-	if (isset($cid)) {
+	if (isset ( $cid )) {
 		$query = 'SELECT u.uid AS id ';
 		$query .= 'FROM {field_data_field_klas_leerkrachten} AS l ';
 		$query .= 'INNER JOIN {users} AS u ON l.field_klas_leerkrachten_target_id = u.uid ';
 		$query .= 'WHERE l.entity_id = :cid';
-		return db_query($query, array(':cid' => $cid))->fetchAll();
+		return db_query ( $query, array (
+				':cid' => $cid 
+		) )->fetchAll ();
 	}
 }

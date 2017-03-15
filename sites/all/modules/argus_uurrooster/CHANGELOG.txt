@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-9.3
+---------
+- Removed Features, changed to full custom module
+
 v7.x-9.2
 ---------
 - Security update: nieuwe rules

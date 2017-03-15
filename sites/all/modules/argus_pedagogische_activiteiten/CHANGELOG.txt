@@ -1,6 +1,10 @@
 **Releases:
 
 
+v7.x-3.1
+---------
+- Features disabled, fully custom module created
+
 v7.x-3.0
 ---------
 - Berekeningen toegevoegd voor het gebruik van het busje

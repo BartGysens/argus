@@ -1,5 +1,8 @@
 **Releases:
 
+v7.x-1.2
+---------
+- Features disabled; created full custom module
 
 v7.x-1.1
 ---------

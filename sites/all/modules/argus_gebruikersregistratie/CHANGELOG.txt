@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-2.3
+---------
+- Features base disabled; full custom module
+- Update clean registration process
+
 v7.x-2.2
 ---------
 - Integratie Stagegever infofiche bij nieuwe registratie Leerling laattijdig

@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.1
+---------
+- Feature base disabled and reconfigured as full custom Drupal module
+
 v7.x-1.0
 ---------
 - First initial release - featured based

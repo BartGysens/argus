@@ -1,6 +1,10 @@
 **Releases:
 
 
+v7.x-0.2-sandbox
+---------
+- Feature disabled and created full module
+
 v7.x-0.1-sandbox
 ---------
 - First initial pre-release - featured based
