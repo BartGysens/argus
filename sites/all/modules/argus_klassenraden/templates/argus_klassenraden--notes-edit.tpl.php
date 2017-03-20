@@ -101,7 +101,7 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 					                $fieldAsOptions = argus_gebruikers_fieldsAsArrays(variable_get('argus_sms_data_accounts_sync_fieldmap_options'));
 					                $studyProbs = array('Dyslexie','Dyscalculie','ADHD','NLD (non-verbale leerstoornis)','ASS (Autisme Spectrum Stoornis)','GON','Buitengewoon onderwijs');
 					                foreach ($studyProbs as $f){
-					                    $field = argus_sms_uniform_field($f, 'field_user_sms_');
+					                    $field = argus_gebruikers_uniform_field($f, 'field_user_sms_');
 					                    eval("\$value = \$account->".$field."[LANGUAGE_NONE][0]['value'];");
 					                    $fieldOptions = (array) $fieldAsOptions[$field];
 					                    foreach ($fieldOptions as $fk => $fo){

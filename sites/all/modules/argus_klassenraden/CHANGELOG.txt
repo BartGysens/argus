@@ -4,7 +4,8 @@
 ---------
 - Block weight aangepast
 - Security update: views protected
-- Fix in function rename: argus_gebruikers_fieldsAsArrays
+- Fix in functions rename: argus_gebruikers_fieldsAsArrays, argus_gebruikers_uniform_field
+- Fix in menu permission
 
 v7.x-1.8
 ---------
