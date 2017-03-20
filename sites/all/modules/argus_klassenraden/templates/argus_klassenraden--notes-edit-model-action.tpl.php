@@ -18,7 +18,7 @@
 
 if (!$aid) { $aid = '{id}'; } ?>
 <a id="action<?php print $aid ?>"></a>
-<form><input type="hidden" name="argus_klassenraden_<?php print $lvsPart; ?>_action_id[]" value="<?php if ($aid != '{id}') { print $aid; } ?>" /></form>
+<input type="hidden" name="argus_klassenraden_<?php print $lvsPart; ?>_action_id[]" value="<?php if ($aid != '{id}') { print $aid; } ?>" />
 <table id="argus_klassenraden_action_<?php print $aid; ?>" class="argus_klassenraden_action_model <?php print $lvsPart; ?>-border argus_klassenraden_action_table_<?php print $lvsPart; ?>">
 	<tr>
 		<td class="views-align-left"><select name="argus_klassenraden_<?php print $lvsPart; ?>_action_measure[]"<?php if (is_numeric($aid) && !$measure){ ?> style="background: #fee; color: red;"<?php } ?>>
@@ -72,3 +72,4 @@ if (!$aid) { $aid = '{id}'; } ?>
 		<td class="views-align-right"><input type="button" value="verwijderen" id="argus_klassenraden_remove_action_<?php print $aid; ?>" class="action-links argus_klassenraden_remove_action_btn" /></td>
 	</tr>
 </table>
+</form>
