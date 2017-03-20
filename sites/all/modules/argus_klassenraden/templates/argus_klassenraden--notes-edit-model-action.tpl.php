@@ -72,4 +72,3 @@ if (!$aid) { $aid = '{id}'; } ?>
 		<td class="views-align-right"><input type="button" value="verwijderen" id="argus_klassenraden_remove_action_<?php print $aid; ?>" class="action-links argus_klassenraden_remove_action_btn" /></td>
 	</tr>
 </table>
-</form>
