@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.2
+---------
+- Check op format date en filter; create filter/format als nodig
+- Check op content-type page; create als nodig
 
 v7.x-1.1
 ---------

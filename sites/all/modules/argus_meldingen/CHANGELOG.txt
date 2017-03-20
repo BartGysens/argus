@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-3.4
+---------
+- Correcte block definitie
+
 v7.x-3.3
 ---------
 - Features disabled, full custom module

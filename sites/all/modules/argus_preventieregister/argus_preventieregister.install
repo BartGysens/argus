@@ -16,6 +16,56 @@ function argus_preventieregister_install() {
 		return $mlid;
 	}
 	
+	// Insert default pre-defined node types into the database. For a complete
+	// list of available node type attributes, refer to the node type API
+	// documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
+	$types = array (
+			array (
+					'type' => 'page',
+					'name' => st ( 'Basic page' ),
+					'base' => 'node_content',
+					'description' => st ( "Use <em>basic pages</em> for your static content, such as an 'About us' page." ),
+					'custom' => 1,
+					'modified' => 1,
+					'locked' => 0 
+			) 
+	);
+	
+	foreach ( $types as $type ) {
+		$type = node_type_set_defaults ( $type );
+		node_type_save ( $type );
+		node_add_body_field ( $type );
+	}
+	
+	// Check if filter format exists
+	if (! filter_format_exists ( 'full_html' )) {
+		$full_html_format = array (
+				'format' => 'full_html',
+				'name' => 'Full HTML',
+				'weight' => 1,
+				'filters' => array (
+						// URL filter.
+						'filter_url' => array (
+								'weight' => 0,
+								'status' => 1 
+						),
+						// Line break filter.
+						'filter_autop' => array (
+								'weight' => 1,
+								'status' => 1 
+						),
+						// HTML corrector filter.
+						'filter_htmlcorrector' => array (
+								'weight' => 10,
+								'status' => 1 
+						) 
+				) 
+		);
+		$full_html_format = ( object ) $full_html_format;
+		filter_format_save ( $full_html_format );
+	}
+	
+	// Check menu
 	if (menu_load ( 'menu-modules' )) {
 		$menu = 'menu-modules';
 	} else {
@@ -61,11 +111,11 @@ Van alle werken in functie van de veiligheid wordt een logboek bijgehouden.</p>
 <p>Het preventieregister is verdeeld in verschillende rubrieken:</p>';
 	
 	foreach ( argus_preventieregister_default_pages () as $title => $pages ) {
-		$path = base_path().'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) );
+		$path = base_path () . 'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) );
 		$node->body [$node->language] [0] ['value'] .= '<p><span style="font-size:20px"><strong><a href="' . $path . '" style="color: rgb(198, 4, 80); line-height: 20.8px;">' . $title . '</a></strong></span><ul>';
 		
 		foreach ( $pages as $page ) {
-			$path = base_path().'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) ) . '/' . drupal_clean_css_identifier ( drupal_html_class ( $page ) );
+			$path = base_path () . 'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) ) . '/' . drupal_clean_css_identifier ( drupal_html_class ( $page ) );
 			$node->body [$node->language] [0] ['value'] .= '<li><a href="' . $path . '">' . $page . '</a></li>';
 		}
 		
@@ -122,7 +172,7 @@ Dit dossier wordt ‘preventieregister’ genoemd en bevat gegevens&nbsp;waarmee
 	<ul>';
 		
 		foreach ( $pages as $page ) {
-			$subpath = base_path().'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) ) . '/' . drupal_clean_css_identifier ( drupal_html_class ( $page ) );
+			$subpath = base_path () . 'preventieregister/' . drupal_clean_css_identifier ( drupal_html_class ( $title ) ) . '/' . drupal_clean_css_identifier ( drupal_html_class ( $page ) );
 			$node->body [$node->language] [0] ['value'] .= '<li><a href="' . $subpath . '">' . $page . '</a></li>';
 		}
 		

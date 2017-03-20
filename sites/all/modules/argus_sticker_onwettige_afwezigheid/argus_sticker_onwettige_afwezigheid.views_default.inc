@@ -26,11 +26,8 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
 	$handler->display->display_options ['use_more_always'] = FALSE;
 	$handler->display->display_options ['use_more_text'] = 'meer';
 	$handler->display->display_options ['group_by'] = TRUE;
-	$handler->display->display_options ['access'] ['type'] = 'role';
-	$handler->display->display_options ['access'] ['role'] = array (
-			3 => '3',
-			216 => '216' 
-	);
+	$handler->display->display_options ['access'] ['type'] = 'perm';
+	$handler->display->display_options ['access'] ['perm'] = 'create msl_oa_sticker content';
 	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
 	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
 	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
@@ -253,8 +250,6 @@ function argus_sticker_onwettige_afwezigheid_views_default_views() {
 	$handler = $view->new_display ( 'page', 'Overzicht', 'msl_oa_stickers' );
 	$handler->display->display_options ['display_description'] = 'Rode sticker in het agenda met de 3 fases.';
 	$handler->display->display_options ['field_language'] = 'und';
-	$handler->display->display_options ['defaults'] ['access'] = FALSE;
-	$handler->display->display_options ['access'] ['type'] = 'perm';
 	$handler->display->display_options ['defaults'] ['exposed_form'] = FALSE;
 	$handler->display->display_options ['exposed_form'] ['type'] = 'basic';
 	$handler->display->display_options ['exposed_form'] ['options'] ['submit_button'] = 'Toepassen';

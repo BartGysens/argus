@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-1.4
+---------
+- 'Absenteïsme' aangepast naar 'Personeel - Afwezigheden'
+- Correcte block definities
+
 v7.x-1.3
 ---------
 - Features disabled, fully custom module conversion

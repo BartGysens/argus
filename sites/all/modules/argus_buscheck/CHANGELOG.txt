@@ -1,5 +1,11 @@
 **Releases:
 
+v7.x-1.5
+---------
+- Dummyproof instellingen
+- Extra controles op connectie
+- Waiter javascript toegevoegd
+
 v7.x-1.4
 ---------
 - Preps for clean install

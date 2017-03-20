@@ -1,8 +1,8 @@
-name = Absenteïsme
+name = Personeel - afwezigheden
 description = Registreer op een eenvoudige manier de afwezigheden van je personeel.
 core = 7.x
 package = argus - a Quality control extension
-version = 7.x-1.3
+version = 7.x-1.4
 project = argus_personeel_afwezigheden
 files[] = argus_personeel_afwezigheden.install
 files[] = argus_personeel_afwezigheden.module

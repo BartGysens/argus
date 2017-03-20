@@ -3,6 +3,7 @@
 v7.x-1.7
 ---------
 - Full custom modifications / dependencies
+- Block weight aangepast
 
 v7.x-1.6
 ---------

@@ -20,6 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Author     : bartgysens
 */
 
+#argus_buscheck_waiter{
+    display: none;
+}
+
 div#argus_buscheck_results{
     margin-top: 20px;
     padding-top: 15px;

@@ -334,9 +334,8 @@ function argus_klassenraden_menu() {
 			'description' => 'Administratie van de notities van de klassenraden.',
 			'page callback' => 'argus_klassenraden_notes',
 			'access arguments' => array (
-					'access content' 
+					'create klassenraden-notities content' 
 			),
-			'access callback' => TRUE,
 			'menu_name' => $menu 
 	);
 	return $items;
@@ -350,7 +349,7 @@ function argus_klassenraden_block_info() {
 	$blocks ['klassenraden-notities'] = array (
 			'info' => t ( 'Klassenraden: notities' ),
 			'cache' => DRUPAL_CACHE_GLOBAL,
-			'weight' => 2,
+			'weight' => -10,
 			'status' => 1,
 			'region' => 'sidebar_first',
 			'visibility' => BLOCK_VISIBILITY_LISTED,

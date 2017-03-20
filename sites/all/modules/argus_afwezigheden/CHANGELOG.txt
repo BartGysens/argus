@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-3.4
+---------
+- Betere block definitie
+
 v7.x-3.3
 ---------
 - Update in menu config and preparation for module installation

@@ -98,7 +98,7 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 								
 					            <?php
 					                $studyProblems = '';
-					                $fieldAsOptions = argus_sms_fieldsAsArrays(variable_get('argus_sms_data_accounts_sync_fieldmap_options'));
+					                $fieldAsOptions = argus_gebruikers_fieldsAsArrays(variable_get('argus_sms_data_accounts_sync_fieldmap_options'));
 					                $studyProbs = array('Dyslexie','Dyscalculie','ADHD','NLD (non-verbale leerstoornis)','ASS (Autisme Spectrum Stoornis)','GON','Buitengewoon onderwijs');
 					                foreach ($studyProbs as $f){
 					                    $field = argus_sms_uniform_field($f, 'field_user_sms_');

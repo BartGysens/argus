@@ -1,5 +1,9 @@
 **Releases:
 
+*v7.x-1.5
+---------
+- Extra check op installatie profile settings
+
 v7.x-1.4
 ---------
 - Module preparation for install purposes

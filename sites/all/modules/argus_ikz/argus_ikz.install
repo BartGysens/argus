@@ -640,35 +640,6 @@ function argus_ikz_field_default_field_bases() {
 			'type' => 'text_long' 
 	);
 	
-	// Exported field_base: 'field_tags'.
-	$field_bases ['field_tags'] = array (
-			'active' => 1,
-			'cardinality' => - 1,
-			'deleted' => 0,
-			'entity_types' => array (),
-			'field_name' => 'field_tags',
-			'field_permissions' => array (
-					'type' => 0 
-			),
-			'indexes' => array (
-					'tid' => array (
-							0 => 'tid' 
-					) 
-			),
-			'locked' => 0,
-			'module' => 'taxonomy',
-			'settings' => array (
-					'allowed_values' => array (
-							0 => array (
-									'vocabulary' => 'tags',
-									'parent' => 0 
-							) 
-					) 
-			),
-			'translatable' => 0,
-			'type' => 'taxonomy_term_reference' 
-	);
-	
 	return $field_bases;
 }
 
@@ -950,47 +921,6 @@ function argus_ikz_field_default_field_instances() {
 					),
 					'type' => 'text_textfield',
 					'weight' => 41 
-			) 
-	);
-	
-	// Exported field_instance: 'node-ikz_documenten-field_tags'.
-	$field_instances ['node-ikz_documenten-field_tags'] = array (
-			'bundle' => 'ikz_documenten',
-			'default_value' => NULL,
-			'deleted' => 0,
-			'description' => '',
-			'display' => array (
-					'default' => array (
-							'label' => 'above',
-							'module' => 'taxonomy',
-							'settings' => array (
-									'conditions' => array () 
-							),
-							'type' => 'taxonomy_term_reference_link',
-							'weight' => 2 
-					),
-					'teaser' => array (
-							'label' => 'above',
-							'settings' => array (),
-							'type' => 'hidden',
-							'weight' => 0 
-					) 
-			),
-			'entity_type' => 'node',
-			'field_name' => 'field_tags',
-			'label' => 'Tags',
-			'required' => FALSE,
-			'settings' => array (
-					'user_register_form' => FALSE 
-			),
-			'widget' => array (
-					'module' => 'taxonomy',
-					'settings' => array (
-							'autocomplete_path' => 'taxonomy/autocomplete',
-							'size' => 60 
-					),
-					'type' => 'taxonomy_autocomplete',
-					'weight' => 45 
 			) 
 	);
 	
@@ -2024,7 +1954,6 @@ function argus_ikz_field_default_field_instances() {
 	t ( 'Revisie' );
 	t ( 'Rol' );
 	t ( 'Status' );
-	t ( 'Tags' );
 	t ( 'Toepassingsgebied' );
 	t ( 'Tot welke categorie behoort deze afkorting' );
 	t ( 'Verantwoordelijkheden' );

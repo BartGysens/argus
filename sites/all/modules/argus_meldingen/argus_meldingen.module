@@ -25,8 +25,8 @@ function argus_meldingen_views_api() {
 	return array (
 			'api' => 3.0,
 			'path' => drupal_get_path ( 'module', 'argus_meldingen' ) 
-	) // replace demo with your content type
-;
+	); // replace demo with your content type
+
 }
 
 /**
@@ -1173,7 +1173,12 @@ function argus_meldingen_block_info() {
 	$blocks = array ();
 	$blocks ['meldingen'] = array (
 			'info' => t ( 'Meldingen' ),
-			'title' => t ( 'Meldingen' ) 
+			'cache' => DRUPAL_CACHE_GLOBAL,
+			'weight' => - 10,
+			'status' => 1,
+			'region' => 'sidebar_first',
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => 'meldingen' . chr ( 13 ) . 'meldingen/*' 
 	);
 	
 	return $blocks;
@@ -1359,7 +1364,7 @@ function argus_meldingen_block_view($delta = '') {
 	
 	switch ($delta) {
 		default :
-			$block ['subject'] = 'Meldingen';
+			$block ['subject'] = 'Filter';
 			$block ['content'] = theme ( 'argus_meldingen_block_LST', $variables );
 			break;
 	}

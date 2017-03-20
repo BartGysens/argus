@@ -42,18 +42,22 @@ function argus_azindex_block_view($delta = '') {
 	$block = array ();
 	
 	$menuTree = getMenuItems ( menu_build_tree ( 'menu-modules' ) );
-	ksort ( $menuTree );
 	
-	$variables = array (
-			'index' => $menuTree 
-	);
-	
-	switch ($delta) {
-		case 'block' :
-			$block ['subject'] = t ( 'AZ-index' );
-			$block ['content'] = theme ( 'argus_azindex_block', $variables );
-			break;
+	if (count ( $menuTree )) {
+		ksort ( $menuTree );
+		
+		$variables = array (
+				'index' => $menuTree 
+		);
+		
+		switch ($delta) {
+			case 'block' :
+				$block ['subject'] = t ( 'AZ-index' );
+				$block ['content'] = theme ( 'argus_azindex_block', $variables );
+				break;
+		}
 	}
+	
 	return $block;
 }
 
@@ -76,21 +80,23 @@ function argus_azindex_theme() {
 
 /**
  * Get all menu items from menu tree (recursive)
- * 
+ *
  * @param array $item
  *        	Menuitem
  */
 function getMenuItems($items) {
 	$links = array ();
 	foreach ( $items as $item ) {
-		if (! in_array ( $item ['link'] ['link_path'], array (
-				'',
-				'<nolink>' 
-		) )) {
-			$links [$item ['link'] ['link_title']] = $item ['link'] ['link_path'];
-		}
-		if ($item ['link'] ['has_children'] && $item ['link'] ['expanded']) {
-			$links = array_merge ( $links, getMenuItems ( $item ['below'] ) );
+		if (drupal_valid_path ( $item ['link'] ['link_path'], true )) {
+			if (! in_array ( $item ['link'] ['link_path'], array (
+					'',
+					'<nolink>' 
+			) )) {
+				$links [$item ['link'] ['link_title']] = $item ['link'] ['link_path'];
+			}
+			if ($item ['link'] ['has_children'] && $item ['link'] ['expanded']) {
+				$links = array_merge ( $links, getMenuItems ( $item ['below'] ) );
+			}
 		}
 	}
 	return $links;

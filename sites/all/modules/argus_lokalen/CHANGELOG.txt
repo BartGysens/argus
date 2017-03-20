@@ -1,5 +1,9 @@
 **Releases:
 
+*v7.x-1.3
+---------
+- Security update: view protected
+
 v7.x-1.2
 ---------
 - Features disabled; full custom module created

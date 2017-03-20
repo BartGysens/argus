@@ -161,19 +161,25 @@ function argus_sms_getSOAPclient() {
 function argus_sms_setSOAPclient() {
     global $argus_sms_SOAPclient;
     $SOAPurl = variable_get('argus_sms_api_url');
-    if ($SOAPurl) {
+    if ($SOAPurl == 'https://uwschool.smartschool.be/Webservices/V3?wsdl'){
+    	argus_report(t('Je hebt je gegevens om met Smartschool te koppelen nog niet ingesteld, dan kan op de pagina <a href="/admin/config/argus/smartschool-api">Smartschool API</a>.'), array(), 'error');
+    } elseif ($SOAPurl) {
         $array = @get_headers($SOAPurl);
-        $string = $array[0];
-        if(strpos($string,"200")){
-            $argus_sms_SOAPclient = new SoapClient($SOAPurl);
-            if (!isset($argus_sms_SOAPclient)) {
-                argus_report(t('Geen connectie mogelijk met de Smartschool-services').': <em>'.$SOAPurl.'</em>');
-            }
+        if (is_array($array)){
+	        $string = $array[0];
+	        if(strpos($string,"200")){
+	            $argus_sms_SOAPclient = new SoapClient($SOAPurl);
+	            if (!isset($argus_sms_SOAPclient)) {
+	                argus_report(t('Geen connectie mogelijk met de Smartschool-services').': <em>'.$SOAPurl.'</em>', array(), 'error');
+	            }
+	        } else {
+	            argus_report(t('De opgegeven link naar de API van Smartschool is niet geldig of momenteel offline').': <em>'.$SOAPurl.'</em> - kijk je instellingen na op <a href="/admin/config/argus/smartschool-api">Smartschool API</a>.', array(), 'error');
+	        }
         } else {
-            argus_report(t('De opgegeven link naar de API van Smartschool is niet geldig of momenteel offline').': <em>'.$SOAPurl.'</em> - kijk je instellingen na op <a href="/admin/config/argus/smartschool-api">Smartschool API</a>.');
+        	argus_report(t('De gegevens die werden opgehaald zijn ongeldig. Kloppen je inloggegevens bij Smartschool?').': <em>'.$SOAPurl.'</em> - kijk je instellingen na op <a href="/admin/config/argus/smartschool-api">Smartschool API</a>.', array(), 'error');
         }
     } else {
-        argus_report(t('Er werd nog geen link naar de services van Smartschool ingesteld, deze kan je instellen op <a href="/admin/config/argus/smartschool-api">Smartschool API</a>.'));
+        argus_report(t('Er werd nog geen link naar de services van Smartschool ingesteld, deze kan je instellen op <a href="/admin/config/argus/smartschool-api">Smartschool API</a>.'), array(), 'error');
     }
 }
 

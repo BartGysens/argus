@@ -20,7 +20,7 @@ function argus_personeel_afwezigheden_install() {
 			field_create_field ( $field );
 		}
 	}
-	drupal_set_message(print_r(field_info_field('field_tijdstip')));
+	
 	// Add field instances which are copied from your Features-based module
 	// More details function argus_personeel_afwezigheden_field_default_field_instances()
 	foreach ( argus_personeel_afwezigheden_field_default_field_instances () as $fieldinstance ) {
@@ -38,7 +38,7 @@ function argus_personeel_afwezigheden_install() {
 					'weight' => - 10,
 					'region' => 'sidebar_first', // replace with the target region for your theme
 					'visibility' => BLOCK_VISIBILITY_LISTED,
-					'pages' => 'absenteisme' . chr ( 13 ) . 'absenteisme/*', // replace with your list of pages
+					'pages' => 'personeel_afwezigheden' . chr ( 13 ) . 'personeel_afwezigheden/*', // replace with your list of pages
 					'cache' => DRUPAL_CACHE_GLOBAL,
 					'title' => 'Filter' 
 			) 

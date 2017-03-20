@@ -35,10 +35,12 @@ function argus_stages_install() {
 	// Add roles
 	if (function_exists ( 'argus_stages_user_default_roles' )) {
 		foreach ( argus_stages_user_default_roles () as $role_def ) {
-			$role = new stdClass ();
-			$role->name = $role_def ['name'];
-			$role->weight = $role_def ['weight'];
-			user_role_save ( $role );
+			if (! user_role_load_by_name( $role_def ['name'] )){
+				$role = new stdClass ();
+				$role->name = $role_def ['name'];
+				$role->weight = $role_def ['weight'];
+				user_role_save ( $role );
+			}
 		}
 	}
 	

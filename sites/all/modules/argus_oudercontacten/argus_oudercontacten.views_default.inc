@@ -27,6 +27,7 @@ function argus_oudercontacten_views_default_views() {
 	$handler->display->display_options ['use_more_text'] = 'meer';
 	$handler->display->display_options ['group_by'] = TRUE;
 	$handler->display->display_options ['access'] ['type'] = 'perm';
+	$handler->display->display_options ['access'] ['perm'] = 'create oudercontact content';
 	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
 	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
 	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';

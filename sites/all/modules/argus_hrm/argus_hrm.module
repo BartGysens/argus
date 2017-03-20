@@ -1835,13 +1835,6 @@ function argus_hrm_workload_overview() {
 	
 	$data = array ();
 	
-	$relevant_roles = variable_get ( 'argus_hrm_workload_roles', false );
-	
-	if (! $relevant_roles) {
-		global $base_url;
-		argus_report ( 'Module HRM: workload is not correctly set; please visit the <a href="' . $base_url . '/admin/config/argus/hrm-workload">admin-pages</a>.' );
-	}
-	
 	// Get all prospected users
 	$default_user = array (
 			'name' => null,
@@ -1863,14 +1856,21 @@ function argus_hrm_workload_overview() {
 	);
 	
 	$data ['users'] = array ();
-	$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users} AS u ' . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 'WHERE ur.rid IN (:rids) AND status = 1';
-	$result = array_keys ( db_query ( $query, array (
-			':rids' => $relevant_roles 
-	) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
 	
-	foreach ( $result as $uid ) {
-		$data ['users'] [$uid] = $default_user;
-		$data ['users'] [$uid] ['name'] = argus_get_user_realname ( $uid );
+	$relevant_roles = variable_get ( 'argus_hrm_workload_roles', false );
+	if (! $relevant_roles) {
+		global $base_url;
+		argus_report ( 'Module HRM: workload is not correctly set; please visit the <a href="' . $base_url . '/admin/config/argus/hrm-workload">admin-pages</a>.' );
+	} else {
+		$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users} AS u ' . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 'WHERE ur.rid IN (:rids) AND status = 1';
+		$result = array_keys ( db_query ( $query, array (
+				':rids' => $relevant_roles 
+		) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		
+		foreach ( $result as $uid ) {
+			$data ['users'] [$uid] = $default_user;
+			$data ['users'] [$uid] ['name'] = argus_get_user_realname ( $uid );
+		}
 	}
 	
 	// Data related to roles and their value
@@ -1907,18 +1907,36 @@ function argus_hrm_workload_overview() {
 		}
 		
 		// Get user candidate substitutes
-		$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users} AS u ' . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 'WHERE u.uid NOT IN (:uidsNOK) AND ur.rid IN (:rids) AND status = 1';
-		$data ['availableSubstitutes'] = array_keys ( db_query ( $query, array (
-				':uidsNOK' => variable_get ( 'argus_uurrooster_substitutions_exemptions' ),
-				':rids' => variable_get ( 'argus_uurrooster_substitutions_roles' ) 
-		) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		$rids = variable_get ( 'argus_uurrooster_substitutions_roles', array() );
+		if (count($rids)){
+			$options = array( ':rids' => $rids );
+			
+			$query = 'SELECT DISTINCT(u.uid) AS id FROM {users} AS u INNER JOIN {users_roles} AS ur ON u.uid = ur.uid WHERE ur.rid IN (:rids) AND status = 1';
+			
+			$uidsNOK = variable_get ( 'argus_uurrooster_substitutions_exemptions', array() );
+			if (count($uidsNOK)){
+				$query .= ' AND u.uid NOT IN (:uidsNOK)';
+				$options[ ':uidsNOK' ] = $uidsNOK;
+			}
+			
+			$data ['availableSubstitutes'] = array_keys ( db_query ( $query, $options )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		}
 		
 		// Get user candidate supervisors
-		$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users} AS u ' . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 'WHERE u.uid NOT IN (:uidsNOK) AND ur.rid IN (:rids) AND status = 1';
-		$data ['availableSupervisors'] = array_keys ( db_query ( $query, array (
-				':uidsNOK' => variable_get ( 'argus_uurrooster_supervisions_exemptions' ),
-				':rids' => variable_get ( 'argus_uurrooster_supervisions_roles' ) 
-		) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		$rids = variable_get ( 'argus_uurrooster_supervisions_roles', array() );
+		if (count($rids)){
+			$options = array( ':rids' => $rids );
+				
+			$query = 'SELECT DISTINCT(u.uid) AS id FROM {users} AS u INNER JOIN {users_roles} AS ur ON u.uid = ur.uid WHERE ur.rid IN (:rids) AND status = 1';
+				
+			$uidsNOK = variable_get ( 'argus_uurrooster_supervisions_exemptions', array() );
+			if (count($uidsNOK)){
+				$query .= ' AND u.uid NOT IN (:uidsNOK)';
+				$options[ ':uidsNOK' ] = $uidsNOK;
+			}
+				
+			$data ['availableSupervisors'] = array_keys ( db_query ( $query, $options )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		}
 		
 		// Get all substitutions
 		$query = 'SELECT DISTINCT(u.field_uurrooster_perm_vervanger_target_id) AS id ' . 'FROM {field_data_field_uurrooster_perm_vervanger} AS u';

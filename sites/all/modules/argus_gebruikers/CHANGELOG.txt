@@ -1,6 +1,11 @@
 **Releases:
 
 
+*v7.x-6.3
+---------
+- Betere dependencies
+- Standaard rollen in basisinstallatie
+
 v7.x-6.2
 ---------
 - Feature base disabled and reconfigured as full custom Drupal module

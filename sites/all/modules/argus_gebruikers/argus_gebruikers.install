@@ -35,6 +35,18 @@ function argus_gebruikers_install() {
 		field_group_group_save ( $fieldgroup );
 	}
 	
+	// Add roles
+	if (function_exists ( 'argus_stages_user_default_roles' )) {
+		foreach ( argus_gebruikers_user_default_roles () as $role_def ) {
+			if (! user_role_load_by_name ( $role_def ['name'] )) {
+				$role = new stdClass ();
+				$role->name = $role_def ['name'];
+				$role->weight = $role_def ['weight'];
+				user_role_save ( $role );
+			}
+		}
+	}
+	
 	// Enable some standard blocks
 	$theme = variable_get ( 'theme_default', NULL );
 	$blocks = array (
@@ -134,6 +146,124 @@ function argus_gebruikers_uninstall() {
 	if (db_table_exists ( 'block' )) {
 		db_delete ( 'block' )->condition ( 'module', 'argus_gebruikers' )->execute ();
 	}
+}
+
+/**
+ * Implements hook_user_default_roles().
+ */
+function argus_gebruikers_user_default_roles() {
+	$roles = array ();
+	
+	$roles ['andere'] = array (
+			'name' => 'andere',
+			'weight' => 100 
+	);
+	$roles ['boekhouding'] = array (
+			'name' => 'boekhouding',
+			'weight' => 101 
+	);
+	$roles ['directeur'] = array (
+			'name' => 'directeur',
+			'weight' => 102 
+	);
+	$roles ['directielid'] = array (
+			'name' => 'directielid',
+			'weight' => 103 
+	);
+	$roles ['externe'] = array (
+			'name' => 'externe',
+			'weight' => 104 
+	);
+	$roles ['financieel verantwoordelijke'] = array (
+			'name' => 'financieel verantwoordelijke',
+			'weight' => 105 
+	);
+	$roles ['GIP - extern jurylid'] = array (
+			'name' => 'GIP - extern jurylid',
+			'weight' => 106 
+	);
+	$roles ['GIP-coördinator'] = array (
+			'name' => 'GIP-coördinator',
+			'weight' => 107 
+	);
+	$roles ['hulpklastitularis'] = array (
+			'name' => 'hulpklastitularis',
+			'weight' => 108 
+	);
+	$roles ['ICT-coördinator'] = array (
+			'name' => 'ICT-coördinator',
+			'weight' => 109 
+	);
+	$roles ['interne leerlingbegeleider'] = array (
+			'name' => 'interne leerlingbegeleider',
+			'weight' => 110 
+	);
+	$roles ['klastitularis'] = array (
+			'name' => 'klastitularis',
+			'weight' => 111 
+	);
+	$roles ['leerkracht'] = array (
+			'name' => 'leerkracht',
+			'weight' => 112 
+	);
+	$roles ['leerling'] = array (
+			'name' => 'leerling',
+			'weight' => 113 
+	);
+	$roles ['leerlingsecretariaat'] = array (
+			'name' => 'leerlingsecretariaat',
+			'weight' => 114 
+	);
+	$roles ['magazijnier'] = array (
+			'name' => 'magazijnier',
+			'weight' => 115 
+	);
+	$roles ['MVD-personeelslid'] = array (
+			'name' => 'MVD-personeelslid',
+			'weight' => 116 
+	);
+	$roles ['ondersteunend personeelslid'] = array (
+			'name' => 'ondersteunend personeelslid',
+			'weight' => 117 
+	);
+	$roles ['pedagogisch adviseur'] = array (
+			'name' => 'pedagogisch adviseur',
+			'weight' => 118 
+	);
+	$roles ['pedagogische coördinator'] = array (
+			'name' => 'pedagogische coördinator',
+			'weight' => 119 
+	);
+	$roles ['personeelslid'] = array (
+			'name' => 'personeelslid',
+			'weight' => 120 
+	);
+	$roles ['personeelssecretariaat'] = array (
+			'name' => 'personeelssecretariaat',
+			'weight' => 121 
+	);
+	$roles ['preventieadviseur'] = array (
+			'name' => 'preventieadviseur',
+			'weight' => 122 
+	);
+	$roles ['stagebegeleider'] = array (
+			'name' => 'stagebegeleider',
+			'weight' => 123 
+	);
+	$roles ['stagecoördinator'] = array (
+			'name' => 'stagecoördinator',
+			'weight' => 124 
+	);
+	$roles ['technisch adviseur'] = array (
+			'name' => 'technisch adviseur',
+			'weight' => 125 
+	);
+	$roles ['technisch adviseur-coördinator'] = array (
+			'name' => 'technisch adviseur-coördinator',
+			'weight' => 126 
+	);
+	
+	return $roles;
 }
 
 /**

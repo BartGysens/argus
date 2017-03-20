@@ -43,24 +43,22 @@ function argus_engine_menu() {
 					'argus_engine_form' 
 			),
 			'access arguments' => array (
-					'administer argus_engine' 
+					'administer site configuration' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 1 
+	);
+	$items ['admin/config/argus/export_variables'] = array (
+			'title' => 'Exporteer variabelen',
+			'description' => 'Om een installatieprofiel aan te maken, kan je de ingestelde variabelen exporteren om in je *.install op te nemen.',
+			'page callback' => 'argus_engine_export_variables',
+			'access arguments' => array (
+					'administer site configuration' 
 			),
 			'type' => MENU_NORMAL_ITEM,
 			'weight' => 1 
 	);
 	return $items;
-}
-
-/**
- * Implements hook_permission().
- */
-function argus_engine_permission() {
-	return array (
-			'administer argus_engine' => array (
-					'title' => t ( 'argus: algemene instellingen' ),
-					'description' => t ( 'Beheer de basisconfiguratie van argus.' ) 
-			) 
-	);
 }
 
 /**
@@ -224,6 +222,47 @@ function argus_engine_form($form, &$form_state) {
 			'#description' => t ( 'Stel argus in op demonstratie modus. De gebruikersnamen worden omgezet in fictieve namen.' ) 
 	);
 	return system_settings_form ( $form );
+}
+
+/**
+ * Menu callback to export variables
+ */
+function argus_engine_export_variables() {
+	// Fetch and export variables from the database.
+	$query = db_select ( 'variable' );
+	$query->fields ( 'variable' );
+	$query->orderBy ( 'name' );
+	$result = $query->execute ();
+	
+	// Write variables to file
+	$data = array ();
+	
+	$data [] = '<?php';
+	$data [] = '/**';
+	$data [] = ' * Export variables for import with install profile scripts';
+	$data [] = ' */';
+	$data [] = 'function argus_import_variables(){';
+	$data [] = chr ( 9 ) . '$variables = array();' . chr ( 13 );
+	foreach ( $result as $row ) {
+		$data [] = chr ( 9 ) . '$variables[] = array( "variable" => "' . $row->name . '", "value" => ' . var_export ( unserialize ( $row->value ), 1 ) . ' );';
+	}
+	$data [] = chr ( 13 ) . chr ( 9 ) . 'return $variables;';
+	$data [] = '}';
+	
+	$filename = '/tmp/argus_variables.inc';
+	$result = file_put_contents ( $filename, implode ( chr ( 13 ), $data ) );
+	
+	if ($result) {
+		header ( 'Content-Description: File Transfer' );
+		header ( 'Content-Type: application/octet-stream' );
+		header ( 'Content-Disposition: attachment; filename="' . basename ( $filename ) . '"' );
+		header ( 'Expires: 0' );
+		header ( 'Cache-Control: must-revalidate' );
+		header ( 'Pragma: public' );
+		header ( 'Content-Length: ' . filesize ( $filename ) );
+		readfile ( $filename );
+		drupal_exit ();
+	}
 }
 
 /* Supporting functions */

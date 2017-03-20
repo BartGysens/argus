@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Copyright (C) 2014 bartgysens
  *
  * This program is free software: you can redistribute it and/or modify
@@ -9,23 +9,23 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /**
  * @file
  * Set template for single page.
- * 
+ *
  * change forwarding as suggested
  */
-
-global $base_url;
-if (!user_is_logged_in()){
-	header('Location: '.$base_url.'/user/login?destination='.$_SERVER['REQUEST_URI']);exit;
+$url = $_SERVER ['REQUEST_URI'];
+if (! user_is_logged_in () && ! stristr ( $url, 'user/login' )) {
+	header ( 'Location: ' . base_path () . drupal_get_path_alias ( 'user/login' ) . '?destination=' . $url );
+	exit ();
 }
 
 // include 'page--fixed-layout.tpl.php';

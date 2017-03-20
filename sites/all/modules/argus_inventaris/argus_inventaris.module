@@ -294,7 +294,7 @@ function argus_inventaris_block_info() {
 			'maintenance_block' => array (
 					'info' => t ( 'Inventaris: filter' ),
 					'cache' => DRUPAL_CACHE_GLOBAL,
-					'weight' => 2,
+					'weight' => -10,
 					'status' => 1,
 					'region' => 'sidebar_first',
 					'visibility' => BLOCK_VISIBILITY_LISTED,

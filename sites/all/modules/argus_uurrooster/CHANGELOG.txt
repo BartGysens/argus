@@ -1,5 +1,11 @@
 **Releases:
 
+*v7.x-9.4
+---------
+- Check op format date en filter; create filter/format als nodig
+- Check op content-type page; create als nodig
+- Debug van lege rollen tabel
+
 v7.x-9.3
 ---------
 - Removed Features, changed to full custom module

@@ -1,5 +1,10 @@
 **Releases:
 
+*v7.x-1.12
+---------
+- Block weight aangepast
+- Security update: views protected
+
 v7.x-1.11
 ---------
 - Features disabled; created full custom module

@@ -1,5 +1,9 @@
 **Releases:
 
+*v7.x-1.3
+---------
+- Security update: views protected
+
 v7.x-1.2
 ---------
 - Replaced Features with full module

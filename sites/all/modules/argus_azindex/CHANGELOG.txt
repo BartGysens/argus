@@ -1,5 +1,10 @@
 **Releases:
 
+*v7.x-1.2
+---------
+- Security update: access controle implemented
+- Update in block; hide als er geen items zijn
+
 v7.x-1.1
 ---------
 - Beter block definitie

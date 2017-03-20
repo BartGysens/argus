@@ -1,5 +1,11 @@
 **Releases:
 
+*v7.x-1.9
+---------
+- Block weight aangepast
+- Security update: views protected
+- Fix in function rename: argus_gebruikers_fieldsAsArrays
+
 v7.x-1.8
 ---------
 - Features disabled, recreated with full module

@@ -40,7 +40,7 @@ function argus_aankoopdossiers_node_info() {
 					'description' => t ( 'Beheer de <em>aankoopdossiers</em> voor investeringen, kapitaalsaankopen en ander diensten en materialen.' ),
 					'has_title' => '1',
 					'title_label' => t ( 'Dossiernaam' ),
-					'help' => ''
+					'help' => '' 
 			) 
 	);
 }
@@ -84,6 +84,7 @@ function argus_aankoopdossiers_views_default_views() {
 	$handler->display->display_options ['use_more_always'] = FALSE;
 	$handler->display->display_options ['use_more_text'] = 'meer';
 	$handler->display->display_options ['access'] ['type'] = 'perm';
+	$handler->display->display_options ['access'] ['perm'] = 'create aankoopdossier content';
 	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
 	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
 	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
@@ -723,7 +724,7 @@ function argus_aankoopdossiers_views_default_views() {
 	$handler->display->display_options ['menu'] ['type'] = 'normal';
 	$handler->display->display_options ['menu'] ['title'] = 'Aankoopdossiers';
 	
-	if (menu_load('menu-modules')){
+	if (menu_load ( 'menu-modules' )) {
 		$menu = 'menu-modules';
 	} else {
 		$menu = 'navigation';

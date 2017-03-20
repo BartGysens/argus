@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.2
+---------
+- Security update: checking permissions
+
 v7.x-1.1
 ---------
 - Feature base disabled and reconfigured as full custom Drupal module

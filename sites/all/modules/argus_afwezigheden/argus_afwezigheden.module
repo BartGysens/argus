@@ -151,7 +151,7 @@ function argus_afwezigheden_block_info() {
 			'absences_filter_block' => array (
 					'info' => t ( 'Afwezigheden: filter' ),
 					'cache' => DRUPAL_CACHE_GLOBAL,
-					'weight' => 2,
+					'weight' => -10,
 					'status' => 1,
 					'region' => 'sidebar_first',
 					'visibility' => BLOCK_VISIBILITY_LISTED,
@@ -160,7 +160,7 @@ function argus_afwezigheden_block_info() {
 			'latecomers_filter_block' => array (
 					'info' => t ( 'Telaatkomers: filter' ),
 					'cache' => DRUPAL_CACHE_GLOBAL,
-					'weight' => 2,
+					'weight' => -10,
 					'status' => 1,
 					'region' => 'sidebar_first',
 					'visibility' => BLOCK_VISIBILITY_LISTED,
@@ -169,11 +169,11 @@ function argus_afwezigheden_block_info() {
 			'latecomers_infoscreen_block' => array (
 					'info' => t ( 'Telaatkomers: infoscherm' ),
 					'cache' => DRUPAL_CACHE_GLOBAL,
-					'weight' => 2,
+					'weight' => 10,
 					'status' => 1,
 					'region' => 'sidebar_first',
-					'visibility' => BLOCK_VISIBILITY_NOTLISTED,
-					'pages' => '' 
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					'pages' => '<front>'
 			) 
 	);
 	
@@ -198,7 +198,7 @@ function argus_afwezigheden_block_view($delta = '') {
 			$block ['content'] = theme ( 'latecomers_filter_block', $variables );
 			break;
 		case 'latecomers_infoscreen_block' :
-			$block ['subject'] = 'Filter';
+			$block ['subject'] = 'Telaatkomers';
 			$block ['content'] = theme ( 'latecomers_infoscreen_block' );
 			break;
 	}

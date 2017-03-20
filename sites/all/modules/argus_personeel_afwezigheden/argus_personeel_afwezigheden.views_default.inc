@@ -11,18 +11,18 @@ function argus_personeel_afwezigheden_views_default_views() {
 	$export = array ();
 	
 	$view = new view ();
-	$view->name = 'absenteisme';
+	$view->name = 'personeel_afwezigheden';
 	$view->description = '';
 	$view->tag = 'default';
 	$view->base_table = 'node';
-	$view->human_name = 'Absenteïsme';
+	$view->human_name = 'Personeel - afwezigheden';
 	$view->core = 7;
 	$view->api_version = '3.0';
 	$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 	
 	/* Display: Master */
 	$handler = $view->new_display ( 'default', 'Master', 'default' );
-	$handler->display->display_options ['title'] = 'Absenteïsme';
+	$handler->display->display_options ['title'] = 'Personeel - afwezigheden';
 	$handler->display->display_options ['use_more_always'] = FALSE;
 	$handler->display->display_options ['use_more_text'] = 'meer';
 	$handler->display->display_options ['access'] ['type'] = 'role';
@@ -498,18 +498,18 @@ function argus_personeel_afwezigheden_views_default_views() {
 	$handler->display->display_options ['fields'] ['nothing'] ['alter'] ['text'] = '[edit_node] - [delete_node]';
 	$handler->display->display_options ['fields'] ['nothing'] ['element_label_colon'] = FALSE;
 	$handler->display->display_options ['qtip_instance'] = 'standaard';
-	$handler->display->display_options ['path'] = 'absenteisme';
+	$handler->display->display_options ['path'] = 'personeel_afwezigheden';
 	$handler->display->display_options ['menu'] ['type'] = 'normal';
-	$handler->display->display_options ['menu'] ['title'] = 'Absenteïsme';
+	$handler->display->display_options ['menu'] ['title'] = 'Personeel - afwezigheden';
 	if (menu_load ( 'menu-modules' )) {
 		$menu = 'menu-modules';
 	} else {
 		$menu = 'navigation';
 	}
 	$handler->display->display_options ['menu'] ['name'] = $menu;
-	$translatables ['absenteisme'] = array (
+	$translatables ['personeel_afwezigheden'] = array (
 			t ( 'Master' ),
-			t ( 'Absenteïsme' ),
+			t ( 'Personeel - afwezigheden' ),
 			t ( 'meer' ),
 			t ( 'Toepassen' ),
 			t ( 'Opnieuw instellen' ),
@@ -535,7 +535,7 @@ function argus_personeel_afwezigheden_views_default_views() {
 			t ( 'Overzicht' ),
 			t ( 'Reden (andere)' ) 
 	);
-	$export ['absenteisme'] = $view;
+	$export ['personeel_afwezigheden'] = $view;
 	
 	return $export;
 }

@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.2
+---------
+- Security update: initial access setting no role
+
 v7.x-1.1
 ---------
 - Feature removed, replaced with fully custom module

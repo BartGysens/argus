@@ -74,7 +74,10 @@ function argus_klasbeheer_views_default_views() {
 	$handler->display->display_options ['use_more_always'] = FALSE;
 	$handler->display->display_options ['use_more_text'] = 'meer';
 	$handler->display->display_options ['group_by'] = TRUE;
-	$handler->display->display_options ['access'] ['type'] = 'perm';
+	$handler->display->display_options ['access'] ['type'] = 'role';
+	$handler->display->display_options ['access'] ['role'] = array(
+		2 => '2',
+	);
 	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
 	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
 	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
@@ -1915,7 +1918,7 @@ function argus_klasbeheer_block_info() {
 	$blocks ['klasbeeld'] = array (
 			'info' => t ( 'Klasbeeld' ),
 			'cache' => DRUPAL_CACHE_GLOBAL,
-			'weight' => 2,
+			'weight' => -10,
 			'status' => 1,
 			'region' => 'sidebar_first',
 			'visibility' => BLOCK_VISIBILITY_LISTED,

@@ -1,6 +1,11 @@
 **Releases:
 
 
+v7.x-0.3-sandbox
+---------
+- Check op format date en filter; create filter/format als nodig
+- Check op content-type page; create als nodig
+
 v7.x-0.2-sandbox
 ---------
 - Feature disabled and created full module

@@ -113,10 +113,13 @@ function argus_uurrooster_views_default_views() {
 	
 	/* Display: Master */
 	$handler = $view->new_display ( 'default', 'Master', 'default' );
-	$handler->display->display_options ['title'] = 'Uurroosters - toezichten - locaties';
+	$handler->display->display_options ['title'] = 'Uurroosters';
 	$handler->display->display_options ['use_more_always'] = FALSE;
 	$handler->display->display_options ['use_more_text'] = 'meer';
-	$handler->display->display_options ['access'] ['type'] = 'perm';
+	$handler->display->display_options ['access'] ['type'] = 'role';
+$handler->display->display_options['access']['role'] = array(
+  2 => '2',
+);
 	$handler->display->display_options ['cache'] ['type'] = 'views_content_cache';
 	$handler->display->display_options ['cache'] ['results_min_lifespan'] = '-1';
 	$handler->display->display_options ['cache'] ['results_max_lifespan'] = '518400';
@@ -219,6 +222,8 @@ function argus_uurrooster_views_default_views() {
 	$handler = $view->new_display ( 'page', 'Uurroosters - toezichten - locaties', 'uurroosters_toezichten_locaties' );
 	$handler->display->display_options ['defaults'] ['style_plugin'] = FALSE;
 	$handler->display->display_options ['style_plugin'] = 'default';
+	$handler->display->display_options ['access'] ['type'] = 'perm';
+	$handler->display->display_options ['access'] ['perm'] = 'create uurrooster_toezicht_locatie content';
 	$handler->display->display_options ['defaults'] ['style_options'] = FALSE;
 	$handler->display->display_options ['defaults'] ['row_plugin'] = FALSE;
 	$handler->display->display_options ['row_plugin'] = 'fields';
@@ -840,17 +845,18 @@ function argus_uurrooster_toezichten_form($form, &$form_state) {
 
 /* Get user list and return it */
 function webform_users_list_get_list($rids = array()) {
-	$role = user_role_load_by_name ( 'leerkracht' );
-	$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users_roles} AS ur ' . 'INNER JOIN {users} AS u ON u.uid = ur.uid ' . 'WHERE ur.rid IN (:rid) AND u.status = 1';
-	$allTeachers = db_query ( $query, array (
-			':rid' => $rids 
-	) )->fetchCol ();
-	
 	$user_names = array ();
-	foreach ( $allTeachers as $t ) {
-		$user_names [$t] = argus_get_user_realname ( $t );
+	if (count ( $rids )) {
+		$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users_roles} AS ur ' . 'INNER JOIN {users} AS u ON u.uid = ur.uid ' . 'WHERE ur.rid IN (:rid) AND u.status = 1';
+		$allTeachers = db_query ( $query, array (
+				':rid' => $rids 
+		) )->fetchCol ();
+		
+		foreach ( $allTeachers as $t ) {
+			$user_names [$t] = argus_get_user_realname ( $t );
+		}
+		asort ( $user_names );
 	}
-	asort ( $user_names );
 	return $user_names;
 }
 
@@ -862,7 +868,7 @@ function argus_uurrooster_block_info() {
 	$blocks ['filter_block'] = array (
 			'info' => t ( 'Filter' ),
 			'cache' => DRUPAL_CACHE_GLOBAL,
-			'weight' => 2,
+			'weight' => - 10,
 			'status' => 1,
 			'region' => 'sidebar_first',
 			'visibility' => BLOCK_VISIBILITY_LISTED,
@@ -905,6 +911,7 @@ function argus_uurrooster_block_view($delta = '') {
 		
 		switch ($delta) {
 			case 'filter_block' :
+				$block ['subject'] = t ( 'Filter' );
 				$block ['content'] = theme ( 'argus_uurrooster_filter_block', $variables );
 				break;
 		}
