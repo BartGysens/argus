@@ -503,7 +503,7 @@ function argus_klassenraden_notes($schoolyear = 0, $cmid = NULL, $sid = NULL, $c
 	if (is_array ( $schoolyear )) {
 		/* Fetch all pupils for this class with corresponding notes */
 		if (! is_numeric ( $cid )) {
-			$query = 'SELECT nid ' . 'FROM node ' . 'WHERE title = :title AND type = :type';
+			$query = 'SELECT nid ' . 'FROM node WHERE title = :title AND type = :type';
 			$cid = db_query ( $query, array (
 					':title' => $cid,
 					':type' => 'klas' 
@@ -514,7 +514,7 @@ function argus_klassenraden_notes($schoolyear = 0, $cmid = NULL, $sid = NULL, $c
 		}
 		
 		if ($cid) {
-			$query = 'SELECT lln.field_klas_leerlingen_target_id AS uid ' . 'FROM {field_data_field_klas_leerlingen} AS lln ' . 'WHERE lln.entity_id = :cid';
+			$query = 'SELECT lln.field_klas_leerlingen_target_id AS uid FROM {field_data_field_klas_leerlingen} AS lln WHERE lln.entity_id = :cid';
 			$data ['pupils'] = db_query ( $query, array (
 					':cid' => $cid 
 			) )->fetchCol ();
@@ -536,7 +536,6 @@ function argus_klassenraden_notes($schoolyear = 0, $cmid = NULL, $sid = NULL, $c
 			
 			/* Process form submitted values */
 			
-			/* STUDY */
 			foreach ( $lvsParts as $lvsPart ) {
 				$query = new EntityFieldQuery ();
 				$query->entityCondition ( 'entity_type', 'node', '=' )->entityCondition ( 'bundle', 'lvs_klassenraad_notitie', '=' )->fieldCondition ( 'field_klassenraad', 'target_id', $cmid, '=' )->fieldCondition ( 'field_lvs_onderdeel', 'value', $lvsPart, '=' )->fieldCondition ( 'field_leerling', 'target_id', $pid, '=' );
@@ -573,6 +572,7 @@ function argus_klassenraden_notes($schoolyear = 0, $cmid = NULL, $sid = NULL, $c
 				
 				$actions = array ();
 				if (array_key_exists ( 'argus_klassenraden_' . $lvsPart . '_action_id', $_POST )) {
+					dpm($_POST);
 					foreach ( $_POST ['argus_klassenraden_' . $lvsPart . '_action_id'] as $k => $aid ) {
 						if ($aid) {
 							$action = node_load ( $aid );

@@ -18,8 +18,8 @@
 
 if (!$aid) { $aid = '{id}'; } ?>
 <a id="action<?php print $aid ?>"></a>
-<input type="hidden" name="argus_klassenraden_<?php print $lvsPart; ?>_action_id[]" value="<?php if ($aid != '{id}') { print $aid; } ?>" />
 <table id="argus_klassenraden_action_<?php print $aid; ?>" class="argus_klassenraden_action_model <?php print $lvsPart; ?>-border argus_klassenraden_action_table_<?php print $lvsPart; ?>">
+<input type="hidden" name="argus_klassenraden_<?php print $lvsPart; ?>_action_id[]" value="<?php if ($aid != '{id}') { print $aid; } ?>" />
 	<tr>
 		<td class="views-align-left"><select name="argus_klassenraden_<?php print $lvsPart; ?>_action_measure[]"<?php if (is_numeric($aid) && !$measure){ ?> style="background: #fee; color: red;"<?php } ?>>
 		<option value="0">- selecteer een maatregel -</option>
