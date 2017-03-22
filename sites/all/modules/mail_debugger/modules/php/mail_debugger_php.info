@@ -1,11 +1,11 @@
-name = Mail debugger PHP (Expirimental)
+name = Mail debugger PHP (Experimental)
 description = Mail debugger extention to deal with any mail handler, allowing raw PHP
 package = Development
 dependencies[] = mail_debugger
 core = 7.x
-; Information added by Drupal.org packaging script on 2015-05-05
-version = "7.x-3.1"
+; Information added by Drupal.org packaging script on 2017-03-16
+version = "7.x-3.2"
 core = "7.x"
 project = "mail_debugger"
-datestamp = "1430839983"
+datestamp = "1489693385"
 

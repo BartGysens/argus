@@ -5,9 +5,9 @@ package = Development
 configure = admin/config/development/mail_debugger
 tags[] = developer
 dependencies[] = user_variable
-; Information added by Drupal.org packaging script on 2015-05-05
-version = "7.x-3.1"
+; Information added by Drupal.org packaging script on 2017-03-16
+version = "7.x-3.2"
 core = "7.x"
 project = "mail_debugger"
-datestamp = "1430839983"
+datestamp = "1489693385"
 

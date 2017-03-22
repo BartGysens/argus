@@ -1,11 +1,10 @@
-name = "qTip: Webform"
-description = "Integrates the qTip library with Webform module."
+name = "qTip: Panels"
+description = "Integrates the qTip library with Panels module."
 package = User interface
 core = 7.x
 
 dependencies[] = qtip
-dependencies[] = webform
-
+dependencies[] = panels
 
 ; Information added by Drupal.org packaging script on 2017-03-19
 version = "7.x-2.0"
