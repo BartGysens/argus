@@ -16,3 +16,4 @@ dependencies[] = node
 dependencies[] = options
 dependencies[] = views
 dependencies[] = views_content_cache
+project status url = http://www.projectargus.be/release-history

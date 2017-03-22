@@ -1,6 +1,6 @@
 **Releases:
 
-*v7.x-1.3
+v7.x-1.3
 ---------
 - Security update: view protected
 

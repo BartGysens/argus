@@ -1,7 +1,7 @@
 **Releases:
 
 
-*v7.x-1.1
+v7.x-1.1
 ---------
 - Security update: permissions fixed
 

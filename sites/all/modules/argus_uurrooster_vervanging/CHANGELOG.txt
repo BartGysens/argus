@@ -1,6 +1,6 @@
 **Releases:
 
-*v7.x-1.12
+v7.x-1.12
 ---------
 - Block weight aangepast
 - Security update: views protected

@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-4.1
+---------
+- Fix in user redirection unauthorized to login
+
 v7.x-4.0
 ---------
 - Templates van user_profile en node-klas naar resp modules Klasbeheer en Gebruikers overgebracht

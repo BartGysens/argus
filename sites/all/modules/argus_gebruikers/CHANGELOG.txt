@@ -1,7 +1,7 @@
 **Releases:
 
 
-*v7.x-6.3
+v7.x-6.3
 ---------
 - Betere dependencies
 - Standaard rollen in basisinstallatie

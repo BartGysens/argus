@@ -1,6 +1,10 @@
 **Releases:
 
-*v7.x-3.3
+v7.x-3.4
+---------
+- Installscript adjusted for adding roles
+
+v7.x-3.3
 ---------
 - Security update: views afgeschermd
 - Block weight aangepast

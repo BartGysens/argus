@@ -1,6 +1,6 @@
 **Releases:
 
-* v7.x-1.6
+v7.x-1.6
 ---------
 - Nieuwe function om variabelen te exporteren voor install profile scripts
 

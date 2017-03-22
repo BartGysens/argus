@@ -1,6 +1,6 @@
 **Releases:
 
-*v7.x-1.5
+v7.x-1.5
 ---------
 - Extra check op installatie profile settings
 

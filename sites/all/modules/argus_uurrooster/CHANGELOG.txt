@@ -1,6 +1,10 @@
 **Releases:
 
-*v7.x-9.4
+v7.x-9.5
+---------
+- Installscript adjusted for adding roles
+
+v7.x-9.4
 ---------
 - Check op format date en filter; create filter/format als nodig
 - Check op content-type page; create als nodig

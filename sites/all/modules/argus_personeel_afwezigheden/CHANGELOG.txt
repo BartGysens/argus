@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.5
+---------
+- Installscript adjusted for adding roles
+
 v7.x-1.4
 ---------
 - 'Absenteïsme' aangepast naar 'Personeel - Afwezigheden'

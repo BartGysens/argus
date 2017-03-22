@@ -26,7 +26,26 @@ function argus_gebruikersregistratie_views_default_views() {
 	$handler->display->display_options ['use_more_always'] = FALSE;
 	$handler->display->display_options ['use_more_text'] = 'meer';
 	$handler->display->display_options ['access'] ['type'] = 'role';
-	$handler->display->display_options ['access'] ['role'] = array ();
+	
+	$roles = array ();
+	$roleNames = array (
+			'administrator',
+			'directie'
+	);
+	foreach ( $roleNames as $role ) {
+		$rid = user_role_load_by_name ( $role );
+		if (! $rid) {
+			$newRole = new stdClass ();
+			$newRole->name = $role;
+			user_role_save ( $newRole );
+				
+			$rid = user_role_load_by_name ( $role );
+		}
+	
+		$roles [] = $rid->rid;
+	}
+	$handler->display->display_options ['access'] ['role'] = $roles;
+	
 	$handler->display->display_options ['cache'] ['type'] = 'none';
 	$handler->display->display_options ['query'] ['type'] = 'views_query';
 	$handler->display->display_options ['exposed_form'] ['type'] = 'better_exposed_filters';

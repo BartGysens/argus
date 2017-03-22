@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.3
+---------
+- Installscript adjusted for adding roles
+
 v7.x-1.2
 ---------
 - Feature base disabled and reconfigured as full custom Drupal module

@@ -1,6 +1,10 @@
 **Releases:
 
 
+v7.x-1.2
+---------
+- Installscript adjusted for adding roles
+
 v7.x-1.1
 ---------
 - Feature version disabled and created fully custom module

@@ -1,7 +1,11 @@
 **Releases:
 
 
-*v7.x-3.2
+v7.x-3.3
+---------
+- Installscript adjusted for adding roles
+
+v7.x-3.2
 ---------
 - Catch empty variable settings
 
