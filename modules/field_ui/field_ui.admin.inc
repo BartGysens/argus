@@ -19,14 +19,6 @@ function field_ui_fields_list() {
   $rows = array();
   foreach ($instances as $entity_type => $type_bundles) {
     foreach ($type_bundles as $bundle => $bundle_instances) {
-      // work around the case where a bundle was disabled but not
-      // uninstalled it still has its field returned by
-      // field_info_instances() but field_info_bundles()
-      // returns only active bundles
-      if (!isset($bundles[$entity_type][$bundle])) {
-        continue;
-      }
-
       foreach ($bundle_instances as $field_name => $instance) {
         $field = field_info_field($field_name);
 

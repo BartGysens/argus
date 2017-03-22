@@ -67,11 +67,6 @@
 function lock_initialize() {
   global $locks;
 
-  // The lock system needs at least a precision of 14.
-  if (ini_get('precision') < 14) {
-    ini_set('precision', 14);
-  }
-
   $locks = array();
 }
 

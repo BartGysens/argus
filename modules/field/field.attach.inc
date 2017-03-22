@@ -188,7 +188,7 @@ function _field_invoke($op, $entity_type, $entity, &$a = NULL, &$b = NULL, $opti
   $options += $default_options;
 
   // Determine the list of instances to iterate on.
-  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
   $instances = _field_invoke_get_instances($entity_type, $bundle, $options);
 
   // Iterate through the instances and collect results.
@@ -202,7 +202,6 @@ function _field_invoke($op, $entity_type, $entity, &$a = NULL, &$b = NULL, $opti
     if (function_exists($function)) {
       // Determine the list of languages to iterate on.
       $available_languages = field_available_languages($entity_type, $field);
-      $language = is_array($options['language']) && !empty($options['language'][$id]) ? $options['language'][$id] : $options['language'];
       $languages = _field_language_suggestion($available_languages, $options['language'], $field_name);
 
       foreach ($languages as $langcode) {
