@@ -1,0 +1,13 @@
+--- a/ldap_servers/LdapServer.class.php
++++ b/ldap_servers/LdapServer.class.php
+@@ -896,6 +896,10 @@ function ldapQuery($scope, $params) {
+         if ($params['sizelimit'] && $this->ldapErrorNumber() == LDAP_SIZELIMIT_EXCEEDED) {
+           // false positive error thrown.  do not result limit error when $sizelimit specified
+         }
++        elseif ($this->ldapErrorNumber() == LDAP_NO_SUCH_OBJECT) {
++          // False positive error thrown. Do not result error when object doesn't exist.
++          // False is already handled by dnExist(). See: #2276463
++        }
+         elseif ($this->hasError()) {
+           // var_dump(debug_backtrace());
+           var_dump($this, $this->ldapErrorNumber());

@@ -77,7 +77,7 @@ function template_preprocess_date_views_pager(&$vars) {
       switch ($granularity) {
         case 'week':
           $prev_week = date_week(date_format($prev_date, 'Y-m-d'));
-          $prev_arg = date_format($prev_date, 'Y-\W') . date_pad($prev_week);
+          $prev_arg = date_format($prev_date, 'o-\W') . date_pad($prev_week);
           break;
         default:
           $prev_arg = date_format($prev_date, $format[$granularity]);
@@ -90,7 +90,7 @@ function template_preprocess_date_views_pager(&$vars) {
       switch ($granularity) {
         case 'week':
           $next_week = date_week(date_format($next_date, 'Y-m-d'));
-          $next_arg = date_format($next_date, 'Y-\W') . date_pad($next_week);
+          $next_arg = date_format($next_date, 'o-\W') . date_pad($next_week);
           break;
         default:
           $next_arg = date_format($next_date, $format[$granularity]);
@@ -181,8 +181,8 @@ function theme_date_nav_title($params) {
   $date_info = $view->date_info;
   $link = !empty($params['link']) ? $params['link'] : FALSE;
   $format = !empty($params['format']) ? $params['format'] : NULL;
-  $format_with_year = variable_get('date_views_' . $granularity . '_format_with_year', 'l, j F, Y');
-  $format_without_year = variable_get('date_views_' . $granularity . '_format_without_year', 'l, j F');
+  $format_with_year = variable_get('date_views_' . $granularity . '_format_with_year', 'l, F j, Y');
+  $format_without_year = variable_get('date_views_' . $granularity . '_format_without_year', 'l, F j');
   switch ($granularity) {
     case 'year':
       $title = $date_info->year;

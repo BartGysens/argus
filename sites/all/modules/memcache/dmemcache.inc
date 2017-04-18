@@ -326,8 +326,14 @@ function _dmemcache_get_pieces($item, $key, $bin = 'cache', $mc = NULL) {
 
   // Append all of the pieces together.
   $data = '';
-  foreach ($pieces as $piece) {
-    $data .= $piece->data;
+  //foreach ($pieces as $piece) {
+  //  $data .= $piece->data;
+  if (!empty($pieces)) {
+    foreach ($pieces as $piece) {
+      if (isset($pieces->data)) {
+        $data .= $piece->data;
+      }
+    }
   }
   unset($pieces);
 
