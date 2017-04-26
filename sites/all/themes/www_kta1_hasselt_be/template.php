@@ -33,7 +33,6 @@ function www_kta1_hasselt_be_preprocess_block(&$variables) {
  * Override or insert variables into the html template.
  */
 function www_kta1_hasselt_be_preprocess_html(&$variables) {
-
 	if (empty($variables['page']['banner'])) {
 		$variables['classes_array'][] = 'no-banner';
 	}
@@ -301,7 +300,6 @@ function www_kta1_hasselt_be_preprocess_html(&$variables) {
 	drupal_add_js(drupal_get_path('theme', 'www_kta1_hasselt_be') . '/bootstrap/js/bootstrap.min.js');
 	}
 	//EOF:Javascript
-	
 	/**
 	 * Add Javascript for enable/disable scrollTop action.
 	 */
@@ -574,7 +572,6 @@ function www_kta1_hasselt_be_process_html(&$vars) {
  * Preprocess variables for page template.
  */
 function www_kta1_hasselt_be_preprocess_page(&$variables) {
-
 	$footer_first = $variables['page']['footer_first'];
 	$footer_second = $variables['page']['footer_second'];
 	$footer_third = $variables['page']['footer_third'];
@@ -642,7 +639,6 @@ function www_kta1_hasselt_be_preprocess_page(&$variables) {
 * Implements hook_preprocess_maintenance_page().
 */
 function www_kta1_hasselt_be_preprocess_maintenance_page(&$variables) {
-
 	$color_scheme = theme_get_setting('color_scheme');
 	if ($color_scheme != 'default') {
 		drupal_add_css(drupal_get_path('theme', 'www_kta1_hasselt_be') . '/style-' .$color_scheme. '.css', array('group' => CSS_THEME, 'type' => 'file'));
