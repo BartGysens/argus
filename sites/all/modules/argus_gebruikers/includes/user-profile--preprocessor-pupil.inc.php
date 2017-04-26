@@ -44,7 +44,12 @@ $variables ['account'] = $account;
 $variables ['user_id'] = $account->uid;
 $variables ['user_roles'] = $account->roles;
 
-$query = 'SELECT c.title AS title, c.nid AS id, ktt.field_klas_klastitularis_target_id AS ktt, hktt.field_klas_hulpklastitularis_target_id AS hktt ' . 'FROM {node} AS c ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id ' . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON c.nid = ktt.entity_id ' . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON c.nid = hktt.entity_id ' . 'WHERE l.field_klas_leerlingen_target_id = :uid';
+$query = 'SELECT c.title AS title, c.nid AS id, ktt.field_klas_klastitularis_target_id AS ktt, hktt.field_klas_hulpklastitularis_target_id AS hktt ';
+$query .= 'FROM {node} AS c ';
+$query .= 'LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id ';
+$query .= 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON c.nid = ktt.entity_id ';
+$query .= 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON c.nid = hktt.entity_id ';
+$query .= 'WHERE l.field_klas_leerlingen_target_id = :uid';
 $result = db_query ( $query, array (
 		':uid' => $account->uid 
 ) );
@@ -120,7 +125,18 @@ $variables ['hotline'] ['behaviour'] ['graph'] = array (
 
 $reports = array ();
 if (module_exists ( 'argus_meldingen' )) {
-	$query = 'SELECT l.entity_id AS id, ' . 'o.field_lvs_melding_onderwerp_value AS title, ' . 'n.uid AS author, ' . 'd.field_lvs_melding_datum_feit_value AS factdate, ' . 'p.field_lvs_melding_prive_value AS private, ' . 'v.field_lvs_melding_verslag_value AS report ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ' . 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ' . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'ORDER BY d.field_lvs_melding_datum_feit_value DESC';
+	$query = 'SELECT l.entity_id AS id, o.field_lvs_melding_onderwerp_value AS title, n.uid AS author, d.field_lvs_melding_datum_feit_value AS factdate, p.field_lvs_melding_prive_value AS private, v.field_lvs_melding_verslag_value AS report ';
+	$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ';
+	$query .= 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ';
+	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+	$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+	$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value DESC';
 	$reports = db_query ( $query, array (
 			':uid' => $account->uid,
 			':about' => 'negatief gedrag',
@@ -147,7 +163,18 @@ foreach ( $reports as $r => $report ) {
 
 $reports = array ();
 if (module_exists ( 'argus_meldingen' )) {
-	$query = 'SELECT l.entity_id AS id, ' . 'o.field_lvs_melding_onderwerp_value AS title, ' . 'n.uid AS author, ' . 'd.field_lvs_melding_datum_feit_value AS factdate, ' . 'p.field_lvs_melding_prive_value AS private, ' . 'v.field_lvs_melding_verslag_value AS report ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ' . 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ' . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'ORDER BY d.field_lvs_melding_datum_feit_value DESC';
+	$query = 'SELECT l.entity_id AS id, o.field_lvs_melding_onderwerp_value AS title, n.uid AS author, d.field_lvs_melding_datum_feit_value AS factdate, p.field_lvs_melding_prive_value AS private, v.field_lvs_melding_verslag_value AS report ';
+	$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ';
+	$query .= 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ';
+	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+	$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+	$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value DESC';
 	$reports = db_query ( $query, array (
 			':uid' => $account->uid,
 			':about' => 'positief gedrag',
@@ -235,7 +262,19 @@ $variables ['hotline'] ['behaviour'] ['measure'] = array ();
 foreach ( $measureTypes as $mt ) {
 	$results = array ();
 	if (module_exists ( 'argus_meldingen' )) {
-		$query = 'SELECT l.entity_id AS id, m.' . $mt ['field'] . '_target_id AS mid, COUNT(m.' . $mt ['field'] . '_target_id) AS cmid, mt.title AS title, GROUP_CONCAT(CONCAT_WS(:sep2, r.uid, d.field_lvs_melding_datum_feit_value, v.field_lvs_melding_verslag_value, o.field_lvs_melding_onderwerp_value) SEPARATOR :sep1) AS reports ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'LEFT JOIN {field_data_' . $mt ['field'] . '} AS m ON l.entity_id = m.entity_id ' . 'LEFT JOIN {node} AS mt ON m.' . $mt ['field'] . '_target_id = mt.nid ' . 'INNER JOIN {node} AS r ON l.entity_id = r.nid ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'GROUP BY mid';
+		$query = 'SELECT l.entity_id AS id, m.' . $mt ['field'] . '_target_id AS mid, COUNT(m.' . $mt ['field'] . '_target_id) AS cmid, mt.title AS title, GROUP_CONCAT(CONCAT_WS(:sep2, r.uid, d.field_lvs_melding_datum_feit_value, v.field_lvs_melding_verslag_value, o.field_lvs_melding_onderwerp_value) SEPARATOR :sep1) AS reports ';
+		$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+		$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+		$query .= 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ';
+		$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+		$query .= 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ';
+		$query .= 'LEFT JOIN {field_data_' . $mt ['field'] . '} AS m ON l.entity_id = m.entity_id ';
+		$query .= 'LEFT JOIN {node} AS mt ON m.' . $mt ['field'] . '_target_id = mt.nid ';
+		$query .= 'INNER JOIN {node} AS r ON l.entity_id = r.nid ';
+		$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+		$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+		$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+		$query .= 'GROUP BY mid';
 		$result = db_query ( $query, array (
 				':sep1' => '|',
 				':sep2' => '*',
@@ -262,7 +301,17 @@ foreach ( $measureTypes as $mt ) {
 
 $variables ['hotline'] ['behaviour'] ['bos'] = array ();
 if (module_exists ( 'argus_begeleidingsovereenkomsten' )) {
-	$query = 'SELECT l.entity_id AS id, ' . '        a.field_msl_bo_aanleiding_value AS reason, ' . '        sd.field_msl_bo_startdatum_value AS startDate, ' . '        ed.field_msl_bo_einddatum_value AS endDate, ' . '        COUNT(m.entity_id) AS cms ' . 'FROM {field_data_field_msl_bo_leerling} AS l ' . 'LEFT JOIN {field_data_field_msl_bo_aanleiding} AS a ON l.entity_id = a.entity_id ' . 'LEFT JOIN {field_data_field_msl_bo_type} AS t ON l.entity_id = t.entity_id ' . 'LEFT JOIN {field_data_field_msl_bo_startdatum} AS sd ON l.entity_id = sd.entity_id ' . 'LEFT JOIN {field_data_field_msl_bo_einddatum} AS ed ON l.entity_id = ed.entity_id ' . 'LEFT JOIN {field_data_field_msl_bo_meldingen} AS m ON l.entity_id = m.entity_id ' . 'WHERE l.field_msl_bo_leerling_target_id = :uid ' . 'AND sd.field_msl_bo_startdatum_value BETWEEN :startdate AND :enddate ' . 'AND t.field_msl_bo_type_value IN (:about)' . 'GROUP BY m.entity_id';
+	$query = 'SELECT l.entity_id AS id, a.field_msl_bo_aanleiding_value AS reason, sd.field_msl_bo_startdatum_value AS startDate, ed.field_msl_bo_einddatum_value AS endDate, COUNT(m.entity_id) AS cms ';
+	$query .= 'FROM {field_data_field_msl_bo_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_msl_bo_aanleiding} AS a ON l.entity_id = a.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_msl_bo_type} AS t ON l.entity_id = t.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_msl_bo_startdatum} AS sd ON l.entity_id = sd.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_msl_bo_einddatum} AS ed ON l.entity_id = ed.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_msl_bo_meldingen} AS m ON l.entity_id = m.entity_id ';
+	$query .= 'WHERE l.field_msl_bo_leerling_target_id = :uid ';
+	$query .= 'AND sd.field_msl_bo_startdatum_value BETWEEN :startdate AND :enddate ';
+	$query .= 'AND t.field_msl_bo_type_value IN (:about)';
+	$query .= 'GROUP BY m.entity_id';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
 			':about' => array (
@@ -286,7 +335,11 @@ if (module_exists ( 'argus_begeleidingsovereenkomsten' )) {
 
 $result = array ();
 if (module_exists ( 'argus_volgkaarten' )) {
-	$query = 'SELECT l.entity_id ' . 'FROM {field_data_field_msl_volgkaart_leerling} AS l ' . 'LEFT JOIN {field_data_field_msl_volgkaart_afgehaald} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_msl_volgkaart_leerling_target_id = :uid ' . 'AND d.field_msl_volgkaart_afgehaald_value BETWEEN :startdate AND :enddate';
+	$query = 'SELECT l.entity_id ';
+	$query .= 'FROM {field_data_field_msl_volgkaart_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_msl_volgkaart_afgehaald} AS d ON l.entity_id = d.entity_id ';
+	$query .= 'WHERE l.field_msl_volgkaart_leerling_target_id = :uid ';
+	$query .= 'AND d.field_msl_volgkaart_afgehaald_value BETWEEN :startdate AND :enddate';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
 			':startdate' => $schoolyear ['start'],
@@ -298,7 +351,10 @@ if (module_exists ( 'argus_volgkaarten' )) {
 }
 
 if (module_exists ( 'argus_afwezigheden' )) {
-	$query = 'SELECT datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE leerling = :uid AND (am = :code OR pm = :code) AND datum BETWEEN :startdate AND :enddate ' . 'ORDER BY datum';
+	$query = 'SELECT datum ';
+	$query .= 'FROM {argus_lvs_afwezigheden} ';
+	$query .= 'WHERE leerling = :uid AND (am = :code OR pm = :code) AND datum BETWEEN :startdate AND :enddate ';
+	$query .= 'ORDER BY datum';
 	$dateTcode = db_query ( $query, array (
 			':uid' => $account->uid,
 			':code' => 'T',
@@ -350,7 +406,13 @@ $variables ['hotline'] ['absences'] ['evolutiongraph'] = array (
 		] 
 );
 if (module_exists ( 'argus_afwezigheden' )) {
-	$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value = :about';
+	$query = 'SELECT l.entity_id AS id ';
+	$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+	$query .= 'AND b.field_lvs_melding_betreft_value = :about';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
 			':about' => 'afwezigheden',
@@ -375,7 +437,9 @@ if (module_exists ( 'argus_afwezigheden' )) {
 		$checkDate = new DateTime ( $year . $month . substr ( '0' . date ( 'd' ), - 2 ) );
 		if ($checkDate <= $today) {
 			$pdate = $year . '-' . $month;
-			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum LIKE :date';
+			$query = 'SELECT id ';
+			$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+			$query .= 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum LIKE :date';
 			$result = db_query ( $query, array (
 					':uid' => $account->uid,
 					':code' => array (
@@ -394,7 +458,8 @@ if (module_exists ( 'argus_afwezigheden' )) {
 					':date' => $pdate . '-%' 
 			) );
 			$stotalA = $result->rowCount ();
-			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum LIKE :date';
+			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ';
+			$query .= 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum LIKE :date';
 			$result = db_query ( $query, array (
 					':uid' => $account->uid,
 					':code' => array (
@@ -414,7 +479,8 @@ if (module_exists ( 'argus_afwezigheden' )) {
 			) );
 			$stotalA += $result->rowCount ();
 			
-			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum LIKE :date';
+			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ';
+			$query .= 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum LIKE :date';
 			$result = db_query ( $query, array (
 					':uid' => $account->uid,
 					':code' => array (
@@ -425,7 +491,8 @@ if (module_exists ( 'argus_afwezigheden' )) {
 					':date' => $pdate . '-%' 
 			) );
 			$stotalP = $result->rowCount ();
-			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum LIKE :date';
+			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ';
+			$query .= 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum LIKE :date';
 			$result = db_query ( $query, array (
 					':uid' => $account->uid,
 					':code' => array (
@@ -531,7 +598,8 @@ if (module_exists ( 'argus_afwezigheden' )) {
 			) 
 	);
 	foreach ( $codes as $code ) {
-		$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND am = :code AND a.datum BETWEEN :startdate AND :enddate';
+		$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ';
+		$query .= 'WHERE a.leerling = :uid AND am = :code AND a.datum BETWEEN :startdate AND :enddate';
 		$result = db_query ( $query, array (
 				':uid' => $account->uid,
 				':code' => $code [0],
@@ -539,7 +607,8 @@ if (module_exists ( 'argus_afwezigheden' )) {
 				':enddate' => $schoolyear ['end'] 
 		) );
 		$total = $result->rowCount ();
-		$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND pm = :code AND a.datum BETWEEN :startdate AND :enddate';
+		$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ';
+		$query .= 'WHERE a.leerling = :uid AND pm = :code AND a.datum BETWEEN :startdate AND :enddate';
 		$result = db_query ( $query, array (
 				':uid' => $account->uid,
 				':code' => $code [0],
@@ -561,7 +630,11 @@ if (module_exists ( 'argus_afwezigheden' )) {
 
 $variables ['hotline'] ['absences'] ['totals'] ['oa_sticker'] = 0;
 if (module_exists ( 'argus_sticker_onwettige_afwezigheid' )) {
-	$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_msl_oa_sticker_leerling} AS l ' . 'LEFT JOIN {field_data_field_msl_oa_sticker_f1_datum} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_msl_oa_sticker_leerling_target_id = :uid ' . 'AND d.field_msl_oa_sticker_f1_datum_value BETWEEN :startdate AND :enddate';
+	$query = 'SELECT l.entity_id AS id ';
+	$query .= 'FROM {field_data_field_msl_oa_sticker_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_msl_oa_sticker_f1_datum} AS d ON l.entity_id = d.entity_id ';
+	$query .= 'WHERE l.field_msl_oa_sticker_leerling_target_id = :uid ';
+	$query .= 'AND d.field_msl_oa_sticker_f1_datum_value BETWEEN :startdate AND :enddate';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
 			':startdate' => $schoolyear ['start'],
@@ -583,9 +656,11 @@ $variables ['hotline'] ['late'] ['weekgraph'] [0] = array (
 				'role' => 'annotation' 
 		) 
 );
-if (module_exists ( 'argus_afwezigheid' )) {
+if (module_exists ( 'argus_afwezigheden' )) {
 	for($d = 0; $d < 5; $d ++) {
-		$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.am IN (:code) AND WEEKDAY(a.datum) = :day AND a.datum BETWEEN :startdate AND :enddate';
+		$query = 'SELECT id ';
+		$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+		$query .= 'WHERE a.leerling = :uid AND a.am IN (:code) AND WEEKDAY(a.datum) = :day AND a.datum BETWEEN :startdate AND :enddate';
 		$result = db_query ( $query, array (
 				':uid' => $account->uid,
 				':code' => array (
@@ -606,7 +681,9 @@ if (module_exists ( 'argus_afwezigheid' )) {
 				':enddate' => $schoolyear ['end'] 
 		) );
 		$total = $result->rowCount ();
-		$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.pm IN (:code) AND WEEKDAY(a.datum) = :day AND a.datum BETWEEN :startdate AND :enddate';
+		$query = 'SELECT id ';
+		$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+		$query .= 'WHERE a.leerling = :uid AND a.pm IN (:code) AND WEEKDAY(a.datum) = :day AND a.datum BETWEEN :startdate AND :enddate';
 		$result = db_query ( $query, array (
 				':uid' => $account->uid,
 				':code' => array (
@@ -635,7 +712,9 @@ if (module_exists ( 'argus_afwezigheid' )) {
 	}
 	
 	for($d = 0; $d < 5; $d ++) {
-		$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.am = :code AND WEEKDAY(a.datum) = :day AND a.datum BETWEEN :startdate AND :enddate';
+		$query = 'SELECT id ';
+		$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+		$query .= 'WHERE a.leerling = :uid AND a.am = :code AND WEEKDAY(a.datum) = :day AND a.datum BETWEEN :startdate AND :enddate';
 		$result = db_query ( $query, array (
 				':uid' => $account->uid,
 				':code' => 'L',
@@ -644,7 +723,9 @@ if (module_exists ( 'argus_afwezigheid' )) {
 				':enddate' => $schoolyear ['end'] 
 		) );
 		$total = $result->rowCount ();
-		$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.pm = :code AND WEEKDAY(a.datum) = :day AND a.datum BETWEEN :startdate AND :enddate';
+		$query = 'SELECT id ';
+		$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+		$query .= 'WHERE a.leerling = :uid AND a.pm = :code AND WEEKDAY(a.datum) = :day AND a.datum BETWEEN :startdate AND :enddate';
 		$result = db_query ( $query, array (
 				':uid' => $account->uid,
 				':code' => 'L',
@@ -670,7 +751,10 @@ if (count ( $variables ['account']->field_user_sms_toelating_te_laat )) {
 $variables ['hotline'] ['absences'] ['leerplichtbegeleiding'] = array ();
 $sj = argus_schoolyear ( null, 'U' );
 if (module_exists ( 'argus_leerplichtbegeleiding' )) {
-	$query = 'SELECT n.nid AS id, n.created AS datum ' . 'FROM {field_data_field_leerling} AS u ' . 'INNER JOIN {node} AS n ON n.nid = u.entity_id ' . 'WHERE u.field_leerling_target_id = :uid AND n.type = :type AND n.created BETWEEN :startdate AND :enddate';
+	$query = 'SELECT n.nid AS id, n.created AS datum ';
+	$query .= 'FROM {field_data_field_leerling} AS u ';
+	$query .= 'INNER JOIN {node} AS n ON n.nid = u.entity_id ';
+	$query .= 'WHERE u.field_leerling_target_id = :uid AND n.type = :type AND n.created BETWEEN :startdate AND :enddate';
 	$variables ['hotline'] ['absences'] ['leerplichtbegeleiding'] = db_query ( $query, array (
 			':uid' => $account->uid,
 			':type' => 'lvs_leerplichtbegeleiding',
@@ -694,10 +778,12 @@ $variables ['hotline'] ['absences'] ['periodgraph'] [0] = array (
 		) 
 );
 $maxAbsences = 0;
-if (module_exists ( 'argus_afwezigheid' )) {
+if (module_exists ( 'argus_afwezigheden' )) {
 	for($x = 1; $x < 11; $x ++) {
 		if (variable_get ( 'period_' . $x . '_shortname' ) && variable_get ( 'period_' . $x . '_startdate' ) && variable_get ( 'period_' . $x . '_enddate' ) && (variable_get ( 'period_' . $x . '_type' ) == 'dagelijks werk')) {
-			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+			$query = 'SELECT id ';
+			$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+			$query .= 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
 			$result = db_query ( $query, array (
 					':uid' => $account->uid,
 					':code' => array (
@@ -715,7 +801,9 @@ if (module_exists ( 'argus_afwezigheid' )) {
 					':enddate' => variable_get ( 'period_' . $x . '_enddate' ) 
 			) );
 			$total_gewettigd = $result->rowCount ();
-			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+			$query = 'SELECT id ';
+			$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+			$query .= 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
 			$result = db_query ( $query, array (
 					':uid' => $account->uid,
 					':code' => array (
@@ -737,7 +825,9 @@ if (module_exists ( 'argus_afwezigheid' )) {
 				$maxAbsences = $total_gewettigd;
 			}
 			
-			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+			$query = 'SELECT id ';
+			$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+			$query .= 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
 			$result = db_query ( $query, array (
 					':uid' => $account->uid,
 					':code' => array (
@@ -747,7 +837,9 @@ if (module_exists ( 'argus_afwezigheid' )) {
 					':enddate' => variable_get ( 'period_' . $x . '_enddate' ) 
 			) );
 			$total_ongewettigd = $result->rowCount ();
-			$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
+			$query = 'SELECT id ';
+			$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+			$query .= 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum BETWEEN :startdate AND :enddate';
 			$result = db_query ( $query, array (
 					':uid' => $account->uid,
 					':code' => array (
@@ -782,7 +874,13 @@ if (module_exists ( 'argus_afwezigheid' )) {
 $variables ['hotline'] ['study'] ['measure'] = array ();
 $variables ['hotline'] ['study'] ['total'] = 0;
 if (module_exists ( 'argus_meldingen' )) {
-	$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value = :about';
+	$query = 'SELECT l.entity_id AS id ';
+	$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+	$query .= 'AND b.field_lvs_melding_betreft_value = :about';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
 			':about' => 'studiebegeleiding',
@@ -791,7 +889,16 @@ if (module_exists ( 'argus_meldingen' )) {
 	) );
 	$variables ['hotline'] ['study'] ['total'] = $result->rowCount ();
 	
-	$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_studie_target_id AS mid, COUNT(m.field_lvs_melding_studie_target_id) AS cmid, mt.title AS title ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_studie} AS m ON l.entity_id = m.entity_id ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'GROUP BY mid';
+	$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_studie_target_id AS mid, COUNT(m.field_lvs_melding_studie_target_id) AS cmid, mt.title AS title ';
+	$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_studie} AS m ON l.entity_id = m.entity_id ';
+	$query .= 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid ';
+	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+	$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+	$query .= 'GROUP BY mid';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
 			':about' => 'studiebegeleiding',
@@ -830,12 +937,20 @@ $variables ['study'] ['results'] ['graph'] ['birdseye'] [2] = array (
 $maxCourses = 0;
 // TODO: if (module_exists('argus_skore')){ ??
 if (module_exists ( 'argus_vakken' ) && module_exists ( 'argus_uurrooster' )) {
-	$query = 'SELECT id, afkorting, omschrijving ' . 'FROM {argus_skore_periode} ' . 'ORDER BY volgorde ASC';
+	$query = 'SELECT id, afkorting, omschrijving ';
+	$query .= 'FROM {argus_skore_periode} ';
+	$query .= 'ORDER BY volgorde ASC';
 	$periods = db_query ( $query )->fetchAll ();
 	
 	$missingCourses = array ();
 	foreach ( $periods as $p ) {
-		$query = 'SELECT r.vak, r.behaald, r.max, ca.field_vak_afkorting_value AS vak_afkorting, cu.field_vak_untis_id_value AS vak_untis_id, cb.field_vak_beschrijving_value AS vak_beschrijving ' . 'FROM {argus_skore_resultaten} AS r ' . 'LEFT JOIN {field_data_field_vak_afkorting} AS ca ON r.vak = ca.entity_id ' . 'LEFT JOIN {field_data_field_vak_beschrijving} AS cb ON r.vak = cb.entity_id ' . 'LEFT JOIN {field_data_field_vak_untis_id} AS cu ON r.vak = cu.entity_id ' . 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid ' . 'ORDER BY cb.field_vak_beschrijving_value ASC';
+		$query = 'SELECT r.vak, r.behaald, r.max, ca.field_vak_afkorting_value AS vak_afkorting, cu.field_vak_untis_id_value AS vak_untis_id, cb.field_vak_beschrijving_value AS vak_beschrijving ';
+		$query .= 'FROM {argus_skore_resultaten} AS r ';
+		$query .= 'LEFT JOIN {field_data_field_vak_afkorting} AS ca ON r.vak = ca.entity_id ';
+		$query .= 'LEFT JOIN {field_data_field_vak_beschrijving} AS cb ON r.vak = cb.entity_id ';
+		$query .= 'LEFT JOIN {field_data_field_vak_untis_id} AS cu ON r.vak = cu.entity_id ';
+		$query .= 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid ';
+		$query .= 'ORDER BY cb.field_vak_beschrijving_value ASC';
 		$results = db_query ( $query, array (
 				':uid' => $account->uid,
 				':pid' => $p->id,
@@ -845,7 +960,10 @@ if (module_exists ( 'argus_vakken' ) && module_exists ( 'argus_uurrooster' )) {
 		$success = 0;
 		foreach ( $results as $r ) {
 			if (isset ( $r->behaald )) {
-				$query = 'SELECT v.field_uurrooster_les_vak_target_id ' . 'FROM {field_data_field_uurrooster_les_klassen} AS k ' . 'LEFT JOIN {field_data_field_uurrooster_les_vak} AS v ON k.entity_id = v.entity_id ' . 'WHERE k.field_uurrooster_les_klassen_target_id = :cid AND v.field_uurrooster_les_vak_target_id = :vid';
+				$query = 'SELECT v.field_uurrooster_les_vak_target_id ';
+				$query .= 'FROM {field_data_field_uurrooster_les_klassen} AS k ';
+				$query .= 'LEFT JOIN {field_data_field_uurrooster_les_vak} AS v ON k.entity_id = v.entity_id ';
+				$query .= 'WHERE k.field_uurrooster_les_klassen_target_id = :cid AND v.field_uurrooster_les_vak_target_id = :vid';
 				$course_hours = db_query ( $query, array (
 						':cid' => $classId,
 						':vid' => $r->vak 
@@ -853,14 +971,19 @@ if (module_exists ( 'argus_vakken' ) && module_exists ( 'argus_uurrooster' )) {
 				
 				/* TEMPORARY SOLLUTION FOR WRONGS PARAMS IN COURSE-CODES (Untis <> Skore) [node:field-vak-afkorting] > [node:field-vak-skore-id] */
 				if ($course_hours == 0) {
-					$query = 'SELECT u.entity_id AS id ' . 'FROM {field_data_field_vak_untis_id} AS u ' . 'WHERE u.field_vak_untis_id_value = :course AND u.entity_id != :cid';
+					$query = 'SELECT u.entity_id AS id ';
+					$query .= 'FROM {field_data_field_vak_untis_id} AS u ';
+					$query .= 'WHERE u.field_vak_untis_id_value = :course AND u.entity_id != :cid';
 					$result = db_query ( $query, array (
 							':course' => $r->vak_untis_id,
 							':cid' => $r->vak 
 					) );
 					$courseFound = $result->fetchObject ();
 					if ($courseFound) {
-						$query = 'SELECT v.field_uurrooster_les_vak_target_id ' . 'FROM {field_data_field_uurrooster_les_klassen} AS k ' . 'LEFT JOIN {field_data_field_uurrooster_les_vak} AS v ON k.entity_id = v.entity_id ' . 'WHERE k.field_uurrooster_les_klassen_target_id = :cid AND v.field_uurrooster_les_vak_target_id = :vid';
+						$query = 'SELECT v.field_uurrooster_les_vak_target_id ';
+						$query .= 'FROM {field_data_field_uurrooster_les_klassen} AS k ';
+						$query .= 'LEFT JOIN {field_data_field_uurrooster_les_vak} AS v ON k.entity_id = v.entity_id ';
+						$query .= 'WHERE k.field_uurrooster_les_klassen_target_id = :cid AND v.field_uurrooster_les_vak_target_id = :vid';
 						$course_hours = db_query ( $query, array (
 								':cid' => $classId,
 								':vid' => $courseFound->id 
@@ -868,14 +991,19 @@ if (module_exists ( 'argus_vakken' ) && module_exists ( 'argus_uurrooster' )) {
 					}
 				}
 				if ($course_hours == 0) {
-					$query = 'SELECT u.entity_id AS id ' . 'FROM {field_data_field_vak_afkorting} AS u ' . 'WHERE u.field_vak_afkorting_value = :course AND u.entity_id != :cid';
+					$query = 'SELECT u.entity_id AS id ';
+					$query .= 'FROM {field_data_field_vak_afkorting} AS u ';
+					$query .= 'WHERE u.field_vak_afkorting_value = :course AND u.entity_id != :cid';
 					$result = db_query ( $query, array (
 							':course' => $r->vak_afkorting,
 							':cid' => $r->vak 
 					) );
 					$courseFound = $result->fetchObject ();
 					if ($courseFound) {
-						$query = 'SELECT v.field_uurrooster_les_vak_target_id ' . 'FROM {field_data_field_uurrooster_les_klassen} AS k ' . 'LEFT JOIN {field_data_field_uurrooster_les_vak} AS v ON k.entity_id = v.entity_id ' . 'WHERE k.field_uurrooster_les_klassen_target_id = :cid AND v.field_uurrooster_les_vak_target_id = :vid';
+						$query = 'SELECT v.field_uurrooster_les_vak_target_id ';
+						$query .= 'FROM {field_data_field_uurrooster_les_klassen} AS k ';
+						$query .= 'LEFT JOIN {field_data_field_uurrooster_les_vak} AS v ON k.entity_id = v.entity_id ';
+						$query .= 'WHERE k.field_uurrooster_les_klassen_target_id = :cid AND v.field_uurrooster_les_vak_target_id = :vid';
 						$course_hours = db_query ( $query, array (
 								':cid' => $classId,
 								':vid' => $courseFound->id 
@@ -928,7 +1056,16 @@ $variables ['study'] ['results'] ['maxCourses'] = $maxCourses;
 
 if (module_exists ( 'argus_meldingen' )) {
 	$variables ['hotline'] ['study'] ['measure'] = array ();
-	$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_studie_target_id AS mid, COUNT(m.field_lvs_melding_studie_target_id) AS cmid, mt.title AS title ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_studie} AS m ON l.entity_id = m.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'GROUP BY mid';
+	$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_studie_target_id AS mid, COUNT(m.field_lvs_melding_studie_target_id) AS cmid, mt.title AS title ';
+	$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_studie} AS m ON l.entity_id = m.entity_id ';
+	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+	$query .= 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid ';
+	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+	$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+	$query .= 'GROUP BY mid';
 	$measures = db_query ( $query, array (
 			':uid' => $account->uid,
 			':about' => 'studiebegeleiding',
@@ -966,10 +1103,17 @@ $variables ['study'] ['results'] ['graph'] ['courseType'] [4] = array (
 );
 // TODO: if (module_exists('argus_skore')){ ??
 if (module_exists ( 'argus_vakken' ) && module_exists ( 'argus_uurrooster' )) {
-	$query = 'SELECT id, afkorting, omschrijving ' . 'FROM {argus_skore_periode} ' . 'ORDER BY volgorde ASC';
+	$query = 'SELECT id, afkorting, omschrijving ';
+	$query .= 'FROM {argus_skore_periode} ';
+	$query .= 'ORDER BY volgorde ASC';
 	$periods = db_query ( $query )->fetchAll ();
 	foreach ( $periods as $p ) {
-		$query = 'SELECT r.vak, r.behaald, r.max, ca.field_vak_afkorting_value AS vak_afkorting, cb.field_vak_beschrijving_value AS vak_beschrijving ' . 'FROM {argus_skore_resultaten} AS r ' . 'LEFT JOIN {field_data_field_vak_afkorting} AS ca ON r.vak = ca.entity_id ' . 'LEFT JOIN {field_data_field_vak_beschrijving} AS cb ON r.vak = cb.entity_id ' . 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid ' . 'ORDER BY cb.field_vak_beschrijving_value ASC';
+		$query = 'SELECT r.vak, r.behaald, r.max, ca.field_vak_afkorting_value AS vak_afkorting, cb.field_vak_beschrijving_value AS vak_beschrijving ';
+		$query .= 'FROM {argus_skore_resultaten} AS r ';
+		$query .= 'LEFT JOIN {field_data_field_vak_afkorting} AS ca ON r.vak = ca.entity_id ';
+		$query .= 'LEFT JOIN {field_data_field_vak_beschrijving} AS cb ON r.vak = cb.entity_id ';
+		$query .= 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid ';
+		$query .= 'ORDER BY cb.field_vak_beschrijving_value ASC';
 		$results = db_query ( $query, array (
 				':uid' => $account->uid,
 				':pid' => $p->id,
@@ -1006,13 +1150,18 @@ if (module_exists ( 'argus_vakken' ) && module_exists ( 'argus_uurrooster' )) {
 
 $variables ['study'] ['deliberations'] = array ();
 if (module_exists ( 'argus_deliberaties' )) {
-	$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_lvs_deliberatie_leerling} AS l ' . 'WHERE l.field_lvs_deliberatie_leerling_target_id = :uid';
+	$query = 'SELECT l.entity_id AS id ';
+	$query .= 'FROM {field_data_field_lvs_deliberatie_leerling} AS l ';
+	$query .= 'WHERE l.field_lvs_deliberatie_leerling_target_id = :uid';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid 
 	) );
 	$deliberations = $result->fetchAll ();
 	foreach ( $deliberations as $did ) {
-		$query = 'SELECT r.field_lvs_deliberatie_vakresult_value AS result ' . 'FROM {field_data_field_lvs_deliberatie_vakresult} AS r ' . 'WHERE r.entity_id = :did ' . 'ORDER BY r.field_lvs_deliberatie_vakresult_value ASC';
+		$query = 'SELECT r.field_lvs_deliberatie_vakresult_value AS result ';
+		$query .= 'FROM {field_data_field_lvs_deliberatie_vakresult} AS r ';
+		$query .= 'WHERE r.entity_id = :did ';
+		$query .= 'ORDER BY r.field_lvs_deliberatie_vakresult_value ASC';
 		$courseResult = db_query ( $query, array (
 				':did' => $did->id 
 		) );
@@ -1046,7 +1195,11 @@ if (module_exists ( 'argus_deliberaties' )) {
 // Get precense at PTA meetings
 $variables ['study'] ['ptas'] = array ();
 if (module_exists ( 'argus_oudercontacten' )) {
-	$query = 'SELECT t.entity_id AS id, ' . 't.field_tijdstip_value AS time ' . 'FROM {field_data_field_tijdstip} AS t ' . 'WHERE t.bundle = :type AND ' . 't.field_tijdstip_value BETWEEN :startdate AND :enddate ' . 'ORDER BY t.field_tijdstip_value DESC';
+	$query = 'SELECT t.entity_id AS id, t.field_tijdstip_value AS time ';
+	$query .= 'FROM {field_data_field_tijdstip} AS t ';
+	$query .= 'WHERE t.bundle = :type AND ';
+	$query .= 't.field_tijdstip_value BETWEEN :startdate AND :enddate ';
+	$query .= 'ORDER BY t.field_tijdstip_value DESC';
 	$ptas = db_query ( $query, array (
 			':type' => 'oudercontact',
 			':startdate' => $schoolyear ['start'],
@@ -1055,7 +1208,11 @@ if (module_exists ( 'argus_oudercontacten' )) {
 	foreach ( $ptas as $id => $pta ) {
 		$variables ['study'] ['ptas'] [$id] ['tijdstip'] = $pta->time;
 		
-		$query = 'SELECT l.entity_id AS id ' . 'FROM {field_data_field_leerlingen} AS l ' . 'WHERE l.bundle = :type ' . 'AND l.field_leerlingen_target_id = :uid ' . 'AND l.entity_id = :nid';
+		$query = 'SELECT l.entity_id AS id ';
+		$query .= 'FROM {field_data_field_leerlingen} AS l ';
+		$query .= 'WHERE l.bundle = :type ';
+		$query .= 'AND l.field_leerlingen_target_id = :uid ';
+		$query .= 'AND l.entity_id = :nid';
 		$status = db_query ( $query, array (
 				':uid' => $account->uid,
 				':nid' => $id,
@@ -1069,7 +1226,19 @@ if (module_exists ( 'argus_oudercontacten' )) {
 // Get all remediation tasks
 $variables ['study'] ['remediations'] = array ();
 if (module_exists ( 'argus_meldingen' )) {
-	$query = 'SELECT t.entity_id AS id, ' . 't.field_lvs_melding_datum_feit_value AS time, ' . 'n.uid AS author, ' . 'r.field_lvs_melding_verslag_value AS report, ' . 'o.field_lvs_melding_onderwerp_value AS item, ' . 'p.field_lvs_melding_prive_value AS private ' . 'FROM {field_data_field_lvs_melding_datum_feit} AS t ' . 'JOIN {field_data_field_lvs_melding_leerling} AS l ON l.entity_id = t.entity_id ' . 'JOIN {field_data_field_lvs_melding_onderwerp} AS o ON o.entity_id = t.entity_id ' . 'JOIN {field_data_field_lvs_melding_studie} AS s ON s.entity_id = t.entity_id ' . 'JOIN {field_data_field_lvs_melding_prive} AS p ON p.entity_id = t.entity_id ' . 'JOIN {node} AS n ON n.nid = t.entity_id ' . 'JOIN {field_data_field_lvs_melding_verslag} AS r ON r.entity_id = t.entity_id ' . 'WHERE t.bundle = :type ' . 'AND t.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'AND l.field_lvs_melding_leerling_target_id = :uid ' . 'AND s.field_lvs_melding_studie_target_id ' . 'ORDER BY t.field_lvs_melding_datum_feit_value';
+	$query = 'SELECT t.entity_id AS id, t.field_lvs_melding_datum_feit_value AS time, n.uid AS author, r.field_lvs_melding_verslag_value AS report, o.field_lvs_melding_onderwerp_value AS item, p.field_lvs_melding_prive_value AS private ';
+	$query .= 'FROM {field_data_field_lvs_melding_datum_feit} AS t ';
+	$query .= 'JOIN {field_data_field_lvs_melding_leerling} AS l ON l.entity_id = t.entity_id ';
+	$query .= 'JOIN {field_data_field_lvs_melding_onderwerp} AS o ON o.entity_id = t.entity_id ';
+	$query .= 'JOIN {field_data_field_lvs_melding_studie} AS s ON s.entity_id = t.entity_id ';
+	$query .= 'JOIN {field_data_field_lvs_melding_prive} AS p ON p.entity_id = t.entity_id ';
+	$query .= 'JOIN {node} AS n ON n.nid = t.entity_id ';
+	$query .= 'JOIN {field_data_field_lvs_melding_verslag} AS r ON r.entity_id = t.entity_id ';
+	$query .= 'WHERE t.bundle = :type ';
+	$query .= 'AND t.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+	$query .= 'AND l.field_lvs_melding_leerling_target_id = :uid ';
+	$query .= 'AND s.field_lvs_melding_studie_target_id ';
+	$query .= 'ORDER BY t.field_lvs_melding_datum_feit_value';
 	$remediations = db_query ( $query, array (
 			':type' => 'lvs_melding',
 			':uid' => $account->uid,
@@ -1094,7 +1263,16 @@ if (module_exists ( 'argus_meldingen' )) {
 if (module_exists ( 'argus_stages' )) {
 	
 	// Get all stage periods
-	$query = 'SELECT l.entity_id AS stage, sp.field_stage_periode_target_id AS stageperiode, sg.field_stagegever_target_id AS stagegever, sb.field_leerkracht_target_id AS stagebegeleider ' . 'FROM {field_data_field_leerling} AS l ' . 'JOIN {field_data_field_stage_periode} AS sp ON sp.entity_id = l.entity_id ' . 'JOIN {field_data_field_stagegever} AS sg ON sg.entity_id = l.entity_id ' . 'JOIN {field_data_field_leerkracht} AS sb ON sb.entity_id = l.entity_id ' . 'JOIN {field_data_field_tijdstip} AS t ON t.entity_id = sp.field_stage_periode_target_id ' . 'WHERE l.field_leerling_target_id = :uid ' . 'AND t.field_tijdstip_value BETWEEN :startdate AND :enddate ' . 'AND l.bundle = :bundle ' . 'ORDER BY t.field_tijdstip_value';
+	$query = 'SELECT l.entity_id AS stage, sp.field_stage_periode_target_id AS stageperiode, sg.field_stagegever_target_id AS stagegever, sb.field_leerkracht_target_id AS stagebegeleider ';
+	$query .= 'FROM {field_data_field_leerling} AS l ';
+	$query .= 'JOIN {field_data_field_stage_periode} AS sp ON sp.entity_id = l.entity_id ';
+	$query .= 'JOIN {field_data_field_stagegever} AS sg ON sg.entity_id = l.entity_id ';
+	$query .= 'JOIN {field_data_field_leerkracht} AS sb ON sb.entity_id = l.entity_id ';
+	$query .= 'JOIN {field_data_field_tijdstip} AS t ON t.entity_id = sp.field_stage_periode_target_id ';
+	$query .= 'WHERE l.field_leerling_target_id = :uid ';
+	$query .= 'AND t.field_tijdstip_value BETWEEN :startdate AND :enddate ';
+	$query .= 'AND l.bundle = :bundle ';
+	$query .= 'ORDER BY t.field_tijdstip_value';
 	$stages = db_query ( $query, array (
 			':uid' => $account->uid,
 			':bundle' => 'stage',
@@ -1137,7 +1315,9 @@ if (module_exists ( 'argus_stages' )) {
 		$variables ['hotline'] ['stage'] ['gevers'] ++;
 		
 		// Get absences per period
-		$query = 'SELECT sd.delta, sd.field_stagedagen_value AS day ' . 'FROM {field_data_field_stagedagen} AS sd ' . 'WHERE sd.entity_id = :spid';
+		$query = 'SELECT sd.delta, sd.field_stagedagen_value AS day ';
+		$query .= 'FROM {field_data_field_stagedagen} AS sd ';
+		$query .= 'WHERE sd.entity_id = :spid';
 		$stagedagen = db_query ( $query, array (
 				':spid' => $stage->stageperiode 
 		) )->fetchAllKeyed ();
@@ -1146,7 +1326,9 @@ if (module_exists ( 'argus_stages' )) {
 			$total_gewettigd = 0;
 			$total_ongewettigd = 0;
 			foreach ( $stagedagen as $stagedag ) {
-				$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum = :stagedate';
+				$query = 'SELECT id ';
+				$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+				$query .= 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum = :stagedate';
 				$result = db_query ( $query, array (
 						':uid' => $account->uid,
 						':code' => array (
@@ -1163,7 +1345,9 @@ if (module_exists ( 'argus_stages' )) {
 						':stagedate' => format_date ( strtotime ( $stagedag ), 'custom', 'Y-m-d' ) 
 				) );
 				$total_gewettigd += $result->rowCount ();
-				$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum = :stagedate';
+				$query = 'SELECT id ';
+				$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+				$query .= 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum = :stagedate';
 				$result = db_query ( $query, array (
 						':uid' => $account->uid,
 						':code' => array (
@@ -1181,7 +1365,9 @@ if (module_exists ( 'argus_stages' )) {
 				) );
 				$total_gewettigd += $result->rowCount ();
 				
-				$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum = :stagedate';
+				$query = 'SELECT id ';
+				$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+				$query .= 'WHERE a.leerling = :uid AND a.am IN (:code) AND a.datum = :stagedate';
 				$result = db_query ( $query, array (
 						':uid' => $account->uid,
 						':code' => array (
@@ -1190,7 +1376,9 @@ if (module_exists ( 'argus_stages' )) {
 						':stagedate' => format_date ( strtotime ( $stagedag ), 'custom', 'Y-m-d' ) 
 				) );
 				$total_ongewettigd += $result->rowCount ();
-				$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum = :stagedate';
+				$query = 'SELECT id ';
+				$query .= 'FROM {argus_lvs_afwezigheden} AS a ';
+				$query .= 'WHERE a.leerling = :uid AND a.pm IN (:code) AND a.datum = :stagedate';
 				$result = db_query ( $query, array (
 						':uid' => $account->uid,
 						':code' => array (

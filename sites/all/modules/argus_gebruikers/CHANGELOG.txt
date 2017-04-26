@@ -1,6 +1,11 @@
 **Releases:
 
 
+v7.x-6.4
+---------
+- Fix in install script: function_exists
+- Fix in foute benaming functies - user profile
+
 v7.x-6.3
 ---------
 - Betere dependencies

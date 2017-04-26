@@ -28,9 +28,6 @@ if (array_key_exists ( 'schooljaar', $params )) {
 var dataAbsencesChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['absences']['graph']); ?>);
 var dataAbsencesEvolutionChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['absences']['evolutiongraph']); ?>);
 var dataAbsencesWeekChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['absences']['weekgraph']); ?>);
-<?php } ?>
-
-<?php if (module_exists('argus_afwezigheden')){ ?>
 var dataLateWeekChart = google.visualization.arrayToDataTable(<?php print json_encode($hotline['late']['weekgraph']); ?>);
 <?php } ?>
 

@@ -36,7 +36,7 @@ function argus_gebruikers_install() {
 	}
 	
 	// Add roles
-	if (function_exists ( 'argus_stages_user_default_roles' )) {
+	if (function_exists ( 'argus_gebruikers_user_default_roles' )) {
 		foreach ( argus_gebruikers_user_default_roles () as $role_def ) {
 			if (! user_role_load_by_name ( $role_def ['name'] )) {
 				$role = new stdClass ();
