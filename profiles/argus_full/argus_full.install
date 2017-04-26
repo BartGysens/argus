@@ -1,0 +1,532 @@
+<?php
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+function argus_install() {
+	// Add date formats
+	$formats = array (
+			'Dag en datum (kort)' => array (
+					'type' => 'dag_datum_kort',
+					'format' => 'D, d/m/y',
+					'locales' => array () 
+			),
+			'Dag en datum (lang)' => array (
+					'type' => 'dag_datum_lang',
+					'format' => 'l, d F Y',
+					'locales' => array () 
+			),
+			'Datum (kort)' => array (
+					'type' => 'datum_kort',
+					'format' => 'd/m/y',
+					'locales' => array () 
+			),
+			'Datum (lang)' => array (
+					'type' => 'datum_lang',
+					'format' => 'd F Y',
+					'locales' => array () 
+			),
+			'Enkel dag en maand' => array (
+					'type' => 'enkel_dag_maand',
+					'format' => 'd/M',
+					'locales' => array () 
+			),
+			'Enkel jaar' => array (
+					'type' => 'enkel_jaar',
+					'format' => 'Y',
+					'locales' => array () 
+			) 
+	);
+	foreach ( $formats as $name => $format ) {
+		db_insert ( 'date_formats' )->fields ( array (
+				'format' => $format ['format'],
+				'type' => 'custom',
+				'locked' => 0 
+		) )->execute ();
+		
+		db_insert ( 'date_format_type' )->fields ( array (
+				'type' => $format ['type'],
+				'title' => $name,
+				'locked' => 0 
+		) )->execute ();
+		
+		variable_set ( 'date_format_' . $format ['type'], $format ['format'] );
+	}
+	
+	// Add text formats.
+	$filtered_html_format = array (
+			'format' => 'filtered_html',
+			'name' => 'Filtered HTML',
+			'weight' => 0,
+			'filters' => array (
+					// URL filter.
+					'filter_url' => array (
+							'weight' => 0,
+							'status' => 1 
+					),
+					// HTML filter.
+					'filter_html' => array (
+							'weight' => 1,
+							'status' => 1 
+					),
+					// Line break filter.
+					'filter_autop' => array (
+							'weight' => 2,
+							'status' => 1 
+					),
+					// HTML corrector filter.
+					'filter_htmlcorrector' => array (
+							'weight' => 10,
+							'status' => 1 
+					) 
+			) 
+	);
+	$filtered_html_format = ( object ) $filtered_html_format;
+	filter_format_save ( $filtered_html_format );
+	
+	if (! filter_format_exists ( 'full_html' )) {
+		$full_html_format = array (
+				'format' => 'full_html',
+				'name' => 'Full HTML',
+				'weight' => 1,
+				'filters' => array (
+						// URL filter.
+						'filter_url' => array (
+								'weight' => 0,
+								'status' => 1 
+						),
+						// Line break filter.
+						'filter_autop' => array (
+								'weight' => 1,
+								'status' => 1 
+						),
+						// HTML corrector filter.
+						'filter_htmlcorrector' => array (
+								'weight' => 10,
+								'status' => 1 
+						) 
+				) 
+		);
+		$full_html_format = ( object ) $full_html_format;
+		filter_format_save ( $full_html_format );
+	}
+	
+	// Enable some argus blocks.
+	$default_theme = 'smartschool';
+	$admin_theme = 'seven';
+	// disable all themes
+	db_update ( 'system' )->fields ( array (
+			'status' => 0 
+	) )->condition ( 'type', 'theme' )->execute ();
+	// enable $default_theme
+	db_update ( 'system' )->fields ( array (
+			'status' => 1 
+	) )->condition ( 'type', 'theme' )->condition ( 'name', $default_theme )->execute ();
+	// enable $admin_theme
+	db_update ( 'system' )->fields ( array (
+			'status' => 1 
+	) )->condition ( 'type', 'theme' )->condition ( 'name', $admin_theme )->execute ();
+	variable_set ( 'theme_default', $default_theme );
+	variable_set ( 'admin_theme', $admin_theme );
+	// activate admin theme when editing a node
+	variable_set ( 'node_admin_theme', '1' );
+	$blocks = array (
+			array (
+					'module' => 'system',
+					'delta' => 'main',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'content',
+					'pages' => '',
+					'cache' => - 1 
+			),
+			array (
+					'module' => 'user',
+					'delta' => 'login',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => 0,
+					'region' => 'sidebar_first',
+					'pages' => '',
+					'cache' => - 1 
+			),
+			array (
+					'module' => 'system',
+					'delta' => 'help',
+					'theme' => $default_theme,
+					'status' => 1,
+					'weight' => - 10,
+					'region' => 'content',
+					'pages' => '',
+					'cache' => - 1 
+			) 
+	);
+	if ($default_theme !== $admin_theme) {
+		$admin_blocks = array (
+				array (
+						'module' => 'system',
+						'delta' => 'main',
+						'theme' => $admin_theme,
+						'status' => 1,
+						'weight' => 0,
+						'region' => 'content',
+						'pages' => '',
+						'cache' => - 1 
+				),
+				array (
+						'module' => 'system',
+						'delta' => 'help',
+						'theme' => $admin_theme,
+						'status' => 1,
+						'weight' => 0,
+						'region' => 'help',
+						'pages' => '',
+						'cache' => - 1 
+				) 
+		);
+		$blocks = array_merge ( $blocks, $admin_blocks );
+	}
+	// drop system / user blocks to ensure correct building
+	db_delete ( 'block' )->condition ( 'module', 'system' )->execute ();
+	db_delete ( 'block' )->condition ( 'module', 'user' )->execute ();
+	// add in our blocks defined above
+	$query = db_insert ( 'block' )->fields ( array (
+			'module',
+			'delta',
+			'theme',
+			'status',
+			'weight',
+			'region',
+			'pages',
+			'cache' 
+	) );
+	foreach ( $blocks as $block ) {
+		$query->values ( $block );
+	}
+	$query->execute ();
+	
+	// Set blocks for default theme
+	$regions = system_region_list ( $theme, REGIONS_VISIBLE );
+	$result = db_query ( "SELECT * FROM {block} WHERE theme = :theme", array (
+			':theme' => 'bartik' 
+	), array (
+			'fetch' => PDO::FETCH_ASSOC 
+	) );
+	foreach ( $result as $block ) {
+		$block ['theme'] = $default_theme;
+		unset ( $block ['bid'] );
+		drupal_write_record ( 'block', $block );
+	}
+	
+	// From shortcut.install, add shortcuts to the default set on install
+	$shortcut_set = shortcut_set_load ( SHORTCUT_DEFAULT_SET_NAME );
+	$shortcut_set->links = NULL;
+	$shortcut_set->links = array (
+			array (
+					'link_path' => 'admin/appearance/settings',
+					'link_title' => st ( 'Theme' ),
+					'weight' => - 17 
+			) 
+	);
+	shortcut_set_save ( $shortcut_set ); // Create a default role for site administrators, with all available permissions assigned.
+	
+	if (! $admin_role = user_role_load_by_name ( 'administrator' )) {
+		$admin_role = new stdClass ();
+		$admin_role->name = 'administrator';
+		$admin_role->weight = 10;
+		user_role_save ( $admin_role );
+		
+		$admin_role = user_role_load_by_name ( 'administrator' );
+	}
+	user_role_grant_permissions ( $admin_role->rid, array_keys ( module_invoke_all ( 'permission' ) ) );
+	// Set this as the administrator role.
+	variable_set ( 'user_admin_role', $admin_role->rid );
+	
+	// Assign user 1 the "administrator" role.
+	db_insert ( 'users_roles' )->fields ( array (
+			'uid' => 1,
+			'rid' => $admin_role->rid 
+	) )->execute ();
+	
+	// Add menu-modules
+	$menu_name = 'menu-modules';
+	if (! menu_load ( $menu_name )) {
+		$menu = array (
+				'menu_name' => $menu_name,
+				'title' => t ( 'Modules' ),
+				'description' => '' 
+		);
+		menu_save ( $menu );
+	}
+	
+	// Insert default pre-defined node types into the database. For a complete
+	// list of available node type attributes, refer to the node type API
+	// documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
+	$types = array (
+			array (
+					'type' => 'page',
+					'name' => st ( 'Basic page' ),
+					'base' => 'node_content',
+					'description' => st ( "Use <em>basic pages</em> for your static content, such as an 'About us' page." ),
+					'custom' => 1,
+					'modified' => 1,
+					'locked' => 0 
+			),
+			array (
+					'type' => 'article',
+					'name' => st ( 'Article' ),
+					'base' => 'node_content',
+					'description' => st ( 'Use <em>articles</em> for time-sensitive content like news, press releases or blog posts.' ),
+					'custom' => 1,
+					'modified' => 1,
+					'locked' => 0 
+			) 
+	);
+	
+	foreach ( $types as $type ) {
+		if (! node_type_load ( $type ['type'] )) {
+			$type = node_type_set_defaults ( $type );
+			node_type_save ( $type );
+			node_add_body_field ( $type );
+		}
+	}
+	
+	// Default "Basic page" to not be promoted and have comments disabled.
+	variable_set ( 'node_options_page', array (
+			'status' 
+	) );
+	variable_set ( 'comment_page', COMMENT_NODE_HIDDEN );
+	
+	// Don't display date and author information for "Basic page" nodes by default.
+	variable_set ( 'node_submitted_page', FALSE );
+	
+	// Enable user picture support and set the default to a square thumbnail option.
+	variable_set ( 'user_pictures', '1' );
+	variable_set ( 'user_picture_dimensions', '1024x1024' );
+	variable_set ( 'user_picture_file_size', '800' );
+	variable_set ( 'user_picture_style', 'thumbnail' );
+	
+	// Allow visitor account creation with administrative approval.
+	variable_set ( 'user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL );
+	
+	// Create a default vocabulary named "Tags", enabled for the 'article' content type.
+	$description = st ( 'Use tags to group articles on similar topics into categories.' );
+	$vocabulary = ( object ) array (
+			'name' => st ( 'Tags' ),
+			'description' => $description,
+			'machine_name' => 'tags' 
+	);
+	taxonomy_vocabulary_save ( $vocabulary );
+	
+	$field = array (
+			'field_name' => 'field_' . $vocabulary->machine_name,
+			'type' => 'taxonomy_term_reference',
+			// Set cardinality to unlimited for tagging.
+			'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+			'settings' => array (
+					'allowed_values' => array (
+							array (
+									'vocabulary' => $vocabulary->machine_name,
+									'parent' => 0 
+							) 
+					) 
+			) 
+	);
+	field_create_field ( $field );
+	
+	$help = st ( 'Enter a comma-separated list of words to describe your content.' );
+	$instance = array (
+			'field_name' => 'field_' . $vocabulary->machine_name,
+			'entity_type' => 'node',
+			'label' => 'Tags',
+			'bundle' => 'article',
+			'description' => $help,
+			'widget' => array (
+					'type' => 'taxonomy_autocomplete',
+					'weight' => - 4 
+			),
+			'display' => array (
+					'default' => array (
+							'type' => 'taxonomy_term_reference_link',
+							'weight' => 10 
+					),
+					'teaser' => array (
+							'type' => 'taxonomy_term_reference_link',
+							'weight' => 10 
+					) 
+			) 
+	);
+	field_create_instance ( $instance );
+	
+	// Create an image field named "Image", enabled for the 'article' content type.
+	// Many of the following values will be defaulted, they're included here as an illustrative examples.
+	// See http://api.drupal.org/api/function/field_create_field/7
+	
+	$field = array (
+			'field_name' => 'field_image',
+			'type' => 'image',
+			'cardinality' => 1,
+			'locked' => FALSE,
+			'indexes' => array (
+					'fid' => array (
+							'fid' 
+					) 
+			),
+			'settings' => array (
+					'uri_scheme' => 'public',
+					'default_image' => FALSE 
+			),
+			'storage' => array (
+					'type' => 'field_sql_storage',
+					'settings' => array () 
+			) 
+	);
+	field_create_field ( $field );
+	
+	// Many of the following values will be defaulted, they're included here as an illustrative examples.
+	// See http://api.drupal.org/api/function/field_create_instance/7
+	$instance = array (
+			'field_name' => 'field_image',
+			'entity_type' => 'node',
+			'label' => 'Image',
+			'bundle' => 'article',
+			'description' => st ( 'Upload an image to go with this article.' ),
+			'required' => FALSE,
+			
+			'settings' => array (
+					'file_directory' => 'field/image',
+					'file_extensions' => 'png gif jpg jpeg',
+					'max_filesize' => '',
+					'max_resolution' => '',
+					'min_resolution' => '',
+					'alt_field' => TRUE,
+					'title_field' => '' 
+			),
+			
+			'widget' => array (
+					'type' => 'image_image',
+					'settings' => array (
+							'progress_indicator' => 'throbber',
+							'preview_image_style' => 'thumbnail' 
+					),
+					'weight' => - 1 
+			),
+			
+			'display' => array (
+					'default' => array (
+							'label' => 'hidden',
+							'type' => 'image',
+							'settings' => array (
+									'image_style' => 'large',
+									'image_link' => '' 
+							),
+							'weight' => - 1 
+					),
+					'teaser' => array (
+							'label' => 'hidden',
+							'type' => 'image',
+							'settings' => array (
+									'image_style' => 'medium',
+									'image_link' => 'content' 
+							),
+							'weight' => - 1 
+					) 
+			) 
+	);
+	field_create_instance ( $instance );
+	
+	// Enable default permissions for system roles.
+	$filtered_html_permission = filter_permission_name ( $filtered_html_format );
+	user_role_grant_permissions ( DRUPAL_ANONYMOUS_RID, array (
+			'access content',
+			'access comments',
+			$filtered_html_permission 
+	) );
+	user_role_grant_permissions ( DRUPAL_AUTHENTICATED_RID, array (
+			'access content',
+			'access comments',
+			'post comments',
+			'skip comment approval',
+			$filtered_html_permission 
+	) );
+	
+	// Update the menu router information.
+	menu_rebuild ();
+	
+	// revert features to ensure they are all installed
+	$features = array (
+			'feeds_import' 
+	);
+	// features_revert ( $features );
+	
+	// set javascript to version 1.8 (errors on 1.10)
+	variable_set ( 'jquery_update_jquery_version', '1.8' );
+	
+	// set site name and slogan
+	variable_set ( 'site_name', 'argus' );
+	variable_set ( 'site_slogan', 'a Quality control extension' );
+	
+	// add welcome-page
+	$node = new stdClass ();
+	$node->title = 'Welkom';
+	$node->type = 'page';
+	node_object_prepare ( $node );
+	$node->language = LANGUAGE_NONE;
+	$node->uid = 0;
+	$node->status = 1;
+	$node->promote = 1;
+	$node->sticky = 1;
+	$node->comment = 0;
+	
+	$node->path ['alias'] = 'welkom';
+	$node->path ['pathauto'] = FALSE;
+	
+	$node->link_title = 'Welkom';
+	$node->link_path = 'welkom';
+	
+	$node->body [$node->language] [0] ['format'] = 'full_html';
+	
+	$node->body [$node->language] [0] ['value'] = '<table cellpadding="1" cellspacing="0" style="border: 1px solid #093; background-color:#cfg; border:none; width:100%">
+	<tbody>
+		<tr>
+			<td class="rtecenter"><strong>Proficiat; je hebt net "argus" correct geïnstalleerd.</strong><br />
+			<br />
+			Controleer eerst en vooral de&nbsp;<a href="/admin/config">gebruikersinstellingen</a>&nbsp;en de&nbsp;<a href="/admin/people/permissions">toegangsrechten</a>.<br />
+			<br />
+			Voor vragen kan je steeds terecht op de website&nbsp;<a href="http://www.projectargus.be" target="_blank">http://www.projectargus.be</a>&nbsp;.<br />
+			Als je het project wil verder volgen, kan je hier ook terecht.<br />
+			<br />
+			Wil je verdere ondersteuning? Neem dan contact op via het&nbsp;<a href="http://www.projectargus.be/contact" target="_blank">contactformulier</a>.<br />
+			<br />
+			Vergeet tenslotte niet om je project te <a href="http://www.projectargus.be/node/add/deelnemer" target="_blank">registreren</a> op de website.<br />
+			<br />
+			<em><strong>Veel succes!</strong></em></td>
+		</tr>
+	</tbody>
+</table>';
+	$node = node_submit ( $node ); // Prepare node for saving
+	node_save ( $node );
+	
+	// import variables
+	include 'argus_variables.inc';
+	$variables = argus_import_variables ();
+	foreach ( $variables as $row ) {
+		$result = db_query ( 'SELECT name, value FROM {variable} WHERE name LIKE :name', array (
+				':name' => $row ['variable'] 
+		) )->fetchCol ();
+		if (count ( $result ) == 0) {
+			db_query ( 'INSERT INTO variable SET name=:name, value=:value', array (
+					':name' => $row ['variable'],
+					':value' => serialize ( $row ['value'] ) 
+			) );
+		}
+	}
+	
+	// ignore any rebuild messages
+	node_access_needs_rebuild ( FALSE );
+	
+	// ignore any other install messages
+	drupal_get_messages ();
+}

@@ -1,0 +1,142 @@
+; Packaging information for argus
+name = "argus (basis)"
+description = "a Quality control extension"
+exclusive = "1"
+core = "7.x"
+; ----------
+; Dependencies
+; ----------
+; Administration
+dependencies[] = admin_devel
+dependencies[] = admin_menu
+dependencies[] = admin_views
+; Chaos tool suite
+dependencies[] = ctools
+dependencies[] = ctools_access_ruleset
+dependencies[] = ctools_custom_content
+dependencies[] = page_manager
+dependencies[] = term_depth
+dependencies[] = views_content
+; Core
+dependencies[] = block
+dependencies[] = color
+dependencies[] = comment
+dependencies[] = contextual
+dependencies[] = dashboard
+dependencies[] = dblog
+dependencies[] = field
+dependencies[] = field_sql_storage
+dependencies[] = field_ui
+dependencies[] = file
+dependencies[] = filter
+dependencies[] = help
+dependencies[] = image
+dependencies[] = list
+dependencies[] = locale
+dependencies[] = menu
+dependencies[] = node
+dependencies[] = number
+dependencies[] = options
+dependencies[] = overlay
+dependencies[] = path
+dependencies[] = rdf
+dependencies[] = search
+dependencies[] = shortcut
+dependencies[] = statistics
+dependencies[] = syslog
+dependencies[] = system
+dependencies[] = taxonomy
+dependencies[] = text
+dependencies[] = tracker
+dependencies[] = trigger
+dependencies[] = update
+dependencies[] = user
+; Date/Time
+dependencies[] = date
+dependencies[] = date_all_day
+dependencies[] = date_api
+dependencies[] = date_popup
+dependencies[] = date_repeat
+dependencies[] = date_repeat_field
+dependencies[] = date_tools
+dependencies[] = date_views
+; Development
+dependencies[] = devel
+dependencies[] = metatag_devel
+; Display Suite
+dependencies[] = ds
+; Feeds
+dependencies[] = feeds
+dependencies[] = feeds_ui
+; Fields
+dependencies[] = color_field
+dependencies[] = computed_field
+dependencies[] = conditional_fields
+dependencies[] = editablefields
+dependencies[] = email
+dependencies[] = entityreference
+dependencies[] = field_collection
+dependencies[] = field_group
+dependencies[] = field_permissions
+dependencies[] = inline_entity_form
+dependencies[] = link
+dependencies[] = multiple_selects
+dependencies[] = multiselect
+dependencies[] = role_field
+dependencies[] = smart_trim
+dependencies[] = telephone
+; Flags
+dependencies[] = flag
+; Other
+dependencies[] = advanced_help
+dependencies[] = backup_migrate
+dependencies[] = colorbox
+dependencies[] = colors
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = job_scheduler
+dependencies[] = libraries
+dependencies[] = pathauto
+dependencies[] = realname
+dependencies[] = token
+dependencies[] = upgrade_status
+; Rules
+dependencies[] = rules
+dependencies[] = rules_admin
+dependencies[] = rules_scheduler
+; SEO
+dependencies[] = metatag
+; User interface
+dependencies[] = jquery_update
+; Views
+dependencies[] = better_exposed_filters
+dependencies[] = entityreference_filter
+dependencies[] = views
+dependencies[] = views_aggregator
+dependencies[] = views_aggregator_more_functions
+dependencies[] = views_conditional
+dependencies[] = views_content_cache
+dependencies[] = views_ui
+
+; argus - a Quality control extension
+dependencies[] = argus_engine
+dependencies[] = argus_vakken
+dependencies[] = argus_gebruikers
+dependencies[] = argus_klasbeheer
+
+dependencies[] = argus_acties
+dependencies[] = argus_azindex
+dependencies[] = argus_document_generator
+dependencies[] = argus_embeddings
+dependencies[] = argus_lokalen
+dependencies[] = argus_organisaties
+
+dependencies[] = argus_feedbackgroepen
+dependencies[] = argus_merken
+dependencies[] = argus_projectgroepen
+dependencies[] = argus_vakgroepen
+dependencies[] = argus_werkgroepen
+
+; Features
+dependencies[] = features
+dependencies[] = feeds_import
