@@ -271,26 +271,32 @@ function smartschool_search_users_by_role_view($rid = NULL) {
  * @return array of user ids
  */
 function smartschool_users_by_role($role_name, $status = 1) {
-	global $base_url;
-    $role = user_role_load_by_name($role_name);
-    if ($role){
-        $query = 'SELECT ur.uid '
-               . 'FROM {users_roles} AS ur '
-               . 'INNER JOIN {users} AS u ON u.uid = ur.uid '
-               . 'INNER JOIN {field_data_field_user_sms_voornaam} AS uf ON ur.uid = uf.entity_id '
-               . 'INNER JOIN {field_data_field_user_sms_naam} AS ul ON ur.uid = ul.entity_id '
-               . 'WHERE ur.rid = :rid AND u.status = :status '
-               . 'ORDER BY ul.field_user_sms_naam_value ASC, uf.field_user_sms_voornaam_value ASC';
-        $result = db_query($query, array(':rid' => $role->rid, ':status' => $status));
-        $uids = $result->fetchCol();
-        if (($cnt=count($uids))>10) {
-            $uids = array_slice($uids, 0, 10);
-            $uids[] = '<a class="course" style="text-align: right;" href="'.$base_url.'/search/users-by-role/'.$role->rid.'">'.t('more').'... (+'.($cnt-10).')'.'</a>';
-        }
-    	return $uids;
-    } else {
-    	return array();
-    }
+	global $user;
+	if ($cache = cache_get ( 'smartschool_users_by_role_' . $user->uid )) {
+		$uids = $cache->data;
+	} else {
+		global $base_url;
+		$uids = array();
+	    $role = user_role_load_by_name($role_name);
+	    if ($role){
+	        $query = 'SELECT ur.uid '
+	               . 'FROM {users_roles} AS ur '
+	               . 'INNER JOIN {users} AS u ON u.uid = ur.uid '
+	               . 'INNER JOIN {field_data_field_user_sms_voornaam} AS uf ON ur.uid = uf.entity_id '
+	               . 'INNER JOIN {field_data_field_user_sms_naam} AS ul ON ur.uid = ul.entity_id '
+	               . 'WHERE ur.rid = :rid AND u.status = :status '
+	               . 'ORDER BY ul.field_user_sms_naam_value ASC, uf.field_user_sms_voornaam_value ASC';
+	        $result = db_query($query, array(':rid' => $role->rid, ':status' => $status));
+	        $uids = $result->fetchCol();
+	        if (($cnt=count($uids))>10) {
+	            $uids = array_slice($uids, 0, 10);
+	            $uids[] = '<a class="course" style="text-align: right;" href="'.$base_url.'/search/users-by-role/'.$role->rid.'">'.t('more').'... (+'.($cnt-10).')'.'</a>';
+	        }
+	    }
+	    
+	    cache_set ( 'smartschool_users_by_role_' . $user->uid, $uids, 'cache_argus' );
+	}
+	return $uids;
 }
 
 /**
@@ -306,15 +312,20 @@ function smartschool_users_by_role($role_name, $status = 1) {
  *      - "type ASC|DESC" (order by content type)
  */
 function smartschool_fetch_user_content($uid,$order){
-    $query = 'SELECT nid, title, created, changed, type '
-           . 'FROM node '
-           . 'WHERE uid = :uid '
-           . 'ORDER BY '.$order;
-    $result = db_query($query, array(':uid' => $uid));
-    $nids = $result->fetchAll();
-    if (($cnt=count($nids))>10) {
-        $nids = array_slice($nids, 0, 10);
-        $nids[] = '<div style="text-align: right;"><a href="/admin/content">'.t('more').'... (+'.($cnt-10).')'.'</a></div>';
-    }
+	if ($cache = cache_get ( 'smartschool_fetch_user_content_' . $uid )) {
+		$nids = $cache->data;
+	} else {
+	    $query = 'SELECT nid, title, created, changed, type '
+	           . 'FROM node '
+	           . 'WHERE uid = :uid '
+	           . 'ORDER BY '.$order;
+	    $result = db_query($query, array(':uid' => $uid));
+	    $nids = $result->fetchAll();
+	    if (($cnt=count($nids))>10) {
+	        $nids = array_slice($nids, 0, 10);
+	        $nids[] = '<div style="text-align: right;"><a href="/admin/content">'.t('more').'... (+'.($cnt-10).')'.'</a></div>';
+	    }
+	    cache_set ( 'smartschool_fetch_user_content_' . $uid, $nids, 'cache_argus' );
+	}
     return $nids;
 }

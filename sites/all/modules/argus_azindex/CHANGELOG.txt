@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.3
+---------
+- Caching enabled
+
 v7.x-1.2
 ---------
 - Security update: access controle implemented

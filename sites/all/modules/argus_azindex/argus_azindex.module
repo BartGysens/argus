@@ -19,6 +19,15 @@
 /* Drupal Hooks */
 
 /**
+ * Implements hook_modules_enabled().
+ * Handling cache for argus_...-modules
+ */
+function argus_azindex_modules_enabled($modules) {
+	global $user;
+	cache_set ( 'argus_azindex_block_view_' . $user->uid, FALSE, 'cache_argus' );
+}
+
+/**
  * Implement hook_block_info().
  */
 function argus_azindex_block_info() {
@@ -39,23 +48,30 @@ function argus_azindex_block_info() {
  * Implement hook_block_view().
  */
 function argus_azindex_block_view($delta = '') {
-	$block = array ();
-	
-	$menuTree = getMenuItems ( menu_build_tree ( 'menu-modules' ) );
-	
-	if (count ( $menuTree )) {
-		ksort ( $menuTree );
+	global $user;
+	if ($cache = cache_get ( 'argus_azindex_block_view_' . $user->uid )) {
+		$block = $cache->data;
+	} else {
+		$block = array ();
 		
-		$variables = array (
-				'index' => $menuTree 
-		);
+		$menuTree = getMenuItems ( menu_build_tree ( 'menu-modules' ) );
 		
-		switch ($delta) {
-			case 'block' :
-				$block ['subject'] = t ( 'AZ-index' );
-				$block ['content'] = theme ( 'argus_azindex_block', $variables );
-				break;
+		if (count ( $menuTree )) {
+			ksort ( $menuTree );
+			
+			$variables = array (
+					'index' => $menuTree 
+			);
+			
+			switch ($delta) {
+				case 'block' :
+					$block ['subject'] = t ( 'AZ-index' );
+					$block ['content'] = theme ( 'argus_azindex_block', $variables );
+					break;
+			}
 		}
+		
+		cache_set ( 'argus_azindex_block_view_' . $user->uid, $block, 'cache_argus' );
 	}
 	
 	return $block;

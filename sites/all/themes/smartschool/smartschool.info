@@ -14,7 +14,7 @@
 screenshot  = screenshot.png
 name        = Smartschool
 description = Gebouwd op basis van de huidige layout van Smartschool.<br /><em>Extra: Zen Sub-theme Starter Kit, Read the <a href="https://drupal.org/node/873778">online docs</a> or the included README.txt on how to create a theme with Zen.</em>
-version		= 7.x-4.1
+version		= 7.x-4.2
 package 	= argus - a Quality control extension
 
 project		= argus_theme_smartschool
