@@ -19,6 +19,72 @@
 /* Drupal Hooks */
 
 /**
+ * Implements hook_engine_user_role_presave().
+ * Handling cache for argus_...-modules
+ */
+function argus_engine_user_role_presave($user_role) {
+	global $user;
+	if (path_to_theme() == 'sites/all/themes/smartschool'){
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+	}
+}
+
+/**
+ * Implements hook_engine_user_role_delete().
+ * Handling cache for argus_...-modules
+ */
+function argus_engine_user_role_delete($user_role) {
+	global $user;
+	if (path_to_theme() == 'sites/all/themes/smartschool'){
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+	}
+}
+
+/**
+ * Implements hook_engine_user_presave().
+ * Handling cache for argus_...-modules
+ */
+function argus_engine_user_presave($user) {
+	global $user;
+	if (path_to_theme() == 'sites/all/themes/smartschool'){
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+	}
+}
+
+/**
+ * Implements hook_engine_user_delete().
+ * Handling cache for argus_...-modules
+ */
+function argus_engine_user_delete($user) {
+	global $user;
+	if (path_to_theme() == 'sites/all/themes/smartschool'){
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+	}
+}
+
+/**
+ * Implements hook_engine_node_presave().
+ * Handling cache for argus_...-modules
+ */
+function argus_engine_node_presave($node) {
+	global $user;
+	if (path_to_theme() == 'sites/all/themes/smartschool'){
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+	}
+}
+
+/**
+ * Implements hook_engine_node_delete().
+ * Handling cache for argus_...-modules
+ */
+function argus_engine_node_delete($node) {
+	global $user;
+	if (path_to_theme() == 'sites/all/themes/smartschool'){
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+	}
+}
+
+/**
  * Implements argus_engine_menu().
  */
 function argus_engine_menu() {
