@@ -23,12 +23,8 @@
  * Handling cache for argus_...-modules
  */
 function argus_azindex_modules_enabled($modules) {
-<<<<<<< HEAD
-	cache_set ( 'argus_azindex_block_view', FALSE, 'cache' );
-=======
 	global $user;
 	cache_set ( 'argus_azindex_block_view_' . $user->uid, FALSE, 'cache_argus' );
->>>>>>> 0b97be21a60043a82c2aa22db48f392a6cbee57f
 }
 
 /**
@@ -52,12 +48,8 @@ function argus_azindex_block_info() {
  * Implement hook_block_view().
  */
 function argus_azindex_block_view($delta = '') {
-<<<<<<< HEAD
-	if ($cache = cache_get ( 'argus_azindex_block_view' )) {
-=======
 	global $user;
 	if ($cache = cache_get ( 'argus_azindex_block_view_' . $user->uid )) {
->>>>>>> 0b97be21a60043a82c2aa22db48f392a6cbee57f
 		$block = $cache->data;
 	} else {
 		$block = array ();
@@ -79,11 +71,7 @@ function argus_azindex_block_view($delta = '') {
 			}
 		}
 		
-<<<<<<< HEAD
-		cache_set ( 'argus_azindex_block_view', $block, 'cache' );
-=======
 		cache_set ( 'argus_azindex_block_view_' . $user->uid, $block, 'cache_argus' );
->>>>>>> 0b97be21a60043a82c2aa22db48f392a6cbee57f
 	}
 	
 	return $block;
