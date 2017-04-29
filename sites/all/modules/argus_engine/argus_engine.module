@@ -25,7 +25,7 @@
 function argus_engine_user_role_presave($user_role) {
 	global $user;
 	if (path_to_theme() == 'sites/all/themes/smartschool'){
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
 
@@ -36,7 +36,7 @@ function argus_engine_user_role_presave($user_role) {
 function argus_engine_user_role_delete($user_role) {
 	global $user;
 	if (path_to_theme() == 'sites/all/themes/smartschool'){
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
 
@@ -47,7 +47,7 @@ function argus_engine_user_role_delete($user_role) {
 function argus_engine_user_presave($user) {
 	global $user;
 	if (path_to_theme() == 'sites/all/themes/smartschool'){
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
 
@@ -58,7 +58,7 @@ function argus_engine_user_presave($user) {
 function argus_engine_user_delete($user) {
 	global $user;
 	if (path_to_theme() == 'sites/all/themes/smartschool'){
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
 
@@ -69,7 +69,7 @@ function argus_engine_user_delete($user) {
 function argus_engine_node_presave($node) {
 	global $user;
 	if (path_to_theme() == 'sites/all/themes/smartschool'){
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
 
@@ -80,7 +80,7 @@ function argus_engine_node_presave($node) {
 function argus_engine_node_delete($node) {
 	global $user;
 	if (path_to_theme() == 'sites/all/themes/smartschool'){
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache' );
+		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
 

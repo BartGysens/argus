@@ -19,6 +19,24 @@
 /* Drupal Hooks */
 
 /**
+ * Implements hook_engine_node_presave().
+ * Handling cache for argus_...-modules
+ */
+function argus_meldingen_node_presave($node) {
+	global $user;
+	cache_set ( 'argus_meldingen_block_view_' . $user->uid, FALSE, 'cache_argus' );
+}
+
+/**
+ * Implements hook_engine_node_delete().
+ * Handling cache for argus_...-modules
+ */
+function argus_meldingen_node_delete($node) {
+	global $user;
+	cache_set ( 'argus_meldingen_block_view_' . $user->uid, FALSE, 'cache_argus' );
+}
+
+/**
  * Implementation of hook_views_api().
  */
 function argus_meldingen_views_api() {
@@ -1207,185 +1225,191 @@ function argus_meldingen_block_info() {
  * Implements hook_block_view().
  */
 function argus_meldingen_block_view($delta = '') {
-	$block = array ();
-	$variables = array ();
-	$today = new DateTime ( 'NOW' );
-	
-	/* Filter data only for this schoolyear (active schoolyear) */
-	$schoolyear = ( array ) argus_schoolyear ( 0 );
-	
 	global $user;
-	$query = 'SELECT DISTINCT n.nid AS nid, ' . 'l.entity_id AS id, ' . 'l.field_lvs_melding_leerling_target_id AS uid, ' . 'k.field_klas_leerlingen_target_id AS cid, ' . 'o.field_lvs_melding_onderwerp_value AS title, ' . 'n.uid AS author, ' . 'd.field_lvs_melding_datum_feit_value AS factdate, ' . 'p.field_lvs_melding_prive_value AS private, ' . 'b.field_lvs_melding_betreft_value AS about, ' . 'v.field_lvs_melding_verslag_value AS report ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = l.field_lvs_melding_leerling_target_id ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ' . 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ' . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ' . 'WHERE d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
-	$params = array (
-			':startdate' => $schoolyear ['start'],
-			':enddate' => $schoolyear ['end'] 
-	);
-	
-	// Setup query for pupil
-	if (argus_get_user_has_role ( $user->uid, 'pupil' )) {
-		$query .= 'AND l.field_lvs_melding_leerling_target_id = :uid ';
-		$params [':uid'] = $user->uid;
+	if ($cache = cache_get ( 'argus_meldingen_block_view_' . $user->uid )) {
+		$block = $cache->data;
+	} else {
+		$block = array ();
+		$variables = array ();
+		$today = new DateTime ( 'NOW' );
 		
-		// TODO: check policy -> only private messages for ILB & Staff !
-		$query .= 'AND p.field_lvs_melding_prive_value != :private ';
-		$params [':private'] = 1;
+		/* Filter data only for this schoolyear (active schoolyear) */
+		$schoolyear = ( array ) argus_schoolyear ( 0 );
 		
-		$variables ['reportType'] = 'pupil';
-	}
-	
-	// Setup query for ktt/hktt
-	if (argus_get_user_has_role ( $user->uid, 'ktt' )) {
-		$q2 = 'SELECT n.nid AS id, ' . 'n.title AS title ' . 'FROM {node} AS n ' . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id ' . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id ' . 'WHERE ktt.field_klas_klastitularis_target_id = :uid ' . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
-		$variables ['myClasses'] = db_query ( $q2, array (
-				':uid' => $user->uid 
-		) )->fetchAllKeyed ();
+		$query = 'SELECT DISTINCT n.nid AS nid, ' . 'l.entity_id AS id, ' . 'l.field_lvs_melding_leerling_target_id AS uid, ' . 'k.field_klas_leerlingen_target_id AS cid, ' . 'o.field_lvs_melding_onderwerp_value AS title, ' . 'n.uid AS author, ' . 'd.field_lvs_melding_datum_feit_value AS factdate, ' . 'p.field_lvs_melding_prive_value AS private, ' . 'b.field_lvs_melding_betreft_value AS about, ' . 'v.field_lvs_melding_verslag_value AS report ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = l.field_lvs_melding_leerling_target_id ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ' . 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ' . 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ' . 'WHERE d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+		$params = array (
+				':startdate' => $schoolyear ['start'],
+				':enddate' => $schoolyear ['end'] 
+		);
 		
-		if (count ( $variables ['myClasses'] )) {
-			$query .= 'AND k.entity_id IN (:cids) ';
-			$params [':cids'] = array_keys ( $variables ['myClasses'] );
+		// Setup query for pupil
+		if (argus_get_user_has_role ( $user->uid, 'pupil' )) {
+			$query .= 'AND l.field_lvs_melding_leerling_target_id = :uid ';
+			$params [':uid'] = $user->uid;
 			
 			// TODO: check policy -> only private messages for ILB & Staff !
 			$query .= 'AND p.field_lvs_melding_prive_value != :private ';
 			$params [':private'] = 1;
 			
-			$variables ['reportType'] = 'ktt';
+			$variables ['reportType'] = 'pupil';
 		}
-	}
-	
-	// Setup query for ilb
-	if (argus_get_user_has_role ( $user->uid, 'ilb' )) {
-		$variables ['reportType'] = 'ilb';
-	}
-	
-	// Setup query for staff
-	if (argus_get_user_has_role ( $user->uid, 'staff' )) {
-		$variables ['reportType'] = 'staff';
-	}
-	
-	$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value DESC ';
-	
-	$allowedReports = array (
-			'negatief gedrag',
-			'positief gedrag',
-			'studiebegeleiding',
-			'afwezigheden',
-			'andere (enkel financieel, medisch, familiaal)' 
-	);
-	
-	if (isset ( $variables ['reportType'] )) {
-		$variables ['reports'] = db_query ( $query, $params )->fetchAll ();
 		
-		$variables ['graph'] = array (
-				[ 
-						t ( 'Maand' ),
-						'+',
-						array (
-								'role' => 'certainty' 
-						),
-						'-',
-						array (
-								'role' => 'certainty' 
-						),
-						'S',
-						array (
-								'role' => 'certainty' 
-						),
-						'A',
-						array (
-								'role' => 'certainty' 
-						),
-						'.',
-						array (
-								'role' => 'certainty' 
-						) 
-				] 
+		// Setup query for ktt/hktt
+		if (argus_get_user_has_role ( $user->uid, 'ktt' )) {
+			$q2 = 'SELECT n.nid AS id, ' . 'n.title AS title ' . 'FROM {node} AS n ' . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id ' . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id ' . 'WHERE ktt.field_klas_klastitularis_target_id = :uid ' . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
+			$variables ['myClasses'] = db_query ( $q2, array (
+					':uid' => $user->uid 
+			) )->fetchAllKeyed ();
+			
+			if (count ( $variables ['myClasses'] )) {
+				$query .= 'AND k.entity_id IN (:cids) ';
+				$params [':cids'] = array_keys ( $variables ['myClasses'] );
+				
+				// TODO: check policy -> only private messages for ILB & Staff !
+				$query .= 'AND p.field_lvs_melding_prive_value != :private ';
+				$params [':private'] = 1;
+				
+				$variables ['reportType'] = 'ktt';
+			}
+		}
+		
+		// Setup query for ilb
+		if (argus_get_user_has_role ( $user->uid, 'ilb' )) {
+			$variables ['reportType'] = 'ilb';
+		}
+		
+		// Setup query for staff
+		if (argus_get_user_has_role ( $user->uid, 'staff' )) {
+			$variables ['reportType'] = 'staff';
+		}
+		
+		$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value DESC ';
+		
+		$allowedReports = array (
+				'negatief gedrag',
+				'positief gedrag',
+				'studiebegeleiding',
+				'afwezigheden',
+				'andere (enkel financieel, medisch, familiaal)' 
 		);
-		foreach ( $variables ['reports'] as $report ) {
-			if ($report->about) {
-				if (in_array ( $report->about, $allowedReports )) {
-					if (isset ( $variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] )) {
-						$variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] ++;
-					} else {
-						$variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] = 1;
+		
+		if (isset ( $variables ['reportType'] )) {
+			$variables ['reports'] = db_query ( $query, $params )->fetchAll ();
+			
+			$variables ['graph'] = array (
+					[ 
+							t ( 'Maand' ),
+							'+',
+							array (
+									'role' => 'certainty' 
+							),
+							'-',
+							array (
+									'role' => 'certainty' 
+							),
+							'S',
+							array (
+									'role' => 'certainty' 
+							),
+							'A',
+							array (
+									'role' => 'certainty' 
+							),
+							'.',
+							array (
+									'role' => 'certainty' 
+							) 
+					] 
+			);
+			foreach ( $variables ['reports'] as $report ) {
+				if ($report->about) {
+					if (in_array ( $report->about, $allowedReports )) {
+						if (isset ( $variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] )) {
+							$variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] ++;
+						} else {
+							$variables ['graph'] [$report->about] [date ( 'n', strtotime ( $report->factdate ) )] = 1;
+						}
 					}
 				}
 			}
+			$maxReports = 0;
+			for($m = 1; $m < 11; $m ++) {
+				if ($m < 5) {
+					$month = $m + 8;
+				} else {
+					$month = $m - 4;
+				}
+				
+				if (isset ( $variables ['graph'] ['negatief gedrag'] [$month] )) {
+					$neg = $variables ['graph'] ['negatief gedrag'] [$month];
+				} else {
+					$neg = 0;
+				}
+				if (isset ( $variables ['graph'] ['positief gedrag'] [$month] )) {
+					$pos = $variables ['graph'] ['positief gedrag'] [$month];
+				} else {
+					$pos = 0;
+				}
+				if (isset ( $variables ['graph'] ['studiebegeleiding'] [$month] )) {
+					$study = $variables ['graph'] ['studiebegeleiding'] [$month];
+				} else {
+					$study = 0;
+				}
+				if (isset ( $variables ['graph'] ['afwezigheden'] [$month] )) {
+					$absence = $variables ['graph'] ['afwezigheden'] [$month];
+				} else {
+					$absence = 0;
+				}
+				if (isset ( $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] [$month] )) {
+					$other = $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] [$month];
+				} else {
+					$other = 0;
+				}
+				
+				if ($neg > $maxReports)
+					$maxReports = $neg;
+				if ($pos > $maxReports)
+					$maxReports = $pos;
+				if ($study > $maxReports)
+					$maxReports = $study;
+				if ($absence > $maxReports)
+					$maxReports = $absence;
+				if ($other > $maxReports)
+					$maxReports = $other;
+				
+				$month = t ( date ( 'M', strtotime ( '2000-' . $month . '-01' ) ) );
+				
+				$variables ['graph'] [] = [ 
+						$month,
+						$pos,
+						($month != t ( date ( 'M' ) )),
+						$neg,
+						($month != t ( date ( 'M' ) )),
+						$study,
+						($month != t ( date ( 'M' ) )),
+						$absence,
+						($month != t ( date ( 'M' ) )),
+						$other,
+						($month != t ( date ( 'M' ) )) 
+				];
+			}
+			unset ( $variables ['graph'] ['negatief gedrag'] );
+			unset ( $variables ['graph'] ['positief gedrag'] );
+			unset ( $variables ['graph'] ['studiebegeleiding'] );
+			unset ( $variables ['graph'] ['afwezigheden'] );
+			unset ( $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] );
+			
+			$variables ['graphMaxReports'] = $maxReports;
 		}
-		$maxReports = 0;
-		for($m = 1; $m < 11; $m ++) {
-			if ($m < 5) {
-				$month = $m + 8;
-			} else {
-				$month = $m - 4;
-			}
-			
-			if (isset ( $variables ['graph'] ['negatief gedrag'] [$month] )) {
-				$neg = $variables ['graph'] ['negatief gedrag'] [$month];
-			} else {
-				$neg = 0;
-			}
-			if (isset ( $variables ['graph'] ['positief gedrag'] [$month] )) {
-				$pos = $variables ['graph'] ['positief gedrag'] [$month];
-			} else {
-				$pos = 0;
-			}
-			if (isset ( $variables ['graph'] ['studiebegeleiding'] [$month] )) {
-				$study = $variables ['graph'] ['studiebegeleiding'] [$month];
-			} else {
-				$study = 0;
-			}
-			if (isset ( $variables ['graph'] ['afwezigheden'] [$month] )) {
-				$absence = $variables ['graph'] ['afwezigheden'] [$month];
-			} else {
-				$absence = 0;
-			}
-			if (isset ( $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] [$month] )) {
-				$other = $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] [$month];
-			} else {
-				$other = 0;
-			}
-			
-			if ($neg > $maxReports)
-				$maxReports = $neg;
-			if ($pos > $maxReports)
-				$maxReports = $pos;
-			if ($study > $maxReports)
-				$maxReports = $study;
-			if ($absence > $maxReports)
-				$maxReports = $absence;
-			if ($other > $maxReports)
-				$maxReports = $other;
-			
-			$month = t ( date ( 'M', strtotime ( '2000-' . $month . '-01' ) ) );
-			
-			$variables ['graph'] [] = [ 
-					$month,
-					$pos,
-					($month != t ( date ( 'M' ) )),
-					$neg,
-					($month != t ( date ( 'M' ) )),
-					$study,
-					($month != t ( date ( 'M' ) )),
-					$absence,
-					($month != t ( date ( 'M' ) )),
-					$other,
-					($month != t ( date ( 'M' ) )) 
-			];
-		}
-		unset ( $variables ['graph'] ['negatief gedrag'] );
-		unset ( $variables ['graph'] ['positief gedrag'] );
-		unset ( $variables ['graph'] ['studiebegeleiding'] );
-		unset ( $variables ['graph'] ['afwezigheden'] );
-		unset ( $variables ['graph'] ['andere (enkel financieel, medisch, familiaal)'] );
 		
-		$variables ['graphMaxReports'] = $maxReports;
-	}
-	
-	switch ($delta) {
-		default :
-			$block ['subject'] = 'Filter';
-			$block ['content'] = theme ( 'argus_meldingen_block_LST', $variables );
-			break;
+		switch ($delta) {
+			default :
+				$block ['subject'] = 'Filter';
+				$block ['content'] = theme ( 'argus_meldingen_block_LST', $variables );
+				break;
+		}
+		
+		cache_set ( 'argus_meldingen_block_view_' . $user->uid, $block, 'cache_argus' );
 	}
 	
 	drupal_add_js ( "https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}" );
