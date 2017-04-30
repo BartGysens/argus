@@ -2,7 +2,7 @@
 
 v7.x-3.6
 ---------
-- Installscript adjusted for adding roles
+- Caching enabled
 
 v7.x-3.5
 ---------

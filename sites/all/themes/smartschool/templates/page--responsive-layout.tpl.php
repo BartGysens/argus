@@ -156,22 +156,29 @@
 	                <h3>Modules</h3>
 	                <div id="quicknav_modulesList" class="list">
 	                    <?php
-	                    $menuTreeGa = menu_load_links('menu-modules');
-	                    $menuTree = array();
-	                    if ($menuTreeGa){
-	                        foreach ($menuTreeGa as $ks => $menuItem){
-	                            if ($menuItem['link_path'] && isset($menuItem['options']['item_attributes']['class'])){
-	                                if ($menuItem['options']['item_attributes']['class']!=''){
-	                                    $extraClass = $menuItem['options']['item_attributes']['class'];
-	                                    $menuTree[$menuItem['link_title']] = '<a class="module '.$extraClass.'" href="'.base_path().$menuItem['link_path'].'" title="'.$menuItem['link_title'].'">'.$menuItem['link_title'].'</a>';
-	                                }
-	                            }
-	                        }
-	                        ksort($menuTree);
-	                        foreach ($menuTree as $menuItem){
-	                            print $menuItem;
-	                        }
+	                    if ($cache = cache_get ( 'quicknav_modulesList_' . $user->uid )) {
+	                    	$html = $cache->data;
+	                    } else {
+		                    $menuTreeGa = menu_load_links('menu-modules');
+		                    $menuTree = array();
+		                    if ($menuTreeGa){
+		                        foreach ($menuTreeGa as $ks => $menuItem){
+		                            if ($menuItem['link_path'] && isset($menuItem['options']['item_attributes']['class'])){
+		                                if ($menuItem['options']['item_attributes']['class']!=''){
+		                                    $extraClass = $menuItem['options']['item_attributes']['class'];
+		                                    $menuTree[$menuItem['link_title']] = '<a class="module '.$extraClass.'" href="'.base_path().$menuItem['link_path'].'" title="'.$menuItem['link_title'].'">'.$menuItem['link_title'].'</a>';
+		                                }
+		                            }
+		                        }
+		                        ksort($menuTree);
+		                        foreach ($menuTree as $menuItem){
+		                            $html .= $menuItem;
+		                        }
+		                    }
+		                    
+		                    cache_set ( 'quicknav_modulesList_' . $user->uid, $uids, 'cache_argus' );
 	                    }
+	                    print $html;
 	                    ?>
 	                    <a class="module module-spacer" href="#"></a>
 	                </div>

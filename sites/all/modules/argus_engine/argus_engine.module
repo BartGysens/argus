@@ -19,6 +19,17 @@
 /* Drupal Hooks */
 
 /**
+ * Implements hook_modules_enabled().
+ * Handling cache for argus_...-modules
+ */
+function argus_engine_modules_enabled($modules) {
+	global $user;
+	if (path_to_theme() == 'sites/all/themes/smartschool'){
+		cache_set ( 'quicknav_modulesList_' . $user->uid, FALSE, 'cache_argus' );
+	}
+}
+
+/**
  * Implements hook_engine_user_role_presave().
  * Handling cache for argus_...-modules
  */
