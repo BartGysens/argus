@@ -23,6 +23,9 @@
  * Complete documentation for this file is available online.
  * @see https://drupal.org/node/1728148
  */
+
+global $user;
+
 ?>
 
 <div id="page">
@@ -194,7 +197,6 @@
 	                <div id="courses_lists">
 	                    <div id="sms_mytasks_list" class="list">
 	                    <?php
-	                    global $user;
 	                    $skip_roles = ['authenticated user','andere'];
 	                    $roles = $user->roles;
 	                    foreach ($roles as $k => $role){
