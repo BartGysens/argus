@@ -179,7 +179,7 @@ global $user;
 		                        }
 		                    }
 		                    
-		                    cache_set ( 'quicknav_modulesList_' . $user->uid, $uids, 'cache_argus' );
+		                    cache_set ( 'quicknav_modulesList_' . $user->uid, $html, 'cache_argus' );
 	                    }
 	                    print $html;
 	                    ?>
