@@ -1210,7 +1210,7 @@ function argus_meldingen_block_info() {
 	$blocks = array ();
 	$blocks ['meldingen'] = array (
 			'info' => t ( 'Meldingen' ),
-			'cache' => DRUPAL_CACHE_GLOBAL,
+			'cache' => DRUPAL_CACHE_PER_USER,
 			'weight' => - 10,
 			'status' => 1,
 			'region' => 'sidebar_first',

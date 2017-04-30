@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-3.6
+---------
+- Caching enabled
+
 v7.x-3.5
 ---------
 - Installscript adjusted for adding roles
