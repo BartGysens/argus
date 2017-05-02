@@ -24,8 +24,6 @@
  * @see https://drupal.org/node/1728148
  */
 
-global $user;
-
 ?>
 
 <div id="page">
@@ -116,7 +114,8 @@ global $user;
 	    
         <?php print render($page['navigation']); ?>
 
-	    <?php if (user_is_logged_in()): ?>
+	    <?php if (user_is_logged_in()):
+				global $user; ?>
 	        <nav id="main-menu" role="navigation" tabindex="-1">
 	          <?php
 	            $extra_menu_items["menu-start"] = [
@@ -160,8 +159,9 @@ global $user;
 	                <div id="quicknav_modulesList" class="list">
 	                    <?php
 	                    if ($cache = cache_get ( 'quicknav_modulesList_' . $user->uid )) {
-	                    	$html = $cache->data;
+	                    	$outputStr = $cache->data;
 	                    } else {
+	                    	$outputStr = '';
 		                    $menuTreeGa = menu_load_links('menu-modules');
 		                    $menuTree = array();
 		                    if ($menuTreeGa){
@@ -175,13 +175,13 @@ global $user;
 		                        }
 		                        ksort($menuTree);
 		                        foreach ($menuTree as $menuItem){
-		                            $html .= $menuItem;
+		                            $outputStr .= $menuItem;
 		                        }
 		                    }
 		                    
-		                    cache_set ( 'quicknav_modulesList_' . $user->uid, $html, 'cache_argus' );
+		                    cache_set ( 'quicknav_modulesList_' . $user->uid, $outputStr, 'cache_argus' );
 	                    }
-	                    print $html;
+	                    print $outputStr;
 	                    ?>
 	                    <a class="module module-spacer" href="#"></a>
 	                </div>
