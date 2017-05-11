@@ -408,25 +408,31 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	$document->setValue ( 'mentor_functie', $value );
 	
 	$telefoonnummer = '';
-	if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_org_stagementor_telefoon )) {
-		$telefoonnummer = $stagegever->field_org_stagementor_telefoon [LANGUAGE_NONE] [0] ['value'];
-	}
-	if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_org_contact_telefoonnummer ) && ! $telefoonnummer) {
-		$telefoonnummer = $stagegever->field_org_contact_telefoonnummer [LANGUAGE_NONE] [0] ['value'];
-	}
-	if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_telefoonnummer ) && ! $telefoonnummer) {
-		$telefoonnummer = $stagegever->field_telefoonnummer [LANGUAGE_NONE] [0] ['value'];
+	if (isset($stagegever)){
+		if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_org_stagementor_telefoon )) {
+			$telefoonnummer = $stagegever->field_org_stagementor_telefoon [LANGUAGE_NONE] [0] ['value'];
+		}
+		if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_org_contact_telefoonnummer ) && ! $telefoonnummer) {
+			$telefoonnummer = $stagegever->field_org_contact_telefoonnummer [LANGUAGE_NONE] [0] ['value'];
+		}
+		if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_telefoonnummer ) && ! $telefoonnummer) {
+			$telefoonnummer = $stagegever->field_telefoonnummer [LANGUAGE_NONE] [0] ['value'];
+		}
 	}
 	$document->setValue ( 'mentor_telefoonnummer', htmlspecialchars ( $telefoonnummer ) );
-	
-	$document->setValue ( 'begeleider_naam', htmlspecialchars ( argus_get_user_realname ( $stagebegeleider->uid ) ) );
+
+	if (isset($stagebegeleider)){
+		$document->setValue ( 'begeleider_naam', htmlspecialchars ( argus_get_user_realname ( $stagebegeleider->uid ) ) );
+	}
 	
 	$telefoonnummer = '';
-	if (array_key_exists ( LANGUAGE_NONE, $stagebegeleider->field_user_sms_mobielnummer )) {
-		$telefoonnummer = $stagebegeleider->field_user_sms_mobielnummer [LANGUAGE_NONE] [0] ['value'];
-	}
-	if (array_key_exists ( LANGUAGE_NONE, $stagebegeleider->field_user_sms_telefoonnummer ) && ! $telefoonnummer) {
-		$telefoonnummer = $stagebegeleider->field_user_sms_telefoonnummer [LANGUAGE_NONE] [0] ['value'];
+	if (isset($stagebegeleider)){
+		if (array_key_exists ( LANGUAGE_NONE, $stagebegeleider->field_user_sms_mobielnummer )) {
+			$telefoonnummer = $stagebegeleider->field_user_sms_mobielnummer [LANGUAGE_NONE] [0] ['value'];
+		}
+		if (array_key_exists ( LANGUAGE_NONE, $stagebegeleider->field_user_sms_telefoonnummer ) && ! $telefoonnummer) {
+			$telefoonnummer = $stagebegeleider->field_user_sms_telefoonnummer [LANGUAGE_NONE] [0] ['value'];
+		}
 	}
 	$document->setValue ( 'begeleider_telefoonnummer', htmlspecialchars ( $telefoonnummer ) );
 	
