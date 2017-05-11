@@ -429,10 +429,12 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 		}
 	}
 	$document->setValue ( 'mentor_telefoonnummer', htmlspecialchars ( $telefoonnummer ) );
-
+	
+	$value = '';
 	if (isset($stagebegeleider)){
-		$document->setValue ( 'begeleider_naam', htmlspecialchars ( argus_get_user_realname ( $stagebegeleider->uid ) ) );
+		$value = htmlspecialchars ( argus_get_user_realname ( $stagebegeleider->uid ) );
 	}
+	$document->setValue ( 'begeleider_naam', $value );
 	
 	$telefoonnummer = '';
 	if (isset($stagebegeleider)){
