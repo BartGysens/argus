@@ -188,9 +188,18 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	
 	/* Load stage data */
 	$stage = node_load ( $args ['values'] ['stage'] );
-	$stageperiode = node_load ( $stage->field_stage_periode [LANGUAGE_NONE] [0] ['target_id'] );
-	$stagegever = node_load ( $stage->field_stagegever [LANGUAGE_NONE] [0] ['target_id'] );
-	$stagebegeleider = user_load ( $stage->field_leerkracht [LANGUAGE_NONE] [0] ['target_id'] );
+	
+	if (array_key_exists ( LANGUAGE_NONE, $stage->field_stage_periode )) {
+		$stageperiode = node_load ( $stage->field_stage_periode [LANGUAGE_NONE] [0] ['target_id'] );
+	}
+	
+	if (array_key_exists ( LANGUAGE_NONE, $stage->field_stagegever )) {
+		$stagegever = node_load ( $stage->field_stagegever [LANGUAGE_NONE] [0] ['target_id'] );
+	}
+	
+	if (array_key_exists ( LANGUAGE_NONE, $stage->field_leerkracht )) {
+		$stagebegeleider = user_load ( $stage->field_leerkracht [LANGUAGE_NONE] [0] ['target_id'] );
+	}
 	
 	/* Load user (student/pupil) */
 	$uid = $stage->field_leerling [LANGUAGE_NONE] [0] ['target_id'];
