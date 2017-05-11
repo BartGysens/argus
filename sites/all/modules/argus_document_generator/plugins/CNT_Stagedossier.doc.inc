@@ -359,12 +359,18 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 		$value .= $stagegever->field_email [LANGUAGE_NONE] [0] ['email'];
 	}
 	$document->setValue ( 'organisatie_email', htmlspecialchars ( $value ) );
-	
+
 	$value = '';
 	if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_kbo_nummer )) {
 		$value .= $stagegever->field_kbo_nummer [LANGUAGE_NONE] [0] ['value'];
 	}
 	$document->setValue ( 'organisatie_kbonummer', htmlspecialchars ( $value ) );
+
+	$value = '';
+	if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_nace_code )) {
+		$value .= $stagegever->field_nace_code [LANGUAGE_NONE] [0] ['value'];
+	}
+	$document->setValue ( 'organisatie_nace', htmlspecialchars ( $value ) );
 	
 	$value = '';
 	if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_paritair_comit_ )) {
@@ -394,7 +400,7 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	$document->setValue ( 'mentor_naam', htmlspecialchars ( $mentor ) );
 	
 	$value = '';
-	if (isset($stagegever)){
+	if (isset($mentor)){
 		if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_org_stagementor_functie )) {
 			$value = htmlspecialchars ( $stagegever->field_org_stagementor_functie [LANGUAGE_NONE] [0] ['value'] );
 		}
