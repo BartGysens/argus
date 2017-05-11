@@ -401,8 +401,8 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	
 	$value = '';
 	if (isset($mentor)){
-		if (array_key_exists ( LANGUAGE_NONE, $stagegever->field_org_stagementor_functie )) {
-			$value = htmlspecialchars ( $stagegever->field_org_stagementor_functie [LANGUAGE_NONE] [0] ['value'] );
+		if (array_key_exists ( LANGUAGE_NONE, $mentor->field_org_stagementor_functie )) {
+			$value = htmlspecialchars ( $mentor->field_org_stagementor_functie [LANGUAGE_NONE] [0] ['value'] );
 		}
 	}
 	$document->setValue ( 'mentor_functie', $value );
