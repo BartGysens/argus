@@ -208,7 +208,11 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
    * Implements EntityReferenceHandler::validateAutocompleteInput().
    */
   public function validateAutocompleteInput($input, &$element, &$form_state, $form) {
-      $entities = $this->getReferencableEntities($input, '=', 6);
+      $bundled_entities = $this->getReferencableEntities($input, '=', 6);
+      $entities = array();
+      foreach($bundled_entities as $entities_list) {
+        $entities += $entities_list;
+      }
       if (empty($entities)) {
         // Error if there are no entities available for a required field.
         form_error($element, t('There are no entities matching "%value"', array('%value' => $input)));
@@ -251,31 +255,15 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
       }
     }
 
-/* PATCH
     // Add a generic entity access tag to the query.
     $query->addTag($this->field['settings']['target_type'] . '_access');
-*/
-if (!empty($this->field['settings']['handler_settings']['sort'])) {
-      $sort_settings = $this->field['settings']['handler_settings']['sort'];
-    }
-
-    if (empty($sort_settings) || $sort_settings['type'] != 'field') {
-      // Add a generic entity access tag to the query.
-      $query->addTag($this->field['settings']['target_type'] . '_access');
-    }
-/* END PATCH */
-
     $query->addTag('entityreference');
     $query->addMetaData('field', $this->field);
     $query->addMetaData('entityreference_selection_handler', $this);
 
     // Add the sort option.
-/* PATCH
     if (!empty($this->field['settings']['handler_settings']['sort'])) {
       $sort_settings = $this->field['settings']['handler_settings']['sort'];
-*/
-if (!empty($sort_settings)) {
-/* END PATCH */
       if ($sort_settings['type'] == 'property') {
         $query->propertyOrderBy($sort_settings['property'], $sort_settings['direction']);
       }
