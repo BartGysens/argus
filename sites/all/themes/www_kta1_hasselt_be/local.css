@@ -154,3 +154,12 @@ input{
 .view-ouders-leerlingen-info .views-row {
 	display: block;
 }
+
+@media print{
+	#footer-top,
+	#footer,
+	#subfooter,
+	#main-navigation{
+		display: none;
+	}
+}
