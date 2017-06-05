@@ -1,0 +1,9 @@
+@CHARSET "UTF-8";
+
+.argus_stages-view-legend {
+	width: 10px;
+	height: 10px;
+	border: 1px solid gray;
+	display: -webkit-inline-box;
+	display: inline-block;
+}
