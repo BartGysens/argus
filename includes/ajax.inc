@@ -359,6 +359,7 @@ function ajax_get_form() {
   // The form needs to be processed; prepare for that by setting a few internal
   // variables.
   $form_state['input'] = $_POST;
+  $form_state['rebuild'] = TRUE;
   $form_id = $form['#form_id'];
 
   return array($form, $form_state, $form_id, $form_build_id, $commands);
