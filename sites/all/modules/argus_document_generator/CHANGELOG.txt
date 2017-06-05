@@ -1,5 +1,12 @@
 **Releases:
 
+v7.x-4.14
+---------
+- NACE-code toegevoegd aan stagedossier
+- Fix in mentor functie
+- Dummy proof Stagedossier
+- Conditional checks op stagedossier parameters
+
 v7.x-4.13
 ---------
 - Preparations for install

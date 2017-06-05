@@ -79,12 +79,187 @@ function argus_stages_form($node, $form_state) {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function argus_stages_permission() {
+	return array (
+			'access argus_stages_controle content' => array (
+					'title' => t ( 'Stages coördineren (& controleren)' ) 
+			) 
+	);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function argus_stages_menu() {
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
+	$items = array ();
+	
+	$items ['stages/bezoeken/controle'] = array (
+			'title' => t ( 'Stagebezoeken - controle' ),
+			'page callback' => 'argus_stages_bezoeken_controle',
+			// 'access callback' => true,
+			'access arguments' => array (
+					'access argus_stages_controle content' 
+			),
+			'menu_name' => $menu,
+			'type' => MENU_LOCAL_ACTION 
+	);
+	
+	return $items;
+}
+
+/**
  * Implementation of hook_views_api().
  */
 function argus_stages_views_api() {
 	return array (
 			'api' => 3.0,
 			'path' => drupal_get_path ( 'module', 'argus_stages' ) 
-	) // replace demo with your content type
-;
+	);
+}
+
+/**
+ * Implement hook_theme()
+ */
+function argus_stages_theme() {
+	return array (
+			'argus_stages_bezoeken--controle_filter_block' => array (
+					'variables' => array (
+							'content' => NULL,
+							'popular_content' => NULL 
+					),
+					'template' => 'templates/argus_stages_bezoeken_controle--filter_block' 
+			),
+			'argus_stages_bezoeken--controle' => array (
+					'template' => 'templates/argus_stages_bezoeken--controle' 
+			) 
+	);
+}
+
+/**
+ * Page callback mapped to the url /stages/bezoeken/controle
+ *
+ * @return array
+ */
+function argus_stages_bezoeken_controle() {
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_stages' ) . '/css/argus_stages.css' );
+	
+	$sorter = 'id';
+	if (array_key_exists ( 's', $_GET )) {
+		$sorter = $_GET ['s'];
+	}
+	$data = array (
+			'sorter' => $sorter 
+	);
+	
+	// Get stagebezoeken
+	$vars = array (
+			':bundle' => 'stagebezoek'
+	);
+	
+	$query = 'SELECT n.nid AS id, n.uid AS begeleider, l.field_leerling_target_id AS leerling, t.field_tijdstip_value AS tijdstip, k.title AS klas, n.created AS register ';
+	$query .= 'FROM {node} AS n ';
+	$query .= 'LEFT JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid ';
+	$query .= 'LEFT JOIN {field_data_field_stageverslag} AS sv ON sv.entity_id = n.nid ';
+	$query .= 'LEFT JOIN {field_data_field_stage} AS s ON s.entity_id = n.nid ';
+	$query .= 'LEFT JOIN {field_data_field_leerling} AS l ON l.entity_id = s.field_stage_target_id ';
+	$query .= 'LEFT JOIN {field_data_field_user_sms_naam} AS usbn ON usbn.entity_id = n.uid ';
+	$query .= 'LEFT JOIN {field_data_field_user_sms_voornaam} AS usbvn ON usbvn.entity_id = n.uid ';
+	$query .= 'LEFT JOIN {field_data_field_user_sms_naam} AS uln ON uln.entity_id = l.field_leerling_target_id ';
+	$query .= 'LEFT JOIN {field_data_field_user_sms_voornaam} AS ulvn ON ulvn.entity_id = l.field_leerling_target_id ';
+	$query .= 'LEFT JOIN {field_data_field_klas_leerlingen} AS klln ON klln.field_klas_leerlingen_target_id = l.field_leerling_target_id ';
+	$query .= 'LEFT JOIN {node} AS k ON k.nid = klln.entity_id ';
+	$query .= 'LEFT JOIN {users} AS us ON us.uid = l.field_leerling_target_id ';
+	$query .= 'WHERE n.status = 1 AND us.status = 1 AND n.type = :bundle AND sv.entity_id IS NULL ';
+	
+	if (array_key_exists ( 'class', $_GET )) {
+		$query .= 'AND klln.entity_id = :cid ';
+		$vars['cid'] = $_GET ['class'];
+	}
+	if (array_key_exists ( 'lkr', $_GET )) {
+		$query .= 'AND n.uid = :lkrid ';
+		$vars['lkrid'] = $_GET ['lkr'];
+	}
+	if (array_key_exists ( 'lln', $_GET )) {
+		$query .= 'AND us.uid = :llnid ';
+		$vars['llnid'] = $_GET ['lln'];
+	}
+	
+	switch ($sorter) {
+		case 'leerling' :
+			$sorter = 'uln.field_user_sms_naam_value ASC, ulvn.field_user_sms_voornaam_value ASC';
+			break;
+		case 'klas' :
+			$sorter = 'k.title ASC';
+			break;
+		case 'begeleider' :
+			$sorter = 'usbn.field_user_sms_naam_value ASC, usbvn.field_user_sms_voornaam_value ASC';
+			break;
+	}
+	$query .= 'ORDER BY ' . $sorter;
+	
+	$data ['stagebezoeken'] = db_query ( $query, $vars )->fetchAllAssoc ( 'id', PDO::FETCH_ASSOC );
+	
+	return theme ( 'argus_stages_bezoeken--controle', $data );
+}
+
+/**
+ * Implement hook_block_info().
+ */
+function argus_stages_block_info() {
+	$blocks = array ();
+	$blocks ['controle_filter_block'] = array (
+			'info' => t ( 'Stagebezoeken - controle: filter' ),
+			'cache' => DRUPAL_CACHE_GLOBAL,
+			'weight' => - 10,
+			'status' => 1,
+			'region' => 'sidebar_first',
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => 'stages/bezoeken/controle' 
+	);
+	
+	return $blocks;
+}
+
+/**
+ * Implement hook_block_view().
+ */
+function argus_stages_block_view($delta = '') {
+	$block = array ();
+	
+	$p = explode ( '/', current_path () );
+	if ($p [0] == 'stages') {
+		if ($p [1] == 'bezoeken') {
+			if ($p [2] == 'controle') {
+				$variables = array ();
+				
+				if (array_key_exists ( 'class', $_GET )) {
+					$variables ['cid'] = $_GET ['class'];
+				}
+				if (array_key_exists ( 'lkr', $_GET )) {
+					$variables ['lkrid'] = $_GET ['lkr'];
+				}
+				if (array_key_exists ( 'lln', $_GET )) {
+					$variables ['llnid'] = $_GET ['lln'];
+				}
+			}
+		}
+		
+		switch ($delta) {
+			case 'controle_filter_block' :
+				$block ['subject'] = t ( 'Filter' );
+				$block ['content'] = theme ( 'argus_stages_bezoeken--controle_filter_block', $variables );
+				break;
+		}
+		drupal_add_js ( drupal_get_path ( 'module', 'argus_stages' ) . '/js/argus_stages.js' );
+		
+		return $block;
+	}
 }
