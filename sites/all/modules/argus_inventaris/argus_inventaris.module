@@ -388,7 +388,7 @@ function argus_inventaris_import() {
 		) )->fetchField ();
 		if ($result_uid) {
 			$node->uid = $result_uid;
-			dpm ( $node );
+			//dpm ( $node );
 			// node_save($node);
 		} else {
 			// dpm(($id+1).' '.trim(utf8_encode($csv[0]));
@@ -399,7 +399,7 @@ function argus_inventaris_import() {
 		if ($id > 100)
 			break;
 	}
-	dpm ( $errors );
+	//dpm ( $errors );
 	
 	// dpm($csv);
 }

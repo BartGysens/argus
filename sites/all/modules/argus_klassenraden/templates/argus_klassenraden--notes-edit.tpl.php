@@ -25,8 +25,6 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 		
 		$account = user_load($data['uid']);
 		
-		//dpm($data);
-		
 		?>
 		<form action="/<?php print current_path(); ?>" method="post" id="argus_klassenraden_note_form">
 

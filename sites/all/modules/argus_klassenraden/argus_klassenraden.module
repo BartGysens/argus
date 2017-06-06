@@ -590,7 +590,6 @@ function argus_klassenraden_notes($schoolyear = 0, $cmid = NULL, $sid = NULL, $c
 				
 				$actions = array ();
 				if (array_key_exists ( 'argus_klassenraden_' . $lvsPart . '_action_id', $_POST )) {
-					dpm($_POST);
 					foreach ( $_POST ['argus_klassenraden_' . $lvsPart . '_action_id'] as $k => $aid ) {
 						if ($aid) {
 							$action = node_load ( $aid );

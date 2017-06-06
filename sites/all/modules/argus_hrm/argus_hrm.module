@@ -2100,6 +2100,6 @@ function argus_hrm_get_plage_uren($uid) {
 			':uid' => $uid,
 			':type' => 'uurrooster_les' 
 	) )->fetchAll ();
-	dpm ( $result );
+	//dpm ( $result );
 	return 1;
 }
