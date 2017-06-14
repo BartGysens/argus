@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.8
+---------
+- New feature: argus_engine_get_periods for listing the installed periods
+
 v7.x-1.7
 ---------
 - Caching enabled
