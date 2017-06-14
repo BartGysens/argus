@@ -81,7 +81,7 @@ function argus_soda_install() {
 			  `author` int(6) unsigned NOT NULL,
 			  `leerling` varchar(100) NOT NULL,
 			  `datum` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-			  `attest` varchar(1) NOT NULL DEFAULT 'A',
+			  `attest` varchar(1) NOT NULL DEFAULT "A",
 			  PRIMARY KEY (`id`)
 			) ENGINE=InnoDB DEFAULT CHARSET=latin1;';
 		$result = db_query ( $query );
