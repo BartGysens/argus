@@ -4,12 +4,6 @@
  * @file
  * Install, update, and uninstall functions for the Aankoopdossiers module.
  */
-<?php
-
-/**
- * @file
-* Install, update, and uninstall functions for the Aankoopdossiers module.
-*/
 
 /**
  * Implementation of hook_install().
