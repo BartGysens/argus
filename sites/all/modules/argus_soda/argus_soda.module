@@ -1,0 +1,877 @@
+<?php
+/*
+ * Copyright (C) 2017 bartgysens
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* Drupal Hooks */
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function argus_soda_ctools_plugin_api($module = NULL, $api = NULL) {
+	if ($module == "field_group" && $api == "field_group") {
+		return array (
+				"version" => "1" 
+		);
+	}
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function argus_soda_views_api($module = NULL, $api = NULL) {
+	return array (
+			"api" => "3.0" 
+	);
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function argus_soda_node_info() {
+	$items = array (
+			'lvs_soda' => array (
+					'name' => t ( 'LVS - SODA' ),
+					'base' => 'node_content',
+					'description' => t ( 'SODA staat voor Stiptheid, Orde, Discipline en Attitude en helpt je bij het in kaart brengen van deze vier peilers om zo je leerlingen nog beter te begeleiden.' ),
+					'has_title' => '1' 
+			) 
+	);
+	drupal_alter ( 'node_info', $items );
+	return $items;
+}
+
+/**
+ * Implement hook_form()
+ */
+function argus_soda_form($node, $form_state) {
+	return node_content_form ( $node, $form_state );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function argus_soda_menu() {
+	if (menu_load ( 'menu-modules' )) {
+		$menu = 'menu-modules';
+	} else {
+		$menu = 'navigation';
+	}
+	
+	$items = array ();
+	
+	$items ['soda'] = array (
+			'title' => t ( 'SODA' ),
+			'page callback' => 'argus_soda_overview',
+			'access callback' => 'user_is_logged_in',
+			'type' => MENU_NORMAL_ITEM,
+			'menu_name' => $menu,
+			'expanded' => true 
+	);
+	
+	$items ['soda/rapporten'] = array (
+			'title' => t ( 'SODA - Rapporten' ),
+			'page callback' => 'argus_soda_reports_overview',
+			'page arguments' => array (
+					'argus_soda_overview',
+					2 
+			),
+			'access arguments' => array (
+					'access argus_soda reports' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'menu_name' => $menu 
+	);
+	
+	$items ['soda/attesten-D'] = array (
+			'title' => t ( 'SODA - Attesten (D)' ),
+			'page callback' => 'argus_soda_attesten_overview',
+			'access arguments' => array (
+					'access argus_soda reports' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'menu_name' => $menu 
+	);
+	
+	$items ['admin/config/argus/soda'] = array (
+			'title' => t ( 'LVS: SODA' ),
+			'description' => 'Beheer je SODA-rapporten.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'argus_soda_setup_form' 
+			),
+			'access arguments' => array (
+					'access administration pages' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 1 
+	);
+	
+	/* Call back for retrieving details on front side by AJAX-request */
+	$items ['soda/attest.set'] = array (
+			'page callback' => 'argus_soda_attest_set',
+			'access arguments' => array (
+					'edit argus_soda reports' 
+			),
+			'type' => MENU_CALLBACK 
+	);
+	
+	return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function argus_soda_permission() {
+	return array (
+			'access argus_soda reports' => array (
+					'title' => t ( 'SODA-rapporten raadplegen' ) 
+			),
+			'edit argus_soda reports' => array (
+					'title' => t ( 'SODA-rapporten aanpassen' ) 
+			) 
+	);
+}
+
+/**
+ * Implement hook_theme()
+ */
+function argus_soda_theme() {
+	return array (
+			'argus_soda_overview' => array (
+					'template' => 'templates/argus_soda--overview' 
+			),
+			'argus_soda_reports_overview_block' => array (
+					'template' => 'templates/argus_soda--reports_overview_block' 
+			),
+			'argus_soda_reports_overview' => array (
+					'template' => 'templates/argus_soda--reports_overview' 
+			),
+			'argus_soda_attesten_overview' => array (
+					'template' => 'templates/argus_soda--attesten_overview' 
+			) 
+	);
+}
+
+/**
+ * Implement hook_block_info().
+ */
+function argus_soda_block_info() {
+	$blocks = array ();
+	$blocks ['filter_block'] = array (
+			'info' => t ( 'SODA-rapporten: filter' ),
+			'cache' => DRUPAL_CACHE_GLOBAL,
+			'weight' => - 10,
+			'status' => 1,
+			'region' => 'sidebar_first',
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => 'soda/rapporten' . chr ( 13 ) . 'soda/rapporten/*' 
+	);
+	
+	return $blocks;
+}
+
+/**
+ * Implement hook_block_view().
+ */
+function argus_soda_block_view($delta = '') {
+	$block = array ();
+	
+	$p = explode ( '/', current_path () );
+	if ($p [0] == 'soda') {
+		$variables = array ();
+		
+		if (isset ( $p [2] )) {
+			switch ($p [1]) {
+				case 'rapporten' :
+					$variables = array (
+							'cid' => $p [2] 
+					);
+					break;
+			}
+		}
+		
+		switch ($delta) {
+			case 'filter_block' :
+				$block ['subject'] = t ( 'Filter' );
+				$block ['content'] = theme ( 'argus_soda_reports_overview_block', $variables );
+				break;
+		}
+		drupal_add_css ( drupal_get_path ( 'module', 'argus_soda' ) . '/css/argus_soda.css' );
+		drupal_add_js ( drupal_get_path ( 'module', 'argus_soda' ) . '/js/argus_soda.js' );
+		
+		return $block;
+	}
+}
+
+/**
+ * Page callback mapped to the url /soda
+ *
+ * @return array
+ */
+function argus_soda_overview() {
+	return theme ( 'argus_soda_overview' );
+}
+
+/**
+ * Page callback mapped to the url /soda/rapporten
+ *
+ * @return array
+ */
+function argus_soda_reports_overview($param0 = NULL, $param1 = NULL) {
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_soda' ) . '/css/argus_soda.css' );
+	
+	$schoolyear = ( array ) argus_schoolyear ( 0 );
+	
+	$params = array (
+			':type' => 'klas' 
+	);
+	
+	if (is_numeric ( $param1 )) {
+		$c = node_load ( $param1 );
+		if (! $c) {
+			$param1 = null;
+		} else {
+			$param1 = $c->nid;
+		}
+	} else {
+		$query = 'SELECT n.nid AS id FROM {node} AS n WHERE n.title = :p AND type = :type';
+		$result = db_query ( $query, array (
+				':p' => $param1,
+				':type' => 'klas' 
+		) )->fetchAll ();
+		if (is_array ( $result )) {
+			if (count ( $result )) {
+				$param1 = $result [0]->id;
+			}
+		}
+	}
+	
+	if (! $param1) {
+		$param1 = key ( argus_klasbeheer_get_active_classes () );
+	}
+	
+	$data = array (
+			'cid' => $param1,
+			'reports' => array () 
+	);
+	
+	// Get reports for selected class or first class (of application)
+	$pupils = argus_klasbeheer_get_pupils ( $param1 );
+	foreach ( $pupils as $u ) {
+		$data ['reports'] [$param1] [$u->id] = argus_soda_get_report ( $u->id );
+		
+		if (module_exists ( 'argus_meldingen' )) {
+			$startdate = $schoolyear ['start'];
+			$enddate = $schoolyear ['end'];
+			
+			$periods = argus_engine_get_periods ( false );
+			for($x = 1; $x < 5; $x ++) {
+				for($y = 1; $y < 11; $y ++) {
+					if (variable_get ( 'period_' . $y . '_shortname' ) == variable_get ( 'argus_soda_periods_' . $x ) ['D' . $x]) {
+						$startdate = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['startdate'];
+						$enddate = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['enddate'];
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['title'] = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['fullname'];
+					}
+				}
+			
+				$query = 'SELECT l.entity_id AS id, o.field_lvs_melding_onderwerp_value AS title, n.uid AS author, d.field_lvs_melding_datum_feit_value AS factdate, p.field_lvs_melding_prive_value AS private, v.field_lvs_melding_verslag_value AS report ';
+				$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ';
+				$query .= 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ';
+				$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+				$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+				$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+				$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value ASC';
+				$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['ticketing'] = db_query ( $query, array (
+						':uid' => $u->id,
+						':about' => 'attitude (SODA)',
+						':startdate' => $startdate,
+						':enddate' => $enddate 
+				) )->fetchAll ();
+			}
+		}
+	}
+	
+	return theme ( 'argus_soda_reports_overview', array (
+			'data' => $data 
+	) );
+}
+
+/**
+ * Page callback mapped to the url /soda/attesten
+ *
+ * @return array
+ */
+function argus_soda_attesten_overview($param0 = NULL, $param1 = NULL) {
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_soda' ) . '/css/argus_soda.css' );
+	
+	$data = array (
+			'A' => 0,
+			'B' => 0,
+			'D' => array () 
+	);
+	
+	$schoolyear = ( array ) argus_schoolyear ( 0 );
+	
+	$query = 'SELECT * FROM {argus_soda_attest} WHERE attest = :code';
+	$data ['A'] = db_query ( $query, array (
+			':code' => 'A' 
+	) )->rowCount ();
+	
+	$query = 'SELECT * FROM {argus_soda_attest} WHERE attest = :code';
+	$data ['B'] = db_query ( $query, array (
+			':code' => 'B' 
+	) )->rowCount ();
+	
+	$query = 'SELECT * FROM {argus_soda_attest} WHERE attest = :code';
+	$attestsD = db_query ( $query, array (
+			':code' => 'D' 
+	) )->fetchAllAssoc ( 'id' );
+	
+	foreach ( $attestsD as $aid => $attestD ) {
+		$c = argus_get_user_class ( $attestD->leerling, 'title' );
+		if (! array_key_exists ( $c, $data ['D'] )) {
+			$data ['D'] [$c] = array ();
+		}
+		$data ['D'] [$c] [argus_get_user_realname ( $attestD->leerling )] = array (
+				'cid' => $aid,
+				'uid' => $attestD->leerling,
+				'tickets' => array () 
+		);
+		
+		if (module_exists ( 'argus_meldingen' )) {
+			$startdate = $schoolyear ['start'];
+			$enddate = $schoolyear ['end'];
+			
+			$periods = argus_engine_get_periods ( false );
+			for($x = 1; $x < 5; $x ++) {
+				for($y = 1; $y < 11; $y ++) {
+					if (variable_get ( 'period_' . $y . '_shortname' ) == variable_get ( 'argus_soda_periods_' . $x ) ['D' . $x]) {
+						$startdate = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['startdate'];
+						$enddate = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['enddate'];
+						$data ['D'] [$c] [argus_get_user_realname ( $attestD->leerling )] ['tickets'] [$x] ['title'] = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['fullname'];
+					}
+				}
+			
+				$query = 'SELECT l.entity_id AS id, o.field_lvs_melding_onderwerp_value AS title, n.uid AS author, d.field_lvs_melding_datum_feit_value AS factdate, p.field_lvs_melding_prive_value AS private, v.field_lvs_melding_verslag_value AS report ';
+				$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ';
+				$query .= 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ';
+				$query .= 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ';
+				$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+				$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+				$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+				$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value ASC';
+				$data ['D'] [$c] [argus_get_user_realname ( $attestD->leerling )] ['tickets'] [$x] ['ticketing'] = db_query ( $query, array (
+						':uid' => $attestD->leerling,
+						':about' => 'attitude (SODA)',
+						':startdate' => $startdate,
+						':enddate' => $enddate 
+				) )->fetchAll ();
+			}
+		}
+	}
+	
+	return theme ( 'argus_soda_attesten_overview', array (
+			'data' => $data 
+	) );
+}
+
+/**
+ * Page callback: SODA settings
+ *
+ * @see argus_soda_menu()
+ */
+function argus_soda_setup_form($form, &$form_state) {
+	global $base_url;
+	
+	$path = drupal_get_path ( 'module', 'argus_soda' );
+	$form ['#attached'] ['js'] = array (
+			$path . '/js/argus_soda.js' 
+	);
+	
+	$form ['argus_soda_periods'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Periodes' ),
+			'#description' => t ( 'Definieer de periodes zolas ingesteld in de <a href="/admin/config/argus/engine" target="_blank">algemene instellingen</a> van argus.' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => FALSE 
+	);
+	for($x = 1; $x < 5; $x ++) {
+		$form ['argus_soda_periods'] ['argus_soda_periods_' . $x] = array (
+				'#type' => 'select',
+				'#title' => t ( 'Periode D' . $x ),
+				'#multiple' => true,
+				'#options' => argus_engine_get_periods ( true ),
+				'#default_value' => variable_get ( 'argus_soda_periods_' . $x, NULL ),
+				'#description' => t ( 'Geef aan over welk soort periode het gaat, dit is nodig voor het opmaken van lijsten.' ) 
+		);
+	}
+	
+	$form ['argus_soda_resetReports'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Rapporten' ),
+			'#description' => t ( 'Genereer op basis van de data in de databank de rapporten voor de geselecteerde periodes.' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => FALSE 
+	);
+	for($x = 1; $x < 5; $x ++) {
+		$form ['argus_soda_resetReports'] ['argus_soda_resetReports_D' . $x] = array (
+				'#type' => 'checkbox',
+				'#title' => t ( 'Periode D' . $x ) 
+		);
+	}
+	$form ['argus_soda_resetReports'] ['argus_soda_resetReportsBtn'] = array (
+			'#type' => 'submit',
+			'#value' => t ( 'Rapporten aanmaken' ),
+			'#submit' => array (
+					'argus_soda_resetReports_form_submit' 
+			),
+			'#suffix' => t ( '<em style="font-size: smaller;"><u>Opgelet</u>: hiermee worden de bestaande rapporten verwijderd en opnieuw aangemaakt.</em><div id="argus_soda_resetReports_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="' . $base_url . '/' . $path . '/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>' ),
+			'#attributes' => array (
+					'onclick' => array (
+							'argus_soda_resetReports()' 
+					) 
+			) 
+	);
+	return system_settings_form ( $form );
+}
+
+/**
+ * Button resetReports call back function
+ */
+function argus_soda_resetReports_form_submit($form, &$form_state) {
+	global $user;
+	
+	/* Get all pupils (uid) */
+	$pupils = argus_engine_get_users_with_role ( 'leerling', true, true );
+	
+	/* Filter data only for this schoolyear (active schoolyear) */
+	$schoolyear = ( array ) argus_schoolyear ();
+	
+	$cntReportEdit = 0;
+	$cntReportNew = 0;
+	foreach ( $pupils as $pupil ) {
+		for($x = 1; $x < 5; $x ++) {
+			$period = $form_state ['values'] ['argus_soda_resetReports_D' . $x];
+			
+			if ($period == 1) {
+				/* Get start and end date for this period */
+				$startdate = variable_get ( 'period_' . $x . '_startdate', NULL );
+				$enddate = variable_get ( 'period_' . $x . '_enddate', NULL );
+				
+				/* Check if report already exists in argus */
+				$query = 'SELECT u.entity_id AS nid FROM {node} AS n LEFT JOIN {field_data_field_leerling} AS u ON n.nid = u.entity_id LEFT JOIN {field_data_field_soda_periode} AS p ON p.entity_id = u.entity_id WHERE n.type = :bundle AND u.field_leerling_target_id = :uid AND p.field_soda_periode_value = :period AND n.changed BETWEEN :startdate AND :enddate';
+				$result = db_query ( $query, array (
+						':bundle' => 'lvs_soda',
+						':uid' => $pupil,
+						':period' => 'D' . $x,
+						':startdate' => strtotime ( $schoolyear ['start'] ),
+						':enddate' => strtotime ( $schoolyear ['end'] ) 
+				) );
+				
+				$report = $result->fetchObject ();
+				
+				if ($report) {
+					$node = node_load ( $report->nid );
+					$cntReportEdit ++;
+				} else {
+					$node = new stdClass ();
+					$node->type = 'lvs_soda';
+					node_object_prepare ( $node );
+					$node->language = LANGUAGE_NONE;
+					$node->uid = $user->uid;
+					$node->field_leerling [LANGUAGE_NONE] [0] ['target_id'] = $pupil;
+					$node->field_soda_periode [LANGUAGE_NONE] [0] ['value'] = 'D' . $x;
+					$node->body [LANGUAGE_NONE] [0] ['value'] = '';
+					$node->status = 1;
+					$node->promote = 0;
+					$node->comment = 0;
+					$node->menu = NULL;
+					$cntReportNew ++;
+				}
+				
+				/* ---------- Calculate 'Stiptheid' - S ---------- */
+				if (module_exists ( 'argus_afwezigheden' )) {
+					/* CHECK: +2 x te laat komen */
+					$codes = array (
+							'L' 
+					);
+					$total = 0;
+					foreach ( $codes as $code ) {
+						$query = 'SELECT id FROM {argus_lvs_afwezigheden} AS a WHERE a.leerling = :uid AND am = :code AND datum BETWEEN :startdate AND :enddate';
+						$result = db_query ( $query, array (
+								':uid' => $pupil,
+								':code' => $code,
+								':startdate' => $startdate,
+								':enddate' => $enddate 
+						) );
+						$total += $result->rowCount ();
+						$query = 'SELECT id FROM {argus_lvs_afwezigheden} AS a WHERE a.leerling = :uid AND pm = :code AND datum BETWEEN :startdate AND :enddate';
+						$result = db_query ( $query, array (
+								':uid' => $pupil,
+								':code' => $code,
+								':startdate' => $startdate,
+								':enddate' => $enddate 
+						) );
+						$total += $result->rowCount ();
+					}
+					
+					if ($total > 2) {
+						$node->field_soda_stiptheid [LANGUAGE_NONE] [0] ['value'] = 'B';
+					}
+					
+					/* CHECK: B-codes */
+					$codes = array (
+							'B' 
+					);
+					$total = 0;
+					foreach ( $codes as $code ) {
+						$query = 'SELECT id FROM {argus_lvs_afwezigheden} AS a WHERE a.leerling = :uid AND am = :code AND datum BETWEEN :startdate AND :enddate';
+						$result = db_query ( $query, array (
+								':uid' => $pupil,
+								':code' => $code,
+								':startdate' => $startdate,
+								':enddate' => $enddate 
+						) );
+						$total += $result->rowCount ();
+						$query = 'SELECT id FROM {argus_lvs_afwezigheden} AS a WHERE a.leerling = :uid AND pm = :code AND datum BETWEEN :startdate AND :enddate';
+						$result = db_query ( $query, array (
+								':uid' => $pupil,
+								':code' => $code,
+								':startdate' => $startdate,
+								':enddate' => $enddate 
+						) );
+						$total += $result->rowCount ();
+					}
+					
+					if ($total) {
+						$node->field_soda_stiptheid [LANGUAGE_NONE] [0] ['value'] = 'B';
+					}
+				}
+				
+				/* ---------- Calculate 'Orde' - O ---------- */
+				if (module_exists ( 'argus_meldingen' )) {
+					/* Retrieve reports on negative behaviour in each phase */
+					$query = 'SELECT l.entity_id AS id FROM {field_data_field_lvs_melding_leerling} AS l LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id LEFT JOIN {node} AS n ON l.entity_id = d.entity_id WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value = :about AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate GROUP BY n.uid';
+					$result = db_query ( $query, array (
+							':uid' => $pupil,
+							':about' => 'orde (SODA)',
+							':startdate' => $startdate,
+							':enddate' => $enddate 
+					) );
+					$total = $result->rowCount ();
+					
+					if ($total > 1) {
+						$node->field_soda_orde [LANGUAGE_NONE] [0] ['value'] = 'B';
+					}
+				}
+				
+				/* ---------- Calculate 'Discipline' - D ---------- */
+				if (module_exists ( 'argus_meldingen' )) {
+					/* Retrieve reports on negative behaviour in each phase */
+					$query = 'SELECT l.entity_id AS id FROM {field_data_field_lvs_melding_leerling} AS l LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value = :about AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate';
+					$result = db_query ( $query, array (
+							':uid' => $pupil,
+							':about' => 'discipline (SODA)',
+							':startdate' => $startdate,
+							':enddate' => $enddate 
+					) );
+					$total = $result->rowCount ();
+					
+					if ($total) {
+						$node->field_soda_discipline [LANGUAGE_NONE] [0] ['value'] = 'B';
+					}
+				}
+				
+				/* ---------- Calculate 'Attitude' - A ---------- */
+				if (module_exists ( 'argus_meldingen' )) {
+					/* Retrieve reports on negative behaviour in each phase */
+					$query = 'SELECT l.entity_id AS id FROM {field_data_field_lvs_melding_leerling} AS l LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value = :about AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate';
+					$result = db_query ( $query, array (
+							':uid' => $pupil,
+							':about' => 'attitude (SODA)',
+							':startdate' => $startdate,
+							':enddate' => $enddate 
+					) );
+					$total = $result->rowCount ();
+					
+					if ($total) {
+						$node->field_soda_attitude [LANGUAGE_NONE] [0] ['value'] = 'B';
+					}
+				}
+				
+				node_save ( $node );
+			}
+		}
+	}
+}
+
+/**
+ * AJAX set variable reports call back function
+ */
+function argus_soda_attest_set() {
+	if (isset ( $_POST )) {
+		if (array_key_exists ( 'uid', $_POST ) && array_key_exists ( 'value', $_POST )) {
+			$result = argus_soda_save_attest ( $_POST ['uid'], array (
+					'attest' => $_POST ['value'] 
+			) );
+			exit ( $result );
+		}
+	}
+	exit ( '0' );
+}
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Get the results for SODA for this user.
+ *
+ * Function returns an array
+ *
+ * @param $uid int
+ *        	User id
+ *        	
+ * @return array int
+ */
+function argus_soda_get_report($uid) {
+	if (isset ( $uid )) {
+		$parts = array (
+				'S',
+				'O',
+				'D',
+				'A',
+				'comment' 
+		);
+		
+		$report = array ();
+		foreach ( $parts as $part ) {
+			for($x = 1; $x < 5; $x ++) {
+				$report [$part] [$x] = 'A';
+			}
+		}
+		
+		$schoolyear = ( array ) argus_schoolyear ();
+		
+		for($x = 1; $x < 5; $x ++) {
+			/* Check if report already exists in argus */
+			$query = 'SELECT u.entity_id AS nid FROM {node} AS n LEFT JOIN {field_data_field_leerling} AS u ON n.nid = u.entity_id LEFT JOIN {field_data_field_soda_periode} AS p ON p.entity_id = u.entity_id WHERE n.type = :bundle AND u.field_leerling_target_id = :uid AND p.field_soda_periode_value = :period AND n.changed BETWEEN :startdate AND :enddate';
+			$result = db_query ( $query, array (
+					':bundle' => 'lvs_soda',
+					':uid' => $uid,
+					':period' => 'D' . $x,
+					':startdate' => strtotime ( $schoolyear ['start'] ),
+					':enddate' => strtotime ( $schoolyear ['end'] ) 
+			) )->fetchAssoc ();
+			if ($result) {
+				$evaluation = node_load ( $result ['nid'] );
+				
+				$report ['id'] [$x] = $result ['nid'];
+				
+				$report ['S'] [$x] = $evaluation->field_soda_stiptheid [LANGUAGE_NONE] [0] ['value'];
+				$report ['O'] [$x] = $evaluation->field_soda_orde [LANGUAGE_NONE] [0] ['value'];
+				$report ['D'] [$x] = $evaluation->field_soda_discipline [LANGUAGE_NONE] [0] ['value'];
+				$report ['A'] [$x] = $evaluation->field_soda_attitude [LANGUAGE_NONE] [0] ['value'];
+				
+				$value = '';
+				if (count ( $evaluation->body )) {
+					$value = $evaluation->body [LANGUAGE_NONE] [0] ['value'];
+				}
+				$report ['comment'] [$x] = $value;
+			}
+		}
+		
+		/* Check results and calculate endresults */
+		$endresult = 'A';
+		
+		$totalB = 0;
+		$totalB4 = 0;
+		foreach ( $parts as $part ) {
+			$subtotalB = 0;
+			for($x = 1; $x < 5; $x ++) {
+				if ($report [$part] [$x] == 'B') {
+					$totalB ++;
+					$subtotalB ++;
+					
+					if ($x == 4) {
+						$totalB4 ++;
+					}
+				}
+			}
+			
+			// if (($subtotalB > 2) || ($subtotalB == 2 && $report [$part] [4] == 'B') || ( $totalB4 > 2 )) {
+			if (($subtotalB > 2) || ($subtotalB == 2 && $report [$part] [4] == 'B')) {
+				$endresult = 'B';
+			} elseif (($subtotalB == 2) || ($subtotalB == 1 && $report [$part] [4] == 'B') && $endresult != 'B') {
+				$endresult = 'D';
+			}
+		}
+		
+		if ($totalB > 5) {
+			$endresult = 'B';
+		}
+		
+		$query = 'SELECT * FROM {argus_soda_attest} AS a WHERE a.leerling = :uid';
+		if ($n = db_query ( $query, array (
+				':uid' => $uid 
+		) )->fetchAll ()) {
+			if ($endresult != $n [0]->attest) {
+				$endresult = $n [0]->attest . '<span style="font-size: 10px; font-style: italic;">(' . $endresult . ')</span>';
+			}
+		}
+		
+		$report ['total'] = $endresult;
+		
+		return $report;
+	} else {
+		return array ();
+	}
+}
+
+/**
+ * Save the 'attest' for this user.
+ *
+ * Function returns true on success
+ *
+ * @param $uid int
+ *        	User id
+ * @param $options array
+ *        	Attest (A/B/D)
+ *        	
+ * @return array int
+ */
+function argus_soda_save_attest($uid, $options = array()) {
+	global $user;
+	if (isset ( $uid )) {
+		$query = 'SELECT * FROM {argus_soda_attest} AS a WHERE a.leerling = :uid';
+		if ($n = db_query ( $query, array (
+				':uid' => $uid 
+		) )->fetchAll ()) {
+			db_update ( 'argus_soda_attest' )->fields ( array_merge ( $options, array (
+					'author' => $user->uid 
+			) ) )->condition ( 'leerling', $uid, '=' )->execute ();
+			$nid = $n [0]->id;
+		} else {
+			$nid = db_insert ( 'argus_soda_attest' )->fields ( array_merge ( $options, array (
+					'author' => $user->uid,
+					'leerling' => $uid 
+			) ) )->execute ();
+		}
+		
+		return $nid;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Show report in table-format
+ *
+ * @param $uid int
+ *        	User id
+ *        	
+ * @param $comments boolean
+ *        	TRUE or FALSE for showing comments
+ *        	
+ * @param $mode string
+ *        	Modus for display: 'view', 'edit'
+ */
+function argus_soda_show_report($uid, $comments = TRUE, $mode = 'view') {
+	$returnStr = '';
+	if (isset ( $uid )) {
+		drupal_add_css ( drupal_get_path ( 'module', 'argus_soda' ) . '/css/argus_soda.css' );
+		drupal_add_js ( drupal_get_path ( 'module', 'argus_soda' ) . '/js/argus_soda.js' );
+		
+		$report = argus_soda_get_report ( $uid );
+		
+		$returnStr .= '<table id="argus_soda-report"><thead><tr><th></th><th>S</th><th>O</th><th>D</th><th>A</th>';
+		
+		if ($comments) {
+			$returnStr .= '<th style="text-align: left;">commentaren</th>';
+		}
+		
+		if ($mode == 'edit') {
+			$returnStr .= '<th>actie</th>';
+		}
+		
+		$returnStr .= '<th></th></tr></thead><tbody>';
+		
+		$parts = array (
+				'S',
+				'O',
+				'D',
+				'A' 
+		);
+		
+		for($x = 1; $x < 5; $x ++) {
+			$returnStr .= '<tr>';
+			$returnStr .= '<td class="thead-col">D' . $x . '</td>';
+			
+			foreach ( $parts as $part ) {
+				$value = $report [$part] [$x];
+				$returnStr .= '<td style="color: ';
+				if ($value == 'A') {
+					$returnStr .= 'green';
+				} else {
+					$returnStr .= 'red';
+				}
+				$returnStr .= '">' . $value . '</td>';
+			}
+			
+			if ($comments) {
+				$returnStr .= '<td style="vertical-align: top; text-align: left; font-size: smaller; line-height: 1em;"><br />' . $report ['comment'] [$x] . '</td>';
+			}
+			
+			if ($mode == 'edit') {
+				$returnStr .= '<td style="vertical-align: top;"><a href="' . base_path () . 'node/' . $report ['id'] [$x] . '/edit?destination=' . base_path () . current_path () . '#' . $uid . '">' . t ( 'bewerken' ) . '</a></td>';
+			}
+			
+			if ($x == 1) {
+				$returnStr .= '<td rowspan="4" id="argus_soda-result" style="color: ';
+				switch ($report ['total'] [0]) {
+					case 'A' :
+						$returnStr .= 'green';
+						break;
+					case 'B' :
+						$returnStr .= 'red';
+						break;
+					case 'D' :
+						$returnStr .= 'yellow';
+						break;
+				}
+				$returnStr .= '">' . $report ['total'] . '<span style="font-size: 10px; font-style: italic;"></span></td>';
+			}
+			
+			$returnStr .= '</tr>';
+		}
+		
+		$returnStr .= '</tbody></table>';
+	} else {
+		$returnStr .= t ( 'Geen gebruiker opgegeven.' );
+	}
+	
+	return $returnStr;
+}
