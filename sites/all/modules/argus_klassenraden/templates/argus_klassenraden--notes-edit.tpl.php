@@ -282,7 +282,7 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 					<div class="fieldset-wrapper">
 						<table class="views-table" style="line-height: 1.1em; border: none; border-collapse: inherit;">
 							<tr>
-								<td style="width: 33%;">
+								<td>
 								
 								<div class="field field-label-inline clearfix">
 					                <div class="field-label">Meldingen:&nbsp;</div>
@@ -290,7 +290,7 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 					            </div>
 								
 								</td>
-								<td style="width: 33%;">
+								<td>
 								
 								<?php if (count($data['infopanel']['behaviour']['measure'])){ ?>
 					                <div class="field field-label-inline clearfix">
@@ -336,6 +336,25 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 					                            print '</small></span></li>';
 					                        } ?>
 					                        </ul>
+					                    </div>
+					                </div>
+					            <?php } ?>
+								
+								</td>
+								<td>
+								
+								<?php if (module_exists('argus_soda')){ ?>
+					                <div class="field clearfix">
+					                    <div class="field-label">SODA-rapport:&nbsp;</div>
+					                    <div class="field-items">
+					                        <?php print argus_soda_show_report( $data['uid'] ); ?>
+											
+											<div id="argus_soda_actions">Beslissing aanpassen: 
+												<a href="#" class="argus_soda_attestBtn" id="argus_klassenraden_behaviour_soda-<?php print $data['uid']; ?>-A">A</a> - 
+												<a href="#" class="argus_soda_attestBtn" id="argus_klassenraden_behaviour_soda-<?php print $data['uid']; ?>-B">B</a> - 
+												<a href="#" class="argus_soda_attestBtn" id="argus_klassenraden_behaviour_soda-<?php print $data['uid']; ?>-D">opnieuw berekenen (reset)</a>
+											</div>
+											<div id="argus_soda_waiter"></div>
 					                    </div>
 					                </div>
 					            <?php } ?>

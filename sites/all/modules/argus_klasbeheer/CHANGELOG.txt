@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-3.6
+---------
+- Integratie van SODA in klasprofiel
+
 v7.x-3.5
 ---------
 - Caching enabled
