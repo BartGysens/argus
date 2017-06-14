@@ -134,6 +134,10 @@
                     <th title="Genomen Maatregelen bij Schending van de Leefregels: bewarend">BW</th>
                     <th title="Genomen Maatregelen bij Schending van de Leefregels: tucht">TM</th>
                     
+                    <?php if (module_exists ( 'argus_soda' )) { ?>
+                    	<th title="S(tiptheid) O(rde) D(iscipline) A(ttitude)">SODA</th>
+                    <?php } ?>
+                    
                     <th class="border-left" title="Aantal tekorten">Tekort</th>
                     <th title="Remedïeringsopdrachten (geregistreerd in het Meldpunt)">Rem.</th>
                 </tr>
@@ -300,6 +304,16 @@
 	                                print $total;
 	                            }
 	                            print '</td>';
+	                        }
+	                        
+	                        if (module_exists('argus_soda')){
+	                        	print '<td class="views-field views-field-counter views-align-center" style="color: ';
+								switch ( $currentData ['behaviour'] ['soda'] [ 'total' ] ){
+									case 'A': print 'green'; break;
+									case 'B': print 'red'; break;
+									case 'D': print 'yellow'; break;
+								}
+								print '">' . $currentData ['behaviour'] ['soda'] [ 'total' ] . '</td>';
 	                        }
 	                        
 	                        print '<td class="views-field views-field-counter views-align-center border-left';

@@ -24,7 +24,7 @@
  */
 function argus_engine_modules_enabled($modules) {
 	global $user;
-	if (path_to_theme() == 'sites/all/themes/smartschool'){
+	if (path_to_theme () == 'sites/all/themes/smartschool') {
 		cache_set ( 'quicknav_modulesList_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
@@ -35,7 +35,7 @@ function argus_engine_modules_enabled($modules) {
  */
 function argus_engine_user_role_presave($user_role) {
 	global $user;
-	if (path_to_theme() == 'sites/all/themes/smartschool'){
+	if (path_to_theme () == 'sites/all/themes/smartschool') {
 		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
@@ -46,7 +46,7 @@ function argus_engine_user_role_presave($user_role) {
  */
 function argus_engine_user_role_delete($user_role) {
 	global $user;
-	if (path_to_theme() == 'sites/all/themes/smartschool'){
+	if (path_to_theme () == 'sites/all/themes/smartschool') {
 		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
@@ -57,7 +57,7 @@ function argus_engine_user_role_delete($user_role) {
  */
 function argus_engine_user_presave($user) {
 	global $user;
-	if (path_to_theme() == 'sites/all/themes/smartschool'){
+	if (path_to_theme () == 'sites/all/themes/smartschool') {
 		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
@@ -68,7 +68,7 @@ function argus_engine_user_presave($user) {
  */
 function argus_engine_user_delete($user) {
 	global $user;
-	if (path_to_theme() == 'sites/all/themes/smartschool'){
+	if (path_to_theme () == 'sites/all/themes/smartschool') {
 		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
@@ -79,7 +79,7 @@ function argus_engine_user_delete($user) {
  */
 function argus_engine_node_presave($node) {
 	global $user;
-	if (path_to_theme() == 'sites/all/themes/smartschool'){
+	if (path_to_theme () == 'sites/all/themes/smartschool') {
 		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
@@ -90,7 +90,7 @@ function argus_engine_node_presave($node) {
  */
 function argus_engine_node_delete($node) {
 	global $user;
-	if (path_to_theme() == 'sites/all/themes/smartschool'){
+	if (path_to_theme () == 'sites/all/themes/smartschool') {
 		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
 	}
 }
@@ -1197,9 +1197,11 @@ function argus_engine_sortBy($field, &$array, $direction = 'ASC') {
  *        	Name of the role or the ID or the role.
  * @param bool|TRUE $active_user
  *        	Determine, if only the active users should be returned.
+ * @param bool|FALSE $only_keys
+ *        	Return only the uids as array.
  * @return array Array of user objects.
  */
-function argus_engine_get_users_with_role($role, $active_user = TRUE) {
+function argus_engine_get_users_with_role($role, $active_user = TRUE, $only_keys = FALSE) {
 	$users = array ();
 	$rid = 0;
 	if (is_int ( $role )) {
@@ -1220,11 +1222,44 @@ function argus_engine_get_users_with_role($role, $active_user = TRUE) {
 				$query->propertyCondition ( 'status', 1 );
 			}
 			$entities = $query->execute ();
-			if (! empty ( $entities )) {
-				$users = user_load_multiple ( array_keys ( $entities ['user'] ) );
+			if ($only_keys){
+				$users = array_keys ( $entities ['user'] );
+			} else {
+				if (! empty ( $entities )) {
+					$users = user_load_multiple ( array_keys ( $entities ['user'] ) );
+				}
 			}
 		}
 	}
 	
 	return $users;
+}
+
+/**
+ * Return all periods.
+ *
+ * @param bool|FALSE $optionList
+ *        	Get an array for use as optionlist in field select.
+ *        	
+ * @return array Array of periods.
+ */
+function argus_engine_get_periods($optionList = false) {
+	$periods = array ();
+	
+	for($x = 1; $x < 11; $x ++) {
+		if (variable_get ( 'period_' . $x . '_shortname', NULL ) && variable_get ( 'period_' . $x . '_type', NULL ) && variable_get ( 'period_' . $x . '_startdate', NULL ) && variable_get ( 'period_' . $x . '_enddate', NULL )) {
+			if ($optionList) {
+				$periods [variable_get ( 'period_' . $x . '_shortname' )] = variable_get ( 'period_' . $x . '_fullname', NULL ) . ' (' . variable_get ( 'period_' . $x . '_shortname' ) . ')';
+			} else {
+				$periods [variable_get ( 'period_' . $x . '_shortname' )] = array (
+						'fullname' => variable_get ( 'period_' . $x . '_fullname', NULL ),
+						'type' => variable_get ( 'period_' . $x . '_type', NULL ),
+						'startdate' => variable_get ( 'period_' . $x . '_startdate', NULL ),
+						'enddate' => variable_get ( 'period_' . $x . '_enddate', NULL ) 
+				);
+			}
+		}
+	}
+	
+	return $periods;
 }

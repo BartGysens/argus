@@ -317,12 +317,23 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 					</div>
 
 					<hr />
+					
+					<?php if (module_exists ( 'argus_soda' )) { ?>
+					<div class="field field-label-inline clearfix">
+						<div class="field-label">S(tiptheid) O(rde) D(iscipline) A(ttitude):&nbsp;</div>
+						<div class="field-items" style="width: 100%;">
+							<?php print argus_soda_show_report($user_id, false); ?>
+						</div>
+					</div>
+
+					<hr />
+		            <?php } ?>
 		
 		            <?php
-														
-														if (isset ( $hotline ['behaviour'] ['first-T-code'] )) {
-															$dateTcode = new DateTime ( $hotline ['behaviour'] ['first-T-code'] );
-															?>
+					
+					if (isset ( $hotline ['behaviour'] ['first-T-code'] )) {
+						$dateTcode = new DateTime ( $hotline ['behaviour'] ['first-T-code'] );
+						?>
 		                <div class="field field-label-inline clearfix">
 						<div class="field-label">Start tuchtdossier (1e T-code):&nbsp;</div>
 						<div class="field-items"><?php print $dateTcode->format('d/m/Y'); ?></div>

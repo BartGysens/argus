@@ -30,3 +30,25 @@ table.argus_klassenraden_action_model{
 textarea.argus_klassenraden_remarks{
 	width: 100%;
 }
+
+
+#argus_soda-report{
+	width: 100%;
+}
+	#argus_soda-report td{
+		text-align: center;
+	}
+	#argus_soda-report thead,
+	#argus_soda-report .thead-col{
+	    background-color: #34acd7;
+	    font-weight: bold;
+	    color: white;
+	}
+	#argus_soda-report .thead-col{
+	    background-color: #eb8c32;
+	}
+	#argus_soda-report #soda-result{
+	    font-size: 8em;
+	    font-weight: bold;
+	    vertical-align: middle;
+	}

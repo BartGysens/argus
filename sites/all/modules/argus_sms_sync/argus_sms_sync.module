@@ -739,7 +739,7 @@ function argus_sms_getFieldmap_form_submit($form, &$form_state) {
 				), 'error', 'argus' );
 			} else {
 				$retrievedData = json_decode ( $result, true );
-				
+
 				$userFields = array ();
 				foreach ( $retrievedData as $key => $account ) {
 					if ($username == $account ['gebruikersnaam']) {

@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.11
+---------
+- Integratie van SODA in infopanel Gedrag
+
 v7.x-1.10
 ---------
 - Installscript adjusted for adding roles

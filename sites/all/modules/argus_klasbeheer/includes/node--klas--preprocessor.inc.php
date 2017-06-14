@@ -243,6 +243,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 					    }
 				    }
 				    
+				    if (module_exists('argus_soda')){
+				    	$variables['data'][$student['target_id']]['behaviour']['soda'] = argus_soda_get_report( $student['target_id'] );
+				    	$variables['averages']['class']['behaviour']['soda']='';
+				    }
+				    
 				    // Data about STUDY
 				    // TODO: if (module_exists('argus_skore')){
 				    if (module_exists('argus_vakken') && db_table_exists('argus_skore_resultaten')){
@@ -478,6 +483,9 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			$variables['averages']['school']['study']['measures'] = $total;
 		}
 		
+		if (module_exists('argus_soda')){
+			$variables['averages']['school']['behaviour']['soda']='';
+		}
 		
 		/**
 		 * -----------------------------------------------------------------------------
@@ -588,6 +596,10 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			    }
 			    $variables['averages']['grade']['behaviour'][$msl] = $total;
 			}
+		}
+		
+		if (module_exists('argus_soda')){
+			$variables['averages']['grade']['behaviour']['soda']='';
 		}
 		
 		// Data about STUDY
@@ -747,6 +759,10 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			    }
 			    $variables['averages']['type']['behaviour'][$msl] = $total;
 			}
+		}
+		
+		if (module_exists('argus_soda')){
+			$variables['averages']['type']['behaviour']['soda']='';
 		}
 		
 		// Data about STUDY
@@ -918,6 +934,10 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			    }
 			    $variables['averages']['eduyear']['behaviour'][$msl] = $total;
 			}
+		}
+		
+		if (module_exists('argus_soda')){
+			$variables['averages']['eduyear']['behaviour']['soda']='';
 		}
 		
 		// Data about STUDY
