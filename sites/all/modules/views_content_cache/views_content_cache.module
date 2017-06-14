@@ -126,6 +126,16 @@ function views_content_cache_update_set($object, $object_type, $timestamp = NULL
           ->fields(array('timestamp' => $timestamp))
           ->key($mapped)
           ->execute();
+          try {
+          	         // Ensure that the timestamp is recorded in the table.
+          	         $merge_query = db_merge('views_content_cache')
+          	           ->fields(array('timestamp' => $timestamp))
+          	           ->key($mapped)
+          	           ->execute();
+          	       }
+          	       catch (Exception $exc) {
+          		         // Do nothing
+          		   }
       }
     }
   }
