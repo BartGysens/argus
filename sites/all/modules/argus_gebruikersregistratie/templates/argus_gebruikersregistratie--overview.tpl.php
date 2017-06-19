@@ -26,7 +26,7 @@
 	
 	<ul>
 		<li><a href="/<?php print current_path(); ?>/leerling/full">een definitieve inschrijving</a></li>
-                <li><a href="/<?php print current_path(); ?>/leerling/renewal">een herinschrijving</a></li>
+        <li><a href="/<?php print current_path(); ?>/leerling/renewal">een herinschrijving</a></li>
 		<li><a href="/<?php print current_path(); ?>/leerling/pre">een voorinschrijving</a></li>
 	</ul>
 	

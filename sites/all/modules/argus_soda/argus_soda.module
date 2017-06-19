@@ -436,25 +436,37 @@ function argus_soda_setup_form($form, &$form_state) {
 			'#collapsible' => TRUE,
 			'#collapsed' => FALSE 
 	);
-	for($x = 1; $x < 5; $x ++) {
-		$form ['argus_soda_resetReports'] ['argus_soda_resetReports_D' . $x] = array (
-				'#type' => 'checkbox',
-				'#title' => t ( 'Periode D' . $x ) 
+		$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] = array (
+				'#type' => 'fieldset',
+				'#title' => t ( 'Periodes' ),
+				'#collapsible' => TRUE,
+				'#collapsed' => FALSE 
 		);
-	}
-	$form ['argus_soda_resetReports'] ['argus_soda_resetReportsBtn'] = array (
-			'#type' => 'submit',
-			'#value' => t ( 'Rapporten aanmaken' ),
-			'#submit' => array (
-					'argus_soda_resetReports_form_submit' 
-			),
-			'#suffix' => t ( '<em style="font-size: smaller;"><u>Opgelet</u>: hiermee worden de bestaande rapporten verwijderd en opnieuw aangemaakt.</em><div id="argus_soda_resetReports_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="' . $base_url . '/' . $path . '/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>' ),
-			'#attributes' => array (
-					'onclick' => array (
-							'argus_soda_resetReports()' 
-					) 
-			) 
-	);
+			for($x = 1; $x < 5; $x ++) {
+				$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] ['argus_soda_resetReports_D' . $x] = array (
+						'#type' => 'checkbox',
+						'#title' => t ( 'Periode D' . $x ) 
+				);
+			}
+
+		$form ['argus_soda_resetReports'] ['argus_soda_resetComments'] = array (
+				'#type' => 'checkbox',
+				'#title' => t ( 'Commentaren leeg maken?' ),
+		);
+		
+		$form ['argus_soda_resetReports'] ['argus_soda_resetReportsBtn'] = array (
+				'#type' => 'submit',
+				'#value' => t ( 'Rapporten aanmaken' ),
+				'#submit' => array (
+						'argus_soda_resetReports_form_submit' 
+				),
+				'#suffix' => t ( '<em style="font-size: smaller;"><u>Opgelet</u>: hiermee worden de bestaande rapporten verwijderd en opnieuw aangemaakt.</em><div id="argus_soda_resetReports_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="' . $base_url . '/' . $path . '/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>' ),
+				'#attributes' => array (
+						'onclick' => array (
+								'argus_soda_resetReports()' 
+						) 
+				) 
+		);
 	return system_settings_form ( $form );
 }
 
@@ -504,12 +516,16 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 					$node->uid = $user->uid;
 					$node->field_leerling [LANGUAGE_NONE] [0] ['target_id'] = $pupil;
 					$node->field_soda_periode [LANGUAGE_NONE] [0] ['value'] = 'D' . $x;
-					$node->body [LANGUAGE_NONE] [0] ['value'] = '';
 					$node->status = 1;
 					$node->promote = 0;
 					$node->comment = 0;
 					$node->menu = NULL;
 					$cntReportNew ++;
+				}
+				
+				/* ---------- Empty comments ---------- */
+				if ($form_state ['values'] ['argus_soda_resetComments']){
+					$node->body [LANGUAGE_NONE] [0] ['value'] = '';
 				}
 				
 				/* ---------- Calculate 'Stiptheid' - S ---------- */
@@ -626,6 +642,8 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 			}
 		}
 	}
+	
+	argus_report('Herberekening voltooid: ' . $cntReportEdit . ' rapporten aangepast en ' . $cntReportNew . ' nieuwe toegevoegd (in totaal werden ' . count($pupils) . ' leerlingen behandeld).', array(':edit' => $cntReportEdit, ':new' => $cntReportNew, ':cnt' => count($pupils)));
 }
 
 /**

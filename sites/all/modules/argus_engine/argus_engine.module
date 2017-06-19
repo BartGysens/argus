@@ -1101,7 +1101,7 @@ function argus_classes_retrieve($listType = 0, $defaultValue = NULL) {
  *
  * @param $message string
  *        	Unformatted text for display; HTML-tags are allowed
- * @param $vars array
+ * @param $vars array of string ':var'
  *        	Variable fields used for transition in message; usage ('key' => 'replacement string')
  * @param $type string
  *        	Indicate which form of message to be used; possible values: warning, error, status (default)
