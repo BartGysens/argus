@@ -76,7 +76,7 @@ function argus_soda_menu() {
 	$items ['soda'] = array (
 			'title' => t ( 'SODA' ),
 			'page callback' => 'argus_soda_overview',
-			'access callback' => 'user_is_logged_in',
+			'access callback' => true,
 			'type' => MENU_NORMAL_ITEM,
 			'menu_name' => $menu,
 			'expanded' => true 
