@@ -544,6 +544,7 @@ function advagg_js_compress_run_test($filename, array $info = array(), array $co
     foreach ($compressor_list as $key => $name) {
       $results[$key] = array('code' => -1, 'ratio' => 0, 'name' => $name);
     }
+    $run_locally = TRUE;
     // Run this via httprl if possible.
     if (module_exists('httprl') && httprl_is_background_callback_capable()) {
       // Setup callback options array.
@@ -580,8 +581,16 @@ function advagg_js_compress_run_test($filename, array $info = array(), array $co
           $results[$key] = $sub_result[$key];
         }
       }
+
+      // Try locally if all return back -1 (something wrong with httprl).
+      foreach ($results as $key => $value) {
+        if ($value['code'] != -1) {
+          $run_locally = FALSE;
+          break;
+        }
+      }
     }
-    else {
+    if ($run_locally) {
       // Save results, so if PHP bombs, this file is marked as bad.
       // CACHE_PERMANENT isn't good here. Use 2 weeks from now + 0-45 days.
       // The random 0 to 45 day addition is to prevent a cache stampeed.

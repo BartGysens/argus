@@ -548,7 +548,6 @@ function advagg_admin_settings_form($form, $form_state) {
     );
   }
 
-
   $form['css'] = array(
     '#type' => 'fieldset',
     '#title' => t('CSS Options'),
