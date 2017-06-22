@@ -453,6 +453,11 @@ function argus_soda_setup_form($form, &$form_state) {
 				'#type' => 'checkbox',
 				'#title' => t ( 'Commentaren leeg maken?' ),
 		);
+
+		$form ['argus_soda_resetReports'] ['argus_soda_resetAttest'] = array (
+				'#type' => 'checkbox',
+				'#title' => t ( 'Attesten herberekenen?' ),
+		);
 		
 		$form ['argus_soda_resetReports'] ['argus_soda_resetReportsBtn'] = array (
 				'#type' => 'submit',
@@ -639,6 +644,14 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 				}
 				
 				node_save ( $node );
+				
+				/* ---------- Recalculate attest ---------- */
+				if ($form_state ['values'] ['argus_soda_resetAttest']){
+					$report = argus_soda_get_report( $pupil );
+					$result = argus_soda_save_attest ( $pupil, array (
+							'attest' => report ['total'] 
+					) );
+				}
 			}
 		}
 	}
