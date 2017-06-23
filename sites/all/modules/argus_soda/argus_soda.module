@@ -287,7 +287,7 @@ function argus_soda_reports_overview($param0 = NULL, $param1 = NULL) {
 						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['title'] = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['fullname'];
 					}
 				}
-			
+				
 				$query = 'SELECT l.entity_id AS id, o.field_lvs_melding_onderwerp_value AS title, n.uid AS author, d.field_lvs_melding_datum_feit_value AS factdate, p.field_lvs_melding_prive_value AS private, v.field_lvs_melding_verslag_value AS report ';
 				$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
 				$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
@@ -370,7 +370,7 @@ function argus_soda_attesten_overview($param0 = NULL, $param1 = NULL) {
 						$data ['D'] [$c] [argus_get_user_realname ( $attestD->leerling )] ['tickets'] [$x] ['title'] = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['fullname'];
 					}
 				}
-			
+				
 				$query = 'SELECT l.entity_id AS id, o.field_lvs_melding_onderwerp_value AS title, n.uid AS author, d.field_lvs_melding_datum_feit_value AS factdate, p.field_lvs_melding_prive_value AS private, v.field_lvs_melding_verslag_value AS report ';
 				$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
 				$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
@@ -436,42 +436,42 @@ function argus_soda_setup_form($form, &$form_state) {
 			'#collapsible' => TRUE,
 			'#collapsed' => FALSE 
 	);
-		$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] = array (
-				'#type' => 'fieldset',
-				'#title' => t ( 'Periodes' ),
-				'#collapsible' => TRUE,
-				'#collapsed' => FALSE 
-		);
-			for($x = 1; $x < 5; $x ++) {
-				$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] ['argus_soda_resetReports_D' . $x] = array (
-						'#type' => 'checkbox',
-						'#title' => t ( 'Periode D' . $x ) 
-				);
-			}
-
-		$form ['argus_soda_resetReports'] ['argus_soda_resetComments'] = array (
+	$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Periodes' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => FALSE 
+	);
+	for($x = 1; $x < 5; $x ++) {
+		$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] ['argus_soda_resetReports_D' . $x] = array (
 				'#type' => 'checkbox',
-				'#title' => t ( 'Commentaren leeg maken?' ),
+				'#title' => t ( 'Periode D' . $x ) 
 		);
-
-		$form ['argus_soda_resetReports'] ['argus_soda_resetAttest'] = array (
-				'#type' => 'checkbox',
-				'#title' => t ( 'Attesten herberekenen?' ),
-		);
-		
-		$form ['argus_soda_resetReports'] ['argus_soda_resetReportsBtn'] = array (
-				'#type' => 'submit',
-				'#value' => t ( 'Rapporten aanmaken' ),
-				'#submit' => array (
-						'argus_soda_resetReports_form_submit' 
-				),
-				'#suffix' => t ( '<em style="font-size: smaller;"><u>Opgelet</u>: hiermee worden de bestaande rapporten verwijderd en opnieuw aangemaakt.</em><div id="argus_soda_resetReports_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="' . $base_url . '/' . $path . '/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>' ),
-				'#attributes' => array (
-						'onclick' => array (
-								'argus_soda_resetReports()' 
-						) 
-				) 
-		);
+	}
+	
+	$form ['argus_soda_resetReports'] ['argus_soda_resetComments'] = array (
+			'#type' => 'checkbox',
+			'#title' => t ( 'Commentaren leeg maken?' ) 
+	);
+	
+	$form ['argus_soda_resetReports'] ['argus_soda_resetAttest'] = array (
+			'#type' => 'checkbox',
+			'#title' => t ( 'Attesten herberekenen?' ) 
+	);
+	
+	$form ['argus_soda_resetReports'] ['argus_soda_resetReportsBtn'] = array (
+			'#type' => 'submit',
+			'#value' => t ( 'Rapporten aanmaken' ),
+			'#submit' => array (
+					'argus_soda_resetReports_form_submit' 
+			),
+			'#suffix' => t ( '<em style="font-size: smaller;"><u>Opgelet</u>: hiermee worden de bestaande rapporten verwijderd en opnieuw aangemaakt.</em><div id="argus_soda_resetReports_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="' . $base_url . '/' . $path . '/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>' ),
+			'#attributes' => array (
+					'onclick' => array (
+							'argus_soda_resetReports()' 
+					) 
+			) 
+	);
 	return system_settings_form ( $form );
 }
 
@@ -529,7 +529,7 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 				}
 				
 				/* ---------- Empty comments ---------- */
-				if ($form_state ['values'] ['argus_soda_resetComments']){
+				if ($form_state ['values'] ['argus_soda_resetComments']) {
 					$node->body [LANGUAGE_NONE] [0] ['value'] = '';
 				}
 				
@@ -646,8 +646,8 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 				node_save ( $node );
 				
 				/* ---------- Recalculate attest ---------- */
-				if ($form_state ['values'] ['argus_soda_resetAttest']){
-					$report = argus_soda_get_report( $pupil );
+				if ($form_state ['values'] ['argus_soda_resetAttest']) {
+					$report = argus_soda_get_report ( $pupil, false );
 					$result = argus_soda_save_attest ( $pupil, array (
 							'attest' => report ['total'] 
 					) );
@@ -656,7 +656,11 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 		}
 	}
 	
-	argus_report('Herberekening voltooid: ' . $cntReportEdit . ' rapporten aangepast en ' . $cntReportNew . ' nieuwe toegevoegd (in totaal werden ' . count($pupils) . ' leerlingen behandeld).', array(':edit' => $cntReportEdit, ':new' => $cntReportNew, ':cnt' => count($pupils)));
+	argus_report ( 'Herberekening voltooid: ' . $cntReportEdit . ' rapporten aangepast en ' . $cntReportNew . ' nieuwe toegevoegd (in totaal werden ' . count ( $pupils ) . ' leerlingen behandeld).', array (
+			':edit' => $cntReportEdit,
+			':new' => $cntReportNew,
+			':cnt' => count ( $pupils ) 
+	) );
 }
 
 /**
@@ -686,9 +690,12 @@ function argus_soda_attest_set() {
  * @param $uid int
  *        	User id
  *        	
+ * @param $compareDB boolean
+ *        	True (defult) when you want comparison with database stored value
+ *        	
  * @return array int
  */
-function argus_soda_get_report($uid) {
+function argus_soda_get_report($uid, $compareDB = true) {
 	if (isset ( $uid )) {
 		$parts = array (
 				'S',
@@ -765,12 +772,14 @@ function argus_soda_get_report($uid) {
 			$endresult = 'B';
 		}
 		
-		$query = 'SELECT * FROM {argus_soda_attest} AS a WHERE a.leerling = :uid';
-		if ($n = db_query ( $query, array (
-				':uid' => $uid 
-		) )->fetchAll ()) {
-			if ($endresult != $n [0]->attest) {
-				$endresult = $n [0]->attest . '<span style="font-size: 10px; font-style: italic;">(' . $endresult . ')</span>';
+		if ($compareDB) {
+			$query = 'SELECT * FROM {argus_soda_attest} AS a WHERE a.leerling = :uid';
+			if ($n = db_query ( $query, array (
+					':uid' => $uid 
+			) )->fetchAll ()) {
+				if ($endresult != $n [0]->attest) {
+					$endresult = $n [0]->attest . '<span style="font-size: 10px; font-style: italic;">(' . $endresult . ')</span>';
+				}
 			}
 		}
 		
