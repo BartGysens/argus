@@ -61,7 +61,7 @@ function argus_gebruikersregistratie_form_pupil_pre($form, &$form_state) {
 			'#default_value' => ($y) . ' - ' . ($y + 1) 
 	);
 	
-	$query = 'SELECT title,title FROM {node} WHERE type = :bundle AND status = 1 ORDER BY title';
+	$query = 'SELECT title,title FROM {node} WHERE type = :bundle ORDER BY title';
 	$options = db_query ( $query, array (
 			':bundle' => 'klas' 
 	) )->fetchAllKeyed ();

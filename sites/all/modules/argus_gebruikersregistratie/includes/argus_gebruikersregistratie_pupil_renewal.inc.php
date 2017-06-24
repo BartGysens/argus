@@ -62,7 +62,7 @@ function argus_gebruikersregistratie_form_pupil_renewal($form, &$form_state) {
 			'#default_value' => ($y) . ' - ' . ($y + 1) 
 	);
 	
-	$query = 'SELECT title,title FROM {node} WHERE type = :bundle AND status = 1 ORDER BY title';
+	$query = 'SELECT title,title FROM {node} WHERE type = :bundle ORDER BY title';
 	$options = db_query ( $query, array (
 			':bundle' => 'klas' 
 	) )->fetchAllKeyed ();
@@ -200,7 +200,7 @@ function argus_gebruikersregistratie_form_pupil_renewal_submit($form, &$form_sta
 		$u = user_save ( $user, $user_data );
 		if ($u) {
 			argus_report ( 'De gebruiker "%accountname" werd succesvol heringeschreven.', array (
-					'%accountname' => $account 
+					'%accountname' => $account
 			), 'status', 'argus' );
 			
 			if (module_exists ( 'argus_sms_api' )) {
