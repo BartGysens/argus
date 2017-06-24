@@ -49,6 +49,18 @@ function argus_gebruikersregistratie_form_pupil_pre($form, &$form_state) {
 			'#default_value' => $user->uid 
 	);
 	
+	$y = date ( 'Y' );
+	$options = array ();
+	$options [$y . ' - ' . ($y + 1)] = $y . ' - ' . ($y + 1);
+	$options [($y + 1) . ' - ' . ($y + 2)] = ($y + 1) . ' - ' . ($y + 2);
+	$form ['algemeen'] ['schooljaar_inschrijving'] = array (
+			'#title' => t ( 'Voor welk schooljaar geldt deze inschrijving?' ),
+			'#type' => 'select',
+			'#options' => $options,
+			'#required' => TRUE,
+			'#default_value' => ($y + 1) . ' - ' . ($y + 2) 
+	);
+	
 	$query = 'SELECT title,title FROM {node} WHERE type = :bundle AND status = 1 ORDER BY title';
 	$options = db_query ( $query, array (
 			':bundle' => 'klas' 
@@ -401,6 +413,7 @@ function argus_gebruikersregistratie_form_pupil_pre_submit($form, &$form_state) 
 	
 	// Generate some extra information fields for registration purposes
 	$fields = array (
+			'field_user_tmp_schj_inschr' => 'Schooljaar van (her-)inschrijving',
 			'field_user_tmp_reg_class' => 'Inschrijving voor klas',
 			'field_user_tmp_voorinschrijving' => 'Voorinschrijving',
 			'field_user_tmp_reg_smartschool' => 'Registratie in Smartschool' 
@@ -435,6 +448,7 @@ function argus_gebruikersregistratie_form_pupil_pre_submit($form, &$form_state) 
 			field_create_instance ( $instance );
 		}
 	}
+	$user_data ['field_user_tmp_schj_inschr'] [LANGUAGE_NONE] [0] ['value'] = $form_state ['values'] ['schooljaar_inschrijving'];
 	$user_data ['field_user_tmp_reg_class'] [LANGUAGE_NONE] [0] ['value'] = $form_state ['values'] ['klas'];
 	$user_data ['field_user_tmp_voorinschrijving'] [LANGUAGE_NONE] [0] ['value'] = date ( 'Y-m-d' );
 	
