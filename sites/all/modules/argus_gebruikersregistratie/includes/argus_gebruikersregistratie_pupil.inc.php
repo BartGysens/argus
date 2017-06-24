@@ -56,6 +56,18 @@ function argus_gebruikersregistratie_form_pupil($form, &$form_state) {
 			'#default_value' => $user->uid 
 	);
 	
+	$y = date ( 'Y' );
+	$options = array ();
+	$options [$y . ' - ' . ($y + 1)] = $y . ' - ' . ($y + 1);
+	$options [($y + 1) . ' - ' . ($y + 2)] = ($y + 1) . ' - ' . ($y + 2);
+	$form ['algemeen'] ['schooljaar_inschrijving'] = array (
+			'#title' => t ( 'Voor welk schooljaar geldt deze inschrijving?' ),
+			'#type' => 'select',
+			'#options' => $options,
+			'#required' => TRUE,
+			'#default_value' => ($y + 1) . ' - ' . ($y + 2) 
+	);
+	
 	$query = 'SELECT title,title FROM {node} WHERE type = :bundle AND status = 1 ORDER BY title';
 	$options = db_query ( $query, array (
 			':bundle' => 'klas' 
@@ -94,21 +106,6 @@ function argus_gebruikersregistratie_form_pupil($form, &$form_state) {
 			'#type' => 'textfield',
 			'#size' => 50,
 			'#required' => TRUE 
-	);
-	$form ['algemeen'] ['gezin'] ['aantal_zussen'] = array (
-			'#title' => t ( 'Aantal zussen' ),
-			'#type' => 'textfield',
-			'#size' => 5 
-	);
-	$form ['algemeen'] ['gezin'] ['aantal_broers'] = array (
-			'#title' => t ( 'Aantal broers' ),
-			'#type' => 'textfield',
-			'#size' => 5 
-	);
-	$form ['algemeen'] ['gezin'] ['aantal_zussen_bro'] = array (
-			'#title' => t ( 'Aantal zussen/broers reeds op school' ),
-			'#type' => 'textfield',
-			'#size' => 5 
 	);
 	
 	$form ['algemeen'] ['ready'] = array (
@@ -436,22 +433,6 @@ function argus_gebruikersregistratie_form_pupil($form, &$form_state) {
 			'#required' => FALSE,
 			'#default_value' => 150 
 	);
-	$form ['vader'] ['diploma_vader'] = array (
-			'#title' => t ( 'Diploma' ),
-			'#description' => '<ul><li>Lager onderwijs afgewerkt = Zowel gewoon als buitengewoon lager onderwijs komen hiervoor in aanmerking</li><li>Lager secundair onderwijs afgewerkt = Dit is een diploma, getuigschrift of attest van slagen van de eerste 3 jaren van het gewoon of buitengewoon secundair onderwijs (bijvoorbeeld A3, A4 of B3) of een getuigschrift van het deeltijds beroepssecundair onderwijs of van de leertijd 
-(leercontract VIZO/Syntra).</li><li>Hoger secundair onderwijs afgewerkt = Dit is een diploma of getuigschrift van het hoger secundair onderwijs ASO, TSO, KSO, BSO, A2, B2, HSTL, of een diploma van de vierde graad BSO. 
-Buitengewoon secundair onderwijs komt hiervoor niet in aanmerking.</li><li>Hoger onderwijs afgewerkt = Dit is een diploma van het een hogeschool of van een universiteit, bijvoorbeeld A1, B1, gegradueerde, licentiaat, ingenieur, doctor, master, bachelor.</li></ul>',
-			'#type' => 'select',
-			'#options' => array (
-					'Lager onderwijs niet afgewerkt' => t ( 'Lager onderwijs niet afgewerkt' ),
-					'Lager onderwijs afgewerkt' => t ( 'Lager onderwijs afgewerkt' ),
-					'Lager secundair onderwijs afgewerkt' => t ( 'Lager secundair onderwijs afgewerkt' ),
-					'Hoger secundair onderwijs afgewerkt' => t ( 'Hoger secundair onderwijs afgewerkt' ),
-					'Hoger onderwijs afgewerkt' => t ( 'Hoger onderwijs afgewerkt' ) 
-			),
-			'#required' => FALSE,
-			'#default_value' => 'Lager onderwijs niet afgewerkt' 
-	);
 	$form ['vader'] ['geboortedatum_vad'] = array (
 			'#title' => t ( 'Geboortedatum' ),
 			'#type' => 'date_select',
@@ -541,23 +522,6 @@ Buitengewoon secundair onderwijs komt hiervoor niet in aanmerking.</li><li>Hoger
 			'#options' => $optionsNationality,
 			'#required' => FALSE,
 			'#default_value' => 150 
-	);
-	$form ['moeder'] ['diploma_moeder'] = array (
-			'#title' => t ( 'Diploma' ),
-			'#type' => 'select',
-			'#description' => '<ul><li>Lager onderwijs afgewerkt = Zowel gewoon als buitengewoon lager onderwijs komen hiervoor in aanmerking</li><li>Lager secundair onderwijs afgewerkt = Dit is een diploma, getuigschrift of attest van slagen van de eerste 3 jaren van het gewoon of buitengewoon secundair onderwijs (bijvoorbeeld A3, A4 of B3) of een getuigschrift van het deeltijds beroepssecundair onderwijs of van de leertijd 
-(leercontract VIZO/Syntra).</li><li>Hoger secundair onderwijs afgewerkt = Dit is een diploma of getuigschrift van het hoger secundair onderwijs ASO, TSO, KSO, BSO, A2, B2, HSTL, of een diploma van de vierde graad BSO. 
-Buitengewoon secundair onderwijs komt hiervoor niet in aanmerking.</li><li>Hoger onderwijs afgewerkt = Dit is een diploma van het een hogeschool of van een universiteit, bijvoorbeeld A1, B1, gegradueerde, licentiaat, ingenieur, doctor, master, bachelor.</li></ul>',
-			'#type' => 'select',
-			'#options' => array (
-					'Lager onderwijs niet afgewerkt' => t ( 'Lager onderwijs niet afgewerkt' ),
-					'Lager onderwijs afgewerkt' => t ( 'Lager onderwijs afgewerkt' ),
-					'Lager secundair onderwijs afgewerkt' => t ( 'Lager secundair onderwijs afgewerkt' ),
-					'Hoger secundair onderwijs afgewerkt' => t ( 'Hoger secundair onderwijs afgewerkt' ),
-					'Hoger onderwijs afgewerkt' => t ( 'Hoger onderwijs afgewerkt' ) 
-			),
-			'#required' => FALSE,
-			'#default_value' => 'Lager onderwijs niet afgewerkt' 
 	);
 	$form ['moeder'] ['geboortedatum_moe'] = array (
 			'#title' => t ( 'Geboortedatum' ),
@@ -1221,6 +1185,13 @@ Buitengewoon secundair onderwijs komt hiervoor niet in aanmerking.</li><li>Hoger
 			) 
 	);
 	
+	$form ['beginsituatie'] ['leermoeilijkheden'] ['ondersteunende_maatregelen'] = array (
+			'#title' => t ( 'Zijn er bijkomende ondersteunende maatregelen nodig? Zo ja, welke?' ),
+			'#type' => 'textfield',
+			'#required' => FALSE,
+			'#size' => 100 
+	);
+	
 	$form ['beginsituatie'] ['leermoeilijkheden'] ['buitengewoon_onde'] = array (
 			'#title' => t ( 'Heeft de leerling ooit BuSO gevolgd?' ),
 			'#type' => 'radios',
@@ -1459,62 +1430,6 @@ Buitengewoon secundair onderwijs komt hiervoor niet in aanmerking.</li><li>Hoger
 			'#required' => FALSE 
 	);
 	
-	$form ['praktisch'] ['taal'] = array (
-			'#type' => 'fieldset',
-			'#title' => t ( 'Taalgebruik' ),
-			'#description' => 'Welke taal spreekt de leerling met...',
-			'#collapsible' => TRUE,
-			'#collapsed' => FALSE 
-	);
-	$form ['praktisch'] ['taal'] ['taal_met_vader'] = array (
-			'#title' => t ( 'vader' ),
-			'#type' => 'radios',
-			'#options' => array (
-					t ( 'Nederlands' ) => t ( 'Nederlands' ),
-					t ( 'Frans' ) => t ( 'Frans' ),
-					t ( 'andere taal' ) => t ( 'andere taal' ),
-					t ( 'onbekend' ) => t ( 'Ik kan hierop niet antwoorden omdat de vader geen contact heeft met het kind of overleden is' ) 
-			),
-			'#default_value' => t ( 'Nederlands' ),
-			'#required' => TRUE 
-	);
-	$form ['praktisch'] ['taal'] ['taal_met_moeder'] = array (
-			'#title' => t ( 'moeder' ),
-			'#type' => 'radios',
-			'#options' => array (
-					t ( 'Nederlands' ) => t ( 'Nederlands' ),
-					t ( 'Frans' ) => t ( 'Frans' ),
-					t ( 'andere taal' ) => t ( 'andere taal' ),
-					t ( 'onbekend' ) => t ( 'Ik kan hierop niet antwoorden omdat de moeder geen contact heeft met het kind of overleden is' ) 
-			),
-			'#default_value' => t ( 'Nederlands' ),
-			'#required' => TRUE 
-	);
-	$form ['praktisch'] ['taal'] ['taal_met_broers_z'] = array (
-			'#title' => t ( 'broer / zus' ),
-			'#type' => 'radios',
-			'#options' => array (
-					t ( 'Nederlands' ) => t ( 'Nederlands' ),
-					t ( 'Frans' ) => t ( 'Frans' ),
-					t ( 'andere taal' ) => t ( 'andere taal' ),
-					t ( 'onbekend' ) => t ( 'Ik kan hierop niet antwoorden omdat het kind geen contact heeft met broers of zussen of geen broers of zussen heeft' ) 
-			),
-			'#default_value' => t ( 'Nederlands' ),
-			'#required' => TRUE 
-	);
-	$form ['praktisch'] ['taal'] ['taal_met_vrienden'] = array (
-			'#title' => t ( 'vrienden' ),
-			'#type' => 'radios',
-			'#options' => array (
-					t ( 'Nederlands' ) => t ( 'Nederlands' ),
-					t ( 'Frans' ) => t ( 'Frans' ),
-					t ( 'andere taal' ) => t ( 'andere taal' ),
-					t ( 'onbekend' ) => t ( 'Ik weet het niet' ) 
-			),
-			'#default_value' => t ( 'Nederlands' ),
-			'#required' => TRUE 
-	);
-	
 	$form ['praktisch'] ['algemene_opmerkin'] = array (
 			'#title' => t ( 'Bijkomende opmerking(en)' ),
 			'#type' => 'textarea',
@@ -1546,7 +1461,7 @@ Buitengewoon secundair onderwijs komt hiervoor niet in aanmerking.</li><li>Hoger
 				'#title' => t ( 'de leerling in Smartschool registreren' ),
 				'#description' => t ( 'als het dossier compleet is, dan kan je dit dossier rechtstreeks in Smartschool registreren (dit kan enkel indien een dossier volledig is - geen ontbrekende documenten of voorinschrijving)<br /><small><strong><u>opmerking</u>: deze optie mag enkel gebruikt worden vanaf de offici&euml;le opstart van het schooljaar, deze optie is enkel voor het leerlingensecretariaat of ILB beschikbaar</strong></small>' ),
 				'#type' => 'checkbox',
-				'#default_value' => FALSE,
+				'#default_value' => TRUE,
 				'#required' => FALSE 
 		);
 	}
@@ -1673,7 +1588,7 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 	$cntr = 1;
 	$accountCheck = $account;
 	do {
-		$query = 'SELECT u.uid ' . 'FROM {users} AS u ' . 'WHERE u.name = :account AND u.uid != :uid';
+		$query = 'SELECT u.uid FROM {users} AS u WHERE u.name = :account AND u.uid != :uid';
 		$checkAccounts = db_query ( $query, array (
 				':account' => $accountCheck,
 				':uid' => $uid 
@@ -1684,7 +1599,7 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 	} while ( $checkAccounts );
 	$account = $accountCheck;
 	
-	$password = variable_get ( 'argus_gebruikersregistratie_prefix', 'prefix' ) . '_' . rand ( 1000, 9999 );
+	$password = argus_engine_generate_password ();
 	
 	// Start preparing data for saving this user or load the prefilled form
 	$user_data = array (
@@ -1709,6 +1624,7 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 	
 	// Generate some extra information fields for registration purposes
 	$fields = array (
+			'field_user_tmp_schj_inschr' => 'Schooljaar van (her-)inschrijving',
 			'field_user_tmp_pwhfd' => 'Paswoord hoofdaccount',
 			'field_user_tmp_pwco1' => 'Paswoord coaccount 1',
 			'field_user_tmp_pwco2' => 'Paswoord coaccount 2',
@@ -1746,9 +1662,10 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 			field_create_instance ( $instance );
 		}
 	}
+	$user_data ['field_user_tmp_schj_inschr'] [LANGUAGE_NONE] [0] ['value'] = $form_state ['values'] ['schooljaar_inschrijving'];
 	$user_data ['field_user_tmp_pwhfd'] [LANGUAGE_NONE] [0] ['value'] = $password;
-	$user_data ['field_user_tmp_pwco1'] [LANGUAGE_NONE] [0] ['value'] = variable_get ( 'argus_gebruikersregistratie_prefix', 'prefix' ) . '_' . rand ( 1000, 9999 );
-	$user_data ['field_user_tmp_pwco2'] [LANGUAGE_NONE] [0] ['value'] = variable_get ( 'argus_gebruikersregistratie_prefix', 'prefix' ) . '_' . rand ( 1000, 9999 );
+	$user_data ['field_user_tmp_pwco1'] [LANGUAGE_NONE] [0] ['value'] = argus_engine_generate_password ();
+	$user_data ['field_user_tmp_pwco2'] [LANGUAGE_NONE] [0] ['value'] = argus_engine_generate_password ();
 	$user_data ['field_user_tmp_reg_class'] [LANGUAGE_NONE] [0] ['value'] = $form_state ['values'] ['klas'];
 	$user_data ['field_user_tmp_reg_payment'] [LANGUAGE_NONE] [0] ['value'] = $form_state ['values'] ['Betaalwijze'];
 	$user_data ['field_user_tmp_reg_smartschool'] [LANGUAGE_NONE] [0] ['value'] = 'unregistered';

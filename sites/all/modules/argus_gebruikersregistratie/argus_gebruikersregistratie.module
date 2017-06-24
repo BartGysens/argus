@@ -32,20 +32,6 @@ function argus_gebruikersregistratie_menu() {
 		$menu = 'navigation';
 	}
 	
-	$items = array();
-	$items ['admin/config/argus/gebruikersregistratie'] = array (
-			'title' => 'Nieuwe gebruikers toevoegen',
-			'description' => 'Maak de invulformulieren klaar om te gebruiken.',
-			'page callback' => 'drupal_get_form',
-			'page arguments' => array (
-					'argus_gebruikersregistratie_setup_form'
-			),
-			'access arguments' => array (
-					'access administration content'
-			),
-			'type' => MENU_NORMAL_ITEM,
-			'weight' => 1
-	);
     $items['gebruikersregistratie'] = array(
         'title' => t('Een nieuwe persoon toevoegen'),
         'description' => 'Voeg op een procedurematige manier een gebruiker (leerling of personeelslid) toe.',
@@ -165,34 +151,6 @@ function argus_gebruikersregistratie_form($param1, $param2) {
 			return theme('argus_gebruikersregistratie--form-employee');
 			exit;
 	}
-}
-
-
-/**
- * Page callback: argus instellingen
- *
- * @see argus_engine_menu()
- */
-function argus_gebruikersregistratie_setup_form($form, &$form_state) {
-	
-	/* ALGEMEEN */
-
-	$form ['alg'] = array (
-			'#type' => 'fieldset',
-			'#title' => t ( 'Algemeen' ),
-			'#collapsible' => TRUE,
-			'#collapsed' => FALSE
-	);
-	$form ['alg'] ['argus_gebruikersregistratie_prefix'] = array (
-			'#type' => 'textfield',
-			'#title' => t ( 'Voorvoegsel' ),
-			'#size' => '20',
-			'#required' => true,
-			'#default_value' => variable_get ( 'argus_gebruikersregistratie_prefix', 'prefix' ),
-			'#description' => t ( 'Op welke manier moeten je paswoorden worden gegenereerd?<br/><small><em>Voorbeeld: <strong>prefix</strong>_code</em></small>' )
-	);
-	
-	return system_settings_form ( $form );
 }
 
 

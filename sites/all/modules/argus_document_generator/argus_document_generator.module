@@ -22,7 +22,7 @@
  * Implements argus_document_generator_menu().
  */
 function argus_document_generator_menu() {
-	if (menu_load('menu-modules')){
+	if (menu_load ( 'menu-modules' )) {
 		$menu = 'menu-modules';
 	} else {
 		$menu = 'navigation';
@@ -57,7 +57,7 @@ function argus_document_generator_menu() {
 			'access arguments' => array (
 					'access argus_document_generator content' 
 			),
-			'menu_name' => $menu
+			'menu_name' => $menu 
 	);
 	
 	// AJAX-calls
@@ -115,84 +115,92 @@ function argus_document_generator_theme() {
  * @see argus_document_generator_setup_form()
  */
 function argus_document_generator_setup_form($form, &$form_state) {
-	$plugins = file_scan_directory(drupal_get_path('module', 'argus_document_generator').'/plugins', '/.*\.inc$/');
+	$plugins = file_scan_directory ( drupal_get_path ( 'module', 'argus_document_generator' ) . '/plugins', '/.*\.inc$/' );
 	
-	$form['#submit'][] = 'argus_document_generator_setup_submit';
+	$form ['#submit'] [] = 'argus_document_generator_setup_submit';
 	
 	$form ['templates'] = array (
 			'#type' => 'fieldset',
 			'#title' => t ( 'Templates en andere bestanden' ),
 			'#collapsible' => TRUE,
-			'#collapsed' => FALSE
+			'#collapsed' => FALSE 
 	);
-	foreach ($plugins as $plugin){
-		require_once 'plugins/'.$plugin->filename;
-	
-		$ref = substr($plugin->filename, 0, -8);
-		$f = 'argus_document_generator_'.$ref.'_init';
-	
-		if (function_exists($f)){
-			$detail = $f();
-				
+	foreach ( $plugins as $plugin ) {
+		require_once 'plugins/' . $plugin->filename;
+		
+		$ref = substr ( $plugin->filename, 0, - 8 );
+		$f = 'argus_document_generator_' . $ref . '_init';
+		
+		if (function_exists ( $f )) {
+			$detail = $f ();
+			
 			$dependencies = true;
-			if (array_key_exists('dependencies', $detail)){
-				foreach($detail['dependencies'] as $dependency){
-					if (!module_exists($dependency)){
+			if (array_key_exists ( 'dependencies', $detail )) {
+				foreach ( $detail ['dependencies'] as $dependency ) {
+					if (! module_exists ( $dependency )) {
 						$dependencies = false;
 					}
 				}
 			}
-				
-			if ($dependencies){
-				$form ['templates'] ['template_'.$ref] = array (
+			
+			if ($dependencies) {
+				$form ['templates'] ['template_' . $ref] = array (
 						'#type' => 'fieldset',
 						'#description' => t ( '<em><small>Plugin: <strong>' . $ref . '</strong></small></em><hr /><br />' ),
-						'#title' => t ( $detail['title'] ),
+						'#title' => t ( $detail ['title'] ),
 						'#collapsible' => TRUE,
-						'#collapsed' => TRUE
+						'#collapsed' => TRUE 
 				);
-					$form ['templates'] ['template_'.$ref] ['argus_document_generator_template_'.$ref.'/'] = array (
-							'#type' => 'checkbox',
-							'#title' => t ( 'Standaardtemplate gebruiken' ),
-							'#default_value' => variable_get('argus_document_generator_template_'.$ref.'/', true),
-							'#description' => t ( 'Gebruik de bijgeleverde template om je document aan te maken.<br /><br /><small>Download de standaardtemplate om als voorbeeld te gebruiken: <a target="_blank" href="'.base_path().drupal_get_path('module', 'argus_document_generator').'/plugins/docs/'.$ref.'.docx">template downloaden</a></small>' ),
-					);
-					$form ['templates'] ['template_'.$ref] ['argus_document_generator_template_'.$ref.'//file'] = array(
-							'#type' => 'managed_file',
-							'#upload_location' => 'public://argus_document_generator/',
-							'#title' => t('Alternatief bestand om te gebruiken als template'),
-							'#description' => t('Het bestand moet in Word-formaat zijn (extensie ".docx").'),
-        					'#default_value' => variable_get('argus_document_generator_template_'.$ref.'//file', null),
-							'#upload_validators' => array(
-									'file_validate_extensions' => array('docx'),
-							),
-					);
+				$form ['templates'] ['template_' . $ref] ['argus_document_generator_template_' . $ref . '/'] = array (
+						'#type' => 'checkbox',
+						'#title' => t ( 'Standaardtemplate gebruiken' ),
+						'#default_value' => variable_get ( 'argus_document_generator_template_' . $ref . '/', true ),
+						'#description' => t ( 'Gebruik de bijgeleverde template om je document aan te maken.<br /><br /><small>Download de standaardtemplate om als voorbeeld te gebruiken: <a target="_blank" href="' . base_path () . drupal_get_path ( 'module', 'argus_document_generator' ) . '/plugins/docs/' . $ref . '.docx">template downloaden</a></small>' ) 
+				);
+				$form ['templates'] ['template_' . $ref] ['argus_document_generator_template_' . $ref . '//file'] = array (
+						'#type' => 'managed_file',
+						'#upload_location' => 'public://argus_document_generator/',
+						'#title' => t ( 'Alternatief bestand om te gebruiken als template' ),
+						'#description' => t ( 'Het bestand moet in Word-formaat zijn (extensie ".docx").' ),
+						'#default_value' => variable_get ( 'argus_document_generator_template_' . $ref . '//file', null ),
+						'#upload_validators' => array (
+								'file_validate_extensions' => array (
+										'docx' 
+								) 
+						) 
+				);
 				
-				if (array_key_exists('files', $detail)){
-					foreach($detail['files'] as $fid => $f){
-						$form ['templates'] ['template_'.$ref] ['argus_document_generator_template_'.$ref.'/'.$fid.'/file'] = array(
+				if (array_key_exists ( 'files', $detail )) {
+					foreach ( $detail ['files'] as $fid => $f ) {
+						$form ['templates'] ['template_' . $ref] ['argus_document_generator_template_' . $ref . '/' . $fid . '/file'] = array (
 								'#type' => 'managed_file',
 								'#upload_location' => 'public://argus_document_generator/',
-								'#title' => t('Alternatief bestand om te gebruiken als template: '.$f[1]),
-								'#description' => t('Het bestand moet de extensie ".'.$f[0].'" hebben.<br /><br /><small>Download de standaardtemplate om als voorbeeld te gebruiken: <a target="_blank" href="'.base_path().drupal_get_path('module', 'argus_document_generator').'/plugins/docs/'.$ref.'/'.$fid.'.'.$f[0].'">template downloaden</a></small>'),
-	        					'#default_value' => variable_get('argus_document_generator_template_'.$ref.'/'.$fid.'/file', null),
-								'#upload_validators' => array(
-										'file_validate_extensions' => array($f[0]),
-								),
+								'#title' => t ( 'Alternatief bestand om te gebruiken als template: ' . $f [1] ),
+								'#description' => t ( 'Het bestand moet de extensie ".' . $f [0] . '" hebben.<br /><br /><small>Download de standaardtemplate om als voorbeeld te gebruiken: <a target="_blank" href="' . base_path () . drupal_get_path ( 'module', 'argus_document_generator' ) . '/plugins/docs/' . $ref . '/' . $fid . '.' . $f [0] . '">template downloaden</a></small>' ),
+								'#default_value' => variable_get ( 'argus_document_generator_template_' . $ref . '/' . $fid . '/file', null ),
+								'#upload_validators' => array (
+										'file_validate_extensions' => array (
+												$f [0] 
+										) 
+								) 
 						);
 					}
 				}
 			} else {
-				argus_report('De plugin ":plugin" kan niet worden geactiveerd. Error: missing dependent module (:deps)', array(':plugin' => $ref, ':deps' => implode(', ', $detail['dependencies'])), 'warning');
+				argus_report ( 'De plugin ":plugin" kan niet worden geactiveerd. Error: missing dependent module (:deps)', array (
+						':plugin' => $ref,
+						':deps' => implode ( ', ', $detail ['dependencies'] ) 
+				), 'warning' );
 			}
 		} else {
-			argus_report('De plugin ":plugin" werd niet correct gecodeerd - gelieve de handleiding te raadplegen. Error: missing function ..._init()', array(':plugin' => $ref), 'error');
+			argus_report ( 'De plugin ":plugin" werd niet correct gecodeerd - gelieve de handleiding te raadplegen. Error: missing function ..._init()', array (
+					':plugin' => $ref 
+			), 'error' );
 		}
 	}
 	
 	return system_settings_form ( $form );
 }
-
 
 /**
  * Form callback saving files
@@ -200,13 +208,19 @@ function argus_document_generator_setup_form($form, &$form_state) {
  * @return array
  */
 function argus_document_generator_setup_submit($form, &$form_state) {
-	foreach ($form_state['values'] as $field => $value){
-		if (substr($field, -4) == 'file'){
-			if ($value){
-				$file = file_load($value);
-				$file->status = FILE_STATUS_PERMANENT;
-				file_usage_add($file,'argus_document_generator','template',0,1);
-				file_save($file);
+	foreach ( $form_state ['values'] as $field => $value ) {
+		if (substr ( $field, - 4 ) == 'file') {
+			if ($value) {
+				$file = file_load ( $value );
+				if (file_exists($file->uri)){
+					$file->status = FILE_STATUS_PERMANENT;
+					file_usage_add ( $file, 'argus_document_generator', 'template', 0, 1 );
+					file_save ( $file );
+				} else {
+					argus_report ( 'Het bestand ":file" werd niet correct opgeladen - gelieve de handleiding te raadplegen. Error: missing file', array (
+							':file' => $file->uri
+					), 'error' );
+				}
 			}
 		}
 	}
@@ -268,89 +282,89 @@ function argus_document_generator_get($plugin, $args) {
 
 /**
  * Retrieve structure for each plugin
- *        	
+ *
  * @return array
  */
 function argus_document_generator_get_plugins() {
-	$structure = array(
-			'LLN' => array(
-					'title' => t('Formulieren met betrekking tot de <u>leerling</u>enpopulatie'),
-					'elements' => array(
-							'ALG' => array(
+	$structure = array (
+			'LLN' => array (
+					'title' => t ( 'Formulieren met betrekking tot de <u>leerling</u>enpopulatie' ),
+					'elements' => array (
+							'ALG' => array (
 									'title' => 'Algemene administratie: mappen (MAP), stickers (STK), lijsten (LST)',
-									'plugins' => array(),
+									'plugins' => array () 
 							),
-							'BRF' => array(
+							'BRF' => array (
 									'title' => 'Brieven (BRF)',
-									'plugins' => array(),
+									'plugins' => array () 
 							),
-							'CNT' => array(
+							'CNT' => array (
 									'title' => 'Contracten / begeleidingsovereenkomsten (CNT)',
-									'plugins' => array(),
+									'plugins' => array () 
 							),
-							'VSG' => array(
+							'VSG' => array (
 									'title' => 'Verslagen (VSG)',
-									'plugins' => array(),
-							),
-					),
+									'plugins' => array () 
+							) 
+					) 
 			),
-			'PERS' => array(
-					'title' => t('<u>Personeel</u>sadministratie'),
-					'elements' => array(
-							'ALG' => array(
+			'PERS' => array (
+					'title' => t ( '<u>Personeel</u>sadministratie' ),
+					'elements' => array (
+							'ALG' => array (
 									'title' => 'Algemene administratie: attesten (ATT)',
-									'plugins' => array(),
+									'plugins' => array () 
 							),
-							'BRF' => array(
+							'BRF' => array (
 									'title' => 'Brieven (BRF)',
-									'plugins' => array(),
+									'plugins' => array () 
 							),
-							'VSG' => array(
+							'VSG' => array (
 									'title' => 'Verslagen (VSG)',
-									'plugins' => array(),
-							),
-					),
+									'plugins' => array () 
+							) 
+					) 
 			),
-			'ALG' => array(
-					'title' => t('<u>Algemene</u> administratie'),
-					'elements' => array(
-							'BRF' => array(
+			'ALG' => array (
+					'title' => t ( '<u>Algemene</u> administratie' ),
+					'elements' => array (
+							'BRF' => array (
 									'title' => 'Brieven (BRF)',
-									'plugins' => array(),
+									'plugins' => array () 
 							),
-							'CNT' => array(
+							'CNT' => array (
 									'title' => 'Contracten / overeenkomsten (CNT)',
-									'plugins' => array(),
+									'plugins' => array () 
 							),
-							'VSG' => array(
+							'VSG' => array (
 									'title' => 'Verslagen (VSG)',
-									'plugins' => array(),
-							),
-					),
-			),
+									'plugins' => array () 
+							) 
+					) 
+			) 
 	);
 	
-	$plugins = file_scan_directory(drupal_get_path('module', 'argus_document_generator').'/plugins', '/.*\.inc$/');
-	foreach ($plugins as $plugin){
-		require_once 'plugins/'.$plugin->filename;
+	$plugins = file_scan_directory ( drupal_get_path ( 'module', 'argus_document_generator' ) . '/plugins', '/.*\.inc$/' );
+	foreach ( $plugins as $plugin ) {
+		require_once 'plugins/' . $plugin->filename;
 		
-		$ref = substr($plugin->filename, 0, -8);
-		$f = 'argus_document_generator_'.$ref.'_init';
+		$ref = substr ( $plugin->filename, 0, - 8 );
+		$f = 'argus_document_generator_' . $ref . '_init';
 		
-		if (function_exists($f)){
-			$detail = $f();
+		if (function_exists ( $f )) {
+			$detail = $f ();
 			
 			$dependencies = true;
-			if (array_key_exists('dependencies', $detail)){
-				foreach($detail['dependencies'] as $dependency){
-					if (!module_exists($dependency)){
+			if (array_key_exists ( 'dependencies', $detail )) {
+				foreach ( $detail ['dependencies'] as $dependency ) {
+					if (! module_exists ( $dependency )) {
 						$dependencies = false;
 					}
 				}
 			}
 			
-			if ($dependencies){
-				$structure[$detail['cat']]['elements'][$detail['subcat']]['plugins'][$ref] = $detail['title'];
+			if ($dependencies) {
+				$structure [$detail ['cat']] ['elements'] [$detail ['subcat']] ['plugins'] [$ref] = $detail ['title'];
 			}
 		}
 	}
@@ -358,31 +372,33 @@ function argus_document_generator_get_plugins() {
 	return $structure;
 }
 
-
 /**
  * Get template for selected plugin
  *
- * @param plugin string String representing the plugin by name
- * @param extra string Filename of extra asset for loading
- * @param extension string Extension for loading file
- *
+ * @param
+ *        	plugin string String representing the plugin by name
+ * @param
+ *        	extra string Filename of extra asset for loading
+ * @param
+ *        	extension string Extension for loading file
+ *        	
  * @return string
  */
 function argus_document_generator_get_plugin_template($plugin, $extra = null, $extension = 'docx') {
-	$basic_template = variable_get('argus_document_generator_template_'.$plugin.'/');
+	$basic_template = variable_get ( 'argus_document_generator_template_' . $plugin . '/' );
 	
 	$path = $plugin;
-	if ($extra){
-		$path .= '/'.$extra;
+	if ($extra) {
+		$path .= '/' . $extra;
 	}
 	
-	$template = drupal_get_path('module', 'argus_document_generator').'/plugins/docs/'.$path.'.'.$extension;
+	$template = drupal_get_path ( 'module', 'argus_document_generator' ) . '/plugins/docs/' . $path . '.' . $extension;
 	
-	if (!$basic_template){
-		$f = variable_get('argus_document_generator_template_'.$plugin.'/'.$extra.'/file');
-		if ($f){
-			$template_alt = drupal_realpath(file_load($f)->uri);
-			if (isset($template_alt) || file_exists($template_alt)){
+	if (! $basic_template) {
+		$f = variable_get ( 'argus_document_generator_template_' . $plugin . '/' . $extra . '/file' );
+		if ($f) {
+			$template_alt = drupal_realpath ( file_load ( $f )->uri );
+			if (isset ( $template_alt ) || file_exists ( $template_alt )) {
 				$template = $template_alt;
 			}
 		}

@@ -270,13 +270,6 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 	
 	$value = '';
 	if ($u) {
-		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_nationaliteit )) {
-			$value = $u->field_user_sms_taal_met_moeder [LANGUAGE_NONE] [0] ['value'];
-		}
-	}
-	$document->setValue ( 'taal', $value );
-	$value = '';
-	if ($u) {
 		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_nationaliteit ) && isset ( $optionsNationality )) {
 			$value = $optionsNationality [$u->field_user_sms_nationaliteit [LANGUAGE_NONE] [0] ['value']];
 		}
@@ -484,11 +477,6 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 					$document->setValue ( 'tel_werk_coaccount1', $value );
 					
 					$value = '';
-					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_diploma_vader )) {
-						$value = $u->field_user_sms_diploma_vader [LANGUAGE_NONE] [0] ['value'];
-					}
-					$document->setValue ( 'diploma_coaccount1', $value );
-					$value = '';
 					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_nationaliteit_vad )) {
 						$value = $u->field_user_sms_nationaliteit_vad [LANGUAGE_NONE] [0] ['value'];
 					}
@@ -514,7 +502,7 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 						$value = $u->field_user_sms_postcode_vader [LANGUAGE_NONE] [0] ['value'];
 					}
 					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_stad_gemeente_vad )) {
-						$value .= $u->field_user_sms_stad_gemeente_vad [LANGUAGE_NONE] [0] ['value'];
+						$value .= ' ' . $u->field_user_sms_stad_gemeente_vad [LANGUAGE_NONE] [0] ['value'];
 					}
 					$document->setValue ( 'gemeente_coaccount1', $value );
 					
@@ -525,11 +513,6 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 					}
 					$document->setValue ( 'tel_werk_coaccount1', $value );
 					
-					$value = '';
-					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_diploma_moeder )) {
-						$value = $u->field_user_sms_diploma_moeder [LANGUAGE_NONE] [0] ['value'];
-					}
-					$document->setValue ( 'diploma_coaccount1', $value );
 					$value = '';
 					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_nationaliteit_moe )) {
 						$value = $u->field_user_sms_nationaliteit_moe [LANGUAGE_NONE] [0] ['value'];
@@ -556,14 +539,13 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 						$value = $u->field_user_sms_postcode_moeder [LANGUAGE_NONE] [0] ['value'];
 					}
 					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_stad_gemeente_moe )) {
-						$value .= $u->field_user_sms_stad_gemeente_moe [LANGUAGE_NONE] [0] ['value'];
+						$value .= ' ' . $u->field_user_sms_stad_gemeente_moe [LANGUAGE_NONE] [0] ['value'];
 					}
 					$document->setValue ( 'gemeente_coaccount1', $value );
 					
 					break;
 				case 'Voogd' :
 					$document->setValue ( 'tel_werk_coaccount1', '' );
-					$document->setValue ( 'diploma_coaccount1', '' );
 					$document->setValue ( 'nationaliteit_coaccount1', '' );
 					$document->setValue ( 'gebdat_coaccount1', '' );
 					$value = '';
@@ -633,11 +615,6 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 					$document->setValue ( 'tel_werk_coaccount2', $value );
 					
 					$value = '';
-					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_diploma_vader )) {
-						$value = $u->field_user_sms_diploma_vader [LANGUAGE_NONE] [0] ['value'];
-					}
-					$document->setValue ( 'diploma_coaccount2', $value );
-					$value = '';
 					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_nationaliteit_vad )) {
 						$value = $u->field_user_sms_nationaliteit_vad [LANGUAGE_NONE] [0] ['value'];
 					}
@@ -663,7 +640,7 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 						$value = $u->field_user_sms_postcode_vader [LANGUAGE_NONE] [0] ['value'];
 					}
 					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_stad_gemeente_vad )) {
-						$value .= $u->field_user_sms_stad_gemeente_vad [LANGUAGE_NONE] [0] ['value'];
+						$value .= ' ' . $u->field_user_sms_stad_gemeente_vad [LANGUAGE_NONE] [0] ['value'];
 					}
 					$document->setValue ( 'gemeente_coaccount2', $value );
 					
@@ -674,11 +651,6 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 					}
 					$document->setValue ( 'tel_werk_coaccount2', $value );
 					
-					$value = '';
-					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_diploma_moeder )) {
-						$value = $u->field_user_sms_diploma_moeder [LANGUAGE_NONE] [0] ['value'];
-					}
-					$document->setValue ( 'diploma_coaccount2', $value );
 					$value = '';
 					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_nationaliteit_moe )) {
 						$value = $u->field_user_sms_nationaliteit_moe [LANGUAGE_NONE] [0] ['value'];
@@ -705,14 +677,13 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 						$value = $u->field_user_sms_postcode_moeder [LANGUAGE_NONE] [0] ['value'];
 					}
 					if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_stad_gemeente_moe )) {
-						$value .= $u->field_user_sms_stad_gemeente_moe [LANGUAGE_NONE] [0] ['value'];
+						$value .= ' ' . $u->field_user_sms_stad_gemeente_moe [LANGUAGE_NONE] [0] ['value'];
 					}
 					$document->setValue ( 'gemeente_coaccount2', $value );
 					
 					break;
 				case 'Voogd' :
 					$document->setValue ( 'tel_werk_coaccount2', '' );
-					$document->setValue ( 'diploma_coaccount2', '' );
 					$document->setValue ( 'nationaliteit_coaccount2', '' );
 					$document->setValue ( 'gebdat_coaccount2', '' );
 					$value = '';
@@ -858,84 +829,6 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 		}
 	}
 	
-	// TAAL
-	
-	$optionsLanguage = array (
-			'Nederlands',
-			'Frans',
-			'andere taal',
-			'onbekend' 
-	);
-	if ($u) {
-		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_taal_met_moeder )) {
-			$value = $u->field_user_sms_taal_met_moeder [LANGUAGE_NONE] [0] ['value'];
-			foreach ( $optionsLanguage as $option ) {
-				if ($value == $option) {
-					$set = 'x';
-				} else {
-					$set = 'o';
-				}
-				$document->setValue ( 'taal_moeder_' . $option, $set );
-			}
-		}
-		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_taal_met_vader )) {
-			$value = $u->field_user_sms_taal_met_vader [LANGUAGE_NONE] [0] ['value'];
-			foreach ( $optionsLanguage as $option ) {
-				if ($value == $option) {
-					$set = 'x';
-				} else {
-					$set = 'o';
-				}
-				$document->setValue ( 'taal_vader_' . $option, $set );
-			}
-		}
-		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_taal_met_broers_z )) {
-			$value = $u->field_user_sms_taal_met_broers_z [LANGUAGE_NONE] [0] ['value'];
-			foreach ( $optionsLanguage as $option ) {
-				if ($value == $option) {
-					$set = 'x';
-				} else {
-					$set = 'o';
-				}
-				$document->setValue ( 'taal_broerzus_' . $option, $set );
-			}
-		}
-		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_taal_met_vrienden )) {
-			$value = $u->field_user_sms_taal_met_vrienden [LANGUAGE_NONE] [0] ['value'];
-			foreach ( $optionsLanguage as $option ) {
-				if ($value == $option) {
-					$set = 'x';
-				} else {
-					$set = 'o';
-				}
-				$document->setValue ( 'taal_vrienden_' . $option, $set );
-			}
-		}
-	}
-	
-	// DIPLOMA MOEDER
-	
-	$optionsStudy = array (
-			'Lager onderwijs niet afgewerkt',
-			'Lager onderwijs afgewerkt',
-			'Lager secundair onderwijs afgewerkt',
-			'Hoger secundair onderwijs afgewerkt',
-			'Hoger onderwijs afgewerkt' 
-	);
-	if ($u) {
-		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_diploma_moeder )) {
-			$value = $u->field_user_sms_diploma_moeder [LANGUAGE_NONE] [0] ['value'];
-			foreach ( $optionsStudy as $key => $option ) {
-				if ($value == $option) {
-					$set = 'x';
-				} else {
-					$set = 'o';
-				}
-				$document->setValue ( 'diploma' . $key, $set );
-			}
-		}
-	}
-	
 	// MEDISCHE PROBLEMATIEK
 	
 	$options = array (
@@ -971,6 +864,7 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 			'ingeent_tegen_kle',
 			'wanneer_ingeent_t',
 			'aandachtspunten_p',
+			'ondersteunende_ma',
 			'attest_lo_',
 			'andere_mp' 
 	);
@@ -1114,8 +1008,8 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 	
 	$value = '';
 	if ($u) {
-		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_inschrijvin )) {
-			$value = $u->field_user_sms_inschrijvin [LANGUAGE_NONE] [0] ['value'];
+		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_inschrijving_onde )) {
+			$value = $u->field_user_sms_inschrijving_onde [LANGUAGE_NONE] [0] ['value'];
 			if ($value == 'Ja') {
 				$document->setValue ( 'inschrijving_onde_ja', 'x' );
 				$document->setValue ( 'inschrijving_onde_nee', 'o' );
@@ -1170,7 +1064,7 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 						) 
 				) )->fetchAllAssoc ( 'name', PDO::FETCH_ASSOC );
 				
-				$prefixList = '<w:p><w:pPr><w:spacing w:line="320" w:lineRule="auto"/><w:tabs><w:tab w:val="center" w:pos="8500"/></w:tabs><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>';
+				$prefixList = '<w:p><w:pPr><w:spacing w:line="320" w:lineRule="auto"/><w:tabs><w:tab w:val="right" w:pos="8500"/></w:tabs><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>';
 				$tab = '</w:t></w:r><w:r w:rsidRPr="003B6BFD"><w:rPr><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:tab/><w:t>';
 				$suffixList = '</w:t></w:r></w:p>';
 				
@@ -1188,6 +1082,44 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 	}
 	$document->setValue ( 'lt_courses', $courseTable );
 	$document->setValue ( 'lt_total', $courseTotal );
+	
+	// GET SCHOOLCOSTS
+	$courseTable = '';
+	$courseTotal = 0;
+	// TODO: uncommenten als module klaar is
+	// if (module_exists ( 'argus_schoolkosten' )) {
+	if ($u) {
+		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_tmp_reg_class )) {
+			$class = $u->field_user_tmp_reg_class [LANGUAGE_NONE] [0] ['value'] . '%';
+			$query = 'SELECT vb.field_vak_beschrijving_value AS name, sk.title AS schoolkost, skt.field_schoolkost_item_type_tid AS type, ltp.field_schoolkost_totaalprijs_value AS price ' . 'FROM {node} AS k ' . 'LEFT JOIN {field_data_field_schoolkost_klassen} AS lk ON lk.field_schoolkost_klassen_target_id = k.nid ' . 'LEFT JOIN {field_data_field_schoolkost_vakken} AS lv ON lv.entity_id = lk.entity_id ' . 'LEFT JOIN {field_data_field_schoolkost_schoolkost_item} AS lsi ON lsi.entity_id = lk.entity_id ' . 'LEFT JOIN {node} AS sk ON sk.nid = lsi.field_schoolkost_schoolkost_item_target_id ' . 'LEFT JOIN {field_data_field_schoolkost_totaalprijs} AS ltp ON ltp.entity_id = lk.entity_id ' . 'LEFT JOIN {field_data_field_schoolkost_item_type} AS skt ON skt.entity_id = sk.nid ' . 'LEFT JOIN {field_data_field_vak_beschrijving} AS vb ON vb.entity_id = lv.field_schoolkost_vakken_target_id ' . 'WHERE k.title LIKE :class AND lsi.entity_id ' . 'ORDER BY vb.field_vak_beschrijving_value ASC';
+			$result = db_query ( $query, array (
+					':class' => $class 
+			) )->fetchAllAssoc ( 'schoolkost', PDO::FETCH_ASSOC );
+			
+			$prefixList = '<w:p w14:paraId="73B37D4E" w14:textId="77777777" w:rsidR="00EF0E8A" w:rsidRPr="00483428" w:rsidRDefault="00483428" w:rsidP="00483428"><w:pPr><w:tabs><w:tab w:val="left" w:pos="3686"/><w:tab w:val="right" w:pos="9064"/></w:tabs><w:spacing w:line="320" w:lineRule="auto"/><w:rPr><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:pPr><w:r w:rsidRPr="00483428"><w:rPr><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:t>';
+			$tab = '</w:t></w:r><w:r w:rsidRPr="00483428"><w:rPr><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:tab/><w:t>';
+			$suffixList = '</w:t></w:r></w:p>';
+			
+			foreach ( $result as $key => $course ) {
+				$addCourse = true;
+				
+				if (stristr ( strtolower ( $course ['name'] ), 'godsdienst' ) || stristr ( strtolower ( $course ['name'] ), 'zedenleer' )) {
+					
+					if (! stristr ( strtolower ( $course ['name'] ), strtolower ( $u->field_user_sms_godsdienstkeuze [LANGUAGE_NONE] [0] ['value'] ) )) {
+						$addCourse = false;
+					}
+				}
+				
+				if ($addCourse) {
+					$courseTable .= $prefixList . htmlspecialchars ( $course ['schoolkost'] ) . $tab . htmlspecialchars ( $course ['name'] ) . $tab . $course ['price'] . $suffixList;
+					$courseTotal += $course ['price'];
+				}
+			}
+		}
+	}
+	// }
+	$document->setValue ( 'sk_courses', $courseTable );
+	$document->setValue ( 'sk_total', $courseTotal );
 	
 	/* Generate the document and initiate download */
 	$filename = '/tmp/CNT Inschrijvingsdossier ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';

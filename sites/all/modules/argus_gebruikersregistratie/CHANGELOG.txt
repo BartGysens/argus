@@ -1,5 +1,12 @@
 **Releases:
 
+v7.x-2.5
+---------
+- Smartschool message send with new 'leerling' registration - rule
+- New procedure for use of generated passwords
+- Update for form 'pupil_full' and 'pupil_renewal' (change of fields)
+- Removal of deprecated admin-page
+
 v7.x-2.4
 ---------
 - Installscript adjusted for adding roles

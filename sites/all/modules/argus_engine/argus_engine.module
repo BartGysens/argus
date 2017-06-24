@@ -1101,7 +1101,8 @@ function argus_classes_retrieve($listType = 0, $defaultValue = NULL) {
  *
  * @param $message string
  *        	Unformatted text for display; HTML-tags are allowed
- * @param $vars array of string ':var'
+ * @param $vars array
+ *        	of string ':var'
  *        	Variable fields used for transition in message; usage ('key' => 'replacement string')
  * @param $type string
  *        	Indicate which form of message to be used; possible values: warning, error, status (default)
@@ -1222,7 +1223,7 @@ function argus_engine_get_users_with_role($role, $active_user = TRUE, $only_keys
 				$query->propertyCondition ( 'status', 1 );
 			}
 			$entities = $query->execute ();
-			if ($only_keys){
+			if ($only_keys) {
 				$users = array_keys ( $entities ['user'] );
 			} else {
 				if (! empty ( $entities )) {
@@ -1262,4 +1263,80 @@ function argus_engine_get_periods($optionList = false) {
 	}
 	
 	return $periods;
+}
+
+/**
+ * Generate password.
+ *
+ * @return string.
+ * 
+ * Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
+ *         - een kleine letter bevatten (a-z);
+ *         - een hoofdletter bevatten (A-Z);
+ *         - een cijfer bevatten (0-9);
+ *         - een ander karakter bevatten (._-*!?/).
+ */
+function argus_engine_generate_password() {
+	$pwd = bin2hex ( openssl_random_pseudo_bytes ( 5 ) );
+	
+	// Add small letter
+	$pos = rand ( 0, 9 );
+	$pwd = substr ( $pwd, 0, $pos ) . chr ( rand ( 97, 122 ) ) . substr ( $pwd, $pos );
+	
+	// Add capital letter
+	$pos = rand ( 0, 9 );
+	$pwd = substr ( $pwd, 0, $pos ) . chr ( rand ( 65, 90 ) ) . substr ( $pwd, $pos );
+	
+	// Add number
+	$pos = rand ( 0, 9 );
+	$pwd = substr ( $pwd, 0, $pos ) . rand ( 0, 9 ) . substr ( $pwd, $pos );
+	
+	// Add character
+	$pos = rand ( 0, 9 );
+	$pwd = substr ( $pwd, 0, $pos ) . '_' . substr ( $pwd, $pos );
+	
+	return $pwd;
+}
+
+/**
+ * Check password.
+ *
+ * @return boolean.
+ * 
+ * Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
+ *         - een kleine letter bevatten (a-z);
+ *         - een hoofdletter bevatten (A-Z);
+ *         - een cijfer bevatten (0-9);
+ *         - een ander karakter bevatten (._-*!?/).
+ */
+function argus_engine_check_password($pwd) {
+	$pwdOK = true;
+	
+	// Add small letter
+	for($x = 97; $x < 123; $x ++) {
+		if (! stristr ( $pwd, chr ( $x ) )) {
+			$pwdOK = false;
+		}
+	}
+	
+	// Add capital letter
+	for($x = 65; $x < 90; $x ++) {
+		if (! stristr ( $pwd, chr ( $x ) )) {
+			$pwdOK = false;
+		}
+	}
+	
+	// Add number
+	for($x = 0; $x < 9; $x ++) {
+		if (! stristr ( $pwd, $x )) {
+			$pwdOK = false;
+		}
+	}
+	
+	// Add character
+	if (! stristr ( $pwd, '_' )) {
+		$pwdOK = false;
+	}
+	
+	return $pwdOK;
 }

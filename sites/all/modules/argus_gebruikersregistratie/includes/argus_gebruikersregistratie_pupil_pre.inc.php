@@ -376,7 +376,7 @@ function argus_gebruikersregistratie_form_pupil_pre_submit($form, &$form_state) 
 	} while ( $checkAccounts );
 	$account = $accountCheck;
 	
-	$password = variable_get ( 'argus_gebruikersregistratie_prefix', 'prefix' ) . '_' . rand ( 1000, 9999 );
+	$password = argus_engine_generate_password();
 	
 	// Start preparing data for saving this user or load the prefilled form
 	$user_data = array (
