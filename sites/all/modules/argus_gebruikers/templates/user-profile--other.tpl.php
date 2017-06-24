@@ -32,7 +32,7 @@ if (count($account->field_user_sms_geboortedatum)){
                     <div class="field-items"><?php print argus_render('user', $account, 'field_user_sms_naam'); ?>, <?php print argus_render('user', $account, 'field_user_sms_voornaam'); ?></div>
                 </div>
 				
-				<?php if ( $birthday ){ ?>
+				<?php if ( isset( $birthday ) ){ ?>
 	                <div class="field field-label-inline clearfix">
 	                    <div class="field-label">Geboortegegevens:&nbsp;</div>
 	                    <div class="field-items"><?php print ($birthday->format('d/m/Y')); ?>, <?php print argus_render('user', $account, 'field_user_sms_geboorteplaats'); ?> - <?php print argus_render('user', $account, 'field_user_sms_geboorteland'); ?>, <?php print date_diff($birthday,new DateTime('now'))->format('%y jaar'); ?></div>
