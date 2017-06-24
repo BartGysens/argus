@@ -59,7 +59,7 @@ function argus_gebruikersregistratie_form_pupil_renewal($form, &$form_state) {
 			'#type' => 'select',
 			'#options' => $options,
 			'#required' => TRUE,
-			'#default_value' => ($y + 1) . ' - ' . ($y + 2) 
+			'#default_value' => ($y) . ' - ' . ($y + 1) 
 	);
 	
 	$query = 'SELECT title,title FROM {node} WHERE type = :bundle AND status = 1 ORDER BY title';
