@@ -808,6 +808,9 @@ function argus_sms_getFieldmap_form_submit($form, &$form_state) {
 					if ($username == $account ['gebruikersnaam']) {
 						ksort ( $account );
 						foreach ( $account as $field => $value ) {
+							if ( is_array( $value ) ){
+								$value = implode( ', ', $value );
+							}
 							$userFields [] = 'veldnaam: "' . $field . '" = "' . $value . '"';
 						}
 						break;
