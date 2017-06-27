@@ -414,64 +414,72 @@ function argus_soda_setup_form($form, &$form_state) {
 	$form ['argus_soda_periods'] = array (
 			'#type' => 'fieldset',
 			'#title' => t ( 'Periodes' ),
-			'#description' => t ( 'Definieer de periodes zolas ingesteld in de <a href="/admin/config/argus/engine" target="_blank">algemene instellingen</a> van argus.' ),
+			'#description' => t ( 'Definieer de periodes zoals ingesteld in de <a href="/admin/config/argus/engine" target="_blank">algemene instellingen</a> van argus.' ),
 			'#collapsible' => TRUE,
 			'#collapsed' => FALSE 
 	);
-	for($x = 1; $x < 5; $x ++) {
-		$form ['argus_soda_periods'] ['argus_soda_periods_' . $x] = array (
-				'#type' => 'select',
-				'#title' => t ( 'Periode D' . $x ),
-				'#multiple' => true,
-				'#options' => argus_engine_get_periods ( true ),
-				'#default_value' => variable_get ( 'argus_soda_periods_' . $x, NULL ),
-				'#description' => t ( 'Geef aan over welk soort periode het gaat, dit is nodig voor het opmaken van lijsten.' ) 
+		for($x = 1; $x < 5; $x ++) {
+			$form ['argus_soda_periods'] ['argus_soda_periods_' . $x] = array (
+					'#type' => 'select',
+					'#title' => t ( 'Periode D' . $x ),
+					'#multiple' => true,
+					'#options' => argus_engine_get_periods ( true ),
+					'#default_value' => variable_get ( 'argus_soda_periods_' . $x, NULL ),
+					'#description' => t ( 'Geef aan over welk soort periode het gaat, dit is nodig voor het opmaken van lijsten.' ) 
+			);
+		}
+		
+		$form ['argus_soda_resetReports'] = array (
+				'#type' => 'fieldset',
+				'#title' => t ( 'Rapporten' ),
+				'#description' => t ( 'Genereer op basis van de data in de databank de rapporten voor de geselecteerde periodes.' ),
+				'#collapsible' => TRUE,
+				'#collapsed' => FALSE 
 		);
-	}
-	
-	$form ['argus_soda_resetReports'] = array (
-			'#type' => 'fieldset',
-			'#title' => t ( 'Rapporten' ),
-			'#description' => t ( 'Genereer op basis van de data in de databank de rapporten voor de geselecteerde periodes.' ),
-			'#collapsible' => TRUE,
-			'#collapsed' => FALSE 
-	);
-	$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] = array (
-			'#type' => 'fieldset',
-			'#title' => t ( 'Periodes' ),
-			'#collapsible' => TRUE,
-			'#collapsed' => FALSE 
-	);
-	for($x = 1; $x < 5; $x ++) {
-		$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] ['argus_soda_resetReports_D' . $x] = array (
+		$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] = array (
+				'#type' => 'fieldset',
+				'#title' => t ( 'Periodes' ),
+				'#collapsible' => TRUE,
+				'#collapsed' => FALSE 
+		);
+		for($x = 1; $x < 5; $x ++) {
+			$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] ['argus_soda_resetReports_D' . $x] = array (
+					'#type' => 'checkbox',
+					'#title' => t ( 'Periode D' . $x ) 
+			);
+		}
+		
+		$form ['argus_soda_resetReports'] ['argus_soda_resetReports_periods'] ['argus_soda_resetComments'] = array (
 				'#type' => 'checkbox',
-				'#title' => t ( 'Periode D' . $x ) 
+				'#title' => t ( 'Commentaren leeg maken?' ) 
 		);
-	}
 	
-	$form ['argus_soda_resetReports'] ['argus_soda_resetComments'] = array (
-			'#type' => 'checkbox',
-			'#title' => t ( 'Commentaren leeg maken?' ) 
+	$form ['argus_soda_resetAttests'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Attesten' ),
+			'#description' => t ( 'De attesten kunnen opnieuw berekend worden met de periodieke rapportgegevens.' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => FALSE 
 	);
+		$form ['argus_soda_resetAttests'] ['argus_soda_resetAttest'] = array (
+				'#type' => 'checkbox',
+				'#title' => t ( 'Attesten herberekenen?' ) 
+		);
 	
-	$form ['argus_soda_resetReports'] ['argus_soda_resetAttest'] = array (
-			'#type' => 'checkbox',
-			'#title' => t ( 'Attesten herberekenen?' ) 
-	);
-	
-	$form ['argus_soda_resetReports'] ['argus_soda_resetReportsBtn'] = array (
+	$form ['argus_soda_resetReportsBtn'] = array (
 			'#type' => 'submit',
-			'#value' => t ( 'Rapporten aanmaken' ),
+			'#value' => t ( 'Rapporten en/of Attesten herberekenen' ),
 			'#submit' => array (
 					'argus_soda_resetReports_form_submit' 
 			),
-			'#suffix' => t ( '<em style="font-size: smaller;"><u>Opgelet</u>: hiermee worden de bestaande rapporten verwijderd en opnieuw aangemaakt.</em><div id="argus_soda_resetReports_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="' . $base_url . '/' . $path . '/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>' ),
+			'#suffix' => t ( '<em style="font-size: smaller;"><u>Opgelet</u>: hiermee worden de bestaande rapporten en attesten verwijderd en opnieuw aangemaakt.</em><div id="argus_soda_resetReports_waiter" style="display: none;font-size: smaller; font-style: italic;"><img src="' . $base_url . '/' . $path . '/images/waiter.gif" /><br />(even geduld, dit kan even duren)</div>' ),
 			'#attributes' => array (
 					'onclick' => array (
 							'argus_soda_resetReports()' 
 					) 
 			) 
 	);
+	
 	return system_settings_form ( $form );
 }
 
@@ -489,6 +497,7 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 	
 	$cntReportEdit = 0;
 	$cntReportNew = 0;
+	$cntReportAttests = 0;
 	foreach ( $pupils as $pupil ) {
 		for($x = 1; $x < 5; $x ++) {
 			$period = $form_state ['values'] ['argus_soda_resetReports_D' . $x];
@@ -653,12 +662,14 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 			$result = argus_soda_save_attest ( $pupil, array (
 					'attest' => $report ['total'] 
 			) );
+			$cntReportAttests++;
 		}
 	}
 	
-	argus_report ( 'Herberekening voltooid: ' . $cntReportEdit . ' rapporten aangepast en ' . $cntReportNew . ' nieuwe toegevoegd (in totaal werden ' . count ( $pupils ) . ' leerlingen behandeld).', array (
+	argus_report ( 'Herberekening voltooid: ' . $cntReportEdit . ' rapporten aangepast en ' . $cntReportNew . ' nieuwe toegevoegd.<br />Er werden ' . $cntReportAttests . ' attesten vernieuwd.<br /><strong>In totaal werden ' . count ( $pupils ) . ' leerlingen behandeld.</strong>', array (
 			':edit' => $cntReportEdit,
 			':new' => $cntReportNew,
+			':attests' => $cntReportAttests,
 			':cnt' => count ( $pupils ) 
 	) );
 }
