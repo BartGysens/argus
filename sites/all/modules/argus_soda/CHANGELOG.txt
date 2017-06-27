@@ -1,5 +1,11 @@
 **Releases:
 
+v7.x-1.2
+---------
+- Nieuwe workflow voor de herberekening van de attesten en rapporten
+- Vernieuwd formulier voor instellingen
+- Taal fixes
+
 v7.x-1.1
 ---------
 - Attesten aanmaken bij recalculatie
