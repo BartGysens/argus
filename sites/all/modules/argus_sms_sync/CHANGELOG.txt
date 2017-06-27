@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.13
+---------
+- Mogelijkheid toegevoegd om filenames aan te passen via admin scherm
+
 v7.x-1.12
 ---------
 - Preparation for module installation
