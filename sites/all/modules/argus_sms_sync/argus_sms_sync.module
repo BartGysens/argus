@@ -395,7 +395,7 @@ function argus_sms_sync_form($form, &$form_state) {
 	}
 	
 	/*
-	 * Smartschool import data from specific modules: Afwezigheden / Absents & Cursussen / Courses
+	 * Smartschool import data from specific modules: Afwezigheden / Absents & Cursussen / Courses, Skore
 	 */
 	$form ['argus_sms_data'] ['argus_sms_data_modules'] = array (
 			'#type' => 'fieldset',
@@ -491,6 +491,34 @@ function argus_sms_sync_form($form, &$form_state) {
 			'#collapsible' => TRUE,
 			'#collapsed' => FALSE 
 	);
+	
+	$form ['argus_sms_data'] ['argus_sms_data_modules'] ['argus_sms_data_skore'] [ 'argus_sms_data_skore_periodfiles' ] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Periodes en bestanden' ),
+			'#description' => t ( 'Om de synchronisatie automatisch te laten gebeuren dien je aan argus kenbaar te maken wat de naam is van elk bestand voor de respectievelijke periodes.' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => TRUE
+	);
+	for($x = 1; $x < 11; $x ++) {
+		if (($shortname = variable_get ( 'period_' . $x . '_shortname', NULL )) && ($fullname = variable_get ( 'period_' . $x . '_fullname', NULL ))){
+			/* Search period in filename */
+			if (db_query ( "SHOW TABLES LIKE 'argus_skore_resultaten'" )->rowCount () ) {
+				$query = 'SELECT patroon FROM {argus_skore_periode} AS p WHERE afkorting LIKE :afkorting';
+				$period = db_query ( $query, array (
+						':afkorting' => $shortname
+				) )->fetchField();
+			} else {
+				$period = '';
+			}
+			
+			$form ['argus_sms_data'] ['argus_sms_data_modules'] ['argus_sms_data_skore'] [ 'argus_sms_data_skore_periodfiles' ] [ 'argus_sms_data_skore_periodfiles_' . $shortname ] = array (
+					'#type' => 'textfield',
+					'#title' => $fullname . ' ('. $shortname . ')',
+					'#size' => '40',
+					'#default_value' => $period
+			);
+		}
+	}
 	
 	$schoolyears_options = array ();
 	for($x = date ( 'Y' ); $x > (date ( 'Y' ) - 10); $x --) {
@@ -640,6 +668,41 @@ function argus_sms_sync_form_submit($form, &$form_state) {
 	
 	if ($form_state ['values'] ['argus_sms_sync_cron'] != variable_get ( 'argus_sms_sync_cron' )) {
 		argus_report ( t ( $msg ), array (), 'status', 'argus' );
+	}
+	
+	/* Handle file settings Skore calculation */
+	for($x = 1; $x < 11; $x ++) {
+		if (($shortname = variable_get ( 'period_' . $x . '_shortname', NULL ))){
+			/* Search period in afkorting */
+			if ($totalRecs = db_query ( "SHOW TABLES LIKE 'argus_skore_periode'" )->rowCount () ) {
+				$query = 'SELECT id FROM {argus_skore_periode} AS p WHERE afkorting LIKE :afkorting';
+				$period = db_query ( $query, array (
+						':afkorting' => $shortname
+				) )->fetchField();
+			} else {
+				$period = '';
+				$totalRecs = 0;
+			}
+			
+			if ($period){
+				db_update('argus_skore_periode')
+				->fields(array(
+						'patroon' => $form_state ['values'] [ 'argus_sms_data_skore_periodfiles_' . $shortname ]
+				))
+				->condition('id', $period, '=')
+				->execute();
+			} else {
+				db_insert('argus_skore_periode')
+				->fields(array(
+						'afkorting' => $shortname,
+						'omschrijving' => variable_get ( 'period_' . $x . '_fullname', NULL ),
+						'patroon' => $form_state ['values'] [ 'argus_sms_data_skore_periodfiles_' . $shortname ],
+						'volgorde' => $totalRecs+1
+				))
+				->condition('id', $period, '=')
+				->execute();
+			}
+		}
 	}
 }
 
