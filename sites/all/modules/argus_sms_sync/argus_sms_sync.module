@@ -809,7 +809,10 @@ function argus_sms_getFieldmap_form_submit($form, &$form_state) {
 						ksort ( $account );
 						foreach ( $account as $field => $value ) {
 							if ( is_array( $value ) ){
-								$value = implode( ', ', $value );
+								$value = json_encode( $value );
+								
+								dpm($field);
+								dpm($value);
 							}
 							$userFields [] = 'veldnaam: "' . $field . '" = "' . $value . '"';
 						}

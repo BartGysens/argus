@@ -525,7 +525,7 @@ function argus_sms_add_user_to_smartschool($uid) {
 			$newPassword = true;
 		}
 		if ($newPassword) {
-			$password = argus_engine_sanitize_password;
+			$password = argus_engine_sanitize_password ();
 			
 			$u->pass = $password;
 			$u->field_user_tmp_pwhfd [LANGUAGE_NONE] [0] ['value'] = $password;
@@ -780,7 +780,7 @@ function argus_sms_add_user_to_smartschool($uid) {
 				if (count ( $result ['groups'] )) {
 					foreach ( $result ['groups'] as $group ) {
 						$result = $client->removeUserFromGroup ( variable_get ( 'argus_sms_api_password' ), $userVars ['name'], $group->code );
-						if ($result > 0) {
+						if ($result > 0 && $group->code != 'leerling') {
 							argus_report ( 'De <em>gebruiker</em> kon niet worden verwijderd uit groep "%group": foutmelding - %error', array (
 									'%group' => $group->name . ' (' . $group->code . ')',
 									'%error' => argus_sms_error ( $result ) 
@@ -792,10 +792,12 @@ function argus_sms_add_user_to_smartschool($uid) {
 						}
 					}
 				} else {
-					argus_report ( 'De <em>gebruiker</em> kon niet worden verwijderd uit groep "%group": foutmelding - %error', array (
-							'%group' => $result ['groups'],
-							'%error' => argus_sms_error ( $result ) 
-					), 'error', 'argus' );
+					if ( $result ['groups'] != 'Leerlingen (leerling)' ){
+						argus_report ( 'De <em>gebruiker</em> kon niet worden verwijderd uit groep "%group": foutmelding - %error', array (
+								'%group' => $result ['groups'],
+								'%error' => argus_sms_error ( $result ) 
+						), 'error', 'argus' );
+					}
 				}
 			}
 			
@@ -881,6 +883,15 @@ function argus_sms_add_user_to_smartschool($uid) {
 							}
 							break;
 						
+						case 'last_successful_l' :
+							$f_sms = 'last_successful_login';
+							break;
+						case 'gon_begeleiding__' :
+							$f_sms = 'gon-begeleiding__jaren_';
+							break;
+						case 'inschrijving_onde' :
+							$f_sms = 'inschrijving_onder_ontbindende_voorwaarden__m-decreet_';
+							break;
 						case 'algemene_opmerkin' :
 							$f_sms = 'algemene_opmerkingen';
 							break;
@@ -1041,6 +1052,7 @@ function argus_sms_add_user_to_smartschool($uid) {
 							$f_sms = 'contact_via__andere_';
 							break;
 						
+						/* Fields which will not be synced as standard fields; see upper part of code */
 						case 'gebruikersnaam' :
 						case 'status' :
 						case 'sorteerveld' :
