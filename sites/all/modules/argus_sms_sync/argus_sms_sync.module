@@ -2326,11 +2326,10 @@ function argus_sms_dataSkore($form, &$form_state) {
 				$filesFound [] = $filename;
 				
 				/* Search period in filename */
-				$query = 'SELECT id, patroon ' . 'FROM {argus_skore_periode} AS p ' . 'WHERE INSTR(:filename,patroon)';
-				$result = db_query ( $query, array (
+				$query = 'SELECT id, patroon FROM {argus_skore_periode} AS p WHERE INSTR( :filename, patroon )';
+				$period = db_query ( $query, array (
 						':filename' => $filename 
-				) );
-				$period = $result->fetchObject ();
+				) )->fetchObject ();
 				
 				/* Search class in filename */
 				$class = strtoupper ( str_replace ( $period->patroon, '', $filename ) );
