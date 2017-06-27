@@ -644,15 +644,15 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 				}
 				
 				node_save ( $node );
-				
-				/* ---------- Recalculate attest ---------- */
-				if ($form_state ['values'] ['argus_soda_resetAttest']) {
-					$report = argus_soda_get_report ( $pupil, false );
-					$result = argus_soda_save_attest ( $pupil, array (
-							'attest' => $report ['total'] 
-					) );
-				}
 			}
+		}
+		
+		/* ---------- Recalculate attest ---------- */
+		if ($form_state ['values'] ['argus_soda_resetAttest']) {
+			$report = argus_soda_get_report ( $pupil, false );
+			$result = argus_soda_save_attest ( $pupil, array (
+					'attest' => $report ['total'] 
+			) );
 		}
 	}
 	
