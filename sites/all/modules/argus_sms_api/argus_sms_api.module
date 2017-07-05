@@ -42,7 +42,7 @@ function argus_sms_api_menu() {
 			'description' => 'Koppel jouw Smartschool-platform met argus.',
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array (
-					'argus_smartschool_api_form' 
+					'argus_sms_api_form' 
 			),
 			'access arguments' => array (
 					'administer argus_sms_api' 
@@ -79,7 +79,7 @@ function argus_sms_api_install() {
  *
  * @see argus_sms_api_menu()
  */
-function argus_smartschool_api_form($form, &$form_state) {
+function argus_sms_api_form($form, &$form_state) {
 	$form ['argus_sms_url'] = array (
 			'#type' => 'textfield',
 			'#title' => t ( 'URL' ),
@@ -359,6 +359,7 @@ function argus_sms_api_send_msg_to_users_of_role($key, $roles, $co = 0, $from = 
 			
 			if (variable_get ( 'argus_engine_demo_mode' )) {
 				$result = 0;
+				$usersSendOK [] = $toRealname . ' (' . $uid . ' - ' . $toName . ')';
 			} else {
 				$result = $client->sendMsg ( variable_get ( 'argus_sms_api_password' ), $toName, $subject, $body, $fromName, array (), $co );
 				if ($result) {
@@ -529,7 +530,6 @@ function argus_sms_add_user_to_smartschool($uid) {
 			
 			$u->pass = $password;
 			$u->field_user_tmp_pwhfd [LANGUAGE_NONE] [0] ['value'] = $password;
-			user_save ( $u );
 			
 			$userVars ['pwh'] = $password;
 		}
@@ -549,7 +549,6 @@ function argus_sms_add_user_to_smartschool($uid) {
 			$password = argus_engine_generate_password ();
 			
 			$u->field_user_tmp_pwco1 [LANGUAGE_NONE] [0] ['value'] = $password;
-			user_save ( $u );
 			
 			$userVars ['pw1'] = $password;
 		}
@@ -569,7 +568,6 @@ function argus_sms_add_user_to_smartschool($uid) {
 			$password = argus_engine_generate_password ();
 			
 			$u->field_user_tmp_pwco2 [LANGUAGE_NONE] [0] ['value'] = $password;
-			user_save ( $u );
 			
 			$userVars ['pw2'] = $password;
 		}
@@ -731,7 +729,6 @@ function argus_sms_add_user_to_smartschool($uid) {
 			
 			// Remove user from new users
 			$u->field_user_tmp_reg_smartschool [LANGUAGE_NONE] [0] ['value'] = format_date ( time () );
-			user_save ( $u );
 			
 			// Activate the user in Smartschool
 			/*
@@ -1106,5 +1103,7 @@ function argus_sms_add_user_to_smartschool($uid) {
 				}
 			}
 		}
+		
+		user_save ( $u );
 	}
 }

@@ -42,6 +42,7 @@ function argus_gebruikersregistratie_form_pupil_renewal($form, &$form_state) {
 	foreach ( $result as $row ) {
 		$options [$row->uid] = argus_get_user_realname ( $row->uid );
 	}
+	asort( $options );
 	$form ['algemeen'] ['inschrijver'] = array (
 			'#title' => t ( 'U wordt momenteel geholpen door...' ),
 			'#type' => 'select',

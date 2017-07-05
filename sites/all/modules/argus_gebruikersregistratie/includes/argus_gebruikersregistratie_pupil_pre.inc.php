@@ -41,6 +41,7 @@ function argus_gebruikersregistratie_form_pupil_pre($form, &$form_state) {
 	foreach ( $result as $row ) {
 		$options [$row->uid] = argus_get_user_realname ( $row->uid );
 	}
+	asort( $options );
 	$form ['algemeen'] ['inschrijver'] = array (
 			'#title' => t ( 'U wordt momenteel geholpen door...' ),
 			'#type' => 'select',
@@ -377,10 +378,10 @@ function argus_gebruikersregistratie_form_pupil_pre_submit($form, &$form_state) 
 	$cntr = 1;
 	$accountCheck = $account;
 	do {
-		$query = 'SELECT u.uid ' . 'FROM {users} AS u ' . 'WHERE u.name = :account AND uid != :uid';
+		$query = 'SELECT u.uid FROM {users} AS u WHERE u.name = :account AND u.uid != :uid';
 		$checkAccounts = db_query ( $query, array (
 				':account' => $accountCheck,
-				':uid' => $uid 
+				':uid' => $uid
 		) )->rowCount ();
 		if ($checkAccounts) {
 			$accountCheck = $account . ($cntr ++);

@@ -3,6 +3,7 @@
 v7.x-1.13
 ---------
 - Mogelijkheid toegevoegd om filenames aan te passen via admin scherm
+- Extra velden toegevoegd om te interpreteren
 
 v7.x-1.12
 ---------

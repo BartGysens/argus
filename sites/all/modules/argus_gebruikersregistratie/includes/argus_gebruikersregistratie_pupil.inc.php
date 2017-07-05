@@ -48,6 +48,7 @@ function argus_gebruikersregistratie_form_pupil($form, &$form_state) {
 	foreach ( $result as $row ) {
 		$options [$row->uid] = argus_get_user_realname ( $row->uid );
 	}
+	asort( $options );
 	$form ['algemeen'] ['inschrijver'] = array (
 			'#title' => t ( 'U wordt momenteel geholpen door...' ),
 			'#type' => 'select',
@@ -1565,7 +1566,6 @@ function argus_gebruikersregistratie_form_pupil_validate($form, &$form_state) {
  * Form submission callback
  */
 function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
-	$uid = null;
 	$cc = array (
 			'form' => null,
 			'grade' => null,
@@ -1574,6 +1574,7 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 	);
 	
 	// Check if a uid is set
+	$uid = null;
 	if (count ( $form_state ['build_info'] ['args'] )) {
 		if (array_key_exists ( 'uid', $form_state ['build_info'] ['args'] [0] )) {
 			if (is_numeric ( $form_state ['build_info'] ['args'] [0] ['uid'] )) {
@@ -1582,7 +1583,13 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 		}
 	}
 	
-	$account = argus_sanitize_string ( $form_state ['values'] ['voornaam'] ) . '.' . argus_sanitize_string ( $form_state ['values'] ['naam'] );
+	if (isset($uid)){
+		$user = user_load ( $uid );
+		$account = $user->name;
+	} else {
+		$user = '';
+		$account = argus_sanitize_string ( $form_state ['values'] ['voornaam'] ) . '.' . argus_sanitize_string ( $form_state ['values'] ['naam'] );
+	}
 	
 	// Check if username has already been taken
 	$cntr = 1;
@@ -1609,11 +1616,7 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 			'status' => 0,
 			'signature_format' => 'full_html' 
 	);
-	if ($uid) {
-		$user = user_load ( $uid );
-	} else {
-		$user = '';
-	}
+	
 	foreach ( $form_state ['values'] as $field => $value ) {
 		$user_data ['field_user_sms_' . $field] [LANGUAGE_NONE] [0] ['value'] = $value;
 	}
@@ -1814,8 +1817,8 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 	$user_data ['field_user_sms_andere_ls_j_n'] [LANGUAGE_NONE] [0] ['value'] = $set;
 	
 	try {
-		$user_data ['name'] = $user_data ['name'] . time ();
 		$u = user_save ( $user, $user_data );
+		
 		if ($u) {
 			argus_report ( 'De gebruiker "%accountname" werd succesvol toegevoegd.', array (
 					'%accountname' => $account 
