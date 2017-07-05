@@ -526,7 +526,7 @@ function argus_sms_add_user_to_smartschool($uid) {
 			$newPassword = true;
 		}
 		if ($newPassword) {
-			$password = argus_engine_sanitize_password ();
+			$password = argus_engine_generate_password ();
 			
 			$u->pass = $password;
 			$u->field_user_tmp_pwhfd [LANGUAGE_NONE] [0] ['value'] = $password;
