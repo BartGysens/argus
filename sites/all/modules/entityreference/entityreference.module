@@ -807,8 +807,14 @@ function entityreference_field_widget_settings_form($field, $instance) {
  * Implements hook_options_list().
  */
 function entityreference_options_list($field, $instance = NULL, $entity_type = NULL, $entity = NULL) {
-  if (!$options = entityreference_get_selection_handler($field, $instance, $entity_type, $entity)->getReferencableEntities()) {
-    return array();
+  $selection_handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
+  if (!$options = $selection_handler->getReferencableEntities()) {
+  	return array();
+  }
+
+  // If selection handler uses a view, let grouping come from it.
+  if (isset($selection_handler->view)) {
+     return $options;
   }
 
   // Rebuild the array, by changing the bundle key into the bundle label.

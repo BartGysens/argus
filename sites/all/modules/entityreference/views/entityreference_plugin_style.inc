@@ -45,18 +45,25 @@ class entityreference_plugin_style extends views_plugin_style {
 
     // Group the rows according to the grouping field, if specified.
     $sets = $this->render_grouping($this->view->result, $this->options['grouping']);
-    // Grab the alias of the 'id' field added by entityreference_plugin_display.
-    $id_field_alias = $this->display->handler->id_field_alias;
+    
+    return $this->clean_groupings($sets);
+  }
 
-    // @todo We don't display grouping info for now. Could be useful for select
-    // widget, though.
-    $results = array();
-    foreach ($sets as $records) {
-      foreach ($records as $index => $values) {
-        $this->view->row_index = $index;
-        // Sanitize html, remove line breaks and extra whitespace.
-        $results[$values->{$id_field_alias}] = filter_xss_admin(preg_replace('/\s\s+/', ' ', str_replace("\n", '', $this->row_plugin->render($values))));
-      }
+  // Clean views grouped results array.
+  function clean_groupings($sets) {
+	// Grab the alias of the 'id' field added by entityreference_plugin_display.
+    $id_field_alias = $this->display->handler->id_field_alias;
+    foreach ($sets as $key => $value) {
+    	      if (is_array($value)) {
+    		        $results[$key] = $this->clean_groupings($value);
+    		        if ($key == 'rows' || !$key) {
+    			          return $results[$key];
+    			        }
+    			      }
+    			      else if (is_object($value)) {
+    				        $this->view->row_index = $key;
+    				        $results[$value->{$id_field_alias}] = filter_xss_admin(preg_replace('/\s\s+/', ' ', str_replace("\n", '', $this->row_plugin->render($value))));
+    			}
     }
     unset($this->view->row_index);
     return $results;
