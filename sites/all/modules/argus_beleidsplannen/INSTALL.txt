@@ -1,0 +1,10 @@
+**Installation:
+
+(naam van je module en eventueel pakket)
+
+1. Unpack the "argus_beleidsplannen" folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably sites/all/modules/
+2. Enable the "argus_beleidsplannen" module in the administration tools.
+3. If you're not using Drupal's default administrative account, make sure 
+ "administer argus 'argus_beleidsplannen'" is enabled through access control
+ administration.

@@ -1,0 +1,14 @@
+**Releases:
+
+
+v7.x-1.1
+---------
+- Module release met chart
+
+v7.x-1.0
+---------
+- eerste release als Feauture
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)
