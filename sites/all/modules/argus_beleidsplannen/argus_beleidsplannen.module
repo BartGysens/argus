@@ -131,17 +131,17 @@ function argus_beleidsplannen_structure() {
 	
 	drupal_add_js ( drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/js/argus_beleidsplannen_structure.js' );
 	
-	$data = array ();//, ikznr.field_ikz_nummer_value AS ikznr
+	$data = array ();
 	
-	$query = 'SELECT n.nid AS id, p.field_beleidsplan_overkoepelend_target_id AS parent, n.title AS title FROM {node} AS n
+	$query = 'SELECT n.nid AS id, p.field_beleidsplan_overkoepelend_target_id AS parent, n.title AS title, ikznr.field_ikz_nummer_value AS ikznr FROM {node} AS n
 			LEFT JOIN {field_data_field_ikz_nummer} AS ikznr ON ikznr.entity_id = n.nid 
-			INNER JOIN {field_data_field_beleidsplan_overkoepelend} AS p ON p.entity_id = n.nid 
-			WHERE n.type = :type
+			LEFT JOIN {field_data_field_beleidsplan_overkoepelend} AS p ON p.entity_id = n.nid 
+			WHERE n.type = :type ORDER BY p.field_beleidsplan_overkoepelend_target_id ASC
 			';
 	$results = db_query($query, array(':type' => 'beleidsplan'))->fetchAllAssoc('id', PDO::FETCH_ASSOC);
-
+	
 	foreach($results as $id => $bp){
-		$data[] = array( array( 'v' => $bp['id'], 'f' => $bp['title']), $bp['parent'], $bp['title'] );
+		$data[] = array( array( 'v' => $bp['id'], 'f' => '<a href="'.drupal_get_path_alias('/node/'.$bp['id']).'">'.$bp['title'].'</a><br />IKZ-rev. '.$bp['ikznr']), $bp['parent'], $bp['title'] );
 	}
 
 	return theme ( 'argus_beleidsplannen_structure', array (
