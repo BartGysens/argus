@@ -26,6 +26,9 @@ function advagg_font_requirements($phase) {
   // Get local and external fontfaceobserver version numbers.
   module_load_include('advagg.inc', 'advagg_font');
   $version = advagg_update_github_versions('fontfaceobserver');
+  if (!is_string($version)) {
+    $version = 'NULL';
+  }
 
   $lib_info = array();
   if (function_exists('libraries_info')) {

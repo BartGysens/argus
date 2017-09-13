@@ -74,18 +74,6 @@ function argus_soda_install() {
 				'title' => $block ['title'] 
 		) )->execute ();
 	}
-	
-	if (db_query ( "SHOW TABLES LIKE 'argus_soda_attest'" )->rowCount () == 0) {
-		$query = "CREATE TABLE argus_soda_attest (
-			  id int(6) unsigned NOT NULL AUTO_INCREMENT,
-			  author int(6) unsigned NOT NULL,
-			  leerling varchar(100) NOT NULL,
-			  datum timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-			  attest varchar(1) NOT NULL DEFAULT 'A',
-			  PRIMARY KEY (id)
-			) ENGINE=InnoDB DEFAULT CHARSET=latin1;";
-		$result = db_query ( $query );
-	}
 }
 
 /**
@@ -149,10 +137,6 @@ function argus_soda_uninstall() {
 	// Remove blocks
 	if (db_table_exists ( 'block' )) {
 		db_delete ( 'block' )->condition ( 'module', 'argus_soda' )->execute ();
-	}
-	
-	if (db_query ( "SHOW TABLES LIKE 'argus_soda_attest'" )->rowCount ()) {
-		$result = db_drop_table ( 'argus_soda_attest' );
 	}
 }
 

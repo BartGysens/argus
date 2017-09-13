@@ -1,10 +1,5 @@
 **Releases:
 
-v7.x-1.6
----------
-- Fix voor passwords (voorwaarden)
-- Optimalisatie velden en error-codes
-
 v7.x-1.5
 ---------
 - Extra check op installatie profile settings

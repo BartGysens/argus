@@ -1,14 +1,5 @@
 **Releases:
 
-v7.x-1.13
----------
-- Mogelijkheid toegevoegd om filenames aan te passen via admin scherm
-- Extra velden toegevoegd om te interpreteren
-
-v7.x-1.12
----------
-- Preparation for module installation
-
 v7.x-1.11-1
 ---------
 - Fix in SMS-sync voor email

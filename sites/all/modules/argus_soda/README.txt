@@ -12,7 +12,6 @@ Documents used in this module are made upon example delivered by SODA jobs.
 
 **Benefits:
 Get controle over your students progress in attitude and behavior.
-Sodajobs is owned by Simon Mensaert and Sodajobs vzw
 
 **Installation AND Upgrades:
 See the INSTALL.txt file.

@@ -134,7 +134,7 @@ function advagg_font_js_alter(&$js) {
     foreach ($js as $name => &$values) {
       if ($values['type'] === 'file' && stripos($name, '/fontfaceobserver.js') !== FALSE && is_readable($values['data'])) {
         $values['type'] = 'inline';
-        $values['data'] = (string) @file_get_contents($values['data']);
+        $values['data'] = (string) @advagg_file_get_contents($values['data']);
       }
     }
   }

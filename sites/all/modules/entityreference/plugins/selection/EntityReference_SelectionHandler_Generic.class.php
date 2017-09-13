@@ -256,7 +256,7 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
     }
 
     // Add a generic entity access tag to the query.
-    //$query->addTag($this->field['settings']['target_type'] . '_access');
+  //  $query->addTag($this->field['settings']['target_type'] . '_access');
     if (!empty($this->field['settings']['handler_settings']['sort'])) {
       $sort_settings = $this->field['settings']['handler_settings']['sort'];
     }
@@ -265,15 +265,15 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
       // Add a generic entity access tag to the query.
       $query->addTag($this->field['settings']['target_type'] . '_access');
     }
-    $query->addTag('entityreference');
+$query->addTag('entityreference');
     $query->addMetaData('field', $this->field);
     $query->addMetaData('entityreference_selection_handler', $this);
 
     // Add the sort option.
     //if (!empty($this->field['settings']['handler_settings']['sort'])) {
       //$sort_settings = $this->field['settings']['handler_settings']['sort'];
-    if (!empty($sort_settings)) {
-      if ($sort_settings['type'] == 'property') {
+  if (!empty($sort_settings)) {
+    if ($sort_settings['type'] == 'property') {
         $query->propertyOrderBy($sort_settings['property'], $sort_settings['direction']);
       }
       elseif ($sort_settings['type'] == 'field') {
@@ -318,7 +318,7 @@ class EntityReference_SelectionHandler_Generic implements EntityReference_Select
    */
   public function getLabel($entity) {
     $target_type = $this->field['settings']['target_type'];
-    return entity_access('view', $target_type, $entity) ? entity_label($target_type, $entity) : t('- Restricted access -');
+    return entity_access('view', $target_type, $entity) ? entity_label($target_type, $entity) : t(ENTITYREFERENCE_DENIED);
   }
 
   /**

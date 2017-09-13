@@ -99,7 +99,7 @@ function argus_document_generator_VSG_HRM_Planningsgesprek_document($args) {
 	$options = field_info_field('field_user_sms_basisrol');
 	$document->setValue('ambt', $options['settings']['allowed_values'][$u->field_user_sms_basisrol[LANGUAGE_NONE][0]['value']]);
 	
-	$document->setValue('vakken', implode(', ', argus_uurrooster_get_courses($uid)));
+	$document->setValue('vakken', str_replace('&', '_', implode(', ', argus_uurrooster_get_courses($uid))));
 	
 	if (module_exists('argus_uurrooster')){
 		$assignment = argus_uurrooster_get_assignment($uid);
