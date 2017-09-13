@@ -1055,14 +1055,17 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 		if ($u) {
 			if (array_key_exists ( LANGUAGE_NONE, $u->field_user_tmp_reg_class )) {
 				$class = $u->field_user_tmp_reg_class [LANGUAGE_NONE] [0] ['value'] . '%';
-				$query = 'SELECT p.nid AS id, v.title AS title, COUNT(v.nid) AS total, vb.field_vak_beschrijving_value AS name FROM {node} AS k LEFT JOIN {field_data_field_uurrooster_les_klassen} AS lk ON lk.field_uurrooster_les_klassen_target_id = k.nid LEFT JOIN {field_data_field_uurrooster_les_vak} AS lv ON lv.entity_id = lk.entity_id LEFT JOIN {field_data_field_uurrooster_les_periode} AS lp ON lp.entity_id = lk.entity_id INNER JOIN {field_data_field_uurrooster_les_id_untis} AS liu ON liu.entity_id = lk.entity_id LEFT JOIN {node} AS v ON v.nid = lv.field_uurrooster_les_vak_target_id LEFT JOIN {field_data_field_vak_beschrijving} AS vb ON vb.entity_id = lv.field_uurrooster_les_vak_target_id RIGHT JOIN {node} AS p ON p.nid = lp.field_uurrooster_les_periode_target_id WHERE k.title LIKE :class AND liu.field_uurrooster_les_id_untis_value NOT IN (:lius) GROUP BY liu.field_uurrooster_les_id_untis_value ORDER BY v.title ASC';
+				$query = 'SELECT DISTINCT p.nid AS id, v.title AS title, COUNT(v.nid) AS total, vb.field_vak_beschrijving_value AS name FROM {node} AS k LEFT JOIN {field_data_field_uurrooster_les_klassen} AS lk ON lk.field_uurrooster_les_klassen_target_id = k.nid LEFT JOIN {field_data_field_uurrooster_les_vak} AS lv ON lv.entity_id = lk.entity_id LEFT JOIN {field_data_field_uurrooster_les_periode} AS lp ON lp.entity_id = lk.entity_id INNER JOIN {field_data_field_uurrooster_les_id_untis} AS liu ON liu.entity_id = lk.entity_id LEFT JOIN {node} AS v ON v.nid = lv.field_uurrooster_les_vak_target_id LEFT JOIN {field_data_field_vak_beschrijving} AS vb ON vb.entity_id = lv.field_uurrooster_les_vak_target_id RIGHT JOIN {node} AS p ON p.nid = lp.field_uurrooster_les_periode_target_id WHERE k.title LIKE :class AND liu.field_uurrooster_les_id_untis_value NOT IN (:lius) AND vb.field_vak_beschrijving_value NOT LIKE :course1 AND vb.field_vak_beschrijving_value NOT LIKE :course2 GROUP BY liu.field_uurrooster_les_id_untis_value ORDER BY vb.field_vak_beschrijving_value ASC';
 				$result = db_query ( $query, array (
 						':class' => $class,
 						':lius' => array (
 								35401,
-								211403 
-						) 
-				) )->fetchAllAssoc ( 'name', PDO::FETCH_ASSOC );
+								211403,
+								240500,
+						),
+						':course1' => '%odsdienst%',
+						':course2' => '%edenleer%',
+				) )->fetchAllAssoc ( 'id', PDO::FETCH_ASSOC );
 				
 				$prefixList = '<w:p><w:pPr><w:spacing w:line="320" w:lineRule="auto"/><w:tabs><w:tab w:val="right" w:pos="8500"/></w:tabs><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>';
 				$tab = '</w:t></w:r><w:r w:rsidRPr="003B6BFD"><w:rPr><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:tab/><w:t>';
@@ -1072,10 +1075,8 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 				$courseTable .= $prefixList . 'Levensbeschouwelijk vak (godsdienst, zedenleer, ...)' . $tab . '2' . $suffixList;
 				$courseTotal = 2;
 				foreach ( $result as $key => $course ) {
-					if (! stristr ( $key, 'godsdienst' ) && ! stristr ( $key, 'zedenleer' ) && $course ['name']) {
-						$courseTable .= $prefixList . htmlspecialchars ( $course ['name'] ) . $tab . $course ['total'] . $suffixList;
-						$courseTotal += $course ['total'];
-					}
+					$courseTable .= $prefixList . htmlspecialchars ( $course ['name'] ) . $tab . $course ['total'] . $suffixList;
+					$courseTotal += $course ['total'];
 				}
 			}
 		}
