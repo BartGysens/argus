@@ -30,7 +30,20 @@ function argus_hrm_menu() {
 	
 	$items = array ();
 	$items ['admin/config/argus/hrm'] = array (
-			'title' => 'HRM: workload',
+			'title' => 'HRM',
+			'description' => 'Instellingen die van toepassing zijn op de volledige module HRM',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'argus_hrm_setup_form' 
+			),
+			'access arguments' => array (
+					'access administration pages' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 1 
+	);
+	$items ['admin/config/argus/hrm/workload'] = array (
+			'title' => 'Workload - belasting',
 			'description' => 'Parameters instellen voor het berekenen van de workload per personeelslid',
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array (
@@ -42,10 +55,34 @@ function argus_hrm_menu() {
 			'type' => MENU_NORMAL_ITEM,
 			'weight' => 1 
 	);
+	$items ['admin/config/argus/hrm/pop'] = array (
+			'title' => 'Persoonlijk ontwikkelingsplan (POP)',
+			'description' => 'Status POP per personeelslid',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'argus_hrm_pop_setup_form' 
+			),
+			'access arguments' => array (
+					'access administration pages' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 1 
+	);
+	
 	$items ['hrm/workload'] = array (
 			'title' => t ( 'Belasting' ),
 			'description' => 'Bereken hoeveel elk personeelslid wordt ingeschakeld per functie.',
 			'page callback' => 'argus_hrm_workload_overview',
+			'access arguments' => array (
+					'access argus_hrm content' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'menu_name' => $menu 
+	);
+	$items ['hrm/pop-overzicht'] = array (
+			'title' => t ( 'Status POP' ),
+			'description' => 'Bekijk de status per personeelslid van de persoonlijke ontwikkelingsplannen.',
+			'page callback' => 'argus_hrm_pop_overview',
 			'access arguments' => array (
 					'access argus_hrm content' 
 			),
@@ -62,6 +99,9 @@ function argus_hrm_theme() {
 	return array (
 			'argus_hrm--overview_workload' => array (
 					'template' => 'templates/argus_hrm--overview_workload' 
+			),
+			'argus_hrm--overview_pop' => array (
+					'template' => 'templates/argus_hrm--overview_pop' 
 			) 
 	);
 }
@@ -73,7 +113,10 @@ function argus_hrm_permission() {
 	return array (
 			'access argus_hrm content' => array (
 					'title' => t ( 'Belasting van personeelsleden bekijken' ) 
-			) 
+			),
+			'access argus_hrm content' => array (
+					'title' => t ( 'Persoonlijk ontwikkelingsplan van personeelsleden raadplegen' ) 
+			)
 	);
 }
 
@@ -1650,6 +1693,33 @@ function argus_hrm_views_default_views() {
 }
 
 /**
+ * Page callback: HRM instellingen
+ *
+ * @see argus_hrm_setup_form()
+ */
+function argus_hrm_setup_form($form, &$form_state) {
+	$form ['general'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Algemeen' ),
+			'#description' => t ( 'Algemene instellingen voor het HRM-beleid.' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => FALSE
+	);
+
+	$form ['general'] ['argus_hrm_roles'] = array (
+			'#type' => 'select',
+			'#title' => t ( 'Selecteer enkel de gebruikers van onderstaande groep' ),
+			'#options' => user_roles (),
+			'#multiple' => TRUE,
+			'#size' => 10,
+			'#default_value' => variable_get ( 'argus_hrm_roles', 0 ),
+			'#description' => t ( 'Uw HRM-beleid is van toepassing op de mensen uit deze groep(en).' )
+	);
+	
+	return system_settings_form ( $form );
+}
+
+/**
  * Page callback: HRM - workload instellingen
  *
  * @see argus_hrm_workload_setup_form()
@@ -1831,6 +1901,33 @@ function argus_hrm_workload_setup_form($form, &$form_state) {
 }
 
 /**
+ * Page callback: HRM - pop instellingen
+ *
+ * @see argus_hrm_pop_setup_form()
+ */
+function argus_hrm_pop_setup_form($form, &$form_state) {
+	$form ['general'] = array (
+			'#type' => 'fieldset',
+			'#title' => t ( 'Algemeen' ),
+			'#description' => t ( 'Het Persoonlijk ontwikkelingsplan wordt opgestart en in een cyclus van vijf stappen uitgevoerd.' ),
+			'#collapsible' => TRUE,
+			'#collapsed' => FALSE
+	);
+
+	$form ['general'] ['argus_hrm_pop_roles'] = array (
+			'#type' => 'select',
+			'#title' => t ( 'Selecteer enkel de gebruikers van onderstaande groep' ),
+			'#options' => user_roles (),
+			'#multiple' => TRUE,
+			'#size' => 10,
+			'#default_value' => variable_get ( 'argus_hrm_pop_roles', 0 ),
+			'#description' => t ( 'Het POP zal enkel voor de mensen uit deze groep(en) worden opgemaakt.' )
+	);
+	
+	return system_settings_form ( $form );
+}
+
+/**
  * Page callback: Overzicht van de totale workload, afhankelijk van de instellingen en de geinstalleerde modules
  *
  *
@@ -1869,7 +1966,7 @@ function argus_hrm_workload_overview() {
 	$relevant_roles = variable_get ( 'argus_hrm_workload_roles', false );
 	if (! $relevant_roles) {
 		global $base_url;
-		argus_report ( 'Module HRM: workload is not correctly set; please visit the <a href="' . $base_url . '/admin/config/argus/hrm-workload">admin-pages</a>.' );
+		argus_report ( 'Module HRM: workload is not correctly set; please visit the <a href="' . $base_url . '/admin/config/argus/hrm/workload">admin-pages</a>.' );
 	} else {
 		$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users} AS u ' . 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 'WHERE ur.rid IN (:rids) AND status = 1';
 		$result = array_keys ( db_query ( $query, array (
@@ -2081,6 +2178,74 @@ function argus_hrm_workload_overview() {
 }
 
 /**
+ * Page callback: Overzicht van de persoonlijke ontwikkelingsplannen
+ *
+ *
+ *
+ * @return array
+ */
+function argus_hrm_pop_overview() {
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_hrm' ) . '/css/argus_hrm.css' );
+	
+	$data = array ();
+	
+	$default_user = array (
+			'name' => null,
+			'phases' => array (),
+			'register' => array(),
+	);
+	
+	$data ['users'] = array ();
+	
+	$relevant_roles = variable_get ( 'argus_hrm_pop_roles', false );
+	if (! $relevant_roles) {
+		global $base_url;
+		argus_report ( 'Module HRM: pop is not correctly set; please visit the <a href="' . $base_url . '/admin/config/argus/hrm/pop">admin-pages</a>.' );
+	} else {
+		$query = 'SELECT DISTINCT(u.uid) AS id FROM {users} AS u INNER JOIN {users_roles} AS ur ON u.uid = ur.uid WHERE ur.rid IN (:rids) AND status = 1';
+		$result = array_keys ( db_query ( $query, array (
+				':rids' => $relevant_roles
+		) )->fetchAllAssoc ( 'id', PDO::FETCH_NAMED ) );
+		
+		$data ['max'] = 0;
+		
+		$data ['types'] = array(
+				'pg' => 'hrm_planningsgesprek',
+				'fg' => 'hrm_functioneringsgesprek',
+				'eg' => 'hrm_evaluatiegesprek',
+				'fb' => 'hrm_flitsbezoek',
+				'kb' => 'hrm_klasbezoek',
+		);
+		foreach ( $result as $uid ) {
+			$data ['users'] [$uid] = $default_user;
+			$data ['users'] [$uid] ['name'] = argus_get_user_realname ( $uid );
+			
+			foreach ($data ['types'] as $k => $type){
+				$query = 'SELECT n.nid AS id, t.field_tijdstip_value AS t FROM {node} AS n LEFT JOIN {field_data_field_personeelslid} AS u ON u.entity_id = n.nid INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid WHERE n.type = :type AND status = 1 AND field_personeelslid_target_id = :uid';
+				$result = db_query ( $query, array (
+						':uid' => $uid,
+						':type' => $type
+				) )->fetchAllKeyed( 0, 1 );
+					
+				$data ['users'] [$uid] ['phases'] [$k] = $result;
+				
+				foreach ($result as $id => $t){
+					$data ['users'] [$uid] ['register'] [$t] = array( 'id' => $id, 'type' => $k );
+				}
+			}
+			
+			if ( ( $total = count( $data ['users'] [$uid] ['register'] ) ) > $data ['max']){
+				$data ['max'] = $total;
+			}
+		}
+	}
+	
+	asort ( $data ['users'] );
+	
+	return theme ( 'argus_hrm--overview_pop', $data );
+}
+
+/**
  * Custom module functionality
  */
 
@@ -2100,6 +2265,5 @@ function argus_hrm_get_plage_uren($uid) {
 			':uid' => $uid,
 			':type' => 'uurrooster_les' 
 	) )->fetchAll ();
-	//dpm ( $result );
 	return 1;
 }

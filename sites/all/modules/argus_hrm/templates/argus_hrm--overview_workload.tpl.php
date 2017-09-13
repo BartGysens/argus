@@ -31,37 +31,37 @@ if ($order == 'DESC'){
 <table class="views-table sticky-enabled tableheader-processed sticky-table argus_hrm" style="page-break-after: always;">
     <thead style="font-weight: bold;">
     	<tr>
-		    <th class="views-field views-align-middle" scope="col" rowspan="2">Nr.</td>
-		    <th class="views-field views-align-left" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=name&order='.$order; ?>"><?php print t('NAAM'); if ($orderBy == 'name'){ print $orderImg; } ?></a></td>
+		    <th class="views-field views-align-middle" scope="col" rowspan="2">Nr.</th>
+		    <th class="views-field views-align-left" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=name&order='.$order; ?>"><?php print t('NAAM'); if ($orderBy == 'name'){ print $orderImg; } ?></a></th>
 		    <?php if (module_exists('argus_uurrooster')){ ?>
-			    <th class="views-field views-align-middle" scope="col" rowspan="2"><?php print t('PERMANENTIE'); ?></td>
-			    <th class="views-field views-align-middle" scope="col" colspan="4"><?php print t('TOEZICHTEN'); ?></td>
-			    <th class="views-field views-align-middle" scope="col" rowspan="2" title="<?php print t('SPRINGUREN'); ?>"><a href="<?php print $base_url.'/hrm/workload?s=springuren&order='.$order; ?>"><?php print t('+UREN'); if ($orderBy == 'springuren'){ print $orderImg; } ?></a></td>
-			    <th class="views-field views-align-middle" scope="col" rowspan="2" title="<?php print t('PLAGE-UREN'); ?>"><a href="<?php print $base_url.'/hrm/workload?s=plage-uren&order='.$order; ?>"><?php print t('PLAGE'); if ($orderBy == 'plage-uren'){ print $orderImg; } ?></a></td>
+			    <th class="views-field views-align-middle" scope="col" rowspan="2"><?php print t('PERMANENTIE'); ?></th>
+			    <th class="views-field views-align-middle" scope="col" colspan="4"><?php print t('TOEZICHTEN'); ?></th>
+			    <th class="views-field views-align-middle" scope="col" rowspan="2" title="<?php print t('SPRINGUREN'); ?>"><a href="<?php print $base_url.'/hrm/workload?s=springuren&order='.$order; ?>"><?php print t('+UREN'); if ($orderBy == 'springuren'){ print $orderImg; } ?></a></th>
+			    <th class="views-field views-align-middle" scope="col" rowspan="2" title="<?php print t('PLAGE-UREN'); ?>"><a href="<?php print $base_url.'/hrm/workload?s=plage-uren&order='.$order; ?>"><?php print t('PLAGE'); if ($orderBy == 'plage-uren'){ print $orderImg; } ?></a></th>
 		    <?php } ?>
 		    
 			<?php if (module_exists('argus_klasbeheer')){ ?>
-			    <th class="views-field views-align-middle" scope="col" colspan="2"><?php print t('KLASTITULARIS'); ?></td>
+			    <th class="views-field views-align-middle" scope="col" colspan="2"><?php print t('KLASTITULARIS'); ?></th>
 			<?php } ?>
 		    
 			<?php if (module_exists('argus_stages')){ ?>
-			    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=stages&order='.$order; ?>"><?php print t('STAGES'); if ($orderBy == 'stages'){ print $orderImg; } ?></a></td>
+			    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=stages&order='.$order; ?>"><?php print t('STAGES'); if ($orderBy == 'stages'){ print $orderImg; } ?></a></th>
 			<?php } ?>
 			
-		    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=roles&order='.$order; ?>"><?php print t('ROLLEN'); if ($orderBy == 'roles'){ print $orderImg; } ?></a></td>
-		    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=score&order='.$order; ?>"><?php print t('SCORE'); if ($orderBy == 'score'){ print $orderImg; } ?></a></td>
+		    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=roles&order='.$order; ?>"><?php print t('ROLLEN'); if ($orderBy == 'roles'){ print $orderImg; } ?></a></th>
+		    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=score&order='.$order; ?>"><?php print t('SCORE'); if ($orderBy == 'score'){ print $orderImg; } ?></a></th>
 		</tr>
 		<tr>
 			<?php if (module_exists('argus_uurrooster')){ ?>
-				<th class="views-field views-align-middle" scope="col" style="font-size: 8px;">kort<br/>effectief</td>
-				<th class="views-field views-align-middle" scope="col" style="font-size: 8px;">kort<br/>vervanger</td>
-				<th class="views-field views-align-middle" scope="col" style="font-size: 8px;">lang<br/>effectief</td>
-				<th class="views-field views-align-middle" scope="col" style="font-size: 8px;">lang<br/>vervanger</td>
+				<th class="views-field views-align-middle" scope="col" style="font-size: 8px;">kort<br/>effectief</th>
+				<th class="views-field views-align-middle" scope="col" style="font-size: 8px;">kort<br/>vervanger</th>
+				<th class="views-field views-align-middle" scope="col" style="font-size: 8px;">lang<br/>effectief</th>
+				<th class="views-field views-align-middle" scope="col" style="font-size: 8px;">lang<br/>vervanger</th>
 			<?php } ?>
 		    
 			<?php if (module_exists('argus_klasbeheer')){ ?>
-			    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=ktt_lln&order='.$order; ?>"><?php print t('KTT'); if ($orderBy == 'ktt_lln'){ print $orderImg; } ?></a></td>
-			    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=hktt_lln&order='.$order; ?>"><?php print t('HKTT'); if ($orderBy == 'hktt_lln'){ print $orderImg; } ?></a></td>
+			    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=ktt_lln&order='.$order; ?>"><?php print t('KTT'); if ($orderBy == 'ktt_lln'){ print $orderImg; } ?></a></th>
+			    <th class="views-field views-align-middle" scope="col" rowspan="2"><a href="<?php print $base_url.'/hrm/workload?s=hktt_lln&order='.$order; ?>"><?php print t('HKTT'); if ($orderBy == 'hktt_lln'){ print $orderImg; } ?></a></th>
 			<?php } ?>
 		</tr>
     </thead>

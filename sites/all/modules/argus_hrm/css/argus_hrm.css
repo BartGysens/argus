@@ -115,3 +115,20 @@ table.argus_hrm tbody td div.supervision{
     cursor: pointer;
     padding: 1px 2px;
 }
+
+.argus_hrm_pop_pg{
+	background-color: #b3f39d !important;
+}
+.argus_hrm_pop_fg{
+	background-color: #fee093 !important;
+}
+.argus_hrm_pop_eg{
+	background-color: #ea9a8e !important;
+}
+
+.argus_hrm_pop_kb{
+	background-color: #c9dbfe !important;
+}
+.argus_hrm_pop_fb{
+	background-color: #deb6fe!important;
+}

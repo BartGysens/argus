@@ -1,6 +1,6 @@
 name = Smartschool Synchronisation tools
 description = Synchroniseer je gegevens uit je eigen Smartschool-platform met argus.
-package = argus - a Smartschool extension
+package = argus - a Quality control extension
 core = 7.x
 php = 5.2
 dependencies[] = argus_engine
