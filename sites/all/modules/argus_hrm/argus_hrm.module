@@ -2221,16 +2221,25 @@ function argus_hrm_pop_overview() {
 			$data ['users'] [$uid] ['name'] = argus_get_user_realname ( $uid );
 			
 			foreach ($data ['types'] as $k => $type){
-				$query = 'SELECT n.nid AS id, t.field_tijdstip_value AS t FROM {node} AS n LEFT JOIN {field_data_field_personeelslid} AS u ON u.entity_id = n.nid INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid WHERE n.type = :type AND status = 1 AND field_personeelslid_target_id = :uid';
+				$query = 'SELECT n.nid AS id, t.field_tijdstip_value AS t, 
+						CONCAT_WS(:sep, s_pg.field_planningsgesprek_status_value, s_fg.field_functioneringsg_status_value, s_eg.field_evaluatiegesprek_status_value) AS status 
+						FROM {node} AS n 
+						LEFT JOIN {field_data_field_personeelslid} AS u ON u.entity_id = n.nid 
+						LEFT JOIN {field_data_field_planningsgesprek_status} AS s_pg ON s_pg.entity_id = n.nid 
+						LEFT JOIN {field_data_field_functioneringsg_status} AS s_fg ON s_fg.entity_id = n.nid  
+						LEFT JOIN {field_data_field_evaluatiegesprek_status} AS s_eg ON s_eg.entity_id = n.nid 
+						INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid 
+						WHERE n.type = :type AND status = 1 AND field_personeelslid_target_id = :uid';
 				$result = db_query ( $query, array (
 						':uid' => $uid,
-						':type' => $type
-				) )->fetchAllKeyed( 0, 1 );
-					
+						':type' => $type,
+						':sep' => ''
+				) )->fetchAllAssoc( 'id' );
+				
 				$data ['users'] [$uid] ['phases'] [$k] = $result;
 				
-				foreach ($result as $id => $t){
-					$data ['users'] [$uid] ['register'] [$t] = array( 'id' => $id, 'type' => $k );
+				foreach ($result as $id => $d){
+					$data ['users'] [$uid] ['register'] [$d->t] = array( 'id' => $id, 'type' => $k, 'status' => $d->status );
 				}
 			}
 			
