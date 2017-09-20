@@ -170,9 +170,9 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 					          . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
 					          . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
 					          . 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-					          . 'AND b.field_lvs_melding_betreft_value = :about '
+					          . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 					          . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate';
-					    $count = db_query($query, array(':uid' => $student['target_id'], ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
+					    $count = db_query($query, array(':uid' => $student['target_id'], ':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
 					    $variables['data'][$student['target_id']]['behaviour']['neg'] = $count;
 					    if ($count > $variables['data']['max']['behaviour']['neg']){
 					        $variables['data']['max']['behaviour']['neg'] = $count;
@@ -226,11 +226,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 					              . 'LEFT JOIN {field_data_field_lvs_melding_msl_'.$msl.'} AS m ON l.entity_id = m.entity_id '
 					              . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_'.$msl.'_target_id = mt.nid '
 					              . 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-					              . 'AND b.field_lvs_melding_betreft_value = :about '
+					              . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 					              . 'AND mt.title IS NOT NULL '
 					              . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 					              . 'GROUP BY mid';
-					        $result = db_query($query, array(':uid' => $student['target_id'], ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
+					        $result = db_query($query, array(':uid' => $student['target_id'], ':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
 					        $total = 0;
 					        foreach ($result->fetchAll() as $k => $r){
 					            $variables['data'][$student['target_id']]['behaviour']['msl'][$msl][$r->title] = $r->cmid;
@@ -288,11 +288,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 					          . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
 					          . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid '
 					          . 'WHERE l.field_lvs_melding_leerling_target_id = :uid '
-					          . 'AND b.field_lvs_melding_betreft_value = :about '
+					          . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 					          . 'AND mt.title IS NOT NULL '
 					          . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 					          . 'GROUP BY mid';
-					    $measures = db_query($query, array(':uid' => $student['target_id'], ':about' => 'studiebegeleiding', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+					    $measures = db_query($query, array(':uid' => $student['target_id'], ':about' => array( 'studiebegeleiding', 'orde (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
 					    $total = 0;
 					    foreach ($measures as $k => $r){
 					        $variables['data'][$student['target_id']]['study']['measures'][$r->title] = $r->cmid;
@@ -403,9 +403,9 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			$query = 'SELECT b.entity_id AS id '
 			      . 'FROM {field_data_field_lvs_melding_betreft} AS b '
 			      . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON b.entity_id = d.entity_id '
-			      . 'WHERE b.field_lvs_melding_betreft_value = :about '
+			      . 'WHERE b.field_lvs_melding_betreft_value IN (:about) '
 			      . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate';
-			$count = db_query($query, array(':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
+			$count = db_query($query, array(':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
 			$variables['averages']['school']['behaviour']['neg'] = $count;
 			
 			$query = 'SELECT b.entity_id AS id '
@@ -471,11 +471,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			      . 'LEFT JOIN {field_data_field_lvs_melding_studie} AS m ON b.entity_id = m.entity_id '
 			      . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON b.entity_id = d.entity_id '
 			      . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid '
-			      . 'WHERE b.field_lvs_melding_betreft_value = :about '
+			      . 'WHERE b.field_lvs_melding_betreft_value IN (:about) '
 			      . 'AND mt.title IS NOT NULL '
 			      . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 			      . 'GROUP BY mid';
-			$measures = db_query($query, array(':about' => 'studiebegeleiding', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+			$measures = db_query($query, array(':about' => array( 'studiebegeleiding', 'orde (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
 			$total = 0;
 			foreach ($measures as $k => $r){
 			    $total += $r->cmid;
@@ -558,9 +558,9 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			      . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
 			      . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
 			      . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			      . 'AND b.field_lvs_melding_betreft_value = :about '
+			      . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			      . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate';
-			$count = db_query($query, array(':uid' => $pupils, ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
+			$count = db_query($query, array(':uid' => $pupils, ':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
 			$variables['averages']['grade']['behaviour']['neg'] = $count;
 			
 			$query = 'SELECT l.entity_id AS id '
@@ -582,11 +582,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			          . 'LEFT JOIN {field_data_field_lvs_melding_msl_'.$msl.'} AS m ON l.entity_id = m.entity_id '
 			          . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_'.$msl.'_target_id = mt.nid '
 			          . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			          . 'AND b.field_lvs_melding_betreft_value = :about '
+			          . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			          . 'AND mt.title IS NOT NULL '
 			          . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 			          . 'GROUP BY mid';
-			    $result = db_query($query, array(':uid' => $pupils, ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
+			    $result = db_query($query, array(':uid' => $pupils, ':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
 			    $total = 0;
 			    foreach ($result->fetchAll() as $k => $r){
 			        $total += $r->cmid;
@@ -636,11 +636,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			      . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
 			      . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid '
 			      . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			      . 'AND b.field_lvs_melding_betreft_value = :about '
+			      . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			      . 'AND mt.title IS NOT NULL '
 			      . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 			      . 'GROUP BY mid';
-			$measures = db_query($query, array(':uid' => $pupils, ':about' => 'studiebegeleiding', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+			$measures = db_query($query, array(':uid' => $pupils, ':about' => array( 'studiebegeleiding', 'orde (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
 			$total = 0;
 			foreach ($measures as $k => $r){
 			    $total += $r->cmid;
@@ -720,9 +720,9 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			      . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
 			      . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
 			      . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			      . 'AND b.field_lvs_melding_betreft_value = :about '
+			      . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			      . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate';
-			$count = db_query($query, array(':uid' => $pupils, ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
+			$count = db_query($query, array(':uid' => $pupils, ':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
 			$variables['averages']['type']['behaviour']['neg'] = $count;
 			
 			$query = 'SELECT l.entity_id AS id '
@@ -745,11 +745,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			          . 'LEFT JOIN {field_data_field_lvs_melding_msl_'.$msl.'} AS m ON l.entity_id = m.entity_id '
 			          . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_'.$msl.'_target_id = mt.nid '
 			          . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			          . 'AND b.field_lvs_melding_betreft_value = :about '
+			          . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			          . 'AND mt.title IS NOT NULL '
 			          . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 			          . 'GROUP BY mid';
-			    $result = db_query($query, array(':uid' => $pupils, ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
+			    $result = db_query($query, array(':uid' => $pupils, ':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
 			    $total = 0;
 			    foreach ($result->fetchAll() as $k => $r){
 			        $total += $r->cmid;
@@ -799,11 +799,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			      . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
 			      . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid '
 			      . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			      . 'AND b.field_lvs_melding_betreft_value = :about '
+			      . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			      . 'AND mt.title IS NOT NULL '
 			      . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 			      . 'GROUP BY mid';
-			$measures = db_query($query, array(':uid' => $pupils, ':about' => 'studiebegeleiding', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+			$measures = db_query($query, array(':uid' => $pupils, ':about' => array( 'studiebegeleiding', 'orde (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
 			$total = 0;
 			foreach ($measures as $k => $r){
 			    $total += $r->cmid;
@@ -895,9 +895,9 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			      . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id '
 			      . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
 			      . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			      . 'AND b.field_lvs_melding_betreft_value = :about '
+			      . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			      . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate';
-			$count = db_query($query, array(':uid' => $pupils, ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
+			$count = db_query($query, array(':uid' => $pupils, ':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->rowCount();
 			$variables['averages']['eduyear']['behaviour']['neg'] = $count;
 			
 			$query = 'SELECT l.entity_id AS id '
@@ -920,11 +920,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			          . 'LEFT JOIN {field_data_field_lvs_melding_msl_'.$msl.'} AS m ON l.entity_id = m.entity_id '
 			          . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_'.$msl.'_target_id = mt.nid '
 			          . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			          . 'AND b.field_lvs_melding_betreft_value = :about '
+			          . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			          . 'AND mt.title IS NOT NULL '
 			          . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 			          . 'GROUP BY mid';
-			    $result = db_query($query, array(':uid' => $pupils, ':about' => 'negatief gedrag', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
+			    $result = db_query($query, array(':uid' => $pupils, ':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']));
 			    $total = 0;
 			    foreach ($result->fetchAll() as $k => $r){
 			        $total += $r->cmid;
@@ -974,11 +974,11 @@ if (array_key_exists(LANGUAGE_NONE, $node->field_klas_leerlingen)){
 			      . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id '
 			      . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid '
 			      . 'WHERE l.field_lvs_melding_leerling_target_id IN (:uid) '
-			      . 'AND b.field_lvs_melding_betreft_value = :about '
+			      . 'AND b.field_lvs_melding_betreft_value IN (:about) '
 			      . 'AND mt.title IS NOT NULL '
 			      . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate '
 			      . 'GROUP BY mid';
-			$measures = db_query($query, array(':uid' => $pupils, ':about' => 'studiebegeleiding', ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
+			$measures = db_query($query, array(':uid' => $pupils, ':about' => array( 'studiebegeleiding', 'orde (SODA)' ), ':startdate' => $schoolyear['start'], ':enddate' => $schoolyear['end']))->fetchAll();
 			$total = 0;
 			foreach ($measures as $k => $r){
 			    $total += $r->cmid;
