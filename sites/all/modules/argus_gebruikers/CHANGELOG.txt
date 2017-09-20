@@ -4,6 +4,7 @@
 v7.x-6.6
 ---------
 - Fix in profiel 'other' (birthday)
+- SODA beter geïntegreerd
 
 v7.x-6.5
 ---------

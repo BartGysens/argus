@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-3.7
+---------
+- SODA beter geïntegreerd
+
 v7.x-3.6
 ---------
 - Integratie van SODA in klasprofiel
