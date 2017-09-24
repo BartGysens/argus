@@ -53,7 +53,11 @@ global $user, $base_url;
 		print '<td style="text-align: left; padding-left: 8px;"><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'" target="_blank">'.$u['name'].'</a></td>';
 		
 		foreach ($u['register'] as $id => $t){
-			print '<td class="views-field views-align-middle argus_hrm_pop_' . $t['type'] . '" scope="col" title="' . $types[ $t['type'] ] . '"><a href="' . $base_url . '/' . drupal_get_path_alias( 'node/' . $t['id'] ) . '">' . format_date( strtotime( $id ), 'custom', 'd/m/y' ) . '</a></td>';
+			print '<td class="views-field views-align-middle argus_hrm_pop_' . $t['type'] . '" scope="col" title="' . $types[ $t['type'] ] . '"><a style="color: ';
+			if ($t['status'] != 'dossier bijgewerkt'){
+				print 'red !important';
+			}
+			print ';" href="' . $base_url . '/' . drupal_get_path_alias( 'node/' . $t['id'] ) . '">' . format_date( strtotime( $id ), 'custom', 'd/m/y' ) . '</a></td>';
 		}
 		
 		for ($x = 0; $x < ( $max - $counted ); $x++){

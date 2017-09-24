@@ -134,12 +134,12 @@ if (module_exists ( 'argus_meldingen' )) {
 	$query .= 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ';
 	$query .= 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ';
 	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
-	$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+	$query .= 'AND b.field_lvs_melding_betreft_value IN (:about) ';
 	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
 	$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value DESC';
 	$reports = db_query ( $query, array (
 			':uid' => $account->uid,
-			':about' => 'negatief gedrag',
+			':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ),
 			':startdate' => $schoolyear ['start'],
 			':enddate' => $schoolyear ['end'] 
 	) )->fetchAll ();
@@ -272,14 +272,14 @@ foreach ( $measureTypes as $mt ) {
 		$query .= 'LEFT JOIN {node} AS mt ON m.' . $mt ['field'] . '_target_id = mt.nid ';
 		$query .= 'INNER JOIN {node} AS r ON l.entity_id = r.nid ';
 		$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
-		$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+		$query .= 'AND b.field_lvs_melding_betreft_value IN (:about) ';
 		$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
 		$query .= 'GROUP BY mid';
 		$result = db_query ( $query, array (
 				':sep1' => '|',
 				':sep2' => '*',
 				':uid' => $account->uid,
-				':about' => 'negatief gedrag',
+				':about' => array( 'negatief gedrag', 'discipline (SODA)', 'attitude (SODA)' ),
 				':startdate' => $schoolyear ['start'],
 				':enddate' => $schoolyear ['end'] 
 		) )->fetchAll ();
@@ -412,10 +412,10 @@ if (module_exists ( 'argus_afwezigheden' )) {
 	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
 	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
 	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
-	$query .= 'AND b.field_lvs_melding_betreft_value = :about';
+	$query .= 'AND b.field_lvs_melding_betreft_value IN (:about)';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
-			':about' => 'afwezigheden',
+			':about' => array( 'afwezigheden', 'stiptheid (SODA)' ),
 			':startdate' => $schoolyear ['start'],
 			':enddate' => $schoolyear ['end'] 
 	) );
@@ -880,10 +880,10 @@ if (module_exists ( 'argus_meldingen' )) {
 	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
 	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
 	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
-	$query .= 'AND b.field_lvs_melding_betreft_value = :about';
+	$query .= 'AND b.field_lvs_melding_betreft_value IN (:about)';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
-			':about' => 'studiebegeleiding',
+			':about' => array( 'studiebegeleiding', 'orde (SODA)' ),
 			':startdate' => $schoolyear ['start'],
 			':enddate' => $schoolyear ['end'] 
 	) );
@@ -897,11 +897,11 @@ if (module_exists ( 'argus_meldingen' )) {
 	$query .= 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid ';
 	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
 	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
-	$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+	$query .= 'AND b.field_lvs_melding_betreft_value IN (:about) ';
 	$query .= 'GROUP BY mid';
 	$result = db_query ( $query, array (
 			':uid' => $account->uid,
-			':about' => 'studiebegeleiding',
+			':about' => array( 'studiebegeleiding', 'orde (SODA)' ),
 			':startdate' => $schoolyear ['start'],
 			':enddate' => $schoolyear ['end'] 
 	) );
@@ -1063,12 +1063,12 @@ if (module_exists ( 'argus_meldingen' )) {
 	$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
 	$query .= 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_studie_target_id = mt.nid ';
 	$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
-	$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+	$query .= 'AND b.field_lvs_melding_betreft_value IN (:about) ';
 	$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
 	$query .= 'GROUP BY mid';
 	$measures = db_query ( $query, array (
 			':uid' => $account->uid,
-			':about' => 'studiebegeleiding',
+			':about' => array( 'studiebegeleiding', 'orde (SODA)' ),
 			':startdate' => $schoolyear ['start'],
 			':enddate' => $schoolyear ['end'] 
 	) )->fetchAll ();
