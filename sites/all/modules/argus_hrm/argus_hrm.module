@@ -74,7 +74,7 @@ function argus_hrm_menu() {
 			'description' => 'Bereken hoeveel elk personeelslid wordt ingeschakeld per functie.',
 			'page callback' => 'argus_hrm_workload_overview',
 			'access arguments' => array (
-					'access argus_hrm content' 
+					'access argus_hrm_workload content' 
 			),
 			'type' => MENU_NORMAL_ITEM,
 			'menu_name' => $menu 
@@ -84,7 +84,7 @@ function argus_hrm_menu() {
 			'description' => 'Bekijk de status per personeelslid van de persoonlijke ontwikkelingsplannen.',
 			'page callback' => 'argus_hrm_pop_overview',
 			'access arguments' => array (
-					'access argus_hrm content' 
+					'access argus_hrm_pop content' 
 			),
 			'type' => MENU_NORMAL_ITEM,
 			'menu_name' => $menu 
@@ -111,10 +111,10 @@ function argus_hrm_theme() {
  */
 function argus_hrm_permission() {
 	return array (
-			'access argus_hrm content' => array (
+			'access argus_hrm_workload content' => array (
 					'title' => t ( 'Belasting van personeelsleden bekijken' ) 
 			),
-			'access argus_hrm content' => array (
+			'access argus_hrm_pop content' => array (
 					'title' => t ( 'Persoonlijk ontwikkelingsplan van personeelsleden raadplegen' ) 
 			)
 	);
