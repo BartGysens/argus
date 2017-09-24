@@ -160,8 +160,18 @@ div#page{
 }
 
 @media print{
+	html
+	body,
+	div,
+	span,
+	p,
+	table,
+	ul, ol,
+	li{
+		line-height: 1.8em !important;
+	}
+	
 	p{
-	    line-height: 1.3em;
 	    margin: 0px;
 	}
 
@@ -169,15 +179,16 @@ div#page{
 	    padding-top: 1.5em;
 	}
 	
-	.field-type-taxonomy-term-reference{
-	    display: none;
-	    visibility: none;
-	}
-
+	.field-type-taxonomy-term-reference,
 	div.hide-for-print{
 	    display: none;
 	    visibility: none;
 	}
+    
+    .argus_uurrooster_schedule_details_TD,
+    .argus_uurrooster_schedule_nav{
+    	display:none;
+    }
 }
 
 .pagebreaker-before {
@@ -988,12 +999,6 @@ a.cloud-add{
 .view .date-nav-wrapper .date-prev{
 	right: initial;
 	left: 0px;
-}
-
-@media print {
-    #main {line-height: 1.2em;}
-    .argus_uurrooster_schedule_details_TD,
-    .argus_uurrooster_schedule_nav{display:none;}
 }
 
 /* CSS FOR MEGAMENU */
