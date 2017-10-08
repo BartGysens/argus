@@ -19,7 +19,7 @@
 /* Drupal Hooks */
 
 /**
- * Implements argus_buscheck_menu().
+ * Implements argus_beleidsplannen_menu().
  */
 function argus_beleidsplannen_menu() {
 	if (menu_load ( 'menu-modules' )) {
@@ -27,23 +27,23 @@ function argus_beleidsplannen_menu() {
 	} else {
 		$menu = 'navigation';
 	}
-
+	
 	$items = array ();
 	$items ['beleidsplannen'] = array (
 			'title' => t ( 'Beleidsplannen' ),
 			'access callback' => true,
 			'type' => MENU_NORMAL_ITEM,
 			'menu_name' => $menu,
-			'expanded' => true
+			'expanded' => true 
 	);
 	$items ['beleidsplannen/structuur'] = array (
 			'title' => 'Beleidsplannen - Structuur',
 			'description' => 'Bekijk de boomstructuur van de beleidsplannen.',
 			'page callback' => 'argus_beleidsplannen_structure',
 			'access arguments' => array (
-					'access argus_beleidsplannen content'
+					'access argus_beleidsplannen content' 
 			),
-			'menu_name' => $menu
+			'menu_name' => $menu 
 	);
 	return $items;
 }
@@ -101,8 +101,7 @@ function argus_beleidsplannen_views_api() {
 	return array (
 			'api' => 3.0,
 			'path' => drupal_get_path ( 'module', 'argus_beleidsplannen' ) 
-	); // replace demo with your content type
-
+	);
 }
 
 /**
@@ -112,10 +111,164 @@ function argus_beleidsplannen_theme() {
 	return array (
 			'argus_beleidsplannen_structure' => array (
 					'template' => 'templates/argus_beleidsplannen--structure' 
+			),
+			'node__beleidsplan' => array (
+					'render element' => 'content',
+					'base hook' => 'node',
+					'template' => 'node--beleidsplan',
+					'path' => drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/templates' 
+			),
+			'edit-model-action' => array (
+					'template' => 'templates/argus_beleidsplannen--edit-model-action' 
 			) 
 	);
 }
 
+/**
+ * Hook preprocess for node
+ *
+ * @param type $variables        	
+ */
+function argus_beleidsplannen_preprocess_node(&$variables) {
+	switch ($variables ['type']) {
+		case 'beleidsplan' :
+			if (user_access ( 'access argus_beleidsplannen content' )) {
+				
+				drupal_add_css ( drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/css/argus_beleidsplannen.css' );
+				drupal_add_library ( 'system', 'drupal.collapse' );
+				
+				/* Set some global parameters */
+				$node = $variables ['elements'] ['#node'];
+				$variables ['node'] = $node;
+				$variables ['nid'] = $node->nid;
+				
+				$params = explode ( '/', current_path () );
+				if (array_key_exists ( 2, $params )) {
+					$modus = $params [2];
+				} else {
+					$modus = '';
+				}
+				$variables ['modus'] = $modus;
+				
+				switch ($modus) {
+					case 'actieplan' :
+						drupal_add_js ( drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/js/argus_beleidsplannen_actieplan.js' );
+						drupal_add_library ( 'system', 'ui.datepicker' );
+				
+						if (array_key_exists ( 'submit', $_POST )) {
+								
+							for ($cntr = 0; $cntr < $_POST['argus_beleidsplannen_cntr']; $cntr++){
+								if (array_key_exists('argus_beleidsplannen_' . $cntr . '_aid', $_POST)){
+									$aid = $_POST ['argus_beleidsplannen_' . $cntr . '_aid'];
+										
+									$delete_action = false;
+									if (is_numeric ( $aid )) {
+										if ($_POST ['argus_beleidsplannen_' . $cntr . '_action_description'] == '{delete}') {
+											node_delete ( $aid );
+											$delete_action = true;
+										} else {
+											$action = node_load ( $aid );
+										}
+									} else {
+										$action = new stdClass ();
+										$action->type = 'actie';
+										$action->language = LANGUAGE_NONE;
+										$action->status = 1;
+										$action->promote = 0;
+										$action->comment = 0;
+										node_object_prepare ( $action );
+											
+										global $user;
+										$action->uid = $user->uid;
+										$action->field_referentie [LANGUAGE_NONE] [0] ['value'] = $node->nid . '-' . $_POST ['argus_beleidsplannen_' . $cntr . '_ref'] . '-' . $cntr;
+										$action->field_beleidsplan [LANGUAGE_NONE] [0] ['target_id'] = $node->nid;
+											
+										/* Send user a Smartschool message (only new actions) */
+										if (module_exists ( 'argus_sms_api' )) {
+											$body = '<u>Herinnering</u><br /><br />Betreft: <strong>ACTIE BELEIDSPLAN ' . $node->title . '</strong><br />Leerling: <strong>' . argus_get_user_realname ( $_POST ['argus_beleidsplannen_' . $cntr . '_action_executor'] ) . '</strong><br />Te doen: <strong>' . $_POST ['argus_beleidsplannen_' . $cntr . '_action_description'] . '</strong><br />';
+											// argus_sms_api_send_msg ( 'argus_beleidsplannen_new_action', $_POST ['argus_beleidsplannen_' . $ref . '_action_executor'] [$k], 0, $user->uid, 'Nieuwe actie aangemaakt voor beleidsplan: ' . $node->title, $body );
+										}
+									}
+										
+									if (!$delete_action){
+										$action->body [LANGUAGE_NONE] [0] ['value'] = $_POST ['argus_beleidsplannen_' . $cntr . '_action_description'];
+										$action->field_deadline [LANGUAGE_NONE] [0] ['value'] = date_format(date_create_from_format('d/m/Y', $_POST ['argus_beleidsplannen_'.$cntr.'_action_deadline']), 'Y-m-d');
+										$action->field_status [LANGUAGE_NONE] [0] ['value'] = $_POST ['argus_beleidsplannen_' . $cntr . '_action_status'];
+										$action->field_bedrag [LANGUAGE_NONE] [0] ['value'] = $_POST ['argus_beleidsplannen_' . $cntr . '_action_budget'];
+										$action->field_gebruiker [LANGUAGE_NONE] [0] ['target_id'] = $_POST ['argus_beleidsplannen_' . $cntr . '_action_executor'];
+										$action->title = 'Actie voor ' . argus_get_user_realname( $_POST ['argus_beleidsplannen_' . $cntr . '_action_executor'] ) . ' ihkv. het beleidsplan "' . $node->title . '" tegen ' . $_POST ['argus_beleidsplannen_'.$cntr.'_action_deadline'];
+				
+										$k = 0;
+										$c = 0;
+										foreach (list_allowed_values( field_info_field( 'field_integratie_r_ok' ) ) as $o ){
+											if (array_key_exists('argus_beleidsplannen_'. $cntr . '_action_rok_'. $k, $_POST)){
+												if ($_POST['argus_beleidsplannen_'. $cntr . '_action_rok_'. $k ]){
+													$action->field_integratie_r_ok [LANGUAGE_NONE] [$c] ['value'] = $o;
+													$c++;
+												}
+											}
+											$k++;
+										}
+				
+										node_save ( $action );
+									}
+								}
+							}
+						}
+				
+						break;
+					default:
+						drupal_add_js ( "https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}" );
+						drupal_add_js ( drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/js/argus_beleidsplannen.js' );
+				}
+				
+				$variables ['actions'] = array ();
+				$variables ['action_plan'] = array();
+				foreach ( $variables ['field_beleidsplan_op_doelst'] as $k => $d ) {
+					$ref = md5 ( $d ['value'] );
+					$query = 'SELECT r.entity_id AS id, field_referentie_value AS ref FROM {field_data_field_referentie} AS r INNER JOIN {field_data_field_deadline} AS d ON d.entity_id = r.entity_id WHERE r.field_referentie_value LIKE :od ORDER BY d.field_deadline_value ASC';
+					$results = db_query ( $query, array (
+							':od' => $node->nid . '-' . $ref . '-%' 
+					) )->fetchAllKeyed( 0, 1 );
+					
+					$variables ['actions'][$ref] = array();
+					foreach ($results as $aid => $aref){
+						$action = node_load($aid);
+						
+						$a = array(
+								'id' => $aid,
+								'description' => $action->body [LANGUAGE_NONE] [0] ['value'],
+								'gebruiker' => $action->field_gebruiker [LANGUAGE_NONE] [0] ['target_id'],
+								'budget' => $action->field_bedrag [LANGUAGE_NONE] [0] ['value'],
+								'status' => $action->field_status [LANGUAGE_NONE] [0] ['value'],
+								'deadline' => format_date(strtotime($action->field_deadline [LANGUAGE_NONE] [0] ['value']),'custom', 'd/m/Y'),
+								'cntr' => $k+1,
+								'rok_opt' => array(),
+						);
+						
+						if (array_key_exists(LANGUAGE_NONE, $action->field_integratie_r_ok)){
+							foreach($action->field_integratie_r_ok[LANGUAGE_NONE] as $rok_opt){
+								$a['rok_opt'][] = $rok_opt['value'];
+							}
+						}
+						
+						$variables ['actions'][$ref][] = $a;
+						
+						$variables ['action_plan'][$action->field_deadline [LANGUAGE_NONE] [0] ['value']][] = $a;
+					}
+				}
+				
+				ksort($variables ['action_plan']);
+				
+				// Preprocess fields.
+				field_attach_preprocess ( 'node', $node, $variables ['elements'], $variables );
+			} else {
+				drupal_access_denied ();
+				exit ();
+			}
+			break;
+	}
+}
 
 /**
  * Page callback mapped to the url /beleidsplannen/structure
@@ -125,9 +278,8 @@ function argus_beleidsplannen_theme() {
 function argus_beleidsplannen_structure() {
 	drupal_add_css ( drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/css/argus_beleidsplannen.css' );
 	
-
 	/* Load Google Charts API */
-	drupal_add_js("https://www.gstatic.com/charts/loader.js");
+	drupal_add_js ( "https://www.gstatic.com/charts/loader.js" );
 	
 	drupal_add_js ( drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/js/argus_beleidsplannen_structure.js' );
 	
@@ -138,14 +290,23 @@ function argus_beleidsplannen_structure() {
 			LEFT JOIN {field_data_field_beleidsplan_overkoepelend} AS p ON p.entity_id = n.nid 
 			WHERE n.type = :type ORDER BY p.field_beleidsplan_overkoepelend_target_id ASC
 			';
-	$results = db_query($query, array(':type' => 'beleidsplan'))->fetchAllAssoc('id', PDO::FETCH_ASSOC);
+	$results = db_query ( $query, array (
+			':type' => 'beleidsplan' 
+	) )->fetchAllAssoc ( 'id', PDO::FETCH_ASSOC );
 	
-	foreach($results as $id => $bp){
-		$data[] = array( array( 'v' => $bp['id'], 'f' => '<a href="'.drupal_get_path_alias('/node/'.$bp['id']).'">'.$bp['title'].'</a><br />IKZ-rev. '.$bp['ikznr']), $bp['parent'], $bp['title'] );
+	foreach ( $results as $id => $bp ) {
+		$data [] = array (
+				array (
+						'v' => $bp ['id'],
+						'f' => '<a href="' . drupal_get_path_alias ( '/node/' . $bp ['id'] ) . '">' . $bp ['title'] . '</a><br />IKZ-rev. ' . $bp ['ikznr'] 
+				),
+				$bp ['parent'],
+				$bp ['title'] 
+		);
 	}
-
+	
 	return theme ( 'argus_beleidsplannen_structure', array (
-			'data' => json_encode($data),
+			'data' => json_encode ( $data ) 
 	) );
 }
 
@@ -586,9 +747,8 @@ Auditor: [field_ikz_auditor]<br />
 	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['label'] = 'Voorzitter';
 	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['operator'] = 'realname_1_op';
 	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['identifier'] = 'realname_1';
-	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['remember_roles'] = array ()
-
-	;
+	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['remember_roles'] = array ();
+	
 	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_items'] = '10';
 	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_min_chars'] = '0';
 	$handler->display->display_options ['filters'] ['realname_1'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
@@ -606,9 +766,8 @@ Auditor: [field_ikz_auditor]<br />
 	$handler->display->display_options ['filters'] ['realname_2'] ['expose'] ['label'] = 'Leden';
 	$handler->display->display_options ['filters'] ['realname_2'] ['expose'] ['operator'] = 'realname_2_op';
 	$handler->display->display_options ['filters'] ['realname_2'] ['expose'] ['identifier'] = 'realname_2';
-	$handler->display->display_options ['filters'] ['realname_2'] ['expose'] ['remember_roles'] = array ()
-
-	;
+	$handler->display->display_options ['filters'] ['realname_2'] ['expose'] ['remember_roles'] = array ();
+	
 	$handler->display->display_options ['filters'] ['realname_2'] ['expose'] ['autocomplete_items'] = '10';
 	$handler->display->display_options ['filters'] ['realname_2'] ['expose'] ['autocomplete_min_chars'] = '0';
 	$handler->display->display_options ['filters'] ['realname_2'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
@@ -626,9 +785,8 @@ Auditor: [field_ikz_auditor]<br />
 	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['label'] = 'Auditor';
 	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['operator'] = 'realname_op';
 	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['identifier'] = 'realname';
-	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ()
-
-	;
+	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['remember_roles'] = array ();
+	
 	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_items'] = '10';
 	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_min_chars'] = '0';
 	$handler->display->display_options ['filters'] ['realname'] ['expose'] ['autocomplete_raw_suggestion'] = '1';
@@ -645,9 +803,8 @@ Auditor: [field_ikz_auditor]<br />
 	$handler->display->display_options ['filters'] ['field_ikz_nummer_value'] ['expose'] ['label'] = 'Nummer';
 	$handler->display->display_options ['filters'] ['field_ikz_nummer_value'] ['expose'] ['operator'] = 'field_ikz_nummer_value_op';
 	$handler->display->display_options ['filters'] ['field_ikz_nummer_value'] ['expose'] ['identifier'] = 'field_ikz_nummer_value';
-	$handler->display->display_options ['filters'] ['field_ikz_nummer_value'] ['expose'] ['remember_roles'] = array ()
-
-	;
+	$handler->display->display_options ['filters'] ['field_ikz_nummer_value'] ['expose'] ['remember_roles'] = array ();
+	
 	$handler->display->display_options ['filters'] ['field_ikz_nummer_value'] ['expose'] ['autocomplete_items'] = '10';
 	$handler->display->display_options ['filters'] ['field_ikz_nummer_value'] ['expose'] ['autocomplete_min_chars'] = '0';
 	$handler->display->display_options ['filters'] ['field_ikz_nummer_value'] ['expose'] ['autocomplete_field'] = 'field_ikz_nummer';
@@ -957,4 +1114,45 @@ Auditor: [field_ikz_auditor]<br />
 	$export ['beleidsplannen'] = $view;
 	
 	return $export;
+}
+
+/* Supporting function */
+/**
+ * Output html used as model for generating actions
+ *        	
+ */
+function argus_beleidsplannen_model_action($body = '', $deadline = NULL, $executor = NULL, $budget = 0, $status = 'nieuw', $rok_opts = array(), $aid = '{aid}', $ref = '{ref}', $cntr = '{cntr}', $class = '{class}') {
+	global $user;
+	
+	if (is_null ( $executor )) {
+		$executor = $user->uid;
+	}
+	
+	$executor_roles = array (
+			88,
+			87,
+			225 
+	);
+	$query = 'SELECT ur.uid FROM {users_roles} AS ur INNER JOIN {users} AS u ON u.uid = ur.uid INNER JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = ur.uid INNER JOIN {field_data_field_user_sms_voornaam} AS uf ON uf.entity_id = ur.uid WHERE ur.rid in (:rids) AND u.status = 1 ORDER BY un.field_user_sms_naam_value ASC, uf.field_user_sms_voornaam_value ASC';
+	$executors = db_query ( $query, array (
+			':rids' => $executor_roles 
+	) )->fetchCol ();
+	
+	if (is_null ( $deadline )) {
+		$deadline = format_date ( time (), 'custom', 'd/m/Y' );
+	}
+	
+	return theme ( 'edit-model-action', array (
+			'body' => $body,
+			'deadline' => $deadline,
+			'ref' => $ref,
+			'aid' => $aid,
+			'status' => $status,
+			'rok_opts' => $rok_opts,
+			'executors' => $executors,
+			'executor' => $executor,
+			'budget' => $budget,
+			'cntr' => $cntr,
+			'class' => $class
+	) );
 }
