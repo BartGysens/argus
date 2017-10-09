@@ -1176,7 +1176,6 @@ function argus_uurrooster_schedule_classes($cid = NULL) {
 			$currentClass = $query->execute ();
 			if ($currentClass) {
 				$currentClass = ( array ) node_load ( key ( $currentClass ) );
-				print dvm ( $currentClass );
 			}
 		}
 	}
@@ -2035,6 +2034,10 @@ function argus_uurrooster_lesson_retrieve() {
 				
 				if (count ( $lessons ) > 0) {
 					foreach ( $lessons ['node'] as $key => $lesson ) {
+						if ($key && user_access( 'access administration pages' ) ){
+                		                        print '<div style="text-align: center; background: red;"><a style="color: white; font-weight: bold;" href="' . base_path() . 'node/' . $nid . '/edit" target="_blank">bewerken</a></div>';
+		                                }
+
 						$lesson = ( array ) node_load ( $key );
 						if (count ( $lesson ['field_uurrooster_les_vak'] ) > 0) {
 							$currentSubject = ( array ) node_load ( $lesson ['field_uurrooster_les_vak'] [LANGUAGE_NONE] [0] ['target_id'] );
