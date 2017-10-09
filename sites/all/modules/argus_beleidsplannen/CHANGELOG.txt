@@ -1,5 +1,11 @@
 **Releases:
 
+v7.x-2.0
+---------
+- Full featured module met nieuw overzicht, actieplan, financieel plan, jaaractieplan
+- Nieuwe mogelijkheden om actieplannen te beheren
+- Integratie van budgetbeheer
+- Full report om af te drukken als beleidsplan dossier
 
 v7.x-1.1
 ---------
