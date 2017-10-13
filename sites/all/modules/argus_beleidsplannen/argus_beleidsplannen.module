@@ -60,7 +60,7 @@ function argus_beleidsplannen_menu() {
 	);
 	
 	$items ['jaaractieplan'] = array (
-			'title' => t ( 'Jaarctieplan' ),
+			'title' => t ( 'Jaaractieplan' ),
 			'page callback' => 'argus_beleidsplannen_jap',
 			'type' => MENU_NORMAL_ITEM,
 			'menu_name' => $menu,
