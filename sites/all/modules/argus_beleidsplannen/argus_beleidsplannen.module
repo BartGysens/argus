@@ -31,9 +31,11 @@ function argus_beleidsplannen_menu() {
 	$items = array ();
 	$items ['beleidsplannen'] = array (
 			'title' => t ( 'Beleidsplannen' ),
-			'access callback' => true,
 			'type' => MENU_NORMAL_ITEM,
 			'menu_name' => $menu,
+			'access arguments' => array (
+					'access argus_beleidsplannen content' 
+			),
 			'expanded' => true 
 	);
 	$items ['beleidsplannen/structuur'] = array (
@@ -44,6 +46,28 @@ function argus_beleidsplannen_menu() {
 					'access argus_beleidsplannen content' 
 			),
 			'menu_name' => $menu 
+	);
+	
+	$items ['schoolontwikkelingsplan'] = array (
+			'title' => t ( 'Schoolontwikkelingsplan' ),
+			'page callback' => 'argus_beleidsplannen_sop',
+			'type' => MENU_NORMAL_ITEM,
+			'menu_name' => $menu,
+			'access arguments' => array (
+					'access argus_beleidsplannen content' 
+			),
+			'expanded' => true 
+	);
+	
+	$items ['jaaractieplan'] = array (
+			'title' => t ( 'Jaarctieplan' ),
+			'page callback' => 'argus_beleidsplannen_jap',
+			'type' => MENU_NORMAL_ITEM,
+			'menu_name' => $menu,
+			'access arguments' => array (
+					'access argus_beleidsplannen content' 
+			),
+			'expanded' => true 
 	);
 	return $items;
 }
@@ -120,7 +144,13 @@ function argus_beleidsplannen_theme() {
 			),
 			'edit-model-action' => array (
 					'template' => 'templates/argus_beleidsplannen--edit-model-action' 
-			) 
+			),
+			'argus_beleidsplannen_jap' => array (
+					'template' => 'templates/argus_beleidsplannen--jaaractieplan' 
+			),
+			'argus_beleidsplannen_sop' => array (
+					'template' => 'templates/argus_beleidsplannen--schoolontwikkelingsplan' 
+			),
 	);
 }
 
@@ -308,6 +338,131 @@ function argus_beleidsplannen_structure() {
 	return theme ( 'argus_beleidsplannen_structure', array (
 			'data' => json_encode ( $data ) 
 	) );
+}
+
+/**
+ * Page callback mapped to the url /jaaractieplan
+ *
+ * @return array
+ */
+function argus_beleidsplannen_jap() {
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/css/argus_beleidsplannen.css' );
+	
+	// Get all beleidsplannen
+	$query = 'SELECT n.nid AS id, n.title AS title, od.field_beleidsplan_op_doelst_value AS od FROM {node} AS n INNER JOIN {field_data_field_beleidsplan_op_doelst} AS od ON od.entity_id = n.nid WHERE n.type = :type';
+	$results = db_query ( $query, array (
+			':type' => 'beleidsplan',
+	) )->fetchAll();
+	
+	$variables ['actions'] = array();
+	$cntr = 0;
+	
+	$schoolyear = 2018;
+	
+	$variables ['startdate'] = 0;
+	$variables ['enddate']' = 0;
+	foreach ($results as $bp){
+		$query = 'SELECT r.entity_id AS id, field_referentie_value AS ref FROM {field_data_field_referentie} AS r INNER JOIN {field_data_field_deadline} AS d ON d.entity_id = r.entity_id WHERE r.field_referentie_value LIKE :od ORDER BY d.field_deadline_value ASC';
+		$results = db_query ( $query, array (
+				':od' => $bp->id . '-' . $ref . '-%',
+		) )->fetchAllKeyed( 0, 1 );
+		
+		// Get all actions
+		$ref = md5 ( $bp->od );
+		$query = 'SELECT r.entity_id AS id, field_referentie_value AS ref FROM {field_data_field_referentie} AS r INNER JOIN {field_data_field_deadline} AS d ON d.entity_id = r.entity_id WHERE r.field_referentie_value LIKE :od AND d.field_deadline_value BETWEEN :startdate AND :enddate ORDER BY d.field_deadline_value ASC';
+		$results = db_query ( $query, array (
+				':od' => $bp->id . '-' . $ref . '-%',
+				':startdate' => $schoolyear . '-09-01',
+				':enddate' => ($schoolyear+1) . '-09-01',
+		) )->fetchAllKeyed( 0, 1 );
+		
+		foreach ($results as $aid => $aref){
+			$action = node_load($aid);
+			
+			$a = array(
+					'id' => $aid,
+					'bp_id' => $bp->id,
+					'bp_title' => $bp->title,
+					'description' => $action->body [LANGUAGE_NONE] [0] ['value'],
+					'gebruiker' => $action->field_gebruiker [LANGUAGE_NONE] [0] ['target_id'],
+					'budget' => $action->field_bedrag [LANGUAGE_NONE] [0] ['value'],
+					'status' => $action->field_status [LANGUAGE_NONE] [0] ['value'],
+					'deadline' => format_date(strtotime($action->field_deadline [LANGUAGE_NONE] [0] ['value']),'custom', 'd/m/Y'),
+					'cntr' => $cntr++,
+					'od' => $bp->od,
+					'rok_opt' => array(),
+			);
+			
+			if (array_key_exists(LANGUAGE_NONE, $action->field_integratie_r_ok)){
+				foreach($action->field_integratie_r_ok[LANGUAGE_NONE] as $rok_opt){
+					$a['rok_opt'][] = $rok_opt['value'];
+				}
+			}
+			
+			$variables ['actions'][$action->field_deadline [LANGUAGE_NONE] [0] ['value']][] = $a;
+		}
+	}
+	
+	ksort($variables ['actions']);
+	
+	return theme ( 'argus_beleidsplannen_jap', $variables );
+}
+
+/**
+ * Page callback mapped to the url /schoolontwikkelingsplan
+ *
+ * @return array
+ */
+function argus_beleidsplannen_sop() {
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_beleidsplannen' ) . '/css/argus_beleidsplannen.css' );
+	
+	// Get all beleidsplannen
+	$query = 'SELECT n.nid AS id, n.title AS title, od.field_beleidsplan_op_doelst_value AS od FROM {node} AS n INNER JOIN {field_data_field_beleidsplan_op_doelst} AS od ON od.entity_id = n.nid WHERE n.type = :type';
+	$results = db_query ( $query, array (
+			':type' => 'beleidsplan',
+	) )->fetchAll();
+	
+	$variables ['actions'] = array();
+	$cntr = 0;
+	foreach ($results as $bp){
+		
+		// Get all actions
+		$ref = md5 ( $bp->od );
+		$query = 'SELECT r.entity_id AS id, field_referentie_value AS ref FROM {field_data_field_referentie} AS r INNER JOIN {field_data_field_deadline} AS d ON d.entity_id = r.entity_id WHERE r.field_referentie_value LIKE :od ORDER BY d.field_deadline_value ASC';
+		$results = db_query ( $query, array (
+				':od' => $bp->id . '-' . $ref . '-%'
+		) )->fetchAllKeyed( 0, 1 );
+		
+		foreach ($results as $aid => $aref){
+			$action = node_load($aid);
+			
+			$a = array(
+					'id' => $aid,
+					'bp_id' => $bp->id,
+					'bp_title' => $bp->title,
+					'description' => $action->body [LANGUAGE_NONE] [0] ['value'],
+					'gebruiker' => $action->field_gebruiker [LANGUAGE_NONE] [0] ['target_id'],
+					'budget' => $action->field_bedrag [LANGUAGE_NONE] [0] ['value'],
+					'status' => $action->field_status [LANGUAGE_NONE] [0] ['value'],
+					'deadline' => format_date(strtotime($action->field_deadline [LANGUAGE_NONE] [0] ['value']),'custom', 'd/m/Y'),
+					'cntr' => $cntr++,
+					'od' => $bp->od,
+					'rok_opt' => array(),
+			);
+			
+			if (array_key_exists(LANGUAGE_NONE, $action->field_integratie_r_ok)){
+				foreach($action->field_integratie_r_ok[LANGUAGE_NONE] as $rok_opt){
+					$a['rok_opt'][] = $rok_opt['value'];
+				}
+			}
+			
+			$variables ['actions'][$action->field_deadline [LANGUAGE_NONE] [0] ['value']][] = $a;
+		}
+	}
+	
+	ksort($variables ['actions']);
+	
+	return theme ( 'argus_beleidsplannen_sop', $variables );
 }
 
 /**

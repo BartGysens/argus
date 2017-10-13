@@ -82,7 +82,7 @@ div.pageEnd{
 .argus_beleidsplannen_status{
 	width: 100%;
 	margin: 0px;
-	line-height: 1.5em;
+	line-height: 1.6em;
 	text-align: left;
 	font-size: 1.5em;
 }
@@ -96,6 +96,13 @@ div.pageEnd{
 	.argus_beleidsplannen_status .even{
 		background: #f9fffb;
 	}
+
+.argus_beleidsplannen_sop td,
+.argus_beleidsplannen_jap td{
+	border-bottom: 1px solid lightgray;
+	vertical-align: top;
+	line-height: 1.5em;
+}
 
 @media screen {
 	.onlyPrint{
