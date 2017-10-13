@@ -360,7 +360,7 @@ function argus_beleidsplannen_jap() {
 	$schoolyear = 2018;
 	
 	$variables ['startdate'] = 0;
-	$variables ['enddate']' = 0;
+	$variables ['enddate'] = 0;
 	foreach ($results as $bp){
 		$query = 'SELECT r.entity_id AS id, field_referentie_value AS ref FROM {field_data_field_referentie} AS r INNER JOIN {field_data_field_deadline} AS d ON d.entity_id = r.entity_id WHERE r.field_referentie_value LIKE :od ORDER BY d.field_deadline_value ASC';
 		$results = db_query ( $query, array (
