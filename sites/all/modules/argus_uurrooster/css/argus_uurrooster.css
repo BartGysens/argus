@@ -54,8 +54,9 @@ table.argus_uurrooster_schedule tbody td{
     text-align: center;
     vertical-align: top;
 }
-table.argus_uurrooster_schedule tbody .lesson{
+table.argus_uurrooster_schedule tbody td.lesson{
     cursor: pointer;
+    width: 15%;
 }
     table.argus_uurrooster_schedule tbody .lessonOver{
         background-color: #ddf !important;

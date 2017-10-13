@@ -96,7 +96,7 @@ if (isset ( $title )) {
 	$currentDays = clone $currentStartOfWeek;
 	if (count ( $days )) {
 		for($d = 0; $d < $days; $d ++) {
-			echo '<th>' . t ( $currentDays->format ( 'l' ) ) . '</th>';
+			echo '<th style="width: 15%;">' . t ( $currentDays->format ( 'l' ) ) . '</th>';
 			$currentDays->modify ( '+1 days' );
 		}
 	}
