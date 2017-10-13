@@ -190,6 +190,63 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
  */
 
 /**
+ * @addtogroup 3rd_party_hooks
+ * @{
+ */
+
+/**
+ * Implements hook_libraries_info().
+ */
+function advagg_js_compress_libraries_info() {
+  $libraries['JShrink'] = array(
+    'name' => 'JShrink',
+    'vendor url' => 'https://github.com/tedious/JShrink',
+    'download url' => 'https://github.com/tedious/JShrink/archive/master.zip',
+    'local version' => '1.2.0',
+    'files' => array(
+      'php' => array(
+        'src/JShrink/Minifier.php',
+      ),
+    ),
+  );
+  $libraries['jsqueeze'] = array(
+    'name' => 'JSqueeze',
+    'vendor url' => 'https://github.com/tchwork/jsqueeze',
+    'download url' => 'https://github.com/tchwork/jsqueeze/archive/master.zip',
+    'local version' => '2.0.5',
+    'files' => array(
+      'php' => array(
+        'src/JSqueeze.php',
+      ),
+    ),
+  );
+  $libraries['jsminplus'] = array(
+    'name' => 'JSMinPlus',
+    'local version' => '1.4',
+    'files' => array(
+      'php' => array(
+        'jsminplus.php',
+      ),
+    ),
+  );
+  $libraries['jspacker'] = array(
+    'name' => 'JSPacker',
+    'local version' => '1.1',
+    'files' => array(
+      'php' => array(
+        'jspacker.php',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * @} End of "addtogroup 3rd_party_hooks".
+ */
+
+/**
  * Test a file, making sure it is compressible.
  *
  * @param string $filename

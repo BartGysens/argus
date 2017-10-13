@@ -309,6 +309,13 @@ function advagg_relocate_get_remote_data($urls, $type, array $options = array(),
 function advagg_relocate_process_http_request(&$response, $type) {
   // Get ttl from response.
   $ttl = 0;
+  if ($type === 'css') {
+    $ttl = variable_get('advagg_relocate_css_min_ttl', ADVAGG_RELOCATE_CSS_MIN_TTL);
+  }
+  if ($type === 'js') {
+    $ttl = variable_get('advagg_relocate_js_min_ttl', ADVAGG_RELOCATE_JS_MIN_TTL);
+  }
+
   $now = REQUEST_TIME;
   if (isset($response->headers['expires'])) {
     $expires = strtotime($response->headers['expires']);
@@ -363,9 +370,9 @@ function advagg_relocate_process_http_request(&$response, $type) {
 function advagg_relocate_advagg_relocate_process_http_request_alter(&$response, $type) {
   if ($type === 'js') {
     if (strpos($response->url, 'connect.facebook.net/en_US/fbevents.js') !== FALSE) {
-      $baseURL = 'https://connect.facebook.net';
+      $base_url = 'https://connect.facebook.net';
       // Fix loader so it works if not loaded from connect.facebook.net.
-      $response->data = str_replace("function xb(){var ac=null,bc=null,cc=rb.getElementsByTagName('script');", "function xb(){var ac='$baseURL',cc=rb.getElementsByTagName('script'),bc=cc[0];", $response->data);
+      $response->data = str_replace("function xb(){var ac=null,bc=null,cc=rb.getElementsByTagName('script');", "function xb(){var ac='$base_url',cc=rb.getElementsByTagName('script'),bc=cc[0];", $response->data);
 
       // Get Facebook IDs.
       $fb_ids = array_filter(array_map('trim', explode("\n", variable_get('advagg_relocate_js_fbevents_local_ids', ADVAGG_RELOCATE_JS_FBEVENTS_LOCAL_IDS))));
@@ -384,7 +391,7 @@ function advagg_relocate_advagg_relocate_process_http_request_alter(&$response, 
       // Update local copies of the /signals/config/ js.
       $js = array();
       foreach ($fb_ids as $fb_id) {
-        $url = "$baseURL/signals/config/$fb_id?v=$version";
+        $url = "$base_url/signals/config/$fb_id?v=$version";
         $js[$url]['data'] = $url;
         $js[$url]['type'] = 'external';
         $js[$url]['#fbid'] = $fb_id;
@@ -412,11 +419,23 @@ function advagg_relocate_advagg_relocate_process_http_request_alter(&$response, 
 
       // Add the local copies to the js file.
       $local_copies = json_encode($local_copies);
-      $response->data = str_replace("return {baseURL:ac,scriptElement:bc}", "return {baseURL:ac,scriptElement:bc,localCopies:$local_copies}", $response->data);
+      $response->data = str_replace(
+        "return {baseURL:ac,scriptElement:bc}",
+        "return {baseURL:ac,scriptElement:bc,localCopies:$local_copies}",
+        $response->data
+      );
+
       // Change logic so it'll use the local copy if it exists.
-      $response->data = str_replace("var yc=xc.baseURL+'/signals/config/'+vc+'?v='+wc,zc=rb.createElement('script');zc.src=yc;", "var yc=xc.baseURL+'/signals/config/'+vc+'?v='+wc,zc=rb.createElement('script');if (xc.localCopies && xc.localCopies[vc]) {yc = xc.localCopies[vc];}zc.src=yc;", $response->data);
+      $matches = array();
+      $pattern = '/var\s([\w]{2})=([\w]{2})\.baseURL\+\'\/signals\/config\/\'\+([\w]{2})\+\'\?v=\'\+([\w]{2}),([\w]{2})=([\w]{2})\.createElement\(\'script\'\);[\w]{2}.src=[\w]{2};/';
+      preg_match($pattern, $response->data, $matches);
+      $response->data = str_replace($matches[0], "var {$matches[1]}={$matches[2]}.baseURL+'/signals/config/'+{$matches[3]}+'?v='+{$matches[4]},{$matches[5]}={$matches[6]}.createElement('script');if ({$matches[2]}.localCopies && {$matches[2]}.localCopies[{$matches[3]}]) {{$matches[1]} = {$matches[2]}.localCopies[{$matches[3]}];}{$matches[5]}.src={$matches[1]};", $response->data);
+
       // Change logic so it'll use the local copy if it exists.
-      $response->data = str_replace("if(sb.baseURL&&sb.scriptElement){var tb=sb.baseURL+'/signals/plugins/'+qb+'.js?v='+g.version;", "if(sb.baseURL&&sb.scriptElement){var tb=sb.baseURL+'/signals/plugins/'+qb+'.js?v='+g.version;if (sb.localCopies && sb.localCopies[qb]) {yc = sb.localCopies[qb];}", $response->data);
+      $response->data = str_replace(
+        "if(sb.baseURL&&sb.scriptElement){var tb=sb.baseURL+'/signals/plugins/'+qb+'.js?v='+g.version;",
+        "if(sb.baseURL&&sb.scriptElement){var tb=sb.baseURL+'/signals/plugins/'+qb+'.js?v='+g.version;if (sb.localCopies && sb.localCopies[qb]) {yc = sb.localCopies[qb];}",
+        $response->data);
     }
   }
 }
@@ -433,14 +452,27 @@ function advagg_relocate_advagg_relocate_process_http_request_alter(&$response, 
  *   Array of font data.
  */
 function advagg_relocate_get_remote_font_data($url, array $aggregate_settings) {
-  // Set settings if needed.
+  // Set default settings if needed.
+  $font_type_defaults = array(
+    'woff2' => 'woff2',
+    'woff' => 'woff',
+    'ttf' => 'ttf',
+  );
   if (!isset($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers'])) {
-    $defaults = array(
-      'woff2' => 'woff2',
-      'woff' => 'woff',
-      'ttf' => 'ttf',
-    );
-    $aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers'] = variable_get('advagg_relocate_css_inline_import_browsers', $defaults);
+    $aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers'] = variable_get('advagg_relocate_css_inline_import_browsers', $font_type_defaults);
+  }
+  // Make sure advagg_relocate_css_inline_import_browsers is an array.
+  if (!is_array($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers'])) {
+    $aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers'] = array($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers'] => $aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers']);
+  }
+  // Use defaults if no matches for known font types.
+  if (!isset($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers']['woff2'])
+    && !isset($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers']['woff'])
+    && !isset($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers']['ttf'])
+    && !isset($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers']['eot'])
+    && !isset($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers']['svg'])
+  ) {
+    $aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers'] += $font_type_defaults;
   }
 
   // Set arguments for drupal_http_request().
@@ -455,6 +487,11 @@ function advagg_relocate_get_remote_font_data($url, array $aggregate_settings) {
   );
   if (function_exists('brotli_uncompress')) {
     $options['headers']['Accept-Encoding'] .= ', br';
+  }
+
+  // If protocol relative, force https.
+  if (strpos($url, '//') === 0) {
+    $url = advagg_force_https_path($url);
   }
 
   // Build CID.
@@ -514,7 +551,7 @@ function advagg_relocate_get_remote_font_data($url, array $aggregate_settings) {
 
     $responses = httprl_send_request();
   }
-  else {
+  if (empty($responses)) {
     // Get ttf.
     if (!empty($aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers']['ttf'])) {
       $options['#font-type'] = 'ttf';
@@ -552,8 +589,14 @@ function advagg_relocate_get_remote_font_data($url, array $aggregate_settings) {
 
   // Try failures again.
   foreach ($responses as $key => $response) {
-    if ($response->code == 0) {
+    if (empty($response->code)) {
       $responses[$key] = drupal_http_request($response->url, $response->options);
+    }
+  }
+  // Try failures again, but force http.
+  foreach ($responses as $key => $response) {
+    if (empty($response->code)) {
+      $responses[$key] = drupal_http_request(advagg_force_http_path($response->url), $response->options);
     }
   }
 

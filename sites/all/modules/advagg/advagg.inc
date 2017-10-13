@@ -219,6 +219,13 @@ function advagg_insert_update_files(array $files, $type) {
         // Take changes counter out of the diff equation.
         $changes = $files_in_db[$filename]['changes'];
         unset($files_in_db[$filename]['changes']);
+        // If not in strict mode, only use mtime if newer than the existing one.
+        if (!variable_get('advagg_strict_mtime_check', ADVAGG_STRICT_MTIME_CHECK)) {
+          // Make sure mtime only moves forward.
+          if ($record['mtime'] <= $files_in_db[$filename]['mtime']) {
+            $record['mtime'] = $files_in_db[$filename]['mtime'];
+          }
+        }
 
         // If something is different, update.
         $diff = array_diff_assoc($record, $files_in_db[$filename]);
@@ -817,6 +824,7 @@ function advagg_generate_groups(array $files_to_aggregate, $type) {
     || variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT)
     || variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)
   ) {
+    $filenames = array();
     foreach ($files_to_aggregate as $data) {
       foreach ($data as $values) {
         foreach ($values['items'] as $file_info) {

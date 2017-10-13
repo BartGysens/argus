@@ -16,6 +16,16 @@ function advagg_mod_admin_settings_form() {
   drupal_set_title(t('AdvAgg: Modifications'));
   $config_path = advagg_admin_config_root_path();
 
+  // Tell user to update library if a new version is available.
+  $library_name = 'loadCSS';
+  $module_name = 'advagg_mod';
+  list($description) = advagg_get_version_description($library_name, $module_name);
+  if (!empty($description)) {
+    $form['advagg_version_msg'] = array(
+      '#markup' => "<p>{$description}</p>",
+    );
+  }
+
   $form = array();
   $form['js'] = array(
     '#type' => 'fieldset',
@@ -210,14 +220,11 @@ function advagg_mod_admin_settings_form() {
     '#default_value' => variable_get('advagg_mod_defer_inline_js_skip_list', ADVAGG_MOD_DEFER_INLINE_JS_SKIP_LIST),
     '#description' => t("If the inline JavaScript matches a given string then the whole inline script will not be wrapped. Enter one per line."),
   );
-  if (!module_exists('jquery_update') || variable_get('jquery_update_jquery_cdn', 'none') === 'none') {
-    $GLOBALS['conf']['advagg_mod_js_defer_jquery'] = FALSE;
-  }
   $form['js']['placement']['expert'] = array(
     '#type' => 'fieldset',
     '#title' => t('Experimental Settings'),
     '#collapsible' => TRUE,
-    '#collapsed' => !variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC) && !variable_get('advagg_mod_js_defer_jquery', ADVAGG_MOD_JS_DEFER_JQUERY),
+    '#collapsed' => !variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC),
   );
   $form['js']['placement']['expert']['advagg_mod_js_async'] = array(
     '#type' => 'checkbox',
@@ -227,21 +234,6 @@ function advagg_mod_admin_settings_form() {
       '@link' => 'http://peter.sh/experiments/asynchronous-and-deferred-javascript-execution-explained/',
     )),
   );
-  if (module_exists('jquery_update') && variable_get('jquery_update_jquery_cdn', 'none') !== 'none') {
-    $form['js']['placement']['expert']['advagg_mod_js_defer_jquery'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Defer CDN version of jquery.js from jquery update'),
-      '#default_value' => variable_get('advagg_mod_js_defer_jquery', ADVAGG_MOD_JS_DEFER_JQUERY),
-      '#description' => t('By default the CDN version of jquery is not defered; this allows for jquery to be defered. Requires the "Deferred inline JavaScript Execution: Put a wrapper around inline JS so it runs from a setTimeout call" setting to be enalbed in order to be used. Not using a CDN in <a href="@url">jQuery Update</a> also means that defer works and does not require this experimental setting.', array(
-        '@url' => url('admin/config/development/jquery_update'),
-      )),
-      '#states' => array(
-        'disabled' => array(
-          ':input[name="advagg_mod_js_defer_inline_alter"]' => array('checked' => FALSE),
-        ),
-      ),
-    );
-  }
   // Outdated settings.
   $form['js']['old'] = array(
     '#type' => 'fieldset',
