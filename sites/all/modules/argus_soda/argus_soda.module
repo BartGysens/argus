@@ -654,10 +654,14 @@ function argus_soda_attest_set() {
  *
  * @param $uid int
  *        	User id
+ *        
+ * @param $update boolean
+ *        	Set true if database must be updated
+ *        
  *        	
  * @return array int
  */
-function argus_soda_get_report($uid) {
+function argus_soda_get_report($uid, $update = false) {
 	if (isset ( $uid )) {
 		$parts = array (
 				'S',
@@ -670,7 +674,7 @@ function argus_soda_get_report($uid) {
 		$report = array ();
 		foreach ( $parts as $part ) {
 			for($x = 1; $x < 5; $x ++) {
-				$report [$part] [$x] = 'A';
+				$report [$part] [$x] = '-';
 			}
 		}
 		
@@ -739,7 +743,15 @@ function argus_soda_get_report($uid) {
 				':uid' => $uid 
 		) )->fetchAll ()) {
 			if ($endresult != $n [0]->attest) {
-				$endresult = $n [0]->attest . '<span style="font-size: 10px; font-style: italic;">(' . $endresult . ')</span>';
+				if ($update || $endresult != 'D'){
+					$query = 'UPDATE {argus_soda_attest} AS a SET a.attest = :attest WHERE a.leerling = :uid';
+					db_query ( $query, array (
+							':uid' => $uid,
+							':attest' => $endresult,
+					) );
+				} else {
+					$endresult = $n [0]->attest . '<span style="font-size: 10px; font-style: italic;">(' . $endresult . ')</span>';
+				}
 			}
 		}
 		
@@ -798,14 +810,17 @@ function argus_soda_save_attest($uid, $options = array()) {
  *        	
  * @param $mode string
  *        	Modus for display: 'view', 'edit'
+ *        
+ * @param $update boolean
+ *        	TRUE or FALSE for update database
  */
-function argus_soda_show_report($uid, $comments = TRUE, $mode = 'view') {
+function argus_soda_show_report($uid, $comments = TRUE, $mode = 'view', $update = false) {
 	$returnStr = '';
 	if (isset ( $uid )) {
 		drupal_add_css ( drupal_get_path ( 'module', 'argus_soda' ) . '/css/argus_soda.css' );
 		drupal_add_js ( drupal_get_path ( 'module', 'argus_soda' ) . '/js/argus_soda.js' );
 		
-		$report = argus_soda_get_report ( $uid );
+		$report = argus_soda_get_report ( $uid, $update );
 		
 		$returnStr .= '<table id="argus_soda-report"><thead><tr><th></th><th>S</th><th>O</th><th>D</th><th>A</th>';
 		

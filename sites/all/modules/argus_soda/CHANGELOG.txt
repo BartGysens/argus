@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.1
+---------
+- Fix in recalculate attest
+
 v7.x-1.0
 ---------
 - First initial release
