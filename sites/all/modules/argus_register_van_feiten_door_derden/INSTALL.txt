@@ -1,0 +1,13 @@
+**Installation:
+
+Register van feiten door derden is an extension to the argus - a Quality control extension.
+
+1. Unpack the "argus_register_van_feiten_door_derden" folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably sites/all/modules/
+2. Enable the "argus_register_van_feiten_door_derden" module in the administration tools.
+3. If you're not using Drupal's default administrative account, make sure 
+ "administer argus 'argus_register_van_feiten_door_derden'" is enabled through access control
+ administration.
+ 
+**IMPORTANT:
+By Belgian law its obliged to handle these registers with care for privacy. Please get legal advise.

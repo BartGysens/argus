@@ -1,0 +1,15 @@
+name = Register van feiten door derden
+description = Het register van feiten van derden is een preventiedocument mbt materie van geweld, pesterijen en ongewenst seksueel gedrag
+core = 7.x
+package = argus - a Quality control extension
+version = 7.x-1.0
+project = argus_register_van_feiten_door_derden
+dependencies[] = better_exposed_filters
+dependencies[] = date
+dependencies[] = field_group
+dependencies[] = list
+dependencies[] = node
+dependencies[] = text
+dependencies[] = views
+dependencies[] = views_content_cache
+project status url = http://www.projectargus.be/release-history

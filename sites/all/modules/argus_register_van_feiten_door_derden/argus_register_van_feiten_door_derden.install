@@ -1,0 +1,1273 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_register_van_feiten_door_derden_install() {
+	// Replace with your content type name
+	$type = 'register_van_feiten_door_derden';
+	
+	// Rebuild and define new content type
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	
+	// Add the body field with specified label
+	// - replace your label or remove if no body-field necessary
+	node_add_body_field ( $types [$type], $label = t ( 'Verslag' ) );
+	
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_register_van_feiten_door_derden_field_default_field_bases()
+	foreach ( argus_register_van_feiten_door_derden_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_register_van_feiten_door_derden_field_default_field_instances()
+	foreach ( argus_register_van_feiten_door_derden_field_default_field_instances () as $fieldinstance ) {
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Add conditional_fields which are copied from your Features-based module
+	// More details function argus_register_van_feiten_door_derden_conditional_fields_default_fields()
+	if (function_exists ( 'argus_register_van_feiten_door_derden_conditional_fields_default_fields' )) {
+		foreach ( argus_register_van_feiten_door_derden_conditional_fields_default_fields () as $conditionalfield ) {
+			$dependee = field_info_instance ( 'node', $conditionalfield ['dependee'], $type );
+			$dependent = field_info_instance ( 'node', $conditionalfield ['dependent'], $type );
+			conditional_fields_dependency_insert ( $dependee ['id'], $dependent ['id'], $conditionalfield ['options'] );
+		}
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					// copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'delta' => '5483d1acde77cd81fdcb4352d85cae71',
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					// replace with the target region for your theme
+					'region' => 'sidebar_first',
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					// replace with your list of pages
+					'pages' => 'register-van-feiten-door-derden' . chr ( 13 ) . 'register-van-feiten-door-derden/*',
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					// replace with your title
+					'title' => 'Filter' 
+			) 
+	);
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_register_van_feiten_door_derden_uninstall() {
+	// Replace with your content type name
+	$type = 'register_van_feiten_door_derden';
+	
+	// Delete all conditional_fields
+	if (function_exists ( 'argus_register_van_feiten_door_derden_conditional_fields_default_fields' )) {
+		foreach ( argus_register_van_feiten_door_derden_conditional_fields_default_fields () as $conditionalfield ) {
+			$dependee = field_info_instance ( 'node', $conditionalfield ['dependee'], $type );
+			conditional_fields_field_delete_instance ( $dependee );
+		}
+	}
+	
+	// Remove all nodes of new content type
+	$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+	$result = db_query ( $sql, array (
+			':type' => $type 
+	) );
+	$nodeids = array ();
+	foreach ( $result as $row ) {
+		$nodeids [] = $row->nid;
+	}
+	node_delete_multiple ( $nodeids );
+	
+	// Delete all related fields
+	foreach ( argus_register_van_feiten_door_derden_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		
+		// Check if field is enabled for other modules
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) {
+			field_delete_field ( $field_name );
+		}
+	}
+	$instances = field_info_instances ( 'node', $type );
+	foreach ( $instances as $instance_name => $fieldinstance ) {
+		field_delete_instance ( $fieldinstance );
+	}
+	
+	// Remove new content type
+	node_type_delete ( $type );
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_register_van_feiten_door_derden' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ *
+ * This function is copied from the file generated by the Features module: demo.features.field_base.inc
+ */
+function argus_register_van_feiten_door_derden_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_aangifte'.
+	$field_bases ['field_aangifte'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aangifte',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'arbeidsongeval' => 'arbeidsongeval',
+							'verzekering' => 'verzekering',
+							'politie (zie verslag voor eventueel PV-nr.)' => 'politie (zie verslag voor eventueel PV-nr.)' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_aanleiding_van_de_agressie'.
+	$field_bases ['field_aanleiding_van_de_agressie'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_aanleiding_van_de_agressie',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'geen duidelijke aanleiding' => 'geen duidelijke aanleiding',
+							'ontevredenheid' => 'ontevredenheid',
+							'emotioneel ten gevolge van gebeurtenis' => 'emotioneel ten gevolge van gebeurtenis',
+							'onder invloed van alcohol of drugs' => 'onder invloed van alcohol of drugs',
+							'te lange wachttijd' => 'te lange wachttijd',
+							'andere, namelijk' => 'andere, namelijk' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_betrokkene_derde_'.
+	$field_bases ['field_betrokkene_derde_'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_betrokkene_derde_',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_categorie'.
+	$field_bases ['field_categorie'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_categorie',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'lichamelijk geweld' => 'lichamelijk geweld',
+							'psychisch geweld' => 'psychisch geweld',
+							'pesterijen' => 'pesterijen',
+							'ongewenst seksueel gedrag' => 'ongewenst seksueel gedrag',
+							'andere' => 'andere' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_datum_en_tijd'.
+	$field_bases ['field_datum_en_tijd'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_datum_en_tijd',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'date',
+			'settings' => array (
+					'cache_count' => 4,
+					'cache_enabled' => 0,
+					'granularity' => array (
+							'day' => 'day',
+							'hour' => 'hour',
+							'minute' => 'minute',
+							'month' => 'month',
+							'second' => 0,
+							'year' => 'year' 
+					),
+					'repeat' => 0,
+					'timezone_db' => 'UTC',
+					'todate' => '',
+					'tz_handling' => 'site' 
+			),
+			'translatable' => 0,
+			'type' => 'datetime' 
+	);
+	
+	// Exported field_base: 'field_gevolgen'.
+	$field_bases ['field_gevolgen'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_gevolgen',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'geen' => 'geen',
+							'pijn' => 'pijn',
+							'kneuzing' => 'kneuzing',
+							'wonde' => 'wonde',
+							'emotioneel leed' => 'emotioneel leed',
+							'materiële schade' => 'materiële schade' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_hoedanigheid_betrokkene_de'.
+	$field_bases ['field_hoedanigheid_betrokkene_de'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_hoedanigheid_betrokkene_de',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_intensiteit'.
+	$field_bases ['field_intensiteit'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_intensiteit',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'ik weet niet waarom' => 'ik weet niet waarom',
+							'intentioneel (de bedoeling)' => 'intentioneel (de bedoeling)',
+							'vanuit hevige emotie na begrijpbare  frustratie' => 'vanuit hevige emotie na begrijpbare  frustratie',
+							'vanuit hevige emotie die niet goed te begrijpen valt' => 'vanuit hevige emotie die niet goed te begrijpen valt',
+							'vanwege ziekte/ aandoening' => 'vanwege ziekte/ aandoening',
+							'vanwege verslavingen' => 'vanwege verslavingen' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_materi_le_schade'.
+	$field_bases ['field_materi_le_schade'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_materi_le_schade',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'persoonlijke bezittingen' => 'persoonlijke bezittingen',
+							'los meubilair' => 'los meubilair',
+							'gebouw' => 'gebouw' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_persoonlijke_schade'.
+	$field_bases ['field_persoonlijke_schade'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_persoonlijke_schade',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'tegen mij alleen' => 'tegen mij alleen',
+							'tegen mij en collega’s' => 'tegen mij en collega’s',
+							'andere derden' => 'andere derden',
+							'andere (zie verslag)' => 'andere (zie verslag)' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_plaats'.
+	$field_bases ['field_plaats'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_plaats',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 255 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_priv_'.
+	$field_bases ['field_priv_'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_priv_',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							0 => '',
+							1 => '' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_boolean' 
+	);
+	
+	// Exported field_base: 'field_tijdens_de_werkuren_'.
+	$field_bases ['field_tijdens_de_werkuren_'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_tijdens_de_werkuren_',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							0 => 'neen',
+							1 => 'ja' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_boolean' 
+	);
+	
+	// Exported field_base: 'field_uitingen'.
+	$field_bases ['field_uitingen'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_uitingen',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'verbaal (schelden, dreigen, druk uitoefenen)' => 'verbaal (schelden, dreigen, druk uitoefenen)',
+							'lichaamstaal' => 'lichaamstaal',
+							'fysiek' => 'fysiek',
+							'aanrakingen' => 'aanrakingen',
+							'slagen' => 'slagen',
+							'verwonding' => 'verwonding',
+							'geschriften' => 'geschriften',
+							'mail, chat, internet' => 'mail, chat, internet' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_vormen'.
+	$field_bases ['field_vormen'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_vormen',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'Agressie / geweld' => 'Agressie / geweld',
+							'Pesten' => 'Pesten',
+							'Ongewenst seksueel / relationeel gedrag' => 'Ongewenst seksueel / relationeel gedrag',
+							'Stalking' => 'Stalking',
+							'Racisme' => 'Racisme',
+							'Discriminatie' => 'Discriminatie',
+							'Carjacking' => 'Carjacking',
+							'Verkeersagressie' => 'Verkeersagressie',
+							'Beroving' => 'Beroving',
+							'Afpersing' => 'Afpersing',
+							'Materiële agressie' => 'Materiële agressie',
+							'Agressie tegen zichzelf' => 'Agressie tegen zichzelf',
+							'Andere' => 'Andere' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ *
+ * This function is copied from the file generated by the Features module: demo.features.field_base.inc
+ */
+function argus_register_van_feiten_door_derden_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_aangifte'.
+	$field_instances ['node-register_van_feiten_door_derden-field_aangifte'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aangifte',
+			'label' => 'Aangifte',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 28 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_aanleiding_van_de_agressie'.
+	$field_instances ['node-register_van_feiten_door_derden-field_aanleiding_van_de_agressie'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 9 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_aanleiding_van_de_agressie',
+			'label' => 'Aanleiding van de agressie',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 35 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_betrokkene_derde_'.
+	$field_instances ['node-register_van_feiten_door_derden-field_betrokkene_derde_'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 9 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_betrokkene_derde_',
+			'label' => 'Betrokkene (derde)',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 16 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_categorie'.
+	$field_instances ['node-register_van_feiten_door_derden-field_categorie'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 14 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_categorie',
+			'label' => 'Categorie',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 34 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_datum_en_tijd'.
+	$field_instances ['node-register_van_feiten_door_derden-field_datum_en_tijd'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'date',
+							'settings' => array (
+									'conditions' => array (),
+									'format_type' => 'long',
+									'fromto' => 'both',
+									'multiple_from' => '',
+									'multiple_number' => '',
+									'multiple_to' => '',
+									'show_remaining_days' => FALSE,
+									'show_repeat_rule' => 'show' 
+							),
+							'type' => 'date_default',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_datum_en_tijd',
+			'label' => 'Datum en tijd',
+			'required' => 0,
+			'settings' => array (
+					'default_value' => 'now',
+					'default_value2' => 'same',
+					'default_value_code' => '',
+					'default_value_code2' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'date',
+					'settings' => array (
+							'display_all_day' => 0,
+							'increment' => 15,
+							'input_format' => 'd/m/Y - H:i:s',
+							'input_format_custom' => '',
+							'label_position' => 'above',
+							'no_fieldset' => 0,
+							'repeat_collapsed' => 0,
+							'text_parts' => array (),
+							'year_range' => '-3:+3' 
+					),
+					'type' => 'date_popup',
+					'weight' => 14 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_gevolgen'.
+	$field_instances ['node-register_van_feiten_door_derden-field_gevolgen'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 13 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_gevolgen',
+			'label' => 'Gevolgen',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 33 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_hoedanigheid_betrokkene_de'.
+	$field_instances ['node-register_van_feiten_door_derden-field_hoedanigheid_betrokkene_de'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '(bijvoorbeeld: leerling, leverancier, ouder, ...)',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 10 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_hoedanigheid_betrokkene_de',
+			'label' => 'Hoedanigheid betrokkene (derde)',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 17 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_intensiteit'.
+	$field_instances ['node-register_van_feiten_door_derden-field_intensiteit'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => 'intentie van de derde zoals beleefd door het slachtoffer',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 12 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_intensiteit',
+			'label' => 'Intensiteit',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 32 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_materi_le_schade'.
+	$field_instances ['node-register_van_feiten_door_derden-field_materi_le_schade'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_materi_le_schade',
+			'label' => 'Materiële schade',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 27 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_persoonlijke_schade'.
+	$field_instances ['node-register_van_feiten_door_derden-field_persoonlijke_schade'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_persoonlijke_schade',
+			'label' => 'Persoonlijke schade',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 26 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_plaats'.
+	$field_instances ['node-register_van_feiten_door_derden-field_plaats'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 8 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_plaats',
+			'label' => 'Plaats',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 15 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_priv_'.
+	$field_instances ['node-register_van_feiten_door_derden-field_priv_'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => array (
+					0 => array (
+							'value' => 0 
+					) 
+			),
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_priv_',
+			'label' => 'Privé',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'display_label' => 1 
+					),
+					'type' => 'options_onoff',
+					'weight' => 13 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_tijdens_de_werkuren_'.
+	$field_instances ['node-register_van_feiten_door_derden-field_tijdens_de_werkuren_'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 11 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_tijdens_de_werkuren_',
+			'label' => 'Tijdens de werkuren?',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 18 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_uitingen'.
+	$field_instances ['node-register_van_feiten_door_derden-field_uitingen'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 11 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_uitingen',
+			'label' => 'Uitingen',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 31 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-register_van_feiten_door_derden-field_vormen'.
+	$field_instances ['node-register_van_feiten_door_derden-field_vormen'] = array (
+			'bundle' => 'register_van_feiten_door_derden',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 10 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_vormen',
+			'label' => 'Vormen',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 30 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( '(bijvoorbeeld: leerling, leverancier, ouder, ...)' );
+	t ( 'Aangifte' );
+	t ( 'Aanleiding van de agressie' );
+	t ( 'Betrokkene (derde)' );
+	t ( 'Categorie' );
+	t ( 'Datum en tijd' );
+	t ( 'Gevolgen' );
+	t ( 'Hoedanigheid betrokkene (derde)' );
+	t ( 'Intensiteit' );
+	t ( 'Materiële schade' );
+	t ( 'Persoonlijke schade' );
+	t ( 'Plaats' );
+	t ( 'Privé' );
+	t ( 'Tijdens de werkuren?' );
+	t ( 'Uitingen' );
+	t ( 'Vormen' );
+	t ( 'intentie van de derde zoals beleefd door het slachtoffer' );
+	
+	return $field_instances;
+}

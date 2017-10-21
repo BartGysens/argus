@@ -1,0 +1,10 @@
+**Releases:
+
+
+v7.x-1.0
+---------
+- Initiële feature release; rebased as full module
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)
