@@ -23,4 +23,4 @@ var data = <?php print $data; ?>;
 
 <h1>Boomstructuur</h1>
 
-<div id="chart_div"></div>
+<div id="chart_beleidsplannen_tree"></div>

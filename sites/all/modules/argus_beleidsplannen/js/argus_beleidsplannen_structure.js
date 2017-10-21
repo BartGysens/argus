@@ -34,7 +34,7 @@ jQuery(document)
 						
 						// Create the chart.
 						var chart = new google.visualization.OrgChart(document
-								.getElementById('chart_div'));
+								.getElementById('chart_beleidsplannen_tree'));
 
 						// Draw the chart, setting the allowHtml option to true
 						// for the tooltips.

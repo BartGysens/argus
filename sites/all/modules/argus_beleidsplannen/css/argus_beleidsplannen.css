@@ -104,6 +104,10 @@ div.pageEnd{
 	line-height: 1.5em;
 }
 
+#chart_beleidsplannen_tree table{
+	border-collapse: separate !important;
+}
+
 @media screen {
 	.onlyPrint{
 		display: none;

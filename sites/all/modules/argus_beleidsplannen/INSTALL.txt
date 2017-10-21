@@ -1,6 +1,6 @@
 **Installation:
 
-(naam van je module en eventueel pakket)
+Beleidsplannen is an extension to the argus - a Quality control platform.
 
 1. Unpack the "argus_beleidsplannen" folder and contents in the appropriate modules
 directory of your Drupal installation.  This is probably sites/all/modules/
