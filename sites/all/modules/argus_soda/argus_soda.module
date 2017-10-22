@@ -822,7 +822,7 @@ function argus_soda_show_report($uid, $comments = TRUE, $mode = 'view', $update 
 		
 		$report = argus_soda_get_report ( $uid, $update );
 		
-		$returnStr .= '<table id="argus_soda-report"><thead><tr><th></th><th>S</th><th>O</th><th>D</th><th>A</th>';
+		$returnStr .= '<table id="argus_soda-report"><thead><tr><th></th><th class="views-align-center">S</th><th class="views-align-center">O</th><th class="views-align-center">D</th><th class="views-align-center">A</th>';
 		
 		if ($comments) {
 			$returnStr .= '<th style="text-align: left;">commentaren</th>';
@@ -861,7 +861,11 @@ function argus_soda_show_report($uid, $comments = TRUE, $mode = 'view', $update 
 			}
 			
 			if ($mode == 'edit') {
-				$returnStr .= '<td style="vertical-align: top;"><a href="' . base_path () . 'node/' . $report ['id'] [$x] . '/edit?destination=' . base_path () . current_path () . '#' . $uid . '">' . t ( 'bewerken' ) . '</a></td>';
+				if (array_key_exists($x, $report ['id'])){
+					$returnStr .= '<td style="vertical-align: top; text-align: left;"><a href="' . base_path () . 'node/' . $report ['id'] [$x] . '/edit?destination=' . base_path () . current_path () . '#' . $uid . '" target="_blank">' . t ( 'bewerken' ) . '</a></td>';
+				} else {
+					$returnStr .= '<td></td>';
+				}
 			}
 			
 			if ($x == 1) {

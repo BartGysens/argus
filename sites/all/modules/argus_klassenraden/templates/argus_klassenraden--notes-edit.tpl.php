@@ -347,7 +347,7 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 					                <div class="field clearfix">
 					                    <div class="field-label">SODA-rapport:&nbsp;</div>
 					                    <div class="field-items">
-					                        <?php print argus_soda_show_report( $data['uid'] ); ?>
+					                        <?php print argus_soda_show_report( $data['uid'], true, 'edit' ); ?>
 											
 											<div id="argus_soda_actions">Beslissing aanpassen: 
 												<a href="#" class="argus_soda_attestBtn" id="argus_klassenraden_behaviour_soda-<?php print $data['uid']; ?>-A">A</a> - 
