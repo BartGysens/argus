@@ -26,7 +26,7 @@ print '<th class="views-field views-align-center" scope="col">Nr.</th>';
 print '<th class="views-field views-align-left" scope="col">' . t ( 'Leerling' ) . '</th>';
 print '<th class="views-field views-align-center" scope="col">' . t ( 'Rapport' ) . '</th>';
 if (module_exists ( 'argus_meldingen' )) {
-	print '<th class="views-field views-align-left" scope="col">' . t ( 'Details <strong>attitude</strong>' ) . '</th>';
+	print '<th class="views-field views-align-left" scope="col">' . t ( 'Details' ) . '</th>';
 }
 print '</tr>';
 
@@ -44,12 +44,22 @@ foreach ( $data ['reports'] [$data ['cid']] as $uid => $report ) {
 	if (module_exists ( 'argus_meldingen' )) {
 		print '<td class="views-field views-align-left">';
 		for($x = 1; $x < 5; $x ++) {
-			if (count($report ['tickets'][$x]['ticketing'])){
-				print '<h4>' . $report ['tickets'][$x]['title'] . '</strong></h4><ol>';
-				foreach ( $report ['tickets'][$x]['ticketing'] as $ticket ) {
-					print '<li><a href="' . base_path () . drupal_get_path_alias ( 'node/' . $ticket->id ) . '" target="_blank">'.format_date(strtotime($ticket->factdate), 'custom', 'd-m-y').': '.$ticket->title.' ('.argus_get_user_realname($ticket->author).')</a></li>';
+			if ($report ['tickets'][$x]['total']){
+				print '<h3>' . $report ['tickets'][$x]['title'] . '</strong></h3><ol>';
+				foreach (SODA_parts as $soda_part => $title){
+					if (count($report ['tickets'][$x]['ticketing'][$soda_part])){
+						print '<h4>' . $title . '</strong></h4>';
+						if ($soda_part == 'stiptheid (SODA)'){
+							print implode( ' - ', $report ['tickets'][$x]['ticketing'][$soda_part] );
+						} else {
+							print '<ol>';
+							foreach ( $report ['tickets'][$x]['ticketing'][$soda_part] as $ticket ) {
+								print '<li><a href="' . base_path () . drupal_get_path_alias ( 'node/' . $ticket->id ) . '" target="_blank">'.format_date(strtotime($ticket->factdate), 'custom', 'd-m-y').': '.$ticket->title.' ('.argus_get_user_realname($ticket->author).')</a></li>';
+							}
+							print '</ol>';
+						}
+					}
 				}
-				print '</ol>';
 			}
 		}
 		print '</td>';

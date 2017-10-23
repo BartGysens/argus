@@ -16,6 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+const SODA_parts = array(
+			'stiptheid (SODA)' => 'Stiptheid',
+			'orde (SODA)' => 'Orde',
+			'discipline (SODA)' => 'Discipline',
+			'attitude (SODA)' => 'Attitude',
+	);
+
 /* Drupal Hooks */
 
 /**
@@ -234,7 +241,7 @@ function argus_soda_overview() {
 function argus_soda_reports_overview($param0 = NULL, $param1 = NULL) {
 	drupal_add_css ( drupal_get_path ( 'module', 'argus_soda' ) . '/css/argus_soda.css' );
 	
-	$schoolyear = ( array ) argus_schoolyear ( 0 );
+	$schoolyear = ( array ) argus_schoolyear ();
 	
 	$params = array (
 			':type' => 'klas' 
@@ -285,27 +292,88 @@ function argus_soda_reports_overview($param0 = NULL, $param1 = NULL) {
 						$startdate = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['startdate'];
 						$enddate = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['enddate'];
 						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['title'] = $periods [variable_get ( 'period_' . $y . '_shortname' )] ['fullname'];
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['total'] = 0;
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['ticketing']['stiptheid (SODA)'] = array();
 					}
 				}
-			
-				$query = 'SELECT l.entity_id AS id, o.field_lvs_melding_onderwerp_value AS title, n.uid AS author, d.field_lvs_melding_datum_feit_value AS factdate, p.field_lvs_melding_prive_value AS private, v.field_lvs_melding_verslag_value AS report ';
-				$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
-				$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
-				$query .= 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ';
-				$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
-				$query .= 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ';
-				$query .= 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ';
-				$query .= 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ';
-				$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
-				$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
-				$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
-				$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value ASC';
-				$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['ticketing'] = db_query ( $query, array (
-						':uid' => $u->id,
-						':about' => 'attitude (SODA)',
-						':startdate' => $startdate,
-						':enddate' => $enddate 
-				) )->fetchAll ();
+				
+				// Set details 'S'
+				$codes = array (
+						'L'
+				);
+				$total = 0;
+				foreach ( $codes as $code ) {
+					$query = 'SELECT id FROM {argus_lvs_afwezigheden} AS a WHERE a.leerling = :uid AND am = :code AND datum BETWEEN :startdate AND :enddate';
+					$result = db_query ( $query, array (
+							':uid' => $u->id,
+							':code' => $code,
+							':startdate' => $startdate,
+							':enddate' => $enddate
+					) );
+					$total += $result->rowCount ();
+					$query = 'SELECT id FROM {argus_lvs_afwezigheden} AS a WHERE a.leerling = :uid AND pm = :code AND datum BETWEEN :startdate AND :enddate';
+					$result = db_query ( $query, array (
+							':uid' => $u->id,
+							':code' => $code,
+							':startdate' => $startdate,
+							':enddate' => $enddate
+					) );
+					if ($result->rowCount ()){
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['total'] += $result->rowCount ();
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['ticketing']['stiptheid (SODA)'][] = $result->rowCount () . ' x te laat';
+					}
+				}
+				
+				$codes = array (
+						'B'
+				);
+				$total = 0;
+				foreach ( $codes as $code ) {
+					$query = 'SELECT id FROM {argus_lvs_afwezigheden} AS a WHERE a.leerling = :uid AND am = :code AND datum BETWEEN :startdate AND :enddate';
+					$result = db_query ( $query, array (
+							':uid' => $u->id,
+							':code' => $code,
+							':startdate' => $startdate,
+							':enddate' => $enddate
+					) );
+					$total += $result->rowCount ();
+					$query = 'SELECT id FROM {argus_lvs_afwezigheden} AS a WHERE a.leerling = :uid AND pm = :code AND datum BETWEEN :startdate AND :enddate';
+					$result = db_query ( $query, array (
+							':uid' => $u->id,
+							':code' => $code,
+							':startdate' => $startdate,
+							':enddate' => $enddate
+					) );
+					if ($result->rowCount ()){
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['total'] += $result->rowCount ();
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['ticketing']['stiptheid (SODA)'][] = $result->rowCount () . ' x B-code';
+					}
+				}
+				
+				foreach (SODA_parts as $soda_part => $title){
+					if ($soda_part != 'stiptheid (SODA)') {
+						$query = 'SELECT l.entity_id AS id, o.field_lvs_melding_onderwerp_value AS title, n.uid AS author, d.field_lvs_melding_datum_feit_value AS factdate, p.field_lvs_melding_prive_value AS private, v.field_lvs_melding_verslag_value AS report ';
+						$query .= 'FROM {field_data_field_lvs_melding_leerling} AS l ';
+						$query .= 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ';
+						$query .= 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ';
+						$query .= 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ';
+						$query .= 'LEFT JOIN {field_data_field_lvs_melding_prive} AS p ON l.entity_id = p.entity_id  ';
+						$query .= 'LEFT JOIN {field_data_field_lvs_melding_verslag} AS v ON l.entity_id = v.entity_id ';
+						$query .= 'LEFT JOIN {node} AS n ON l.entity_id = n.nid ';
+						$query .= 'WHERE l.field_lvs_melding_leerling_target_id = :uid ';
+						$query .= 'AND b.field_lvs_melding_betreft_value = :about ';
+						$query .= 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+						$query .= 'ORDER BY d.field_lvs_melding_datum_feit_value ASC';
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['ticketing'][$soda_part] = db_query ( $query, array (
+								':uid' => $u->id,
+								':about' => $soda_part,
+								':startdate' => $startdate,
+								':enddate' => $enddate 
+						) )->fetchAll ();
+						
+						$data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['total'] += count($data ['reports'] [$param1] [$u->id] ['tickets'] [$x] ['ticketing'][$soda_part] );
+					}
+				}
 			}
 		}
 	}

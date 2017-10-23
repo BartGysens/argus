@@ -36,7 +36,6 @@ $users_lln = db_query($query, array(':rids' => variable_get('argus_engine_roles_
         <strong>Klassen</strong><br />
             <select id="argus_soda_change_classes">
             <?php 
-            echo '<option value="">-</option>';
             $query = 'SELECT nid, title ' .
 					'FROM {node} AS k ' .
 					'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON k.nid = lln.entity_id ' .
@@ -50,6 +49,8 @@ $users_lln = db_query($query, array(':rids' => variable_get('argus_engine_roles_
                         if ($key == $cid || $c == $cid) {
                             echo ' selected';
                         }
+                    } elseif (array_keys($classes)[0] == $key) {
+                    	echo ' selected';
                     }
                     echo '>'.$c.'</option>';
                 }
