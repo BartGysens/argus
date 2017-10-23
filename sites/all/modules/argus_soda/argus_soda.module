@@ -538,8 +538,9 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 						$total += $result->rowCount ();
 					}
 					
+					$value = 'A';
 					if ($total > 2) {
-						$node->field_soda_stiptheid [LANGUAGE_NONE] [0] ['value'] = 'B';
+						$value = 'B';
 					}
 					
 					/* CHECK: B-codes */
@@ -567,8 +568,10 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 					}
 					
 					if ($total) {
-						$node->field_soda_stiptheid [LANGUAGE_NONE] [0] ['value'] = 'B';
-					}
+						$value = 'B';
+                                        }
+
+					$node->field_soda_stiptheid [LANGUAGE_NONE] [0] ['value'] = $value;
 				}
 				
 				/* ---------- Calculate 'Orde' - O ---------- */
@@ -585,7 +588,9 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 					
 					if ($total > 1) {
 						$node->field_soda_orde [LANGUAGE_NONE] [0] ['value'] = 'B';
-					}
+					} else {
+                                                $node->field_soda_orde [LANGUAGE_NONE] [0] ['value'] = 'A';
+                                        }
 				}
 				
 				/* ---------- Calculate 'Discipline' - D ---------- */
@@ -602,7 +607,9 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 					
 					if ($total) {
 						$node->field_soda_discipline [LANGUAGE_NONE] [0] ['value'] = 'B';
-					}
+					} else {
+                                                $node->field_soda_discipline [LANGUAGE_NONE] [0] ['value'] = 'A';
+                                        }
 				}
 				
 				/* ---------- Calculate 'Attitude' - A ---------- */
@@ -619,6 +626,8 @@ function argus_soda_resetReports_form_submit($form, &$form_state) {
 					
 					if ($total) {
 						$node->field_soda_attitude [LANGUAGE_NONE] [0] ['value'] = 'B';
+					} else {
+						$node->field_soda_attitude [LANGUAGE_NONE] [0] ['value'] = 'A';
 					}
 				}
 				
