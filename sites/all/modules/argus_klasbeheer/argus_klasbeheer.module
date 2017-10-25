@@ -24,7 +24,7 @@
  */
 function argus_klasbeheer_node_presave($node) {
 	global $user;
-	cache_set ( 'argus_klasbeheer_block_view_' . $user->uid, FALSE, 'cache_argus' );
+	cache_set ( 'argus_klasbeheer_block_view_' . $user->uid, FALSE );
 }
 
 /**
@@ -33,7 +33,7 @@ function argus_klasbeheer_node_presave($node) {
  */
 function argus_klasbeheer_node_delete($node) {
 	global $user;
-	cache_set ( 'argus_klasbeheer_block_view_' . $user->uid, FALSE, 'cache_argus' );
+	cache_set ( 'argus_klasbeheer_block_view_' . $user->uid, FALSE );
 }
 
 /**
@@ -2279,7 +2279,7 @@ function argus_klasbeheer_block_view($delta = '') {
 				break;
 		}
 		
-		cache_set ( 'argus_klasbeheer_block_view_' . $user->uid, $block, 'cache_argus' );
+		cache_set ( 'argus_klasbeheer_block_view_' . $user->uid, $block );
 	}
 	
 	drupal_add_css ( drupal_get_path ( 'module', 'argus_klasbeheer' ) . '/css/argus_klasbeheer--LST_block.css' );
@@ -2339,15 +2339,24 @@ function argus_klasbeheer_preprocess_node(&$variables) {
  * @return array int
  */
 function argus_klasbeheer_get_active_classes() {
-	$query = 'SELECT n.nid AS id, n.title ';
-	$query .= 'FROM {node} AS n ';
-	$query .= 'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON lln.entity_id = n.nid ';
-	$query .= 'WHERE type = :type ';
-	$query .= 'GROUP BY n.nid HAVING COUNT(*) > 0 ';
-	$query .= 'ORDER BY n.title ASC';
-	return db_query ( $query, array (
-				':type' => 'klas' 
-		) )->fetchAllKeyed();
+	global $user;
+	if ( $cache = cache_get ( 'argus_klasbeheer_get_active_classes_' . $user->uid ) ) {
+		$result = $cache->data;
+	} else {
+		$query = 'SELECT n.nid AS id, n.title ';
+		$query .= 'FROM {node} AS n ';
+		$query .= 'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON lln.entity_id = n.nid ';
+		$query .= 'WHERE type = :type ';
+		$query .= 'GROUP BY n.nid HAVING COUNT(*) > 0 ';
+		$query .= 'ORDER BY n.title ASC';
+		$result = db_query ( $query, array (
+					':type' => 'klas' 
+			) )->fetchAllKeyed();
+		
+		cache_set ( 'argus_klasbeheer_get_active_classes_' . $user->uid, $result );
+	}
+	
+	return $result;
 }
 
 /**
@@ -2362,16 +2371,25 @@ function argus_klasbeheer_get_active_classes() {
  */
 function argus_klasbeheer_get_pupils($cid) {
 	if (isset ( $cid )) {
-		$query = 'SELECT u.uid AS id ';
-		$query .= 'FROM {field_data_field_klas_leerlingen} AS l ';
-		$query .= 'INNER JOIN {users} AS u ON l.field_klas_leerlingen_target_id = u.uid ';
-		$query .= 'LEFT JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = u.uid ';
-		$query .= 'LEFT JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = u.uid ';
-		$query .= 'WHERE l.entity_id = :cid ';
-		//$query .= 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
-		return db_query ( $query, array (
-				':cid' => $cid 
-		) )->fetchAll ();
+		global $user;
+		if ( $cache = cache_get ( 'argus_klasbeheer_get_pupils_' . $user->uid . '_' . $cid ) ) {
+			$result = $cache->data;
+		} else {
+			$query = 'SELECT u.uid AS id ';
+			$query .= 'FROM {field_data_field_klas_leerlingen} AS l ';
+			$query .= 'INNER JOIN {users} AS u ON l.field_klas_leerlingen_target_id = u.uid ';
+			$query .= 'LEFT JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = u.uid ';
+			$query .= 'LEFT JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = u.uid ';
+			$query .= 'WHERE l.entity_id = :cid ';
+			//$query .= 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
+			$result = db_query ( $query, array (
+					':cid' => $cid 
+			) )->fetchCol();
+			
+			cache_set ( 'argus_klasbeheer_get_pupils_' . $user->uid . '_' . $cid, $result );
+		}
+		
+		return $result;
 	}
 }
 
@@ -2387,12 +2405,21 @@ function argus_klasbeheer_get_pupils($cid) {
  */
 function argus_klasbeheer_get_teachers($cid) {
 	if (isset ( $cid )) {
-		$query = 'SELECT u.uid AS id ';
-		$query .= 'FROM {field_data_field_klas_leerkrachten} AS l ';
-		$query .= 'INNER JOIN {users} AS u ON l.field_klas_leerkrachten_target_id = u.uid ';
-		$query .= 'WHERE l.entity_id = :cid';
-		return db_query ( $query, array (
-				':cid' => $cid 
-		) )->fetchAll ();
+		global $user;
+		if ( $cache = cache_get ( 'argus_klasbeheer_get_teachers_' . $user->uid . '_' . $cid ) ) {
+			$result = $cache->data;
+		} else {
+			$query = 'SELECT u.uid AS id ';
+			$query .= 'FROM {field_data_field_klas_leerkrachten} AS l ';
+			$query .= 'INNER JOIN {users} AS u ON l.field_klas_leerkrachten_target_id = u.uid ';
+			$query .= 'WHERE l.entity_id = :cid';
+			$result = db_query ( $query, array (
+					':cid' => $cid 
+			) )->fetchAll ();
+			
+			cache_set ( 'argus_klasbeheer_get_teachers_' . $user->uid . '_' . $cid, $result );
+		}
+		
+		return $result;
 	}
 }

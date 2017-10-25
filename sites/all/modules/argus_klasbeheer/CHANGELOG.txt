@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-3.8
+---------
+- Caching upgraded
+
+
 v7.x-3.7
 ---------
 - SODA beter geïntegreerd
