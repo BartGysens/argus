@@ -23,10 +23,7 @@
  * Handling cache for argus_...-modules
  */
 function argus_engine_modules_enabled($modules) {
-	global $user;
-	if (path_to_theme () == 'sites/all/themes/smartschool') {
-		cache_set ( 'quicknav_modulesList_' . $user->uid, FALSE, 'cache_argus' );
-	}
+	argus_engine_cache_clear('module');
 }
 
 /**
@@ -34,10 +31,7 @@ function argus_engine_modules_enabled($modules) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_user_role_presave($user_role) {
-	global $user;
-	if (path_to_theme () == 'sites/all/themes/smartschool') {
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
-	}
+	argus_engine_cache_clear();
 }
 
 /**
@@ -45,10 +39,7 @@ function argus_engine_user_role_presave($user_role) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_user_role_delete($user_role) {
-	global $user;
-	if (path_to_theme () == 'sites/all/themes/smartschool') {
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
-	}
+	argus_engine_cache_clear();
 }
 
 /**
@@ -56,10 +47,7 @@ function argus_engine_user_role_delete($user_role) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_user_presave($user) {
-	global $user;
-	if (path_to_theme () == 'sites/all/themes/smartschool') {
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
-	}
+	argus_engine_cache_clear();
 }
 
 /**
@@ -67,10 +55,7 @@ function argus_engine_user_presave($user) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_user_delete($user) {
-	global $user;
-	if (path_to_theme () == 'sites/all/themes/smartschool') {
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
-	}
+	argus_engine_cache_clear();
 }
 
 /**
@@ -78,10 +63,7 @@ function argus_engine_user_delete($user) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_node_presave($node) {
-	global $user;
-	if (path_to_theme () == 'sites/all/themes/smartschool') {
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
-	}
+	argus_engine_cache_clear('node');
 }
 
 /**
@@ -89,10 +71,7 @@ function argus_engine_node_presave($node) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_node_delete($node) {
-	global $user;
-	if (path_to_theme () == 'sites/all/themes/smartschool') {
-		cache_set ( 'smartschool_users_by_role_' . $user->uid, FALSE, 'cache_argus' );
-	}
+	argus_engine_cache_clear('node');
 }
 
 /**
@@ -508,7 +487,11 @@ function argus_get_user_class($uid, $type = 'id') {
 						return $currentClass->nid;
 						break;
 				}
+			} else {
+				return false;
 			}
+		} else {
+			return false;
 		}
 	} else {
 		return false;
@@ -636,55 +619,63 @@ function argus_get_user_has_role($uid, $roles) {
  * @return array
  */
 function argus_get_user_select_options($role = NULL, $onlyActive = TRUE) {
-	if ($role) {
-		$roleObj = user_role_load_by_name ( $role );
-	}
-	if (module_exists ( 'argus_gebruikers' )) {
-		$query = 'SELECT u.uid AS uid, n.field_user_sms_naam_value AS name, v.field_user_sms_voornaam_value AS firstname, u.status ';
-		$query .= 'FROM {users} AS u ';
-		
-		if ($roleObj) {
-			$query .= 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ';
-		}
-		
-		$query .= 'INNER JOIN {field_data_field_user_sms_naam} AS n ON u.uid = n.entity_id ';
-		$query .= 'INNER JOIN {field_data_field_user_sms_voornaam} AS v ON u.uid = v.entity_id ';
-		$query .= 'WHERE u.uid ';
-		
-		if ($onlyActive) {
-			$query .= ' AND u.status = 1 ';
-		}
-		
-		$vars = array ();
-		
-		if ($roleObj) {
-			$query .= ' AND ur.rid = :rid ';
-			$vars [':rid'] = $roleObj->rid;
-		}
-		
-		$query .= 'ORDER BY name ASC, firstname ASC';
-		
-		$users = db_query ( $query, $vars )->fetchAll ();
+	global $user;
+	if ($cache = cache_get ( 'argus_get_user_select_options_' . $user->uid . '_' . $role . '_' . $onlyActive )) {
+		$options = $cache->data;
 	} else {
-		$users = array ();
-	}
-	$options = array ();
-	foreach ( $users as $u ) {
-		$option = $u->name . ', ' . $u->firstname;
-		
-		if (! $onlyActive) {
-			if (! $u->status) {
-				$option .= ' (niet actief)';
+		if ($role) {
+			$roleObj = user_role_load_by_name ( $role );
+		}
+		if (module_exists ( 'argus_gebruikers' )) {
+			$query = 'SELECT u.uid AS uid, n.field_user_sms_naam_value AS name, v.field_user_sms_voornaam_value AS firstname, u.status ';
+			$query .= 'FROM {users} AS u ';
+			
+			if ($roleObj) {
+				$query .= 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ';
 			}
+			
+			$query .= 'INNER JOIN {field_data_field_user_sms_naam} AS n ON u.uid = n.entity_id ';
+			$query .= 'INNER JOIN {field_data_field_user_sms_voornaam} AS v ON u.uid = v.entity_id ';
+			$query .= 'WHERE u.uid ';
+			
+			if ($onlyActive) {
+				$query .= ' AND u.status = 1 ';
+			}
+			
+			$vars = array ();
+			
+			if ($roleObj) {
+				$query .= ' AND ur.rid = :rid ';
+				$vars [':rid'] = $roleObj->rid;
+			}
+			
+			$query .= 'ORDER BY name ASC, firstname ASC';
+			
+			$users = db_query ( $query, $vars )->fetchAll ();
+		} else {
+			$users = array ();
+		}
+		$options = array ();
+		foreach ( $users as $u ) {
+			$option = $u->name . ', ' . $u->firstname;
+			
+			if (! $onlyActive) {
+				if (! $u->status) {
+					$option .= ' (niet actief)';
+				}
+			}
+			
+			$class = argus_get_user_class ( $u->uid, 'title' );
+			if ($class) {
+				$option .= ' - ' . $class;
+			}
+			
+			$options [$u->uid] = $option;
 		}
 		
-		$class = argus_get_user_class ( $u->uid, 'title' );
-		if ($class) {
-			$option .= ' - ' . $class;
-		}
-		
-		$options [$u->uid] = $option;
+		cache_set ( 'argus_get_user_select_options_' . $user->uid . '_' . $role . '_' . $onlyActive, $options );
 	}
+	
 	return $options;
 }
 
@@ -1339,4 +1330,35 @@ function argus_engine_check_password($pwd) {
 	}
 	
 	return $pwdOK;
+}
+
+/**
+ * Check password.
+ *
+ * @return boolean.
+ * 
+ * Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
+ *         - een kleine letter bevatten (a-z);
+ *         - een hoofdletter bevatten (A-Z);
+ *         - een cijfer bevatten (0-9);
+ *         - een ander karakter bevatten (._-*!?/).
+ */
+function argus_engine_cache_clear($type = 'user') {
+	global $user;
+	switch ( $type ){
+		case 'module':
+			cache_clear_all ( 'quicknav_modulesList_' . $user->uid, null, true );
+			break;
+		case 'node':
+			cache_clear_all( 'smartschool_users_by_role_', null, true );
+			break;
+		case 'user':
+		default:
+			cache_clear_all( 'smartschool_users_by_role_', null, true );
+			cache_clear_all( 'smartschool_search_users_by_role_view_', null, true );
+			cache_clear_all( 'argus_get_user_select_options_', null, true );
+			cache_clear_all( 'argus_klasbeheer_get_active_classes_', null, true );
+			cache_clear_all( 'argus_klasbeheer_get_pupils_', null, true );
+			cache_clear_all( 'argus_klasbeheer_get_teachers_', null, true );
+	}
 }
