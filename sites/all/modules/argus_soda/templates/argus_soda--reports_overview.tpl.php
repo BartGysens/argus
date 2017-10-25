@@ -72,6 +72,7 @@ foreach ( $data ['reports'] [$data ['cid']] as $uid => $report ) {
 						}
 					}
 				}
+				print '</ol>';
 			}
 		}
 		print '</td>';
