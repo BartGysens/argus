@@ -627,6 +627,9 @@ class FieldInfo {
       }
       $display['module'] = $formatter_type_info['module'];
       // Fill in default settings for the formatter.
+      if (!$display['settings']) {
+      	$display['settings'] = array();
+      }
       $display['settings'] += field_info_formatter_settings($display['type']);
     }
 
