@@ -45,10 +45,10 @@ foreach ( $data ['reports'] [$data ['cid']] as $uid => $report ) {
 		print '<td class="views-field views-align-left">';
 		for($x = 1; $x < 5; $x ++) {
 			if ($report ['tickets'][$x]['total']){
-				print '<h3>' . $report ['tickets'][$x]['title'] . '</strong></h3><ol>';
+				print '<h3>' . $report ['tickets'][$x]['title'] . '</h3><ol>';
 				foreach (SODA_parts as $soda_part => $title){
 					if (count($report ['tickets'][$x]['ticketing'][$soda_part])){
-						print '<h4>' . $title . '</strong></h4>';
+						print '<h4>' . $title . '</h4>';
 						if ($soda_part == 'stiptheid (SODA)'){
 							print implode( ' - ', $report ['tickets'][$x]['ticketing'][$soda_part] );
 						} else {
@@ -57,6 +57,18 @@ foreach ( $data ['reports'] [$data ['cid']] as $uid => $report ) {
 								print '<li><a href="' . base_path () . drupal_get_path_alias ( 'node/' . $ticket->id ) . '" target="_blank">'.format_date(strtotime($ticket->factdate), 'custom', 'd-m-y').': '.$ticket->title.' ('.argus_get_user_realname($ticket->author).')</a></li>';
 							}
 							print '</ol>';
+							
+							if ($title == 'Attitude' && $report ['tickets'][$x]['ticketing']['positief gedrag'] != array('x')){
+								print '<h4 style="color: green;">Positief gedrag</h4>';
+								print '<ol>';
+								foreach ( $report ['tickets'][$x]['ticketing']['positief gedrag'] as $ticket ) {
+									if (is_numeric($ticket)){
+										$ticket = node_load($ticket);
+										print '<li><a href="' . base_path () . drupal_get_path_alias ( 'node/' . $ticket->nid ) . '" target="_blank">'.format_date(strtotime($ticket->field_lvs_melding_datum_feit[LANGUAGE_NONE][0]['value']), 'custom', 'd-m-y').': '.$ticket->field_lvs_melding_onderwerp[LANGUAGE_NONE][0]['value'].' ('.argus_get_user_realname($ticket->uid).')</a></li>';
+									}
+								}
+								print '</ol>';
+							}
 						}
 					}
 				}
