@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.4
+---------
+- Fix in caching
+
 v7.x-1.3
 ---------
 - Caching enabled

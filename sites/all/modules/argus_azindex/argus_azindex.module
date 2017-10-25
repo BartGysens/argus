@@ -24,7 +24,7 @@
  */
 function argus_azindex_modules_enabled($modules) {
 	global $user;
-	cache_set ( 'argus_azindex_block_view_' . $user->uid, FALSE, 'cache_argus' );
+	cache_set ( 'argus_azindex_block_view_' . $user->uid, FALSE );
 }
 
 /**
@@ -71,7 +71,7 @@ function argus_azindex_block_view($delta = '') {
 			}
 		}
 		
-		cache_set ( 'argus_azindex_block_view_' . $user->uid, $block, 'cache_argus' );
+		cache_set ( 'argus_azindex_block_view_' . $user->uid, $block );
 	}
 	
 	return $block;
