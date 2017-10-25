@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-4.15
+---------
+- Nieuw autodoc: SODA Rapporten
+
 v7.x-4.14
 ---------
 - NACE-code toegevoegd aan stagedossier
