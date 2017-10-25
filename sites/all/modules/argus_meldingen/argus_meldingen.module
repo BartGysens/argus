@@ -24,7 +24,7 @@
  */
 function argus_meldingen_node_presave($node) {
 	global $user;
-	cache_set ( 'argus_meldingen_block_view_' . $user->uid, FALSE, 'cache_argus' );
+	cache_set ( 'argus_meldingen_block_view_' . $user->uid, FALSE );
 }
 
 /**
@@ -33,7 +33,7 @@ function argus_meldingen_node_presave($node) {
  */
 function argus_meldingen_node_delete($node) {
 	global $user;
-	cache_set ( 'argus_meldingen_block_view_' . $user->uid, FALSE, 'cache_argus' );
+	cache_set ( 'argus_meldingen_block_view_' . $user->uid, FALSE );
 }
 
 /**
@@ -1409,7 +1409,7 @@ function argus_meldingen_block_view($delta = '') {
 				break;
 		}
 		
-		cache_set ( 'argus_meldingen_block_view_' . $user->uid, $block, 'cache_argus' );
+		cache_set ( 'argus_meldingen_block_view_' . $user->uid, $block );
 	}
 	
 	drupal_add_js ( "https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1','packages':['corechart']}]}" );
