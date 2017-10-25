@@ -53,11 +53,13 @@ function argus_document_generator_VSG_SODA_Rapport_form($form, &$form_state) {
 			) + argus_klasbeheer_get_active_classes () 
 	);
 	
+	/* TODO: export generates wrong with XML-error Location2
 	$form ['school'] = array (
 			'#type' => 'checkbox',
 			'#title' => t ( 'Volledig school - alle rapporten (<strong>' . count( $form ['leerling'] ['#options'] ) . '</strong> leerlingen)' ),
 			'#description' => t ( '<u>Opgelet</u>: dit proces kan even duren en levert een groot document op.' ),
 	);
+	*/
 	
 	$form ['submit'] = array (
 			'#type' => 'submit',
