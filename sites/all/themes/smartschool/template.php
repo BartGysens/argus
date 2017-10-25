@@ -213,52 +213,61 @@ function smartschool_date_in_schoolyear($y = 0, $m = 0, $d = 0, $schoolyear = 0)
  *   A string reference by rolename.
  */
 function smartschool_search_users_by_role_view($rid = NULL) {
-    $search_results = '';
-    if ($rid) {
-        if (is_numeric($rid)){
-            $role = user_role_load($rid);
-        } else {
-
-        }
-        $title = t('User role').' : '.((string) $role->name);
-        drupal_set_title($title);
-
-        //$role = user_role_load_by_name($role_name);
-        $query = 'SELECT ur.uid AS id '
-                . 'FROM {users_roles} AS ur '
-                . 'INNER JOIN {field_data_field_user_sms_voornaam} AS uf ON ur.uid = uf.entity_id '
-                . 'INNER JOIN {field_data_field_user_sms_naam} AS ul ON ur.uid = ul.entity_id '
-                . 'WHERE ur.rid = :rid '
-                . 'ORDER BY ul.field_user_sms_naam_value ASC, uf.field_user_sms_voornaam_value ASC';
-        $result = db_query($query, array(':rid' => $rid));
-        $users = $result->fetchCol();
-        foreach ($users as $u => $us) {
-            $us = (array) user_load($us);
-            if ($u % 2 == 0) {
-                $classes = 'even';
-            } else {
-                $classes = 'odd';
-            }
-            switch ($u) {
-                case 0: $classes .= ' views-row-first'; break;
-                case count($users)-1: $classes .= ' views-row-last'; break;
-            }
-            $search_results .= '<tr class="'.$classes.'">';
-                $search_results .= '<td class="views-field views-align-center">'.($u+1).'</td>';
-                $search_results .= '<td class="views-field"><a href="/user/'.$us['uid'].'">'.$us['field_user_sms_naam'][LANGUAGE_NONE][0]['value'].', '.$us['field_user_sms_voornaam'][LANGUAGE_NONE][0]['value'].'</a></td>';
-                $search_results .= '<td class="views-field">';
-                    if (isset($us['field_user_sms_emailadres'][LANGUAGE_NONE])) $search_results .= '<a href="mailto:'.$us['field_user_sms_emailadres'][LANGUAGE_NONE][0]['value'].'">'.$us['field_user_sms_emailadres'][LANGUAGE_NONE][0]['value'].'</a>';
-                $search_results .= '</td>';
-                $search_results .= '<td class="views-field views-align-center">';
-                    if (isset($us['field_user_sms_telefoonnummer'][LANGUAGE_NONE])) $search_results .= $us['field_user_sms_telefoonnummer'][LANGUAGE_NONE][0]['value'];
-                $search_results .= '</td>';
-                $search_results .= '<td class="views-field views-align-center">';
-                    if (isset($us['field_user_sms_mobielnummer'][LANGUAGE_NONE])) $search_results .= $us['field_user_sms_mobielnummer'][LANGUAGE_NONE][0]['value'];
-                $search_results .= '</td>';
-            $search_results .= '</tr>';
-        }
-    }
-    return theme('search-users-by-role-results', array('module' => 'users', 'search_results' => $search_results));
+	global $user;
+	if ($cache = cache_get ( 'smartschool_search_users_by_role_view_' . $user->uid )) {
+		$content = $cache->data;
+	} else {
+	    $search_results = '';
+	    if ($rid) {
+	        if (is_numeric($rid)){
+	            $role = user_role_load($rid);
+	        } else {
+	
+	        }
+	        $title = t('User role').' : '.((string) $role->name);
+	        drupal_set_title($title);
+	
+	        //$role = user_role_load_by_name($role_name);
+	        $query = 'SELECT ur.uid AS id '
+	                . 'FROM {users_roles} AS ur '
+	                . 'INNER JOIN {field_data_field_user_sms_voornaam} AS uf ON ur.uid = uf.entity_id '
+	                . 'INNER JOIN {field_data_field_user_sms_naam} AS ul ON ur.uid = ul.entity_id '
+	                . 'WHERE ur.rid = :rid '
+	                . 'ORDER BY ul.field_user_sms_naam_value ASC, uf.field_user_sms_voornaam_value ASC';
+	        $result = db_query($query, array(':rid' => $rid));
+	        $users = $result->fetchCol();
+	        foreach ($users as $u => $us) {
+	            $us = (array) user_load($us);
+	            if ($u % 2 == 0) {
+	                $classes = 'even';
+	            } else {
+	                $classes = 'odd';
+	            }
+	            switch ($u) {
+	                case 0: $classes .= ' views-row-first'; break;
+	                case count($users)-1: $classes .= ' views-row-last'; break;
+	            }
+	            $search_results .= '<tr class="'.$classes.'">';
+	                $search_results .= '<td class="views-field views-align-center">'.($u+1).'</td>';
+	                $search_results .= '<td class="views-field"><a href="/user/'.$us['uid'].'">'.$us['field_user_sms_naam'][LANGUAGE_NONE][0]['value'].', '.$us['field_user_sms_voornaam'][LANGUAGE_NONE][0]['value'].'</a></td>';
+	                $search_results .= '<td class="views-field">';
+	                    if (isset($us['field_user_sms_emailadres'][LANGUAGE_NONE])) $search_results .= '<a href="mailto:'.$us['field_user_sms_emailadres'][LANGUAGE_NONE][0]['value'].'">'.$us['field_user_sms_emailadres'][LANGUAGE_NONE][0]['value'].'</a>';
+	                $search_results .= '</td>';
+	                $search_results .= '<td class="views-field views-align-center">';
+	                    if (isset($us['field_user_sms_telefoonnummer'][LANGUAGE_NONE])) $search_results .= $us['field_user_sms_telefoonnummer'][LANGUAGE_NONE][0]['value'];
+	                $search_results .= '</td>';
+	                $search_results .= '<td class="views-field views-align-center">';
+	                    if (isset($us['field_user_sms_mobielnummer'][LANGUAGE_NONE])) $search_results .= $us['field_user_sms_mobielnummer'][LANGUAGE_NONE][0]['value'];
+	                $search_results .= '</td>';
+	            $search_results .= '</tr>';
+	        }
+	    }
+	    $content = theme('search-users-by-role-results', array('module' => 'users', 'search_results' => $search_results));
+	    
+	    cache_set ( 'smartschool_search_users_by_role_view_' . $user->uid, $content );
+	}
+	
+	return $content;
 }
 
 /**
@@ -294,7 +303,7 @@ function smartschool_users_by_role($role_name, $status = 1) {
 	        }
 	    }
 	    
-	    cache_set ( 'smartschool_users_by_role_' . $user->uid, $uids, 'cache_argus' );
+	    cache_set ( 'smartschool_users_by_role_' . $user->uid, $uids );
 	}
 	return $uids;
 }
@@ -325,7 +334,7 @@ function smartschool_fetch_user_content($uid,$order){
 	        $nids = array_slice($nids, 0, 10);
 	        $nids[] = '<div style="text-align: right;"><a href="/admin/content">'.t('more').'... (+'.($cnt-10).')'.'</a></div>';
 	    }
-	    cache_set ( 'smartschool_fetch_user_content_' . $uid, $nids, 'cache_argus' );
+	    cache_set ( 'smartschool_fetch_user_content_' . $uid, $nids );
 	}
     return $nids;
 }
