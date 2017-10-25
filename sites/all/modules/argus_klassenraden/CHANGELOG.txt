@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.12
+---------
+- Flat delivery uid in class
+
 v7.x-1.11
 ---------
 - Integratie van SODA in infopanel Gedrag
