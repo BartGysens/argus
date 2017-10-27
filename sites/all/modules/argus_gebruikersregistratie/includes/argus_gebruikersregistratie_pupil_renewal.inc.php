@@ -95,11 +95,10 @@ function argus_gebruikersregistratie_form_pupil_renewal($form, &$form_state) {
 			'#collapsed' => TRUE 
 	);
 	
-	$options = argus_get_user_select_options ( 'leerling', FALSE );
 	$form ['leerling'] ['uid'] = array (
 			'#title' => t ( 'Naam' ),
-			'#type' => 'select',
-			'#options' => $options,
+			'#type' => 'textfield',
+    		'#autocomplete_path' => 'user/autocomplete',
 			'#required' => TRUE 
 	);
 	
@@ -167,7 +166,7 @@ function argus_gebruikersregistratie_form_pupil_renewal_validate($form, &$form_s
 function argus_gebruikersregistratie_form_pupil_renewal_submit($form, &$form_state) {
 	$uid = null;
 	
-	// Check if a uid is set
+	// Check if a uid is set at initial form
 	if (count ( $form_state ['build_info'] ['args'] )) {
 		if (array_key_exists ( 'uid', $form_state ['build_info'] ['args'] [0] )) {
 			if (is_numeric ( $form_state ['build_info'] ['args'] [0] ['uid'] )) {
@@ -179,13 +178,13 @@ function argus_gebruikersregistratie_form_pupil_renewal_submit($form, &$form_sta
 	if ($uid) {
 		$user = user_load ( $uid );
 	} else {
-		$user = user_load ( $form_state ['values'] ['uid'] );
+		$user = user_load_by_name( $form_state ['values'] ['uid'] );
 	}
 	
 	$account = $user->name;
 	
 	$user_data = array (
-			'status' => 0 
+			'status' => 1 
 	);
 	
 	// Manipulate data for registration

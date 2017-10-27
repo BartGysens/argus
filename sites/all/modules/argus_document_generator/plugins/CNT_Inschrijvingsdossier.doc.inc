@@ -204,6 +204,14 @@ function argus_document_generator_CNT_Inschrijvingsdossier_document($args) {
 	}
 	$document->setValue ( 'internaat', $value );
 	
+	$value = '';
+	if ($u) {
+		if (array_key_exists ( LANGUAGE_NONE, $u->field_user_sms_taal_met_moeder )) {
+			$value = $u->field_user_sms_taal_met_moeder [LANGUAGE_NONE] [0] ['value'];
+		}
+	}
+	$document->setValue ( 'taal', $value );
+	
 	$gender = '';
 	if ($u) {
 		if ($u->field_user_sms_geslacht [LANGUAGE_NONE] [0] ['value'] == 'm') {

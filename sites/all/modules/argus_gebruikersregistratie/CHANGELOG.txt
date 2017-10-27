@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-2.6
+---------
+- Autocomplete on renewal
+
 v7.x-2.5
 ---------
 - Smartschool message send with new 'leerling' registration - rule
