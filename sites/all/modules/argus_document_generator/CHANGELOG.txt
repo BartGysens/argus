@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-4.16
+---------
+- Better way of merging docx / reports with DocxMerge
+
 v7.x-4.15
 ---------
 - Nieuw autodoc: SODA Rapporten

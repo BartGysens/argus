@@ -1,6 +1,8 @@
 <?php
 use PhpOffice\PhpWord\TemplateProcessor;
 
+use DocxMerge\DocxMerge;
+
 /*
  * Copyright (C) 2017 bartgysens
  *
@@ -53,13 +55,11 @@ function argus_document_generator_VSG_SODA_Rapport_form($form, &$form_state) {
 			) + argus_klasbeheer_get_active_classes () 
 	);
 	
-	/* TODO: export generates wrong with XML-error Location2
 	$form ['school'] = array (
 			'#type' => 'checkbox',
 			'#title' => t ( 'Volledig school - alle rapporten (<strong>' . count( $form ['leerling'] ['#options'] ) . '</strong> leerlingen)' ),
 			'#description' => t ( '<u>Opgelet</u>: dit proces kan even duren en levert een groot document op.' ),
 	);
-	*/
 	
 	$form ['submit'] = array (
 			'#type' => 'submit',
@@ -89,9 +89,6 @@ function argus_document_generator_VSG_SODA_Rapport_form_submit($form, &$form_sta
 	}
 	
 	if (count ( $users )) {
-		// Reverse orde of users (doc gets assemblage back to front)
-		krsort($users);
-		
 		require_once drupal_get_path ( 'module', 'argus_document_generator' ) . '/includes/PHPWord-0.12.1/src/PhpWord/Autoloader.php';
 		\PhpOffice\PhpWord\Autoloader::register ();
 		
@@ -100,15 +97,7 @@ function argus_document_generator_VSG_SODA_Rapport_form_submit($form, &$form_sta
 		/* Process different parts of this document (located in separate files) */
 		$zip = new clsTbsZip ();
 		
-		/* Load template */
-		$document = new TemplateProcessor ( argus_document_generator_get_plugin_template ( 'VSG_SODA_Rapport' ) );
-		
-		// Open the first document
-		$zip->Open ( argus_document_generator_get_plugin_template ( 'VSG_SODA_Rapport' ) );
-		$sourceDocument = $zip->FileRead ( 'word/document.xml' );
-		$zip->Close ();
-		
-		$cntr = 0;
+		$reports = array();
 		foreach ( $users as $uid ) {
 			/* Load user */
 			$u = user_load ( $uid );
@@ -123,6 +112,9 @@ function argus_document_generator_VSG_SODA_Rapport_form_submit($form, &$form_sta
 			if (isset ( $birthday )) {
 				$age = date_diff ( $birthday, new DateTime ( 'now' ) )->format ( '%y' );
 			}
+			
+			/* Load template */
+			$document = new TemplateProcessor ( argus_document_generator_get_plugin_template ( 'VSG_SODA_Rapport' ) );
 			
 			/* Start replacing values in template */
 			$document->setValue ( 'leerling', $document->limpiarString( argus_get_user_realname ( $uid ) ) );
@@ -149,29 +141,10 @@ function argus_document_generator_VSG_SODA_Rapport_form_submit($form, &$form_sta
 				}
 			}
 			
-			if (count ( $users ) - 1 > $cntr) {
-				$startDocument = $sourceDocument;
-				
-				// Extract the content of the first document
-				$p = strpos ( $startDocument, '<w:body' );
-				if ($p === false)
-					exit ( "Tag <w:body> not found in VSG_SODA_Rapport." );
-				$p = strpos ( $startDocument, '>', $p );
-				$startDocument = substr ( $startDocument, $p + 1 );
-				$p = strpos ( $startDocument, '</w:body>' );
-				if ($p === false)
-					exit ( "Tag </w:body> not found in VSG_SODA_Rapport." );
-				$startDocument = substr ( $startDocument, 0, $p );
-				
-				// Insert into the second document
-				$document->setValue ( 'nextPage', '<w:r><w:lastRenderedPageBreak/></w:r>' . $startDocument );
-			}
-			
-			$cntr++;
+			$filename = '/tmp/VSG SODA Rapport ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . date ( 'dmY' ) . '.docx';
+			$document->saveAs ( $filename );
+			$reports[] = $filename;
 		}
-		
-		//$document->setValue ( 'nextPage', 'Er werd(en) ' . count ( $users ) . ' rapport(en) gegenereerd.' );
-		$document->setValue ( 'nextPage', '' );
 		
 		/* Generate the document and initiate download */
 		if (count($users) == 1){
@@ -181,7 +154,21 @@ function argus_document_generator_VSG_SODA_Rapport_form_submit($form, &$form_sta
 		} elseif ($form_state ['values'] ['klas']){
 			$filename = '/tmp/VSG SODA Rapport ' . argus_get_class_name( $form_state ['values'] ['klas'] ) . ' ' . date ( 'dmY' ) . '.docx';
 		}
-		$document->saveAs ( $filename );
+		
+		if (count ( $reports )>1){
+			require_once drupal_get_path ( 'module', 'argus_document_generator' ) . '/includes/DocxMerge/src/DocxMerge.php';
+			require_once drupal_get_path ( 'module', 'argus_document_generator' ) . '/includes/DocxMerge/src/DocxMerge/Docx.php';
+			require_once drupal_get_path ( 'module', 'argus_document_generator' ) . '/includes/DocxMerge/src/libraries/TbsZip.php';
+			
+			$dm = new DocxMerge();
+			$dm->merge( $reports, $filename );
+			
+			foreach ($reports as $report){
+				unlink($report);
+			}
+		} else {
+			$document->saveAs ( $filename );
+		}
 		
 		header ( "Pragma: public" );
 		header ( "Expires: 0" );
