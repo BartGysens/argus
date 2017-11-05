@@ -1,0 +1,11 @@
+**Installation:
+
+HRM - Overuren is an extension to the argus - a Quality control extension.
+
+1. Unpack the argus_hrm_overuren folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably sites/all/modules/
+2. Enable the argus_hrm_overuren module in the administration tools.
+3. If you're not using Drupal's default administrative account, make sure 
+ "administer argus hrm overuren" is enabled through access control
+ administration.
+4. Visit the argus_hrm_overuren settings page and make appropriate configurations.
