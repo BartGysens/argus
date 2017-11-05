@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.10
+---------
+- Fix in message block user unknown
+
 v7.x-1.9
 ---------
 - Better cache control

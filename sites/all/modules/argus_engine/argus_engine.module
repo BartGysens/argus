@@ -408,7 +408,11 @@ function argus_get_user_realname($uid) {
 					return 'x.y';
 				} else {
 					$u = user_load ( $uid );
-					return $u->name;
+					if ( $u ){
+						return $u->name;
+					} else {
+						return t( 'Onbekend' );
+					}
 				}
 			}
 		} else {
@@ -416,7 +420,11 @@ function argus_get_user_realname($uid) {
 				return 'x.y';
 			} else {
 				$u = user_load ( $uid );
-				return $u->name;
+				if ( $u ){
+					return $u->name;
+				} else {
+					return t( 'Onbekend' );
+				}
 			}
 		}
 	}
