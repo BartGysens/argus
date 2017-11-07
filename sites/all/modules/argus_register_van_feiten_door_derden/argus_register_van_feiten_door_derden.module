@@ -62,17 +62,3 @@ function argus_register_van_feiten_door_derden_views_api() {
 	); // replace demo with your content type
 
 }
-
-/**
- * Implementation of hook_views_default_views().
- *
- * Views export creates code that you have to paste in this function.
- *
- * Administration > Structure > Views : click the button behind the view you need and export
- * /admin/structure/views
- */
-function argus_register_van_feiten_door_derden_views_default_views() {
-	// paste export which you can copy from the Views module here
-	$views [$view->name] = $view;
-	return $views;
-}
