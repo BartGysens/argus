@@ -280,8 +280,7 @@ function smartschool_search_users_by_role_view($rid = NULL) {
  * @return array of user ids
  */
 function smartschool_users_by_role($role_name, $status = 1) {
-	global $user;
-	if ($cache = cache_get ( 'smartschool_users_by_role_' . $user->uid )) {
+	if ($cache = cache_get ( 'smartschool_users_by_role_' . $role_name . '_' . $status )) {
 		$uids = $cache->data;
 	} else {
 		global $base_url;
@@ -299,11 +298,11 @@ function smartschool_users_by_role($role_name, $status = 1) {
 	        $uids = $result->fetchCol();
 	        if (($cnt=count($uids))>10) {
 	            $uids = array_slice($uids, 0, 10);
-	            $uids[] = '<a class="course" style="text-align: right;" href="'.$base_url.'/search/users-by-role/'.$role->rid.'">'.t('more').'... (+'.($cnt-10).')'.'</a>';
+	            $uids[] = '<a class="course" style="text-align: right;" href="'.$base_url.'/search/users-by-role/'.$role->rid.'">'.t('more').'... (+'.($cnt-10).')</a>';
 	        }
 	    }
 	    
-	    cache_set ( 'smartschool_users_by_role_' . $user->uid, $uids );
+	    cache_set ( 'smartschool_users_by_role_' . $role_name . '_' . $status, $uids );
 	}
 	return $uids;
 }
