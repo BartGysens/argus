@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-4.3
+---------
+- Cache fix smartschool_users_by_role
+
 v7.x-4.2
 ---------
 - Cache enabled
