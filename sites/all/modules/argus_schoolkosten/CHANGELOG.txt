@@ -1,0 +1,13 @@
+**Releases:
+
+v7.x-1.1
+---------
+- New fixed release based upon module
+
+v7.x-1.0
+---------
+- First initial release, features based
+
+
+**Unreleased:
+(check also forum, blog and projectstatus - issues and tickets)

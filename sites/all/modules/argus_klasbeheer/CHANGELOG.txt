@@ -1,9 +1,12 @@
 **Releases:
 
+v7.x-3.9
+---------
+- Dependency block toegevoegd
+
 v7.x-3.8
 ---------
 - Caching upgraded
-
 
 v7.x-3.7
 ---------

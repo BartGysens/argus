@@ -1,0 +1,10 @@
+**Installation:
+
+Schoolkosten
+
+1. Unpack the "argus_schoolkosten" folder and contents in the appropriate modules
+directory of your Drupal installation.  This is probably sites/all/modules/
+2. Enable the "argus_schoolkosten" module in the administration tools.
+3. If you're not using Drupal's default administrative account, make sure 
+ "administer argus 'argus_schoolkosten'" is enabled through access control
+ administration.

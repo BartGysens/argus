@@ -1,0 +1,1344 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Aankoopdossiers module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_schoolkosten_install() {
+	// Rebuild and define new content type
+	node_types_rebuild ();
+	$types = node_type_get_types ();
+	
+	// Add the body field with specified label
+	// - replace your label or remove if no body-field necessary
+	node_add_body_field ( $types ['schoolkosten'], $label = t ( 'Beschrijving' ) );
+	
+	// Add field bases which are copied from your Features-based module
+	// More details function argus_schoolkosten_field_default_field_bases()
+	foreach ( argus_schoolkosten_field_default_field_bases () as $field_name => $field ) {
+		if (! field_info_field ( $field_name )) {
+			field_create_field ( $field );
+		}
+	}
+	
+	// Add field instances which are copied from your Features-based module
+	// More details function argus_schoolkosten_field_default_field_instances()
+	foreach ( argus_schoolkosten_field_default_field_instances () as $fieldinstance ) {
+		field_create_instance ( $fieldinstance );
+	}
+	
+	// Add conditional_fields which are copied from your Features-based module
+	// More details function argus_schoolkosten_conditional_fields_default_fields()
+	if (function_exists ( 'argus_schoolkosten_conditional_fields_default_fields' )) {
+		foreach ( argus_schoolkosten_conditional_fields_default_fields () as $conditionalfield ) {
+			$dependee = field_info_instance ( 'node', $conditionalfield ['dependee'], $type );
+			$dependent = field_info_instance ( 'node', $conditionalfield ['dependent'], $type );
+			conditional_fields_dependency_insert ( $dependee ['id'], $dependent ['id'], $conditionalfield ['options'] );
+		}
+	}
+	
+	// Enable some standard blocks
+	$theme = variable_get ( 'theme_default', NULL );
+	$blocks = array (
+			array (
+					'module' => 'views',
+					// copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'delta' => '4855cd250f3480681e6b7c4e9e2e3e9e',
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					// replace with the target region for your theme
+					'region' => 'sidebar_first',
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					// replace with your list of pages
+					'pages' => 'schoolkosten' . chr ( 13 ) . 'schoolkosten/*',
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					// replace with your title
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					// copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'delta' => '046a414dd0be4781c717359e607ca2d0',
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					// replace with the target region for your theme
+					'region' => 'sidebar_first',
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					// replace with your list of pages
+					'pages' => 'schoolkosten/items' . chr ( 13 ) . 'schoolkosten/items/*',
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					// replace with your title
+					'title' => 'Filter' 
+			),
+			array (
+					'module' => 'views',
+					// copy this id from your blocks definition url (/admin/structure/block/manage/views/.../configure)
+					'delta' => 'd1bfcde885adbb1120286da27dc6cdcb',
+					'theme' => $theme,
+					'status' => 1,
+					'weight' => - 10,
+					// replace with the target region for your theme
+					'region' => 'sidebar_first',
+					'visibility' => BLOCK_VISIBILITY_LISTED,
+					// replace with your list of pages
+					'pages' => 'schoolkosten/totalen-per-klas' . chr ( 13 ) . 'schoolkosten/totalen-per-klas/*',
+					'cache' => DRUPAL_CACHE_GLOBAL,
+					// replace with your title
+					'title' => 'Filter' 
+			) 
+	);
+	
+	foreach ( $blocks as $block ) {
+		db_merge ( 'block' )->key ( array (
+				'module' => $block ['module'],
+				'delta' => $block ['delta'],
+				'theme' => $block ['theme'] 
+		) )->fields ( array (
+				'status' => $block ['status'],
+				'weight' => $block ['weight'],
+				'region' => $block ['region'],
+				'visibility' => $block ['visibility'],
+				'pages' => $block ['pages'],
+				'cache' => $block ['cache'],
+				'title' => $block ['title'] 
+		) )->execute ();
+	}
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function argus_schoolkosten_uninstall() {
+	// Replace with your content type name
+	$newTypes = array (
+			'schoolkosten',
+			'schoolkost_item' 
+	);
+	
+	foreach ( $newTypes as $type ) {
+		// Remove all nodes of new content type
+		$sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+		$result = db_query ( $sql, array (
+				':type' => $type 
+		) );
+		$nodeids = array ();
+		foreach ( $result as $row ) {
+			$nodeids [] = $row->nid;
+		}
+		node_delete_multiple ( $nodeids );
+	}
+	
+	// Delete all conditional_fields
+	if (function_exists ( 'argus_schoolkosten_conditional_fields_default_fields' )) {
+		foreach ( argus_schoolkosten_conditional_fields_default_fields () as $conditionalfield ) {
+			$dependee = field_info_instance ( 'node', $conditionalfield ['dependee'], $type );
+			conditional_fields_field_delete_instance ( $dependee );
+		}
+	}
+	
+	// Delete all related fields
+	foreach ( argus_schoolkosten_field_default_field_bases () as $field_name => $field ) {
+		$field_info = field_info_field ( $field_name );
+		
+		// Check if field is enabled for other modules
+		if (count ( $field_info ['bundles'] ['node'] ) < 2) {
+			field_delete_field ( $field_name );
+		}
+	}
+	
+	foreach ( $newTypes as $type ) {
+		$instances = field_info_instances ( 'node', $type );
+		foreach ( $instances as $instance_name => $fieldinstance ) {
+			field_delete_instance ( $fieldinstance );
+		}
+	}
+	
+	foreach ( $newTypes as $type ) {
+		// Remove new content type
+		node_type_delete ( $type );
+	}
+	
+	// Remove blocks
+	if (db_table_exists ( 'block' )) {
+		db_delete ( 'block' )->condition ( 'module', 'argus_schoolkosten' )->execute ();
+	}
+}
+
+/**
+ * Implements hook_field_default_field_bases().
+ *
+ * This function is copied from the file generated by the Features module: argus_schoolkosten.features.field_base.inc
+ */
+function argus_schoolkosten_field_default_field_bases() {
+	$field_bases = array ();
+	
+	// Exported field_base: 'field_schoolkost_aantal'.
+	$field_bases ['field_schoolkost_aantal'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_aantal',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'number_integer' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_ema_doelst'.
+	$field_bases ['field_schoolkost_item_ema_doelst'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_ema_doelst',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_isbn'.
+	$field_bases ['field_schoolkost_item_isbn'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_isbn',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (
+					'max_length' => 20 
+			),
+			'translatable' => 0,
+			'type' => 'text' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_koop_huur'.
+	$field_bases ['field_schoolkost_item_koop_huur'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_koop_huur',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							'Huren' => 'Huren',
+							'Kopen' => 'Kopen' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_text' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_leverancie'.
+	$field_bases ['field_schoolkost_item_leverancie'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_leverancie',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (
+											0 => 'leverancier' 
+									),
+									'display_name' => 'entityreference_organisaties',
+									'view_name' => 'organisaties' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_locatie'.
+	$field_bases ['field_schoolkost_item_locatie'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_locatie',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'format' => array (
+							0 => 'format' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'text',
+			'settings' => array (),
+			'translatable' => 0,
+			'type' => 'text_long' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_nieuwe_lln'.
+	$field_bases ['field_schoolkost_item_nieuwe_lln'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_nieuwe_lln',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'list',
+			'settings' => array (
+					'allowed_values' => array (
+							0 => '',
+							1 => '' 
+					),
+					'allowed_values_function' => '' 
+			),
+			'translatable' => 0,
+			'type' => 'list_boolean' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_prijs'.
+	$field_bases ['field_schoolkost_item_prijs'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_prijs',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (),
+			'locked' => 0,
+			'module' => 'number',
+			'settings' => array (
+					'decimal_separator' => '.',
+					'precision' => 10,
+					'scale' => 2 
+			),
+			'translatable' => 0,
+			'type' => 'number_decimal' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_type'.
+	$field_bases ['field_schoolkost_item_type'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_type',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'tid' => array (
+							0 => 'tid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'taxonomy',
+			'settings' => array (
+					'allowed_values' => array (
+							0 => array (
+									'vocabulary' => 'schoolkosten_types',
+									'parent' => 0 
+							) 
+					) 
+			),
+			'translatable' => 0,
+			'type' => 'taxonomy_term_reference' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_uitgeverij'.
+	$field_bases ['field_schoolkost_item_uitgeverij'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_uitgeverij',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (
+											0 => 'uitgeverij' 
+									),
+									'display_name' => 'entityreference_organisaties',
+									'view_name' => 'organisaties' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_item_vervoermid'.
+	$field_bases ['field_schoolkost_item_vervoermid'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_item_vervoermid',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'tid' => array (
+							0 => 'tid' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'taxonomy',
+			'settings' => array (
+					'allowed_values' => array (
+							0 => array (
+									'vocabulary' => 'vervoermiddelen',
+									'parent' => 0 
+							) 
+					) 
+			),
+			'translatable' => 0,
+			'type' => 'taxonomy_term_reference' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_klassen'.
+	$field_bases ['field_schoolkost_klassen'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_klassen',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'entityreference_klassen',
+									'view_name' => 'klassen' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_schoolkost_item'.
+	$field_bases ['field_schoolkost_schoolkost_item'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_schoolkost_item',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'schoolkostitems_selectielijst',
+									'view_name' => 'schoolkostitems' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_totaalprijs'.
+	$field_bases ['field_schoolkost_totaalprijs'] = array (
+			'active' => 1,
+			'cardinality' => 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_totaalprijs',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'value' => array (
+							0 => 'value' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'computed_field',
+			'settings' => array (
+					'code' => '$cost = 0;
+
+$wrapper = entity_metadata_wrapper($entity_type, $entity);
+
+if(isset($wrapper) && isset($wrapper->field_schoolkost_aantal)) {
+  
+  $related_entity = $wrapper->field_schoolkost_schoolkost_item;
+  
+  if(isset($related_entity->field_schoolkost_item_prijs)) {
+    $aantal = $wrapper->field_schoolkost_aantal->value();
+    $eenheidsprijs = $related_entity->field_schoolkost_item_prijs->value();
+
+    $cost = $aantal * $eenheidsprijs;
+  }
+}
+
+$entity_field[0][\'value\'] = $cost;',
+					'database' => array (
+							'data_default' => '',
+							'data_index' => 1,
+							'data_length' => 32,
+							'data_not_NULL' => 0,
+							'data_precision' => 10,
+							'data_scale' => 2,
+							'data_size' => 'normal',
+							'data_type' => 'numeric' 
+					),
+					'display_format' => '$display_output = $entity_field_item[\'value\'];',
+					'recalculate' => 0,
+					'store' => 1 
+			),
+			'translatable' => 0,
+			'type' => 'computed' 
+	);
+	
+	// Exported field_base: 'field_schoolkost_vakken'.
+	$field_bases ['field_schoolkost_vakken'] = array (
+			'active' => 1,
+			'cardinality' => - 1,
+			'deleted' => 0,
+			'entity_types' => array (),
+			'field_name' => 'field_schoolkost_vakken',
+			'field_permissions' => array (
+					'type' => 0 
+			),
+			'indexes' => array (
+					'target_id' => array (
+							0 => 'target_id' 
+					) 
+			),
+			'locked' => 0,
+			'module' => 'entityreference',
+			'settings' => array (
+					'handler' => 'views',
+					'handler_settings' => array (
+							'behaviors' => array (
+									'views-select-list' => array (
+											'status' => 0 
+									) 
+							),
+							'view' => array (
+									'args' => array (),
+									'display_name' => 'vakken_selectie_id',
+									'view_name' => 'vakken' 
+							) 
+					),
+					'target_type' => 'node' 
+			),
+			'translatable' => 0,
+			'type' => 'entityreference' 
+	);
+	
+	return $field_bases;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ *
+ * This function is copied from the file generated by the Features module: argus_schoolkosten.features.field_base.inc
+ */
+function argus_schoolkosten_field_default_field_instances() {
+	$field_instances = array ();
+	
+	// Exported field_instance: 'node-schoolkost-field_schoolkost_aantal'.
+	$field_instances ['node-schoolkost-field_schoolkost_aantal'] = array (
+			'bundle' => 'schoolkost',
+			'default_value' => array (
+					0 => array (
+							'value' => 1 
+					) 
+			),
+			'deleted' => 0,
+			'description' => 'Gelieve hier het aantal pagina\'s in te vullen indien je cursus/kopieën/etc. toevoegt.',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 0,
+									'thousand_separator' => '' 
+							),
+							'type' => 'number_integer',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_aantal',
+			'label' => 'Aantal',
+			'required' => 1,
+			'settings' => array (
+					'max' => '',
+					'min' => 0,
+					'prefix' => '',
+					'suffix' => '',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance: 'node-schoolkost-field_schoolkost_klassen'.
+	$field_instances ['node-schoolkost-field_schoolkost_klassen'] = array (
+			'bundle' => 'schoolkost',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'bypass_access' => FALSE,
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_klassen',
+			'label' => 'Klas(sen)',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'multiselect',
+					'settings' => array (),
+					'type' => 'multiselect',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost-field_schoolkost_schoolkost_item'.
+	$field_instances ['node-schoolkost-field_schoolkost_schoolkost_item'] = array (
+			'bundle' => 'schoolkost',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'bypass_access' => FALSE,
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_schoolkost_item',
+			'label' => 'Schoolkostitem',
+			'required' => 1,
+			'settings' => array (
+					'behaviors' => array (
+							'taxonomy-index' => array (
+									'status' => TRUE 
+							) 
+					),
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance: 'node-schoolkost-field_schoolkost_totaalprijs'.
+	$field_instances ['node-schoolkost-field_schoolkost_totaalprijs'] = array (
+			'bundle' => 'schoolkost',
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'computed_field',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'computed_field_plain',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_totaalprijs',
+			'label' => 'Totaalprijs',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'computed_field',
+					'settings' => array (),
+					'type' => 'computed',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance: 'node-schoolkost-field_schoolkost_vakken'.
+	$field_instances ['node-schoolkost-field_schoolkost_vakken'] = array (
+			'bundle' => 'schoolkost',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'bypass_access' => FALSE,
+									'conditions' => array (),
+									'link' => 1 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_vakken',
+			'label' => 'Vak(ken)',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'multiselect',
+					'settings' => array (),
+					'type' => 'multiselect',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost_item-field_schoolkost_item_ema_doelst'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_ema_doelst'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'above',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 9 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_ema_doelst',
+			'label' => 'Doelstellingen',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 7 
+			) 
+	);
+	
+	// Exported field_instance: 'node-schoolkost_item-field_schoolkost_item_isbn'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_isbn'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 5 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_isbn',
+			'label' => 'ISBN-nummer',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'size' => 60 
+					),
+					'type' => 'text_textfield',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost_item-field_schoolkost_item_koop_huur'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_koop_huur'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 1 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_koop_huur',
+			'label' => 'Kopen/huren',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 2 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost_item-field_schoolkost_item_leverancie'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_leverancie'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'bypass_access' => FALSE,
+									'conditions' => array (),
+									'link' => FALSE 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 4 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_leverancie',
+			'label' => 'Leverancier',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 5 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost_item-field_schoolkost_item_locatie'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_locatie'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'text',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'text_default',
+							'weight' => 7 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_locatie',
+			'label' => 'Inrichter/locatie',
+			'required' => 0,
+			'settings' => array (
+					'linkit' => array (
+							'button_text' => 'Zoeken',
+							'enable' => 0,
+							'profile' => '' 
+					),
+					'text_processing' => 0,
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'text',
+					'settings' => array (
+							'rows' => 5 
+					),
+					'type' => 'text_textarea',
+					'weight' => 6 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost_item-field_schoolkost_item_nieuwe_lln'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_nieuwe_lln'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => array (
+					0 => array (
+							'value' => 0 
+					) 
+			),
+			'deleted' => 0,
+			'description' => 'Leerlingen die binnen de studierichting blijven kunnen bepaalde schoolkostitems overnemen naar het volgende jaar. Duid hier aan of dit item enkel nodig is om aan te kopen als de (nieuwe) leerling instroomt in de richting.',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'list',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'list_default',
+							'weight' => 3 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_nieuwe_lln',
+			'label' => 'Enkel voor nieuwe leerlingen',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'display_label' => 1 
+					),
+					'type' => 'options_onoff',
+					'weight' => 4 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost_item-field_schoolkost_item_prijs'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_prijs'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'number',
+							'settings' => array (
+									'conditions' => array (),
+									'decimal_separator' => '.',
+									'prefix_suffix' => TRUE,
+									'scale' => 2,
+									'thousand_separator' => '' 
+							),
+							'type' => 'number_decimal',
+							'weight' => 2 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_prijs',
+			'label' => 'Eenheidsprijs',
+			'required' => 1,
+			'settings' => array (
+					'max' => '',
+					'min' => 0,
+					'prefix' => '',
+					'suffix' => ' euro',
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 0,
+					'module' => 'number',
+					'settings' => array (),
+					'type' => 'number',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance: 'node-schoolkost_item-field_schoolkost_item_type'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_type'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'taxonomy',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'taxonomy_term_reference_link',
+							'weight' => 0 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_type',
+			'label' => 'Type schoolkostitem',
+			'required' => 1,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 1 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost_item-field_schoolkost_item_uitgeverij'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_uitgeverij'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'entityreference',
+							'settings' => array (
+									'bypass_access' => FALSE,
+									'conditions' => array (),
+									'link' => FALSE 
+							),
+							'type' => 'entityreference_label',
+							'weight' => 6 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_uitgeverij',
+			'label' => 'Uitgeverij',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (
+							'apply_chosen' => '' 
+					),
+					'type' => 'options_select',
+					'weight' => 3 
+			) 
+	);
+	
+	// Exported field_instance:
+	// 'node-schoolkost_item-field_schoolkost_item_vervoermid'.
+	$field_instances ['node-schoolkost_item-field_schoolkost_item_vervoermid'] = array (
+			'bundle' => 'schoolkost_item',
+			'default_value' => NULL,
+			'deleted' => 0,
+			'description' => '',
+			'display' => array (
+					'default' => array (
+							'label' => 'inline',
+							'module' => 'taxonomy',
+							'settings' => array (
+									'conditions' => array () 
+							),
+							'type' => 'taxonomy_term_reference_link',
+							'weight' => 8 
+					),
+					'teaser' => array (
+							'label' => 'above',
+							'settings' => array (),
+							'type' => 'hidden',
+							'weight' => 0 
+					) 
+			),
+			'entity_type' => 'node',
+			'field_name' => 'field_schoolkost_item_vervoermid',
+			'label' => 'Vervoermiddel',
+			'required' => 0,
+			'settings' => array (
+					'user_register_form' => FALSE 
+			),
+			'widget' => array (
+					'active' => 1,
+					'module' => 'options',
+					'settings' => array (),
+					'type' => 'options_buttons',
+					'weight' => 8 
+			) 
+	);
+	
+	// Translatables
+	// Included for use with string extractors like potx.
+	t ( 'Aantal' );
+	t ( 'Doelstellingen' );
+	t ( 'Eenheidsprijs' );
+	t ( 'Enkel voor nieuwe leerlingen' );
+	t ( 'Gelieve hier het aantal pagina\'s in te vullen indien je cursus/kopieën/etc. toevoegt.' );
+	t ( 'ISBN-nummer' );
+	t ( 'Inrichter/locatie' );
+	t ( 'Klas(sen)' );
+	t ( 'Kopen/huren' );
+	t ( 'Leerlingen die binnen de studierichting blijven kunnen bepaalde schoolkostitems overnemen naar het volgende jaar. Duid hier aan of dit item enkel nodig is om aan te kopen als de (nieuwe) leerling instroomt in de richting.' );
+	t ( 'Leverancier' );
+	t ( 'Schoolkostitem' );
+	t ( 'Totaalprijs' );
+	t ( 'Type schoolkostitem' );
+	t ( 'Uitgeverij' );
+	t ( 'Vak(ken)' );
+	t ( 'Vervoermiddel' );
+	
+	return $field_instances;
+}
+

@@ -19,7 +19,7 @@ function argus_stages_install() {
 	node_add_body_field ( $types ['stageperiode'], $label = t ( 'Opmerkingen' ) ); // replace your label or remove if no body-field necessary
 	                                                                               
 	// Add field bases which are copied from your Features-based module
-	                                                                               // More details function argus_stages_field_default_field_bases()
+	// More details function argus_stages_field_default_field_bases()
 	foreach ( argus_stages_field_default_field_bases () as $field_name => $field ) {
 		if (! field_info_field ( $field_name )) {
 			field_create_field ( $field );

@@ -1355,18 +1355,18 @@ function argus_engine_cache_clear($type = 'user') {
 	global $user;
 	switch ( $type ){
 		case 'module':
-			cache_clear_all ( 'quicknav_modulesList_' . $user->uid, null, true );
+			cache_clear_all ( 'quicknav_modulesList_' . $user->uid, 'cache', true );
 			break;
 		case 'node':
-			cache_clear_all( 'smartschool_users_by_role_', null, true );
+			cache_clear_all( 'smartschool_users_by_role_', 'cache', true );
 			break;
 		case 'user':
 		default:
-			cache_clear_all( 'smartschool_users_by_role_', null, true );
-			cache_clear_all( 'smartschool_search_users_by_role_view_', null, true );
-			cache_clear_all( 'argus_get_user_select_options_', null, true );
-			cache_clear_all( 'argus_klasbeheer_get_active_classes_', null, true );
-			cache_clear_all( 'argus_klasbeheer_get_pupils_', null, true );
-			cache_clear_all( 'argus_klasbeheer_get_teachers_', null, true );
+			cache_clear_all( 'smartschool_users_by_role_', 'cache', true );
+			cache_clear_all( 'smartschool_search_users_by_role_view_', 'cache', true );
+			cache_clear_all( 'argus_get_user_select_options_', 'cache', true );
+			cache_clear_all( 'argus_klasbeheer_get_active_classes_', 'cache', true );
+			cache_clear_all( 'argus_klasbeheer_get_pupils_', 'cache', true );
+			cache_clear_all( 'argus_klasbeheer_get_teachers_', 'cache', true );
 	}
 }

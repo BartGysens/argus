@@ -3,6 +3,7 @@
 v7.x-1.10
 ---------
 - Fix in message block user unknown
+- Fix in cache clearances
 
 v7.x-1.9
 ---------

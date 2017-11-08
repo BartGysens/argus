@@ -1,6 +1,10 @@
 **Releases:
 
 
+v7.x-6.7
+---------
+- Dependency block toegevoegd
+
 v7.x-6.6
 ---------
 - Fix in profiel 'other' (birthday)

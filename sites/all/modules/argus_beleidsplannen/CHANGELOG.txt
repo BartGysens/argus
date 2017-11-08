@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-2.2
+---------
+- Overbodig veld weggehaald
+
 v7.x-2.1
 ---------
 - Twee nieuwe features: schoolontwikkelingsplan, jaaractieplan

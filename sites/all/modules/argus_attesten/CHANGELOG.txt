@@ -1,5 +1,8 @@
 **Releases:
 
+v7.x-1.3
+---------
+- Dependency block toegevoegd
 
 v7.x-1.2
 ---------
