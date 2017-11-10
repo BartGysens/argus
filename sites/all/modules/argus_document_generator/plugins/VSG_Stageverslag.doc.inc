@@ -94,7 +94,7 @@ function argus_document_generator_VSG_Stageverslag_document($args) {
 	
 	/* Start replacing values in template */
 	$document->setValue ( 'naam', argus_get_user_realname ( $uid ) );
-	$document->setValue ( 'klas', argus_get_user_class ( $uid, 'title' ) );
+	$document->setValue ( 'klas', argus_klasbeheer_get_user_class ( $uid, 'title' ) );
 	
 	$document->setValue ( 'schooljaar', implode ( '-', argus_schoolyear ( 0, 'Y' ) ) );
 	$document->setValue ( 'datum', format_date ( time (), 'custom', 'l, j F Y' ) );
@@ -134,7 +134,7 @@ function argus_document_generator_VSG_Stageverslag_document($args) {
 	$document->setValue ( 'auteur', argus_get_user_realname ( $user->uid ) );
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/VSG Stageverslag ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
+	$filename = '/tmp/VSG Stageverslag ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
 	$document->saveAs ( $filename );
 	
 	header ( "Pragma: public" );

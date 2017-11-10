@@ -125,7 +125,7 @@ function argus_document_generator_VSG_HRM_Functioneringsgesprek_document($args) 
 	$document->setValue('punten_evaluator', str_replace(chr(13), '<w:br/>', $node->field_voorgestelde_punten_evalua[LANGUAGE_NONE][0]['value']));
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/VSG Functioneringsgesprek '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_get_user_class($uid, 'title').' '.date('dmY').'.docx';
+	$filename = '/tmp/VSG Functioneringsgesprek '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_klasbeheer_get_user_class($uid, 'title').' '.date('dmY').'.docx';
 	$document->saveAs($filename);
 	
 	header("Pragma: public");

@@ -1,6 +1,11 @@
 **Releases:
 
-v7.x-3.9
+v7.x-3.11
+---------
+- Stronger caching
+- Better function definitions and use of argus - Engine
+
+v7.x-3.9/10
 ---------
 - Dependency block toegevoegd
 

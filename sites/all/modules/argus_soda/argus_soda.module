@@ -436,7 +436,7 @@ function argus_soda_attesten_overview($param0 = NULL, $param1 = NULL) {
 	) )->fetchAllAssoc ( 'id' );
 	
 	foreach ( $attestsD as $aid => $attestD ) {
-		$c = argus_get_user_class ( $attestD->leerling, 'title' );
+		$c = argus_klasbeheer_get_user_class ( $attestD->leerling, 'title' );
 		if (! array_key_exists ( $c, $data ['D'] )) {
 			$data ['D'] [$c] = array ();
 		}

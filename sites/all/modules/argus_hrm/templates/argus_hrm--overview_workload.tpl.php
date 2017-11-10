@@ -78,7 +78,7 @@ if ($order == 'DESC'){
 		if ($orderBy == 'name'){
 			print ' class="active"';
 		}
-		print 'style="text-align: left; padding-left: 8px;"><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'" target="_blank">'.$u['name'].'</a></td>';
+		print 'style="text-align: left; padding-left: 8px;">' . argus_engine_get_user_link($uid, null, '_blank' ) . '</td>';
 		
 		// Data related to module 'argus - Uurroosters'
 		if (module_exists('argus_uurrooster')){

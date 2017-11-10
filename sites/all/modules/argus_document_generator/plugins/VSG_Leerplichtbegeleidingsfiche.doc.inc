@@ -87,7 +87,7 @@ function argus_document_generator_VSG_Leerplichtbegeleidingsfiche_document($args
 	
 	/* Start replacing values in template */
 	$document->setValue('naam', argus_get_user_realname($uid));
-	$document->setValue('klas', argus_get_user_class($uid, 'title'));
+	$document->setValue('klas', argus_klasbeheer_get_user_class($uid, 'title'));
 	
 	$schoolyear = argus_schoolyear(0, 'Y');
 	$document->setValue('schooljaar', $schoolyear['start'] . ' - '. $schoolyear['end']);
@@ -171,7 +171,7 @@ function argus_document_generator_VSG_Leerplichtbegeleidingsfiche_document($args
 	
 	/* Handle details about: absences */
 	$bcodes = 0;
-    $userDetails = argus_get_pupil_details($uid);
+    $userDetails = argus_engine_get_pupil_details($uid);
 	if (count($userDetails['absences']['totals'])){
 		$absences = array();
 		foreach ($userDetails['absences']['totals'] as $a){
@@ -189,7 +189,7 @@ function argus_document_generator_VSG_Leerplichtbegeleidingsfiche_document($args
 	$document->setValue('b-codes', $bcodes);
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/VSG Leerplichtbegeleidingsfiche '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_get_user_class($uid, 'title').' '.date('dmY').'.docx';
+	$filename = '/tmp/VSG Leerplichtbegeleidingsfiche '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_klasbeheer_get_user_class($uid, 'title').' '.date('dmY').'.docx';
 	$document->saveAs($filename);
 	
 	header("Pragma: public");

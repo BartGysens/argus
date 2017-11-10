@@ -50,7 +50,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 		<p>
 			<a
 				href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk
-				de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
+				de administratieve fiche</a><?php print argus_engine_schoolyear_selectionBox(); ?></p>
 	</div>
 </div>
 <?php } ?>
@@ -79,7 +79,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 
 				<div class="field field-label-inline clearfix">
 					<div class="field-label">Klastitularis:&nbsp;</div>
-					<div class="field-items"><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$user_class['ktt']).'">'.argus_get_user_realname($user_class['ktt']).'</a>'; ?></div>
+					<div class="field-items"><?php print argus_engine_get_user_link($user_class['ktt'], null, '_blank' ); ?></div>
 				</div>
 			</div>
 
@@ -101,7 +101,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 
 				<div class="field field-label-inline clearfix">
 					<div class="field-label">Hulpklastitularis:&nbsp;</div>
-					<div class="field-items"><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$user_class['hktt']).'">'.argus_get_user_realname($user_class['hktt']).'</a>'; ?></div>
+					<div class="field-items"><?php print argus_engine_get_user_link($user_class['hktt'], null, '_blank' ); ?></div>
 				</div>
 			</div>
 
@@ -985,7 +985,7 @@ var dataStudyBirdseyeChart = google.visualization.arrayToDataTable(<?php print j
 		<p>
 			<a
 				href="<?php print base_path().'user/'.$user_id.'/administratief'; ?>">Bekijk
-				de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
+				de administratieve fiche</a><?php print argus_engine_schoolyear_selectionBox(); ?></p>
 	</div>
 </div>
 <?php } ?>

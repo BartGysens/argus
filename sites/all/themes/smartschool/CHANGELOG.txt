@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-4.4
+---------
+- Stronger caching
+- Better function definitions and use of argus - Engine
+
 v7.x-4.3
 ---------
 - Cache fix smartschool_users_by_role

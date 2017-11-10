@@ -103,7 +103,7 @@ function argus_document_generator_BRF_HRM_Planningsgesprek_uitnodiging_document(
 	
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/BRF Planningsgesprek - uitnodiging '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_get_user_class($uid, 'title').' '.date('dmY').'.docx';
+	$filename = '/tmp/BRF Planningsgesprek - uitnodiging '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_klasbeheer_get_user_class($uid, 'title').' '.date('dmY').'.docx';
 	$document->saveAs($filename);
 	
 	header("Pragma: public");

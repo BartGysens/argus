@@ -41,7 +41,7 @@ function argus_document_generator_MAP_Voorblad_KLASINTERVENTIE_form($form, &$for
 			'#type' => 'select',
 			'#title' => t ( 'Klas' ),
 			'#description' => t ( 'Selecteer de klas waarvoor dit document moet worden aangemaakt.' ),
-			'#options' => argus_classes_retrieve (),
+			'#options' => argus_klasbeheer_get_active_classes(),
 			'#required' => false 
 	);
 	

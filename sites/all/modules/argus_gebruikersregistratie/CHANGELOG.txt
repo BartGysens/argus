@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-2.7
+---------
+- Stronger caching
+- Better function definitions and use of argus - Engine
+
 v7.x-2.6
 ---------
 - Autocomplete on renewal

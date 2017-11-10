@@ -110,7 +110,7 @@ function argus_document_generator_VSG_Stageschrift_document($args) {
 	
 	/* Start replacing values in template */
 	$document->setValue ( 'naam', argus_get_user_realname ( $uid ) );
-	$document->setValue ( 'klas', argus_get_user_class ( $uid, 'title' ) );
+	$document->setValue ( 'klas', argus_klasbeheer_get_user_class ( $uid, 'title' ) );
 	
 	$value = '';
 	if ($u) {
@@ -154,8 +154,8 @@ function argus_document_generator_VSG_Stageschrift_document($args) {
 	}
 	$document->setValue ( 'telefoonnummer', $value );
 	
-	$document->setValue ( 'afdeling', argus_get_user_class ( $uid, 'onderwijsvorm' ) . ' ' . argus_get_user_class ( $uid, 'structuuronderdeel' ) );
-	$document->setValue ( 'leerjaar', argus_get_user_class ( $uid, 'leerjaar_graad' ) . ' (' . argus_get_user_class ( $uid, 'title' ) . ')' );
+	$document->setValue ( 'afdeling', argus_klasbeheer_get_user_class ( $uid, 'onderwijsvorm' ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'structuuronderdeel' ) );
+	$document->setValue ( 'leerjaar', argus_klasbeheer_get_user_class ( $uid, 'leerjaar_graad' ) . ' (' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ')' );
 	
 	$document->setValue ( 'schooljaar', implode ( '-', argus_schoolyear ( 0, 'Y' ) ) );
 	$document->setValue ( 'datum', format_date ( time (), 'custom', 'l, j F Y' ) );
@@ -296,7 +296,7 @@ function argus_document_generator_VSG_Stageschrift_document($args) {
 	/* Prepare checklist 'activiteitenlijst' */
 	$query = 'SELECT sa.delta AS id, sa.field_stageactiviteit_value AS activiteit ' . 'FROM {field_data_field_stageactiviteit} AS sa ' . 'INNER JOIN {field_data_field_klas} AS k ON k.entity_id = sa.entity_id ' . 'WHERE k.field_klas_target_id = :cid';
 	$stageactviteitenlijst = db_query ( $query, array (
-			':cid' => argus_get_user_class ( $uid ) 
+			':cid' => argus_klasbeheer_get_user_class ( $uid ) 
 	) )->fetchAllKeyed ();
 	
 	$prefixList = '<w:p><w:r w:rsidRPr="000B441D"><w:sym w:font="Wingdings" w:char="F06F"/></w:r><w:r><w:t xml:space="preserve"> </w:t></w:r><w:r w:rsidR="00674164"><w:t>';
@@ -364,7 +364,7 @@ function argus_document_generator_VSG_Stageschrift_document($args) {
 	}
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/VSG Stageschrift ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
+	$filename = '/tmp/VSG Stageschrift ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
 	$document->saveAs ( $filename );
 	
 	header ( "Pragma: public" );

@@ -37,7 +37,7 @@
 ?>
 <div class="view">
     <div class="view-header">
-    <p><a href="<?php print base_path().drupal_lookup_path('alias', 'user/'.$user_id); ?>">Bekijk de detailfiche</a></p>
+    <p><?php print argus_engine_get_user_link( $user_id, 'Bekijk de detailfiche' ); ?></p>
     </div>
 </div>
 
@@ -47,6 +47,6 @@
 
 <div class="view">
     <div class="view-header">
-    <p><a href="<?php print base_path().drupal_lookup_path('alias', 'user/'.$user_id); ?>">Bekijk de detailfiche</a></p>
+    <p><?php print argus_engine_get_user_link( $user_id, 'Bekijk de detailfiche' ); ?></p>
     </div>
 </div>

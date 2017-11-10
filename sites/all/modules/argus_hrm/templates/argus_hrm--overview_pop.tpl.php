@@ -50,7 +50,7 @@ global $user, $base_url;
 		
 		print '<td>'.($cntr++).'</td>';
 		
-		print '<td style="text-align: left; padding-left: 8px;"><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'" target="_blank">'.$u['name'].'</a></td>';
+		print '<td style="text-align: left; padding-left: 8px;">' . argus_engine_get_user_link( $uid, null, '_blank' ) . '</td>';
 		
 		foreach ($u['register'] as $id => $t){
 			print '<td class="views-field views-align-middle argus_hrm_pop_' . $t['type'] . '" scope="col" title="' . $types[ $t['type'] ] . '"><a style="color: ';

@@ -1243,7 +1243,7 @@ function argus_meldingen_block_view($delta = '') {
 		);
 		
 		// Setup query for pupil
-		if (argus_get_user_has_role ( $user->uid, 'pupil' )) {
+		if (argus_engine_get_user_has_role ( $user->uid, 'pupil' )) {
 			$query .= 'AND l.field_lvs_melding_leerling_target_id = :uid ';
 			$params [':uid'] = $user->uid;
 			
@@ -1255,7 +1255,7 @@ function argus_meldingen_block_view($delta = '') {
 		}
 		
 		// Setup query for ktt/hktt
-		if (argus_get_user_has_role ( $user->uid, 'ktt' )) {
+		if (argus_engine_get_user_has_role ( $user->uid, 'ktt' )) {
 			$q2 = 'SELECT n.nid AS id, ' . 'n.title AS title ' . 'FROM {node} AS n ' . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id ' . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id ' . 'WHERE ktt.field_klas_klastitularis_target_id = :uid ' . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
 			$variables ['myClasses'] = db_query ( $q2, array (
 					':uid' => $user->uid 
@@ -1274,12 +1274,12 @@ function argus_meldingen_block_view($delta = '') {
 		}
 		
 		// Setup query for ilb
-		if (argus_get_user_has_role ( $user->uid, 'ilb' )) {
+		if (argus_engine_get_user_has_role ( $user->uid, 'ilb' )) {
 			$variables ['reportType'] = 'ilb';
 		}
 		
 		// Setup query for staff
-		if (argus_get_user_has_role ( $user->uid, 'staff' )) {
+		if (argus_engine_get_user_has_role ( $user->uid, 'staff' )) {
 			$variables ['reportType'] = 'staff';
 		}
 		

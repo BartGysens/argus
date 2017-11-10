@@ -42,7 +42,7 @@
             $i = 0;
             foreach ($data['users'] as $k => $d){
                 print '<tr class="'.($i%2 == 0 ? "even" : "odd").' views-row-first">';
-                    print '<td class="views-field views-field-counter views-align-left" ><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$k).'">'.$d['name'].'</a></td>';
+                    print '<td class="views-field views-field-counter views-align-left" >' . argus_engine_get_user_link( $k, null, '_blank' ) . '</td>';
                     
                     print '<td class="views-field views-field-counter views-align-center" >'.$d['status']['new'].'</td>';
                     print '<td class="views-field views-field-counter views-align-center" >'.$d['status']['active'].'</td>';

@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-1.11
+---------
+- Stronger caching
+- Better function definitions
+
 v7.x-1.10
 ---------
 - Fix in message block user unknown

@@ -117,7 +117,12 @@
 	    <?php if (user_is_logged_in()):
 				global $user; ?>
 	        <nav id="main-menu" role="navigation" tabindex="-1">
-	          <?php
+	        <?php
+	          if ($cache = cache_get ( 'navigation_' . $user->uid )) {
+	          	$outputStr = $cache->data;
+	          } else {
+	          	$outputStr = '';
+	            
 	            $extra_menu_items["menu-start"] = [
 	                'attributes' => [
 	                    'title' => 'Terug naar de startpagina',
@@ -136,7 +141,7 @@
 	
 	            $main_menu = $extra_menu_items + $main_menu;
 	            
-	            print theme('links__system_main_menu', array(
+	            $outputStr .= theme('links__system_main_menu', array(
 	                'links' => $main_menu,
 	                'attributes' => array(
 	                    'class' => array('links', 'inline', 'clearfix'),
@@ -146,11 +151,14 @@
 	                    'level' => 'h2',
 	                    'class' => array('element-invisible'),
 	                ),
-	            )); ?>
+	            ));
+		                    
+	            cache_set ( 'navigation_' . $user->uid, $outputStr );
+            }
+            print $outputStr;
+	        ?>
 	        </nav>
-        <?php endif; ?>
-	
-		<?php if (user_is_logged_in()){ ?>
+	        
 	        <a id="sms_search" href="zoeken"></a>
 	        
 	        <div id="smscQuickNavDialog">
@@ -179,7 +187,7 @@
 		                        }
 		                    }
 		                    
-		                    cache_set ( 'quicknav_modulesList_' . $user->uid, $outputStr, 'cache_argus' );
+		                    cache_set ( 'quicknav_modulesList_' . $user->uid, $outputStr );
 	                    }
 	                    print $outputStr;
 	                    ?>
@@ -197,33 +205,49 @@
 	                <div id="courses_lists">
 	                    <div id="sms_mytasks_list" class="list">
 	                    <?php
-	                    $skip_roles = ['authenticated user','andere'];
-	                    $roles = $user->roles;
-	                    foreach ($roles as $k => $role){
-	                        if (!in_array($role,$skip_roles)){
-	                            print '<a class="course" href="/search/node/'.$role.'">'.$role.'</a>';
-	                        }
+	                    if ($cache = cache_get ( 'quicknav_myTasksList_' . $user->uid )) {
+	                    	$outputStr = $cache->data;
+	                    } else {
+	                    	$outputStr = '';
+		                    $skip_roles = ['authenticated user','andere'];
+		                    $roles = $user->roles;
+		                    foreach ($roles as $k => $role){
+		                        if (!in_array($role,$skip_roles)){
+		                            $outputStr .= '<a class="course" href="/search/node/'.$role.'">'.$role.'</a>';
+		                        }
+		                    }
+		                    
+		                    cache_set ( 'quicknav_myTasksList_' . $user->uid, $outputStr );
 	                    }
+	                    print $outputStr;
 	                    ?>
 	                    </div>
 	                    <div id="sms_mypeople_list" class="list hidden_list">
 	                    <?php
-	                    if (!in_array('leerling',$roles)) {
-	                        foreach ($roles as $k => $role){
-	                            if (!in_array($role,$skip_roles)){
-	                                $team = smartschool_users_by_role($role);
-	                                print '<h4 class="green">'.$role.'</h4>';
-	                                foreach ($team as $uid){
-	                                    if (is_numeric($uid)) {
-	                                        $member = (array) user_load($uid);
-	                                        print '<a class="course" href="/user/'.$uid.'">'.$member['field_user_sms_naam'][LANGUAGE_NONE][0]['value'].', '.$member['field_user_sms_voornaam'][LANGUAGE_NONE][0]['value'].'</a>';
-	                                    } else {
-	                                        print $uid;
-	                                    }
-	                                }
-	                            }
-	                        }
+	                    if ($cache = cache_get ( 'quicknav_myPeopleList_' . $user->uid )) {
+	                    	$outputStr = $cache->data;
+	                    } else {
+	                    	$outputStr = '';
+		                    if (!in_array('leerling',$roles)) {
+		                        foreach ($roles as $k => $role){
+		                            if (!in_array($role,$skip_roles)){
+		                                $team = smartschool_users_by_role($role);
+		                                $outputStr .= '<h4 class="green">'.$role.'</h4>';
+		                                foreach ($team as $uid){
+		                                    if (is_numeric($uid)) {
+		                                        $member = (array) user_load($uid);
+		                                        $outputStr .= '<a class="course" href="/user/'.$uid.'">'.$member['field_user_sms_naam'][LANGUAGE_NONE][0]['value'].', '.$member['field_user_sms_voornaam'][LANGUAGE_NONE][0]['value'].'</a>';
+		                                    } else {
+		                                        $outputStr .= $uid;
+		                                    }
+		                                }
+		                            }
+		                        }
+		                    }
+		                    
+		                    cache_set ( 'quicknav_myPeopleList_' . $user->uid, $outputStr );
 	                    }
+	                    print $outputStr;
 	                    ?>
 	                    </div>
 	                    <div id="sms_myitems_list" class="list hidden_list">
@@ -231,76 +255,116 @@
 	                        <div id="sms_myitems_list_byTitle" class="sms_myitems_list_results">
 	                            <ul>
 	                                <?php
-	                                $nodes = smartschool_fetch_user_content($user->uid,'title ASC');
-	                                foreach ($nodes as $k => $node){
-	                                    if (is_object($node)) {
-	                                        print '<li class="course node" id="'.$node->nid.'">'.$node->title.'<small>'.format_date($node->changed).'</small></li>';
-	                                    } else {
-	                                        print $node;
-	                                    }
-	                                }
+	                                if ($cache = cache_get ( 'quicknav_myItemsListByTitle_' . $user->uid )) {
+	                                	$outputStr = $cache->data;
+	                                } else {
+	                                	$outputStr = '';
+		                                $nodes = smartschool_fetch_user_content($user->uid,'title ASC');
+		                                foreach ($nodes as $k => $node){
+		                                    if (is_object($node)) {
+		                                        $outputStr .= '<li class="course node" id="'.$node->nid.'">'.$node->title.'<small>'.format_date($node->changed).'</small></li>';
+		                                    } else {
+		                                        $outputStr .= $node;
+		                                    }
+		                                }
+					                    
+					                    cache_set ( 'quicknav_myItemsListByTitle_' . $user->uid, $outputStr );
+				                    }
+				                    print $outputStr;
 	                                ?>
 	                            </ul>
 	                        </div>
 	                        <div id="sms_myitems_list_byCreated" class="sms_myitems_list_results">
 	                            <ul>
 	                                <?php
-	                                $nodes = smartschool_fetch_user_content($user->uid,'created DESC');
-	                                foreach ($nodes as $k => $node){
-	                                    if (is_object($node)) {
-	                                        print '<li class="course node" id="'.$node->nid.'">'.$node->title.'<small>'.format_date($node->created).'</small></li>';
-	                                    } else {
-	                                        print $node;
-	                                    }
-	                                }
+	                                if ($cache = cache_get ( 'quicknav_myItemsListByCreated_' . $user->uid )) {
+	                                	$outputStr = $cache->data;
+	                                } else {
+	                                	$outputStr = '';
+		                                $nodes = smartschool_fetch_user_content($user->uid,'created DESC');
+		                                foreach ($nodes as $k => $node){
+		                                    if (is_object($node)) {
+		                                        $outputStr .= '<li class="course node" id="'.$node->nid.'">'.$node->title.'<small>'.format_date($node->created).'</small></li>';
+		                                    } else {
+		                                        $outputStr .= $node;
+		                                    }
+		                                }
+					                    
+					                    cache_set ( 'quicknav_myItemsListByCreated_' . $user->uid, $outputStr );
+				                    }
+				                    print $outputStr;
 	                                ?>
 	                            </ul>
 	                        </div>
 	                        <div id="sms_myitems_list_byChanged" class="sms_myitems_list_results active">
 	                            <ul>
 	                                <?php
-	                                $nodes = smartschool_fetch_user_content($user->uid,'changed DESC');
-	                                foreach ($nodes as $k => $node){
-	                                    if (is_object($node)) {
-	                                        print '<li class="course node" id="'.$node->nid.'">'.$node->title.'<small>'.format_date($node->changed).'</small></li>';
-	                                    } else {
-	                                        print $node;
-	                                    }
-	                                }
+	                                if ($cache = cache_get ( 'quicknav_myItemsListByChanged_' . $user->uid )) {
+	                                	$outputStr = $cache->data;
+	                                } else {
+	                                	$outputStr = '';
+		                                $nodes = smartschool_fetch_user_content($user->uid,'changed DESC');
+		                                foreach ($nodes as $k => $node){
+		                                    if (is_object($node)) {
+		                                        $outputStr .= '<li class="course node" id="'.$node->nid.'">'.$node->title.'<small>'.format_date($node->changed).'</small></li>';
+		                                    } else {
+		                                        $outputStr .= $node;
+		                                    }
+		                                }
+					                    
+					                    cache_set ( 'quicknav_myItemsListByChanged_' . $user->uid, $outputStr );
+				                    }
+				                    print $outputStr;
 	                                ?>
 	                            </ul>
 	                        </div>
 	                        <div id="sms_myitems_list_byType" class="sms_myitems_list_results">
 	                            <ul>
 	                                <?php
-	                                $nodes = smartschool_fetch_user_content($user->uid,'type ASC,title ASC');
-	                                foreach ($nodes as $k => $node){
-	                                    if (is_object($node)) {
-	                                        print '<li class="course node" id="'.$node->nid.'">'.$node->title.'<small>'.t($node->type).' ('.format_date($node->changed,'custom','d/m/Y').')</small></li>';
-	                                    } else {
-	                                        print $node;
-	                                    }
-	                                }
+	                                if ($cache = cache_get ( 'quicknav_myItemsListByTitle_' . $user->uid )) {
+	                                	$outputStr = $cache->data;
+	                                } else {
+	                                	$outputStr = '';
+		                                $nodes = smartschool_fetch_user_content($user->uid,'type ASC,title ASC');
+		                                foreach ($nodes as $k => $node){
+		                                    if (is_object($node)) {
+		                                        $outputStr .= '<li class="course node" id="'.$node->nid.'">'.$node->title.'<small>'.t($node->type).' ('.format_date($node->changed,'custom','d/m/Y').')</small></li>';
+		                                    } else {
+		                                        $outputStr .= $node;
+		                                    }
+		                                }
+		                                
+					                    cache_set ( 'quicknav_myItemsListByTitle_' . $user->uid, $outputStr );
+				                    }
+				                    print $outputStr;
 	                                ?>
 	                            </ul>
 	                        </div>
 	                    </div>
 	                    <div id="sms_myquicklinks_list" class="list hidden_list">
 	                    <?php
-	                    $flags = flag_get_user_flags('node',NULL,$user->uid);
-	                    if ($flags){
-	                        foreach ($flags['bookmark'] as $k => $flag){
-	                            $node = node_load($flag->entity_id);
-	                            print '<a class="course node" href="'.base_path().drupal_get_path_alias($flag->entity_type.'/'.$flag->entity_id).'">'.$node->title.'<small>'.t($node->type).' ('.format_date($node->changed).')</small></a>';
-	                        }
+	                    if ($cache = cache_get ( 'quicknav_myQuicklinks_' . $user->uid )) {
+	                    	$outputStr = $cache->data;
+	                    } else {
+	                    	$outputStr = '';
+		                    $flags = flag_get_user_flags('node',NULL,$user->uid);
+		                    if ($flags){
+		                        foreach ($flags['bookmark'] as $k => $flag){
+		                            $node = node_load($flag->entity_id);
+		                            $outputStr .= '<a class="course node" href="'.base_path().drupal_get_path_alias($flag->entity_type.'/'.$flag->entity_id).'">'.$node->title.'<small>'.t($node->type).' ('.format_date($node->changed).')</small></a>';
+		                        }
+		                    }
+		                    
+		                    cache_set ( 'quicknav_myQuicklinks_' . $user->uid, $outputStr );
 	                    }
+	                    print $outputStr;
 	                    ?>
 	                    </div>
 	                </div>
 	            </div>
 	        </div>
         
-        <?php } ?>
+        <?php endif; ?>
         
     </div>
 

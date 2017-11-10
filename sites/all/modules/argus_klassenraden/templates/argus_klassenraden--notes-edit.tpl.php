@@ -28,7 +28,7 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 		?>
 		<form action="/<?php print current_path(); ?>" method="post" id="argus_klassenraden_note_form">
 
-			<h2><?php print argus_get_user_realname($data['uid']); ?><small class="action-links"> - <a href="<?php print url(base_path().drupal_lookup_path('alias', 'user/'.$data['uid'])); ?>" target="_blank">bekijk LVS-fiche</a></small></h2>
+			<h2><?php print argus_get_user_realname($data['uid']); ?><small class="action-links"> - <a href="<?php print argus_engine_get_user_link( $data['uid'], 'bekijk LVS-fiche', '_blank' ); ?></small></h2>
 			
 			Overzicht van de notities: <?php print $data['cm-title']; ?><br />
 			
@@ -517,7 +517,7 @@ $params = explode('/',drupal_parse_url(current_path())['path']);
 							print '</td>';
 						}
 						
-						print '<td class="views-align-right"><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'" target="_blank">bekijk LVS-fiche</a></td>';
+						print '<td class="views-align-right">' . argus_engine_get_user_link( $uid, 'bekijk LVS-fiche', '_blank' ) . '</td>';
 					print '</tr>';
 				}
 				

@@ -120,7 +120,7 @@ function argus_uurrooster_views_default_views() {
 	$roles = array ();
 	$roleNames = array (
 			'administrator',
-			'directie'
+			'directie' 
 	);
 	foreach ( $roleNames as $role ) {
 		$rid = user_role_load_by_name ( $role );
@@ -128,10 +128,10 @@ function argus_uurrooster_views_default_views() {
 			$newRole = new stdClass ();
 			$newRole->name = $role;
 			user_role_save ( $newRole );
-				
+			
 			$rid = user_role_load_by_name ( $role );
 		}
-	
+		
 		$roles [] = $rid->rid;
 	}
 	$handler->display->display_options ['access'] ['role'] = $roles;
@@ -763,7 +763,7 @@ function argus_uurrooster_permanentie_form($form, &$form_state) {
 			'#type' => 'select',
 			'#title' => t ( 'Uitzonderingen' ),
 			'#multiple' => true,
-			'#options' => webform_users_list_get_list ( variable_get ( 'argus_uurrooster_substitutions_roles' ) ),
+			'#options' => argus_engine_get_user_select_options ( variable_get ( 'argus_uurrooster_substitutions_roles' ) ),
 			'#default_value' => variable_get ( 'argus_uurrooster_substitutions_exemptions', NULL ),
 			'#description' => t ( 'Selecteer de gebruikers die niet moeten opgenomen worden in het permanentierooster.' ),
 			'#size' => 20 
@@ -843,7 +843,7 @@ function argus_uurrooster_toezichten_form($form, &$form_state) {
 			'#type' => 'select',
 			'#title' => t ( 'Uitzonderingen' ),
 			'#multiple' => true,
-			'#options' => webform_users_list_get_list ( variable_get ( 'argus_uurrooster_supervisions_roles' ) ),
+			'#options' => argus_engine_get_user_select_options ( variable_get ( 'argus_uurrooster_supervisions_roles' ) ),
 			'#default_value' => variable_get ( 'argus_uurrooster_supervisions_exemptions', NULL ),
 			'#description' => t ( 'Selecteer de gebruikers die niet moeten opgenomen worden in het toezichtenrooster.' ),
 			'#size' => 20 
@@ -856,23 +856,6 @@ function argus_uurrooster_toezichten_form($form, &$form_state) {
 			'#description' => t ( 'Noteer hier specifieke vereisten of afwijkingen (per persoon).' ) 
 	);
 	return system_settings_form ( $form );
-}
-
-/* Get user list and return it */
-function webform_users_list_get_list($rids = array()) {
-	$user_names = array ();
-	if (count ( $rids )) {
-		$query = 'SELECT DISTINCT(u.uid) AS id ' . 'FROM {users_roles} AS ur ' . 'INNER JOIN {users} AS u ON u.uid = ur.uid ' . 'WHERE ur.rid IN (:rid) AND u.status = 1';
-		$allTeachers = db_query ( $query, array (
-				':rid' => $rids 
-		) )->fetchCol ();
-		
-		foreach ( $allTeachers as $t ) {
-			$user_names [$t] = argus_get_user_realname ( $t );
-		}
-		asort ( $user_names );
-	}
-	return $user_names;
 }
 
 /**
@@ -2034,10 +2017,10 @@ function argus_uurrooster_lesson_retrieve() {
 				
 				if (count ( $lessons ) > 0) {
 					foreach ( $lessons ['node'] as $key => $lesson ) {
-						if ($key && user_access( 'access administration pages' ) ){
-                		                        print '<div style="text-align: center; background: red;"><a style="color: white; font-weight: bold;" href="' . base_path() . 'node/' . $nid . '/edit" target="_blank">bewerken</a></div>';
-		                                }
-
+						if ($key && user_access ( 'access administration pages' )) {
+							print '<div style="text-align: center; background: red;"><a style="color: white; font-weight: bold;" href="' . base_path () . 'node/' . $nid . '/edit" target="_blank">bewerken</a></div>';
+						}
+						
 						$lesson = ( array ) node_load ( $key );
 						if (count ( $lesson ['field_uurrooster_les_vak'] ) > 0) {
 							$currentSubject = ( array ) node_load ( $lesson ['field_uurrooster_les_vak'] [LANGUAGE_NONE] [0] ['target_id'] );
@@ -2842,4 +2825,66 @@ function argus_uurrooster_get_assignment($uid) {
 	}
 	
 	return $cntr;
+}
+
+/**
+ * Retrieve users with schedule
+ *
+ * @param
+ *        	roles array of integers
+ *        	Get users with specific id
+ *        	
+ * @return array
+ */
+function argus_uurrooster_get_users_with_schedule($roles = array()) {
+	if ($cache = cache_get ( 'argus_uurrooster_get_users_with_schedule_' . implode ( '-', $roles ) )) {
+		$result = $cache->data;
+	} else {
+		$params = array(
+				':ws' => ', ',
+				':bundle' => array (
+				'uurrooster_vervanging',
+				'uurrooster_permanentie',
+				'uurrooster_les',
+				'uurrooster_toezicht' 
+		));
+		$query = 'SELECT DISTINCT(u.uid) AS id, CONCAT_WS(:ws, un.field_user_sms_naam_value, uv.field_user_sms_voornaam_value) AS name ';
+		$query .= 'FROM {users} AS u ';
+		$query .= 'INNER JOIN {field_data_field_user_sms_naam} AS un ON u.uid = un.entity_id ';
+		$query .= 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON u.uid = uv.entity_id ';
+		$query .= 'LEFT JOIN {field_data_field_uurrooster_les_leerkracht} AS l ON l.field_uurrooster_les_leerkracht_target_id = u.uid ';
+		$query .= 'LEFT JOIN {field_data_field_uurrooster_perm_vervanger} AS p ON p.field_uurrooster_perm_vervanger_target_id = u.uid ';
+		$query .= 'LEFT JOIN {field_data_field_uurrooster_toez_toezichter} AS t ON t.field_uurrooster_toez_toezichter_target_id = u.uid ';
+		
+		if (module_exists ( 'argus_uurrooster_vervanging' )) {
+			$query .= 'LEFT JOIN {field_data_field_gebruiker} AS g ON g.field_gebruiker_target_id = u.uid ';
+			$params [':bundle'][] = 'uurrooster_vervanging';
+		}
+
+		if ($roles) {
+			$query .= 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ';
+		}
+		
+		$query .= 'WHERE status = 1 ';
+		
+
+		if ($roles) {
+			$query .= 'AND ur.rid IN (:rids) ';
+			$params [':rids'] = $roles;
+		}
+		
+		$query .= 'AND (';
+		if (module_exists ( 'argus_uurrooster_vervanging' )) {
+			$query .= 'g.bundle IN (:bundle) OR ';
+		}
+		$query .= 'l.bundle IN (:bundle) OR p.bundle IN (:bundle) OR t.bundle IN (:bundle)) ';
+		
+		$query .= 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
+		
+		$result = db_query ( $query, $params )->fetchAllKeyed();
+		
+		cache_set ( 'argus_uurrooster_get_users_with_schedule_' . implode ( '-', $roles ), $result );
+	}
+	
+	return $result;
 }

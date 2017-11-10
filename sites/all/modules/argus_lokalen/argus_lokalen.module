@@ -306,3 +306,33 @@ function argus_lokalen_views_default_views() {
 	$views [$view->name] = $view;
 	return $views;
 }
+
+
+/**
+ * Custom module functionality
+ */
+
+/**
+ * Retrieve all active classrooms.
+ *
+ * Function returns an array
+ *
+ * @return array int
+ */
+function argus_lokalen_get_active_classrooms() {
+	global $user;
+	if ( $cache = cache_get ( 'argus_lokalen_get_active_classrooms_' . $user->uid ) ) {
+		$result = $cache->data;
+	} else {
+		$query = new EntityFieldQuery();
+        $query->entityCondition('entity_type', 'node')
+                ->entityCondition('bundle', 'lokaal')
+                ->propertyCondition('status', NODE_PUBLISHED)
+                ->propertyOrderBy('title', 'ASC');
+            $result = $query->execute();
+
+		cache_set ( 'argus_lokalen_get_active_classrooms_' . $user->uid, $result );
+	}
+
+	return $result;
+}

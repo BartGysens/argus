@@ -37,7 +37,7 @@ global $base_url;
             $i = 0;
             foreach ($data as $u => $d){
                 print '<tr class="'.($i%2 == 0 ? "even" : "odd").' views-row-first">';
-                    print '<td class="views-field views-field-counter views-align-left" ><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$d['id']).'">'.argus_get_user_realname($d['id']).'</a></td>';
+                    print '<td class="views-field views-field-counter views-align-left" >' . argus_engine_get_user_link($d['id']) . '</a></td>';
                     print '<td class="views-field views-field-counter views-align-center" >'.count($d['dates']).'</td>';
                     print '<td class="views-field views-field-counter views-align-center" >';
                     if (isset($d['back'])){

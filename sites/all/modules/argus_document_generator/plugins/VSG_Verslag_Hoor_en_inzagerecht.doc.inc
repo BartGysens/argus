@@ -38,7 +38,7 @@ function argus_document_generator_VSG_Verslag_Hoor_en_inzagerecht_form($form, &$
 			'#type' => 'select',
 			'#title' => t ( 'Leerling' ),
 			'#description' => t ( 'Selecteer de leerling waarvoor dit document moet worden aangemaakt.' ),
-			'#options' => argus_get_user_select_options ( 'leerling' ),
+			'#options' => argus_engine_get_user_select_options ( 'leerling' ),
 			'#required' => false 
 	);
 	
@@ -95,7 +95,7 @@ function argus_document_generator_VSG_Verslag_Hoor_en_inzagerecht_form_submit($f
 	
 	/* Start replacing values in template */
 	$document->setValue ( 'leerling', argus_get_user_realname ( $uid ) );
-	$document->setValue ( 'klas', argus_get_user_class ( $uid, 'title' ) );
+	$document->setValue ( 'klas', argus_klasbeheer_get_user_class ( $uid, 'title' ) );
 	
 	if ($age > 17) {
 		$document->setValue ( 'ouders', '' );
@@ -107,7 +107,7 @@ function argus_document_generator_VSG_Verslag_Hoor_en_inzagerecht_form_submit($f
 	$document->setValue ( 'uur_hoorinzage', date ( 'H:i', strtotime ( $form_state ['values'] ['date_hi'] ) ) );
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/VSG Verslag Hoor- en inzagerecht ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY', strtotime ( $form_state ['values'] ['date_hi'] ) ) . '.docx';
+	$filename = '/tmp/VSG Verslag Hoor- en inzagerecht ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY', strtotime ( $form_state ['values'] ['date_hi'] ) ) . '.docx';
 	$document->saveAs ( $filename );
 	
 	header ( "Pragma: public" );

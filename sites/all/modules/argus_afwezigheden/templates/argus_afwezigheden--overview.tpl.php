@@ -86,7 +86,7 @@ $next->modify ( '+1 days' );
 			$i = 0;
 			foreach ( $data as $u => $d ) {
 				print '<tr class="' . ($i % 2 == 0 ? "even" : "odd") . ' views-row-first">';
-				print '<td class="views-field views-field-counter views-align-left" ><a href="' . base_path () . drupal_lookup_path ( 'alias', 'user/' . $d ['id'] ) . '">' . $d ['name'] . '</a> - <a href="' . base_path () . 'klas/' . $d ['class'] . '" target="_blank">' . $d ['class'] . '</a></td>';
+				print '<td class="views-field views-field-counter views-align-left" >' . argus_engine_get_user_link( $d ['id'], null, '_blank', true ) . '</td>';
 				print '<td class="views-field views-field-counter views-align-center absencesOK" >' . $d ['am'] ['ok'] . '</td>';
 				print '<td class="views-field views-field-counter views-align-center absencesNOK" >' . $d ['am'] ['nok'] . '</td>';
 				print '<td class="views-field views-field-counter views-align-center absencesOK" >' . $d ['pm'] ['ok'] . '</td>';

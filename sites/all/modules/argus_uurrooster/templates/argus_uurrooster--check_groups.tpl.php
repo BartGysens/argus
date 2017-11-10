@@ -39,7 +39,7 @@ global $user, $base_url;
 		
 		print '<td>'.($cntr++).'</td>';
 		
-		print '<td style="text-align: left;"><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'" target="_blank">'.$u['name'].'</a></td>';
+		print '<td style="text-align: left;">' . argus_engine_get_user_link( $uid, null, '_blank' ) . '</td>';
 		
 		print '<td style="text-align: left;">';
 		$scheduled_groups = array();

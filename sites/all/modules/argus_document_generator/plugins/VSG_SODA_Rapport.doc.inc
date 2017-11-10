@@ -43,7 +43,7 @@ function argus_document_generator_VSG_SODA_Rapport_form($form, &$form_state) {
 			'#description' => t ( 'Selecteer de leerling waarvoor dit document moet worden aangemaakt.' ),
 			'#options' => array (
 					0 => '-' 
-			) + argus_get_user_select_options ( 'leerling', true ) 
+			) + argus_engine_get_user_select_options ( 'leerling', true ) 
 	);
 	
 	$form ['klas'] = array (
@@ -118,7 +118,7 @@ function argus_document_generator_VSG_SODA_Rapport_form_submit($form, &$form_sta
 			
 			/* Start replacing values in template */
 			$document->setValue ( 'leerling', $document->limpiarString( argus_get_user_realname ( $uid ) ) );
-			$document->setValue ( 'klas', $document->limpiarString( argus_get_user_class ( $uid, 'title' ) ) );
+			$document->setValue ( 'klas', $document->limpiarString( argus_klasbeheer_get_user_class ( $uid, 'title' ) ) );
 			
 			if ($age > 17) {
 				$document->setValue ( 'ouders', '' );
@@ -152,7 +152,7 @@ function argus_document_generator_VSG_SODA_Rapport_form_submit($form, &$form_sta
 		} elseif ($form_state ['values'] ['school']){
 			$filename = '/tmp/VSG SODA Rapport - schooljaar ' . implode(' - ', argus_schoolyear(0, 'Y')) . ' ' . date ( 'dmY' ) . '.docx';
 		} elseif ($form_state ['values'] ['klas']){
-			$filename = '/tmp/VSG SODA Rapport ' . argus_get_class_name( $form_state ['values'] ['klas'] ) . ' ' . date ( 'dmY' ) . '.docx';
+			$filename = '/tmp/VSG SODA Rapport ' . argus_klasbeheer_get_class_name( $form_state ['values'] ['klas'] ) . ' ' . date ( 'dmY' ) . '.docx';
 		}
 		
 		if (count ( $reports )>1){

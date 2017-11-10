@@ -143,7 +143,7 @@ function argus_document_generator_VSG_HRM_Planningsgesprek_document($args) {
 	$document->setValue('oplossingen', str_replace(chr(13), '<w:br/>', $node->field_pg_eventuele_oplossing[LANGUAGE_NONE][0]['value']));
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/VSG Planningsgesprek '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_get_user_class($uid, 'title').' '.date('dmY').'.docx';
+	$filename = '/tmp/VSG Planningsgesprek '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_klasbeheer_get_user_class($uid, 'title').' '.date('dmY').'.docx';
 	$document->saveAs($filename);
 	
 	header("Pragma: public");

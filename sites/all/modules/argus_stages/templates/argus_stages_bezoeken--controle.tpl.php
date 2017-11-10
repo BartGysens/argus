@@ -43,9 +43,9 @@
 		
 		print '<td class="views-field views-align-center">'.($cntr++).'</td>';
 		
-		print '<td class="views-field views-align-left"><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$r['begeleider']).'" target="_blank">'.argus_get_user_realname($r['begeleider']).'</a></td>';
+		print '<td class="views-field views-align-left">' . argus_engine_get_user_link( $r['begeleider'], null, '_blank' ) . '</td>';
 
-		print '<td class="views-field views-align-left"><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$r['leerling']).'" target="_blank">'.argus_get_user_realname($r['leerling']).'</a></td>';
+		print '<td class="views-field views-align-left">' . argus_engine_get_user_link( $$r['leerling'], null, '_blank' ) . '</td>';
 
 		print '<td class="views-field views-align-center">'.$r['klas'].'</td>';
 

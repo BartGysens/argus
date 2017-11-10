@@ -34,7 +34,7 @@ if (isset($absences) || isset($behaviour) || isset($study)) { $current = false; 
                             <?php foreach ($absences as $cid => $pupils) { ?>
                                 <thead>
                                     <tr class="views-tr-sub">
-                                        <th class="views-align-left" rowspan="2"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$cid); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_get_class_name($cid); ?></a></th>
+                                        <th class="views-align-left" rowspan="2"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$cid); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_klasbeheer_get_class_name($cid); ?></a></th>
                                         <?php for ($w = 3; $w > 0; $w--) { ?>
                                             <th colspan="2">week <?php print date('W', strtotime('-'.$w.' weeks')); ?></th>
                                         <?php } ?>
@@ -51,7 +51,7 @@ if (isset($absences) || isset($behaviour) || isset($study)) { $current = false; 
                                 <tbody>
                                     <?php $i = 1; foreach ($pupils as $pupil => $results) { ?>
                                         <tr class="<?php print ($i%2 == 0 ? "even" : "odd"); ?>">
-                                            <td><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$pupil).'">'.argus_get_user_realname($pupil).'</a>'; ?></td>
+                                            <td><?php print argus_engine_get_user_link( $pupil ); ?></td>
                                             <?php
                                             
                                             for ($w = 3; $w > 0; $w--) {
@@ -87,7 +87,7 @@ if (isset($absences) || isset($behaviour) || isset($study)) { $current = false; 
                             <?php foreach ($absences as $cid => $pupils) { ?>
                                 <thead>
                                     <tr class="views-tr-sub">
-                                        <th class="views-align-left" rowspan="2"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$cid); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_get_class_name($cid); ?></a></th>
+                                        <th class="views-align-left" rowspan="2"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$cid); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_klasbeheer_get_class_name($cid); ?></a></th>
                                         <th>Duur</th>
                                         <th>Schooljaar</th>
                                     </tr>
@@ -95,7 +95,7 @@ if (isset($absences) || isset($behaviour) || isset($study)) { $current = false; 
                                 <tbody>
                                     <?php $i = 1; foreach ($pupils as $pupil => $totals) { ?>
                                         <tr class="<?php print ($i%2 == 0 ? "even" : "odd"); ?>">
-                                            <td><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$pupil).'">'.argus_get_user_realname($pupil).'</a>'; ?></td>
+                                            <td><?php print argus_engine_get_user_link( $pupil ); ?></td>
                                             <td class="views-align-center"><?php print $totals['length']; ?></td>
                                             <td class="views-align-center"><?php print $totals['schoolyear']; ?></td>
                                         </tr>
@@ -109,14 +109,14 @@ if (isset($absences) || isset($behaviour) || isset($study)) { $current = false; 
                             <?php foreach ($late as $cid => $pupils) { ?>
                                 <thead>
                                     <tr class="views-tr-sub">
-                                        <th class="views-align-left" rowspan="2"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$cid); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_get_class_name($cid); ?></a></th>
+                                        <th class="views-align-left" rowspan="2"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$cid); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_klasbeheer_get_class_name($cid); ?></a></th>
                                         <th>Schooljaar</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php $i = 1; foreach ($pupils as $pupil => $totals) { ?>
                                         <tr class="<?php print ($i%2 == 0 ? "even" : "odd"); ?>">
-                                            <td><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$pupil).'">'.argus_get_user_realname($pupil).'</a>'; ?></td>
+                                            <td><?php print argus_engine_get_user_link( $pupil ); ?></td>
                                             <td class="views-align-center"><?php print $totals['schoolyear']; ?></td>
                                         </tr>
                                     <?php $i++; } ?>
@@ -135,7 +135,7 @@ if (isset($absences) || isset($behaviour) || isset($study)) { $current = false; 
                         if ($b) { // Drop pupils who left school ?>
                         <thead>
                             <tr class="views-tr-sub">
-                                <th class="views-align-left" rowspan="2" style="vertical-align: middle;"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$b); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_get_class_name($b); ?></a></th>
+                                <th class="views-align-left" rowspan="2" style="vertical-align: middle;"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$b); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_klasbeheer_get_class_name($b); ?></a></th>
                                 <th colspan="3">positief<div style="font-size: .8em; padding-right: 5px; margin-top: -10px;">laatste 30 d. / trend / totaal</div></th>
                                 <th colspan="3">negatief<div style="font-size: .8em; padding-right: 5px; margin-top: -10px;">laatste 30 d. / trend / totaal</div></th>
                             </tr>
@@ -167,7 +167,7 @@ if (isset($absences) || isset($behaviour) || isset($study)) { $current = false; 
 
                                 if ($reportType == 'ktt' || strpos($trendPos, 'span') || strpos($trendNeg, 'span')) { ?>
                                 <tr class="<?php print ($i%2 == 0 ? "even" : "odd"); ?>">
-                                    <td class="views-align-left"><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$pupil).'">'.argus_get_user_realname($pupil).'</a>'; ?></td>
+                                    <td class="views-align-left"><?php print argus_engine_get_user_link( $pupil ); ?></td>
 
                                     <!-- Positive behaviour //-->
                                     <?php if (isset($report['pos'])){ ?>
@@ -201,14 +201,14 @@ if (isset($absences) || isset($behaviour) || isset($study)) { $current = false; 
                     <?php foreach ($study as $cid => $pupils) { ?>
                         <thead>
                             <tr class="views-tr-sub">
-                                <th class="views-align-left"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$cid); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_get_class_name($cid); ?></a></th>
+                                <th class="views-align-left"><a href="<?php print base_path().drupal_lookup_path('alias', 'node/'.$cid); ?>" style="padding-left: 5px; font-weight: bold;"><?php print argus_klasbeheer_get_class_name($cid); ?></a></th>
                                 <?php foreach ($periods as $p) { ?>
                                     <th><?php print $p->afkorting; ?></th>
                                 <?php } ?>
                             </tr>
                             <?php $i = 1; foreach ($pupils as $pupil => $results) { ?>
                                 <tr class="<?php print ($i%2 == 0 ? "even" : "odd"); ?>">
-                                    <td><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$pupil).'">'.argus_get_user_realname($pupil).'</a>'; ?></td>
+                                    <td><?php print argus_engine_get_user_link( $pupil ); ?></td>
                                     <?php foreach ($periods as $p) { ?>
                                         <td class="views-align-center"><?php if ($results[$p->afkorting]['total']) {
                                             $percentage = round($results[$p->afkorting]['success']/$results[$p->afkorting]['total']*100);

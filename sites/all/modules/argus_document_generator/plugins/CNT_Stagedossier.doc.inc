@@ -212,7 +212,7 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	$zip = new clsTbsZip ();
 	
 	/* Process document 1: 'risicoanalyse' */
-	$zip->Open ( argus_document_generator_get_plugin_template ( 'CNT_Stagedossier', 'risicoanalyse_' . argus_get_user_class ( $uid, 'structuuronderdeel' ) ) );
+	$zip->Open ( argus_document_generator_get_plugin_template ( 'CNT_Stagedossier', 'risicoanalyse_' . argus_klasbeheer_get_user_class ( $uid, 'structuuronderdeel' ) ) );
 	$docRisicoanalyse = $zip->FileRead ( 'word/document.xml' );
 	$zip->Close ();
 	
@@ -242,7 +242,7 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	) );
 	
 	/* Process document 2: 'werkpostfiche' */
-	$zip->Open ( argus_document_generator_get_plugin_template ( 'CNT_Stagedossier', 'werkpostfiche_' . argus_get_user_class ( $uid, 'structuuronderdeel' ) ) );
+	$zip->Open ( argus_document_generator_get_plugin_template ( 'CNT_Stagedossier', 'werkpostfiche_' . argus_klasbeheer_get_user_class ( $uid, 'structuuronderdeel' ) ) );
 	$docWerkpostfiche = $zip->FileRead ( 'word/document.xml' );
 	$zip->Close ();
 	
@@ -269,7 +269,7 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	
 	/* Start replacing values in template */
 	$document->setValue ( 'naam', htmlspecialchars ( argus_get_user_realname ( $uid ) ) );
-	$document->setValue ( 'klas', htmlspecialchars ( argus_get_user_class ( $uid, 'title' ) ) );
+	$document->setValue ( 'klas', htmlspecialchars ( argus_klasbeheer_get_user_class ( $uid, 'title' ) ) );
 	
 	if (count ( $u->field_user_sms_geboortedatum )) {
 		$birthday = new DateTime ( $u->field_user_sms_geboortedatum [LANGUAGE_NONE] [0] ['value'] );
@@ -317,8 +317,8 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	}
 	$document->setValue ( 'telefoonnummer', htmlspecialchars ( $value ) );
 	
-	$document->setValue ( 'afdeling', htmlspecialchars ( argus_get_user_class ( $uid, 'onderwijsvorm' ) . ' ' . argus_get_user_class ( $uid, 'structuuronderdeel' ) ) );
-	$document->setValue ( 'leerjaar', htmlspecialchars ( argus_get_user_class ( $uid, 'leerjaar_graad' ) . ' (' . argus_get_user_class ( $uid, 'title' ) . ')' ) );
+	$document->setValue ( 'afdeling', htmlspecialchars ( argus_klasbeheer_get_user_class ( $uid, 'onderwijsvorm' ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'structuuronderdeel' ) ) );
+	$document->setValue ( 'leerjaar', htmlspecialchars ( argus_klasbeheer_get_user_class ( $uid, 'leerjaar_graad' ) . ' (' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ')' ) );
 	
 	$document->setValue ( 'schooljaar', htmlspecialchars ( implode ( '-', argus_schoolyear ( 0, 'Y' ) ) ) );
 	$document->setValue ( 'datum', htmlspecialchars ( format_date ( time (), 'custom', 'l, j F Y' ) ) );
@@ -454,7 +454,7 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	/* Bijlage 4: activiteitenlijst */
 	$query = 'SELECT sa.delta AS id, sa.field_stageactiviteit_value AS activiteit ' . 'FROM {field_data_field_stageactiviteit} AS sa ' . 'INNER JOIN {field_data_field_klas} AS k ON k.entity_id = sa.entity_id ' . 'WHERE k.field_klas_target_id = :cid';
 	$stageactviteitenlijst = db_query ( $query, array (
-			':cid' => argus_get_user_class ( $uid ) 
+			':cid' => argus_klasbeheer_get_user_class ( $uid ) 
 	) )->fetchAllKeyed ();
 	$prefixList = '<w:p><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="9"/></w:numPr></w:pPr><w:r><w:t>';
 	$suffixList = '</w:t></w:r></w:p>';
@@ -477,7 +477,7 @@ function argus_document_generator_CNT_Stagedossier_document($args) {
 	$document->setValue ( 'uurrooster', htmlspecialchars ( $stageperiode->field_stage_uren [LANGUAGE_NONE] [0] ['value'] ) );
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/CNT Stagedossier ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
+	$filename = '/tmp/CNT Stagedossier ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
 	$document->saveAs ( $filename );
 	
 	header ( "Pragma: public" );

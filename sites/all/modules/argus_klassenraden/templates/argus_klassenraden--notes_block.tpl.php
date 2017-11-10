@@ -42,9 +42,9 @@ jQuery(document).ready(function() {
 				<label for="schooljaar" class="inline">Schooljaar: </label>
 				<?php 
 				if (array_key_exists(1, $params)){
-					print argus_schoolyear_selectionBox($params[1], TRUE, FALSE);
+					print argus_engine_schoolyear_selectionBox($params[1], TRUE, FALSE);
 				} else {
-					print argus_schoolyear_selectionBox(NULL, TRUE, FALSE);
+					print argus_engine_schoolyear_selectionBox(NULL, TRUE, FALSE);
 				}
 				?>
 			</div>

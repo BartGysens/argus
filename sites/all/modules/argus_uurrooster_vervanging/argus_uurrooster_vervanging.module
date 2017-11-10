@@ -51,7 +51,6 @@ function argus_uurrooster_vervanging_views_api() {
 			'api' => 3.0,
 			'path' => drupal_get_path ( 'module', 'argus_uurrooster_vervanging' ) 
 	); // replace demo with your content type
-
 }
 
 /**
@@ -62,20 +61,20 @@ function argus_uurrooster_vervanging_block_info() {
 	$blocks ['overview_block_full'] = array (
 			'info' => t ( 'Vervangingen: volledig overzicht' ),
 			'cache' => DRUPAL_CACHE_GLOBAL,
-			'weight' => -10,
+			'weight' => - 10,
 			'status' => 1,
 			'region' => 'sidebar_second',
-			'visibility'=>BLOCK_VISIBILITY_LISTED,
-			'pages' => 'uurrooster/vervangingen' .chr(13).'uurrooster/vervangingen/*'
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => 'uurrooster/vervangingen' . chr ( 13 ) . 'uurrooster/vervangingen/*' 
 	);
 	$blocks ['overview_block_lessons'] = array (
 			'info' => t ( 'Vervangingen: enkel lesuren' ),
 			'cache' => DRUPAL_CACHE_GLOBAL,
-			'weight' => -10,
+			'weight' => - 10,
 			'status' => 1,
 			'region' => 'sidebar_second',
-			'visibility'=>BLOCK_VISIBILITY_LISTED,
-			'pages' => '<front>'
+			'visibility' => BLOCK_VISIBILITY_LISTED,
+			'pages' => '<front>' 
 	);
 	
 	return $blocks;
@@ -89,7 +88,7 @@ function argus_uurrooster_vervanging_block_view($delta = '') {
 	
 	$today = date ( 'Y-m-d' );
 	if (array_key_exists ( 2, $params )) {
-		if ((bool)strtotime($params [2])){
+		if (( bool ) strtotime ( $params [2] )) {
 			$today = $params [2];
 		}
 	}
@@ -145,229 +144,238 @@ function argus_uurrooster_vervanging_theme() {
 /* Prepare output for embedding (body for inclusion in HTML/iFrame) */
 function argus_uurrooster_vervanging_list_full($today = NULL, $direction = 'vertical') {
 	global $user;
-	$returnStr = '';
-	
-	$class_not_at_school = array ();
-	$substitute_not_at_school = array ();
-	
-	$events_pa = array ();
-	$events_ns = array ();
 	
 	if (is_numeric ( $today )) {
 		$today = NULL;
 	}
 	$today = new DateTime ( $today );
 	
-	/* Get periods */
-	$query = 'SELECT n.nid AS id, n.nid ' . 'FROM {node} AS n ' . 'INNER JOIN {field_data_field_uurrooster_periode_dag} AS d ON d.entity_id = n.nid ' . 'INNER JOIN {field_data_field_uurrooster_periode_start} AS s ON s.entity_id = n.nid ' . 'WHERE n.type = :bundle AND n.status = 1 AND d.field_uurrooster_periode_dag_value = :start ' . 'ORDER BY s.field_uurrooster_periode_start_value ASC';
-	$periods = db_query ( $query, array (
-			':bundle' => 'uurrooster_periode',
-			':start' => $today->format ( 'N' ) 
-	) )->fetchAllKeyed ();
-	
-	if (module_exists ( 'argus_pedagogische_activiteiten' )) {
-		// List 'pedagogische activiteiten'; teachers who are not available on this date
-		$querySubs = 'SELECT n.nid AS nid, n.uid AS uid, e.field_ev_datum_value AS start, e.field_ev_datum_value2 AS eind, k.field_ev_deelnemende_klassen_target_id AS klas, b.field_ev_begeleiders_target_id AS begeleider ' . 'FROM {field_data_field_ev_datum} AS e ' . 'INNER JOIN {node} AS n ON n.nid = e.entity_id ' . 'INNER JOIN {field_data_field_ev_goedkeuring} AS s ON s.entity_id = e.entity_id ' . 'INNER JOIN {field_data_field_ev_deelnemende_klassen} AS k ON k.entity_id = e.entity_id ' . 'INNER JOIN {field_data_field_ev_begeleiders} AS b ON b.entity_id = e.entity_id ' . 'WHERE DATE_FORMAT(e.field_ev_datum_value, \'%Y-%m-%d\') = :start ' . 'AND e.bundle = :bundle ' . 'AND s.field_ev_goedkeuring_value = :status';
-		$events = db_query ( $querySubs, array (
-				':start' => $today->format ( 'Y-m-d' ),
-				':bundle' => 'event_pedagogische_activiteit',
-				':status' => 'toegestaan' 
-		) )->fetchAll ();
-		if (count ( $events )) {
-			$events_pa = array ();
-			foreach ( $events as $e ) {
-				if (! array_key_exists ( $e->nid, $events_pa )) {
+	if ($cache = cache_get ( 'argus_uurrooster_vervanging_list_full_' . $user->uid . '_' . $today->format ( 'Y-m-d' ) . '_' . $direction )) {
+		$returnStr = $cache->data;
+	} else {
+		$returnStr = '';
+		
+		$class_not_at_school = array ();
+		$substitute_not_at_school = array ();
+		
+		$events_pa = array ();
+		$events_ns = array ();
+		
+		/* Get periods */
+		$query = 'SELECT n.nid AS id, n.nid ' . 'FROM {node} AS n ' . 'INNER JOIN {field_data_field_uurrooster_periode_dag} AS d ON d.entity_id = n.nid ' . 'INNER JOIN {field_data_field_uurrooster_periode_start} AS s ON s.entity_id = n.nid ' . 'WHERE n.type = :bundle AND n.status = 1 AND d.field_uurrooster_periode_dag_value = :start ' . 'ORDER BY s.field_uurrooster_periode_start_value ASC';
+		$periods = db_query ( $query, array (
+				':bundle' => 'uurrooster_periode',
+				':start' => $today->format ( 'N' ) 
+		) )->fetchAllKeyed ();
+		
+		if (module_exists ( 'argus_pedagogische_activiteiten' )) {
+			// List 'pedagogische activiteiten'; teachers who are not available on this date
+			$querySubs = 'SELECT n.nid AS nid, n.uid AS uid, e.field_ev_datum_value AS start, e.field_ev_datum_value2 AS eind, k.field_ev_deelnemende_klassen_target_id AS klas, b.field_ev_begeleiders_target_id AS begeleider ' . 'FROM {field_data_field_ev_datum} AS e ' . 'INNER JOIN {node} AS n ON n.nid = e.entity_id ' . 'INNER JOIN {field_data_field_ev_goedkeuring} AS s ON s.entity_id = e.entity_id ' . 'INNER JOIN {field_data_field_ev_deelnemende_klassen} AS k ON k.entity_id = e.entity_id ' . 'INNER JOIN {field_data_field_ev_begeleiders} AS b ON b.entity_id = e.entity_id ' . 'WHERE DATE_FORMAT(e.field_ev_datum_value, \'%Y-%m-%d\') = :start ' . 'AND e.bundle = :bundle ' . 'AND s.field_ev_goedkeuring_value = :status';
+			$events = db_query ( $querySubs, array (
+					':start' => $today->format ( 'Y-m-d' ),
+					':bundle' => 'event_pedagogische_activiteit',
+					':status' => 'toegestaan' 
+			) )->fetchAll ();
+			if (count ( $events )) {
+				$events_pa = array ();
+				foreach ( $events as $e ) {
+					if (! array_key_exists ( $e->nid, $events_pa )) {
+						$start = new DateTime ( $e->start );
+						$eind = new DateTime ( $e->eind );
+						$events_pa [$e->nid] = array (
+								'naam' => argus_get_user_realname ( $e->uid ),
+								'start' => $start->format ( 'H:i' ),
+								'eind' => $eind->format ( 'H:i' ),
+								'start' => $start->format ( 'H:i' ),
+								'klassen' => array (),
+								'begeleiders' => array () 
+						);
+						if (array_search ( argus_get_user_realname ( $e->uid ), $substitute_not_at_school ) === FALSE) {
+							$substitute_not_at_school [] = argus_get_user_realname ( $e->uid );
+						}
+					}
+					
+					$substitute_not_at_school [] = $e->uid;
+					
+					if (module_exists ( 'argus_klasbeheer' )) {
+						if ($e->klas && array_search ( argus_klasbeheer_get_class_name ( $e->klas ), $events_pa [$e->nid] ['klassen'] ) === FALSE) {
+							$events_pa [$e->nid] ['klassen'] [] = argus_klasbeheer_get_class_name ( $e->klas );
+							$class_not_at_school [] = argus_klasbeheer_get_class_name ( $e->klas );
+						}
+					}
+					
+					if ($e->begeleider && array_search ( argus_get_user_realname ( $e->begeleider ), $events_pa [$e->nid] ['begeleiders'] ) === FALSE && array_search ( argus_get_user_realname ( $e->begeleider ), $substitute_not_at_school ) === FALSE) {
+						$events_pa [$e->nid] ['begeleiders'] [] = argus_get_user_realname ( $e->begeleider );
+						$substitute_not_at_school [] = argus_get_user_realname ( $e->begeleider );
+					}
+				}
+				ksort ( $events_pa );
+			}
+		}
+		
+		if (module_exists ( 'argus_nascholingen' )) {
+			// List 'nascholingen'; teachers who are not available on this date
+			$querySubs = 'SELECT n.uid AS uid, e.field_ev_datum_value AS start, e.field_ev_datum_value2 AS eind ' . 'FROM {field_data_field_ev_datum} AS e ' . 'INNER JOIN {node} AS n ON n.nid = e.entity_id ' . 'INNER JOIN {field_data_field_ev_goedkeuring} AS s ON s.entity_id = e.entity_id ' . 'WHERE DATE_FORMAT(e.field_ev_datum_value, \'%Y-%m-%d\') = :start ' . 'AND e.bundle = :bundle ' . 'AND s.field_ev_goedkeuring_value = :status';
+			$events = db_query ( $querySubs, array (
+					':start' => $today->format ( 'Y-m-d' ),
+					':bundle' => 'event_nascholing',
+					':status' => 'toegestaan' 
+			) )->fetchAll ();
+			if (count ( $events )) {
+				$events_ns = array ();
+				foreach ( $events as $e ) {
 					$start = new DateTime ( $e->start );
 					$eind = new DateTime ( $e->eind );
-					$events_pa [$e->nid] = array (
-							'naam' => argus_get_user_realname ( $e->uid ),
-							'start' => $start->format ( 'H:i' ),
-							'eind' => $eind->format ( 'H:i' ),
-							'start' => $start->format ( 'H:i' ),
-							'klassen' => array (),
-							'begeleiders' => array () 
-					);
+					$events_ns [argus_get_user_realname ( $e->uid )] = '<li>' . argus_get_user_realname ( $e->uid ) . ' <small>(van ' . $start->format ( 'H:i' ) . ' tot ' . $eind->format ( 'H:i' ) . ')</small></li>';
 					if (array_search ( argus_get_user_realname ( $e->uid ), $substitute_not_at_school ) === FALSE) {
 						$substitute_not_at_school [] = argus_get_user_realname ( $e->uid );
 					}
 				}
-				
-				$substitute_not_at_school [] = $e->uid;
-				
-				if ($e->klas && array_search ( argus_get_class_name ( $e->klas ), $events_pa [$e->nid] ['klassen'] ) === FALSE) {
-					$events_pa [$e->nid] ['klassen'] [] = argus_get_class_name ( $e->klas );
-					$class_not_at_school [] = argus_get_class_name ( $e->klas );
-				}
-				
-				if ($e->begeleider && array_search ( argus_get_user_realname ( $e->begeleider ), $events_pa [$e->nid] ['begeleiders'] ) === FALSE && array_search ( argus_get_user_realname ( $e->begeleider ), $substitute_not_at_school ) === FALSE) {
-					$events_pa [$e->nid] ['begeleiders'] [] = argus_get_user_realname ( $e->begeleider );
-					$substitute_not_at_school [] = argus_get_user_realname ( $e->begeleider );
-				}
+				ksort ( $events_ns );
 			}
-			ksort ( $events_pa );
 		}
-	}
-	
-	if (module_exists ( 'argus_nascholingen' )) {
-		// List 'nascholingen'; teachers who are not available on this date
-		$querySubs = 'SELECT n.uid AS uid, e.field_ev_datum_value AS start, e.field_ev_datum_value2 AS eind ' . 'FROM {field_data_field_ev_datum} AS e ' . 'INNER JOIN {node} AS n ON n.nid = e.entity_id ' . 'INNER JOIN {field_data_field_ev_goedkeuring} AS s ON s.entity_id = e.entity_id ' . 'WHERE DATE_FORMAT(e.field_ev_datum_value, \'%Y-%m-%d\') = :start ' . 'AND e.bundle = :bundle ' . 'AND s.field_ev_goedkeuring_value = :status';
-		$events = db_query ( $querySubs, array (
-				':start' => $today->format ( 'Y-m-d' ),
-				':bundle' => 'event_nascholing',
-				':status' => 'toegestaan' 
-		) )->fetchAll ();
-		if (count ( $events )) {
-			$events_ns = array ();
-			foreach ( $events as $e ) {
-				$start = new DateTime ( $e->start );
-				$eind = new DateTime ( $e->eind );
-				$events_ns [argus_get_user_realname ( $e->uid )] = '<li>' . argus_get_user_realname ( $e->uid ) . ' <small>(van ' . $start->format ( 'H:i' ) . ' tot ' . $eind->format ( 'H:i' ) . ')</small></li>';
-				if (array_search ( argus_get_user_realname ( $e->uid ), $substitute_not_at_school ) === FALSE) {
-					$substitute_not_at_school [] = argus_get_user_realname ( $e->uid );
-				}
-			}
-			ksort ( $events_ns );
-		}
-	}
-	
-	$subsLessons = '';
-	$subsLong = array ();
-	foreach ( $periods as $pid => $period ) {
-		$subsLessons .= '<li>';
 		
-		/* Check if there are substitutions for this period */
-		$querySubs = 'SELECT vm.entity_id AS id, vm.field_uurr_vervanging_vervmoment_target_id AS substitution, ' . ' vu.field_gebruiker_target_id AS uid, ' . ' t.field_tijdstip_value AS tijd, ' . ' k.field_klassen_target_id AS klas, ' . ' vv.field_pers_afwezigheid_verv_les_target_id AS vvr, ' . ' pau.field_gebruiker_target_id AS pauid ' . 'FROM {field_data_field_uurr_vervanging_vervmoment} AS vm ' . 'LEFT JOIN {field_data_field_gebruiker} AS vu ON vu.entity_id = vm.entity_id ' . 'LEFT JOIN {field_data_field_user_sms_naam} AS uname ON uname.entity_id = vu.field_gebruiker_target_id ' . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS ufname ON ufname.entity_id = vu.field_gebruiker_target_id ' . 'INNER JOIN {field_data_field_uurrooster_les_periode} AS lp ON lp.entity_id = vm.field_uurr_vervanging_vervmoment_target_id ' . 'INNER JOIN {field_data_field_personeel_afwezigheid} AS pa ON pa.entity_id = vm.entity_id ' . 'LEFT JOIN {field_data_field_gebruiker} AS pau ON pau.entity_id = pa.field_personeel_afwezigheid_target_id ' . 'LEFT JOIN {field_data_field_pers_afwezigheid_verv_les} AS vv ON vv.entity_id = pa.field_personeel_afwezigheid_target_id ' . 'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = vm.entity_id ' . 'INNER JOIN {field_data_field_klassen} AS k ON k.entity_id = vm.entity_id ' . 'WHERE lp.field_uurrooster_les_periode_target_id = :pid ' . 'AND t.bundle = :bundle ' . 'AND DATE_FORMAT(t.field_tijdstip_value,\'%Y-%m-%d\') = :start ' . 'ORDER BY uname.field_user_sms_naam_value ASC, ufname.field_user_sms_voornaam_value ASC';
-		$substitutions = db_query ( $querySubs, array (
-				':bundle' => 'uurrooster_vervanging',
-				':pid' => $pid,
-				':start' => $today->format ( 'Y-m-d' ) 
-		) )->fetchAll ();
-		
-		if (count ( $substitutions ) > 0) {
-			$periodSubs = array ();
-			foreach ( $substitutions as $sub ) {
-				if ($sub->vvr) {
-					$subsLong [$sub->vvr] = argus_get_user_realname ( $sub->pauid ) . ' > ' . argus_get_user_realname ( $sub->vvr );
-				} else {
-					if ($sub->klas) {
-						$g = node_load ( $sub->klas );
-						if ($sub->uid) {
-							$substitution = argus_get_user_realname ( $sub->uid );
-						} else {
-							$substitution = 'Vrij / naar huis';
+		$subsLessons = '';
+		$subsLong = array ();
+		foreach ( $periods as $pid => $period ) {
+			$subsLessons .= '<li>';
+			
+			/* Check if there are substitutions for this period */
+			$querySubs = 'SELECT vm.entity_id AS id, vm.field_uurr_vervanging_vervmoment_target_id AS substitution, ' . ' vu.field_gebruiker_target_id AS uid, ' . ' t.field_tijdstip_value AS tijd, ' . ' k.field_klassen_target_id AS klas, ' . ' vv.field_pers_afwezigheid_verv_les_target_id AS vvr, ' . ' pau.field_gebruiker_target_id AS pauid ' . 'FROM {field_data_field_uurr_vervanging_vervmoment} AS vm ' . 'LEFT JOIN {field_data_field_gebruiker} AS vu ON vu.entity_id = vm.entity_id ' . 'LEFT JOIN {field_data_field_user_sms_naam} AS uname ON uname.entity_id = vu.field_gebruiker_target_id ' . 'LEFT JOIN {field_data_field_user_sms_voornaam} AS ufname ON ufname.entity_id = vu.field_gebruiker_target_id ' . 'INNER JOIN {field_data_field_uurrooster_les_periode} AS lp ON lp.entity_id = vm.field_uurr_vervanging_vervmoment_target_id ' . 'INNER JOIN {field_data_field_personeel_afwezigheid} AS pa ON pa.entity_id = vm.entity_id ' . 'LEFT JOIN {field_data_field_gebruiker} AS pau ON pau.entity_id = pa.field_personeel_afwezigheid_target_id ' . 'LEFT JOIN {field_data_field_pers_afwezigheid_verv_les} AS vv ON vv.entity_id = pa.field_personeel_afwezigheid_target_id ' . 'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = vm.entity_id ' . 'INNER JOIN {field_data_field_klassen} AS k ON k.entity_id = vm.entity_id ' . 'WHERE lp.field_uurrooster_les_periode_target_id = :pid ' . 'AND t.bundle = :bundle ' . 'AND DATE_FORMAT(t.field_tijdstip_value,\'%Y-%m-%d\') = :start ' . 'ORDER BY uname.field_user_sms_naam_value ASC, ufname.field_user_sms_voornaam_value ASC';
+			$substitutions = db_query ( $querySubs, array (
+					':bundle' => 'uurrooster_vervanging',
+					':pid' => $pid,
+					':start' => $today->format ( 'Y-m-d' ) 
+			) )->fetchAll ();
+			
+			if (count ( $substitutions ) > 0) {
+				$periodSubs = array ();
+				foreach ( $substitutions as $sub ) {
+					if ($sub->vvr) {
+						$subsLong [$sub->vvr] = argus_get_user_realname ( $sub->pauid ) . ' > ' . argus_get_user_realname ( $sub->vvr );
+					} else {
+						if ($sub->klas) {
+							$g = node_load ( $sub->klas );
+							if ($sub->uid) {
+								$substitution = argus_get_user_realname ( $sub->uid );
+							} else {
+								$substitution = 'Vrij / naar huis';
+							}
+							
+							// if (array_search($g->title, $class_not_at_school) === FALSE){
+							if (stristr ( $_GET ['q'], 'uurrooster/vervangingen' ) && node_access ( "update", node_load ( $sub->id ), $user ) === TRUE) {
+								$periodSubs [$substitution] [] = '<a href="/node/' . $sub->id . '/edit?destination=' . $_SERVER ['REQUEST_URI'] . '">' . $g->title . '</a>';
+							} else {
+								$periodSubs [$substitution] [] = $g->title;
+							}
+							// }
 						}
-						
-						// if (array_search($g->title, $class_not_at_school) === FALSE){
-						if (stristr ( $_GET ['q'], 'uurrooster/vervangingen' ) && node_access ( "update", node_load ( $sub->id ), $user ) === TRUE) {
-							$periodSubs [$substitution] [] = '<a href="/node/' . $sub->id . '/edit?destination=' . $_SERVER ['REQUEST_URI'] . '">' . $g->title . '</a>';
-						} else {
-							$periodSubs [$substitution] [] = $g->title;
-						}
-						// }
 					}
 				}
+				
+				asort ( $periodSubs );
+				foreach ( $periodSubs as $s => $ps ) {
+					sort ( $ps );
+					$subsLessons .= '<div><span style="font-weight: bold;';
+					if (array_search ( $s, $substitute_not_at_school )) {
+						$subsLessons .= 'color: #f00;';
+					}
+					$subsLessons .= '">' . $s . '</span>: ';
+					if ($direction == 'vertical') {
+						$subsLessons .= '<br />';
+					}
+					$subsLessons .= '<small>' . implode ( ', ', $ps ) . '</small></div>';
+				}
+			} else {
+				$subsLessons .= '-';
 			}
 			
-			asort ( $periodSubs );
-			foreach ( $periodSubs as $s => $ps ) {
-				sort ( $ps );
-				$subsLessons .= '<div><span style="font-weight: bold;';
-				if (array_search ( $s, $substitute_not_at_school )) {
-					$subsLessons .= 'color: #f00;';
-				}
-				$subsLessons .= '">' . $s . '</span>: ';
-				if ($direction == 'vertical') {
-					$subsLessons .= '<br />';
-				}
-				$subsLessons .= '<small>' . implode ( ', ', $ps ) . '</small></div>';
-			}
-		} else {
-			$subsLessons .= '-';
+			$subsLessons .= '</li>';
 		}
 		
-		$subsLessons .= '</li>';
-	}
-	
-	$subsSupervisions = '';
-	foreach ( $periods as $pid => $period ) {
-		/* Check if there are substitutions for this period */
-		$querySubs = 'SELECT vm.entity_id AS id, vm.field_uurr_vervanging_vervmoment_target_id AS substitution, vu.field_gebruiker_target_id AS uid ' . 'FROM {field_data_field_uurr_vervanging_vervmoment} AS vm ' . 'INNER JOIN {field_data_field_gebruiker} AS vu ON vu.entity_id = vm.entity_id ' . 'INNER JOIN {field_data_field_uurrooster_toez_locatie} AS l ON l.entity_id = vm.field_uurr_vervanging_vervmoment_target_id ' . 'INNER JOIN {field_data_field_uurrooster_toez_start} AS p ON p.entity_id = l.field_uurrooster_toez_locatie_target_id ' . 'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = vm.entity_id ' . 'INNER JOIN {field_data_field_personeel_afwezigheid} AS pa ON pa.entity_id = vm.entity_id ' . 'LEFT JOIN {field_data_field_pers_afwezigheid_verv_les} AS vv ON vv.entity_id = pa.field_personeel_afwezigheid_target_id ' . 'WHERE p.field_uurrooster_toez_start_target_id = :pid ' . 'AND t.bundle = :bundle AND DATE_FORMAT(t.field_tijdstip_value,\'%Y-%m-%d\') = :start ' . 'AND vv.field_pers_afwezigheid_verv_les_target_id IS NULL ' . 'ORDER BY p.field_uurrooster_toez_start_target_id ASC';
-		
-		$substitutions = db_query ( $querySubs, array (
-				':bundle' => 'uurrooster_vervanging',
-				':pid' => $pid,
-				':start' => $today->format ( 'Y-m-d' ) 
-		) )->fetchAllAssoc ( 'substitution' );
-		
-		if (count ( $substitutions ) > 0) {
-			foreach ( $substitutions as $s => $sub ) {
-				if ($sub->uid) {
-					$currentSubstitution = node_load ( $s );
-					$location = node_load ( $currentSubstitution->field_uurrooster_toez_locatie [LANGUAGE_NONE] [0] ['target_id'] );
-					
-					$s = argus_get_user_realname ( $sub->uid );
-					
-					$subsSupervisions .= '<li><span style="font-weight: bold;';
-					if (array_search ( $s, $substitute_not_at_school )) {
-						$subsSupervisions .= 'color: #f00;';
+		$subsSupervisions = '';
+		foreach ( $periods as $pid => $period ) {
+			/* Check if there are substitutions for this period */
+			$querySubs = 'SELECT vm.entity_id AS id, vm.field_uurr_vervanging_vervmoment_target_id AS substitution, vu.field_gebruiker_target_id AS uid ' . 'FROM {field_data_field_uurr_vervanging_vervmoment} AS vm ' . 'INNER JOIN {field_data_field_gebruiker} AS vu ON vu.entity_id = vm.entity_id ' . 'INNER JOIN {field_data_field_uurrooster_toez_locatie} AS l ON l.entity_id = vm.field_uurr_vervanging_vervmoment_target_id ' . 'INNER JOIN {field_data_field_uurrooster_toez_start} AS p ON p.entity_id = l.field_uurrooster_toez_locatie_target_id ' . 'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = vm.entity_id ' . 'INNER JOIN {field_data_field_personeel_afwezigheid} AS pa ON pa.entity_id = vm.entity_id ' . 'LEFT JOIN {field_data_field_pers_afwezigheid_verv_les} AS vv ON vv.entity_id = pa.field_personeel_afwezigheid_target_id ' . 'WHERE p.field_uurrooster_toez_start_target_id = :pid ' . 'AND t.bundle = :bundle AND DATE_FORMAT(t.field_tijdstip_value,\'%Y-%m-%d\') = :start ' . 'AND vv.field_pers_afwezigheid_verv_les_target_id IS NULL ' . 'ORDER BY p.field_uurrooster_toez_start_target_id ASC';
+			
+			$substitutions = db_query ( $querySubs, array (
+					':bundle' => 'uurrooster_vervanging',
+					':pid' => $pid,
+					':start' => $today->format ( 'Y-m-d' ) 
+			) )->fetchAllAssoc ( 'substitution' );
+			
+			if (count ( $substitutions ) > 0) {
+				foreach ( $substitutions as $s => $sub ) {
+					if ($sub->uid) {
+						$currentSubstitution = node_load ( $s );
+						$location = node_load ( $currentSubstitution->field_uurrooster_toez_locatie [LANGUAGE_NONE] [0] ['target_id'] );
+						
+						$s = argus_get_user_realname ( $sub->uid );
+						
+						$subsSupervisions .= '<li><span style="font-weight: bold;';
+						if (array_search ( $s, $substitute_not_at_school )) {
+							$subsSupervisions .= 'color: #f00;';
+						}
+						$subsSupervisions .= '">' . $s . '</span>: ';
+						
+						if ($direction == 'vertical') {
+							$subsSupervisions .= '<br />';
+						}
+						
+						$subsSupervisions .= '<small>';
+						if (stristr ( $_GET ['q'], 'uurrooster/vervangingen' ) && node_access ( "update", node_load ( $sub->id ), $user ) === TRUE) {
+							$subsSupervisions .= '<a href="/node/' . $sub->id . '/edit?destination=' . $_SERVER ['REQUEST_URI'] . '">' . $location->title . '</a>';
+						} else {
+							$subsSupervisions .= $location->title;
+						}
+						$subsSupervisions .= '</small></li>';
 					}
-					$subsSupervisions .= '">' . $s . '</span>: ';
-					
-					if ($direction == 'vertical') {
-						$subsSupervisions .= '<br />';
-					}
-					
-					$subsSupervisions .= '<small>';
-					if (stristr ( $_GET ['q'], 'uurrooster/vervangingen' ) && node_access ( "update", node_load ( $sub->id ), $user ) === TRUE) {
-						$subsSupervisions .= '<a href="/node/' . $sub->id . '/edit?destination=' . $_SERVER ['REQUEST_URI'] . '">' . $location->title . '</a>';
-					} else {
-						$subsSupervisions .= $location->title;
-					}
-					$subsSupervisions .= '</small></li>';
 				}
 			}
 		}
-	}
-	
-	if ($subsLessons || $subsSupervisions || count ( $events_pa ) || count ( $events_ns )) {
-		$returnStr .= '<div style="position: relative;"><div><h5>' . t ( $today->format ( 'l' ) ) . $today->format ( ', j ' ) . t ( $today->format ( 'F' ) ) . $today->format ( ' Y' ) . '</h5></div>';
 		
-		if (stristr ( $_GET ['q'], 'uurrooster/vervangingen' ) && user_access ( 'edit any uurrooster_vervanging content', $user ) === TRUE) {
-			$returnStr .= '<div style="position: absolute; right: 10px; top: 0px; border: 1px solid #f00; background-color: #fee; color: #f00; padding: 2px;">planningsdialoog</div>';
-		}
-		
-		if ($subsLessons) {
-			$returnStr .= '<div><u>Lesvervangingen</u>:</div><ol>' . $subsLessons . '</ol>';
-		}
-		
-		if ($subsSupervisions) {
-			$returnStr .= '<div><u>Toezichten</u>:</div><ul>' . $subsSupervisions . '</ul>';
-		}
-		
-		if (count ( $events_pa )) {
-			$returnStr .= '<div><u>Pedagogische activiteiten</u>:</div><ol>';
-			$str = array ();
-			foreach ( $events_pa as $n => $e ) {
-				sort ( $e ['begeleiders'] );
-				$returnStr .= '<li><b>' . $e ['naam'] . '</b>';
-				if (count ( $e ['begeleiders'] )) {
-					$returnStr .= ' - ' . implode ( ' - ', $e ['begeleiders'] );
-				}
-				$returnStr .= '<br /><small>met ' . implode ( ', ', $e ['klassen'] ) . ', van ' . $e ['start'] . ' tot ' . $e ['eind'] . '</small></li>';
+		if ($subsLessons || $subsSupervisions || count ( $events_pa ) || count ( $events_ns )) {
+			$returnStr .= '<div style="position: relative;"><div><h5>' . t ( $today->format ( 'l' ) ) . $today->format ( ', j ' ) . t ( $today->format ( 'F' ) ) . $today->format ( ' Y' ) . '</h5></div>';
+			
+			if (stristr ( $_GET ['q'], 'uurrooster/vervangingen' ) && user_access ( 'edit any uurrooster_vervanging content', $user ) === TRUE) {
+				$returnStr .= '<div style="position: absolute; right: 10px; top: 0px; border: 1px solid #f00; background-color: #fee; color: #f00; padding: 2px;">planningsdialoog</div>';
 			}
-			$returnStr .= '</ol>';
+			
+			if ($subsLessons) {
+				$returnStr .= '<div><u>Lesvervangingen</u>:</div><ol>' . $subsLessons . '</ol>';
+			}
+			
+			if ($subsSupervisions) {
+				$returnStr .= '<div><u>Toezichten</u>:</div><ul>' . $subsSupervisions . '</ul>';
+			}
+			
+			if (count ( $events_pa )) {
+				$returnStr .= '<div><u>Pedagogische activiteiten</u>:</div><ol>';
+				$str = array ();
+				foreach ( $events_pa as $n => $e ) {
+					sort ( $e ['begeleiders'] );
+					$returnStr .= '<li><b>' . $e ['naam'] . '</b>';
+					if (count ( $e ['begeleiders'] )) {
+						$returnStr .= ' - ' . implode ( ' - ', $e ['begeleiders'] );
+					}
+					$returnStr .= '<br /><small>met ' . implode ( ', ', $e ['klassen'] ) . ', van ' . $e ['start'] . ' tot ' . $e ['eind'] . '</small></li>';
+				}
+				$returnStr .= '</ol>';
+			}
+			
+			if (count ( $events_ns )) {
+				$returnStr .= '<div><u>Nascholingen</u>:</div><ol>' . implode ( '', $events_ns ) . '</ol>';
+			}
+			
+			if (count ( $subsLong )) {
+				asort ( $subsLong );
+				$returnStr .= '<div><u>Lange vervangingen</u>:</div><ul><li>' . implode ( '</li><li>', $subsLong ) . '</li></ul>';
+			}
+			
+			$returnStr .= '</div>';
 		}
 		
-		if (count ( $events_ns )) {
-			$returnStr .= '<div><u>Nascholingen</u>:</div><ol>' . implode ( '', $events_ns ) . '</ol>';
-		}
-		
-		if (count ( $subsLong )) {
-			asort ( $subsLong );
-			$returnStr .= '<div><u>Lange vervangingen</u>:</div><ul><li>' . implode ( '</li><li>', $subsLong ) . '</li></ul>';
-		}
-		
-		$returnStr .= '</div>';
+		cache_set ( 'argus_uurrooster_vervanging_list_full_' . $user->uid . '_' . $today->format ( 'Y-m-d' ) . '_' . $direction, $returnStr );
 	}
 	
 	return $returnStr;

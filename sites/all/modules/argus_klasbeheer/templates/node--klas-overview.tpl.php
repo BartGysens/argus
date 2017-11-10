@@ -84,7 +84,7 @@
 
 <div class="view">
     <div class="view-header">
-        <p><a href="<?php print base_path() . 'node/' . $nid . '/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
+        <p><a href="<?php print base_path() . 'node/' . $nid . '/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_engine_schoolyear_selectionBox(); ?></p>
     </div>
 </div>
 <?php } ?>
@@ -432,7 +432,7 @@
             <div id="profile-admin-left">
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Klastitularis:&nbsp;</div>
-                    <div class="field-items"><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$node->field_klas_klastitularis[LANGUAGE_NONE][0]['target_id']).'">'.argus_get_user_realname($node->field_klas_klastitularis[LANGUAGE_NONE][0]['target_id']).'</a>'; ?></div>
+                    <div class="field-items"><?php print argus_engine_get_user_link( $node->field_klas_klastitularis[LANGUAGE_NONE][0]['target_id'] ); ?></div>
                 </div>
             </div>
             <?php } ?>
@@ -441,7 +441,7 @@
             <div id="profile-admin-right">
                 <div class="field field-label-inline clearfix">
                     <div class="field-label">Hulpklastitularis:&nbsp;</div>
-                    <div class="field-items"><?php print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$node->field_klas_hulpklastitularis[LANGUAGE_NONE][0]['target_id']).'">'.argus_get_user_realname($node->field_klas_hulpklastitularis[LANGUAGE_NONE][0]['target_id']).'</a>'; ?></div>
+                    <div class="field-items"><?php print argus_engine_get_user_link( $node->field_klas_hulpklastitularis[LANGUAGE_NONE][0]['target_id'] ); ?></div>
                 </div>
             </div>
             <?php } ?>
@@ -515,6 +515,6 @@
 
 <div class="view">
     <div class="view-header">
-        <p><a href="<?php print base_path() . 'node/' . $nid . '/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_schoolyear_selectionBox(); ?></p>
+        <p><a href="<?php print base_path() . 'node/' . $nid . '/administratief'; ?>">Bekijk de administratieve fiche</a><?php print argus_engine_schoolyear_selectionBox(); ?></p>
     </div>
 </div>

@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-3.5
+---------
+- Stronger caching
+- Better function definitions and use of argus - Engine
+
 v7.x-3.4
 ---------
 - Betere block definitie

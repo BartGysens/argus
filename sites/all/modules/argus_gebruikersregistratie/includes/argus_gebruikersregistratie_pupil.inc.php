@@ -1588,7 +1588,7 @@ function argus_gebruikersregistratie_form_pupil_submit($form, &$form_state) {
 		$account = $user->name;
 	} else {
 		$user = '';
-		$account = argus_sanitize_string ( $form_state ['values'] ['voornaam'] ) . '.' . argus_sanitize_string ( $form_state ['values'] ['naam'] );
+		$account = argus_engine_sanitize_string ( $form_state ['values'] ['voornaam'] ) . '.' . argus_engine_sanitize_string ( $form_state ['values'] ['naam'] );
 	}
 	
 	// Check if username has already been taken

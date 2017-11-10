@@ -38,7 +38,7 @@ function argus_document_generator_CNT_Voorinschrijvingsdossier_form($form, &$for
 			'#type' => 'select',
 			'#title' => t ( 'Leerling' ),
 			'#description' => t ( 'Selecteer de leerling waarvoor dit document moet worden aangemaakt.' ),
-			'#options' => argus_get_user_select_options ( 'leerling', false ),
+			'#options' => argus_engine_get_user_select_options ( 'leerling', false ),
 			'#required' => false 
 	);
 	
@@ -318,7 +318,7 @@ function argus_document_generator_CNT_Voorinschrijvingsdossier_document($args) {
 	$document->setValue ( 'lt_total', $courseTotal );
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/CNT Voorinschrijvingsdossier ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
+	$filename = '/tmp/CNT Voorinschrijvingsdossier ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
 	$document->saveAs ( $filename );
 	
 	header ( "Pragma: public" );

@@ -367,7 +367,7 @@ function argus_klassenraden_block_info() {
 	$blocks ['klassenraden-notities'] = array (
 			'info' => t ( 'Klassenraden: notities' ),
 			'cache' => DRUPAL_CACHE_GLOBAL,
-			'weight' => -10,
+			'weight' => - 10,
 			'status' => 1,
 			'region' => 'sidebar_first',
 			'visibility' => BLOCK_VISIBILITY_LISTED,
@@ -382,78 +382,83 @@ function argus_klassenraden_block_info() {
  */
 function argus_klassenraden_block_view($delta = '') {
 	$block = array ();
-	$variables = array ();
 	
 	/* Set schoolyear */
 	$params = explode ( '/', drupal_parse_url ( current_path () ) ['path'] );
 	
-	$schoolyear = 0;
-	$today = NULL;
-	if (array_key_exists ( 1, $params )) {
-		if ($params [1] != '*') {
-			$schoolyear = array (
-					'start' => $params [1] . '0901',
-					'end' => ($params [1] + 1) . '0831' 
-			);
-		}
-		if (array_key_exists ( 2, $params )) {
-			$currentKR = node_load ( $params [2] );
-			if ($currentKR) {
-				$today = $currentKR->field_tijdstip [LANGUAGE_NONE] [0] ['value'];
-				$schoolyear = ( array ) argus_schoolyear ( 0, 'Y-m-d', $today );
-			}
-		}
+	global $user;
+	if ($cache = cache_get ( 'argus_klassenraden_block_view_' . $user->uid . '_' . implode ( '-', $params ) )) {
+		$variables = $cache->data;
 	} else {
-		$schoolyear = ( array ) argus_schoolyear ( $schoolyear, 'Y-m-d', $today );
-	}
-	$variables ['schoolyear'] = $schoolyear;
-	
-	/* Fetch all classmeetings */
-	$query = 'SELECT nid, title ' . 'FROM {node} AS n ' . 'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid ' . 'WHERE type = :type AND t.field_tijdstip_value BETWEEN :startdate AND :enddate ' . 'ORDER BY t.field_tijdstip_value DESC';
-	$variables ['classmeetings'] = db_query ( $query, array (
-			':type' => 'lvs_klassenraad',
-			':startdate' => $schoolyear ['start'],
-			':enddate' => $schoolyear ['end'] 
-	) )->fetchAllKeyed ();
-	
-	/* Fetch all tracks for selected classmeeting */
-	if (array_key_exists ( 2, $params )) {
-		if (is_numeric ( $params [2] )) {
-			$query = 'SELECT s.field_spoor_value AS sid, l.title ' . 'FROM {field_data_field_spoor} AS s ' . 'INNER JOIN {field_data_field_lokaal} AS sl ON sl.entity_id = s.field_spoor_value ' . 'INNER JOIN {node} AS l ON l.nid = sl.field_lokaal_target_id ' . 'WHERE s.entity_id = :cmid AND sl.bundle = :bundle';
-			$variables ['tracks'] = db_query ( $query, array (
-					':cmid' => $params [2],
-					':bundle' => 'field_spoor' 
-			) )->fetchAllKeyed ();
+		$variables = array ();
+		
+		$schoolyear = 0;
+		$today = NULL;
+		if (array_key_exists ( 1, $params )) {
+			if ($params [1] != '*') {
+				$schoolyear = array (
+						'start' => $params [1] . '0901',
+						'end' => ($params [1] + 1) . '0831' 
+				);
+			}
+			if (array_key_exists ( 2, $params )) {
+				$currentKR = node_load ( $params [2] );
+				if ($currentKR) {
+					$today = $currentKR->field_tijdstip [LANGUAGE_NONE] [0] ['value'];
+					$schoolyear = ( array ) argus_schoolyear ( 0, 'Y-m-d', $today );
+				}
+			}
+		} else {
+			$schoolyear = ( array ) argus_schoolyear ( $schoolyear, 'Y-m-d', $today );
 		}
-	}
-	
-	/* Fetch all classes for selected classmeeting and track */
-	if (array_key_exists ( 'tracks', $variables )) {
-		if (array_key_exists ( 3, $params )) {
-			if (is_numeric ( $params [3] )) {
-				$query = 'SELECT k.nid AS cid, k.title, COUNT(lln.field_klas_leerlingen_target_id) AS cnt_lln ' . 'FROM {field_data_field_klassen} AS kn ' . 'INNER JOIN {node} AS k ON k.nid = kn.field_klassen_target_id ' . 'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON lln.entity_id = k.nid ' . 'WHERE kn.entity_id = :tid AND kn.bundle = :bundle ' . 'GROUP BY k.nid ORDER BY kn.delta';
-				$variables ['groups'] = db_query ( $query, array (
-						':tid' => $params [3],
+		$variables ['schoolyear'] = $schoolyear;
+		
+		/* Fetch all classmeetings */
+		$query = 'SELECT nid, title ' . 'FROM {node} AS n ' . 'INNER JOIN {field_data_field_tijdstip} AS t ON t.entity_id = n.nid ' . 'WHERE type = :type AND t.field_tijdstip_value BETWEEN :startdate AND :enddate ' . 'ORDER BY t.field_tijdstip_value DESC';
+		$variables ['classmeetings'] = db_query ( $query, array (
+				':type' => 'lvs_klassenraad',
+				':startdate' => $schoolyear ['start'],
+				':enddate' => $schoolyear ['end'] 
+		) )->fetchAllKeyed ();
+		
+		/* Fetch all tracks for selected classmeeting */
+		if (array_key_exists ( 2, $params )) {
+			if (is_numeric ( $params [2] )) {
+				$query = 'SELECT s.field_spoor_value AS sid, l.title ' . 'FROM {field_data_field_spoor} AS s ' . 'INNER JOIN {field_data_field_lokaal} AS sl ON sl.entity_id = s.field_spoor_value ' . 'INNER JOIN {node} AS l ON l.nid = sl.field_lokaal_target_id ' . 'WHERE s.entity_id = :cmid AND sl.bundle = :bundle';
+				$variables ['tracks'] = db_query ( $query, array (
+						':cmid' => $params [2],
 						':bundle' => 'field_spoor' 
-				) )->fetchAllAssoc ( 'cid' );
+				) )->fetchAllKeyed ();
 			}
 		}
-	}
-	
-	/* Fetch all classes for selected classmeeting and track */
-	if (array_key_exists ( 'groups', $variables )) {
-		if (array_key_exists ( 4, $params )) {
-			if (is_numeric ( $params [4] )) {
-				$query = 'SELECT lln.field_klas_leerlingen_target_id AS uid ' . 'FROM {field_data_field_klas_leerlingen} AS lln ' . 'WHERE lln.entity_id = :cid';
-				$variables ['pupils'] = db_query ( $query, array (
-						':cid' => $params [4] 
-				) )->fetchCol ();
+		
+		/* Fetch all classes for selected classmeeting and track */
+		if (array_key_exists ( 'tracks', $variables )) {
+			if (array_key_exists ( 3, $params )) {
+				if (is_numeric ( $params [3] )) {
+					$query = 'SELECT k.nid AS cid, k.title, COUNT(lln.field_klas_leerlingen_target_id) AS cnt_lln ' . 'FROM {field_data_field_klassen} AS kn ' . 'INNER JOIN {node} AS k ON k.nid = kn.field_klassen_target_id ' . 'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON lln.entity_id = k.nid ' . 'WHERE kn.entity_id = :tid AND kn.bundle = :bundle ' . 'GROUP BY k.nid ORDER BY kn.delta';
+					$variables ['groups'] = db_query ( $query, array (
+							':tid' => $params [3],
+							':bundle' => 'field_spoor' 
+					) )->fetchAllAssoc ( 'cid' );
+				}
 			}
 		}
+		
+		/* Fetch all classes for selected classmeeting and track */
+		if (array_key_exists ( 'groups', $variables )) {
+			if (array_key_exists ( 4, $params )) {
+				if (is_numeric ( $params [4] )) {
+					$query = 'SELECT lln.field_klas_leerlingen_target_id AS uid ' . 'FROM {field_data_field_klas_leerlingen} AS lln ' . 'WHERE lln.entity_id = :cid';
+					$variables ['pupils'] = db_query ( $query, array (
+							':cid' => $params [4] 
+					) )->fetchCol ();
+				}
+			}
+		}
+		
+		cache_set ( 'argus_klassenraden_block_view_' . $user->uid . '_' . implode ( '-', $params ), $variables );
 	}
-	
-	drupal_add_css ( drupal_get_path ( 'module', 'argus_klassenraden' ) . '/css/argus_klassenraden_notities.css' );
-	drupal_add_js ( drupal_get_path ( 'module', 'argus_klassenraden' ) . '/js/argus_klassenraden_notities.js' );
 	
 	switch ($delta) {
 		default :
@@ -461,6 +466,10 @@ function argus_klassenraden_block_view($delta = '') {
 			$block ['content'] = theme ( 'notes_block', $variables );
 			break;
 	}
+	
+	drupal_add_css ( drupal_get_path ( 'module', 'argus_klassenraden' ) . '/css/argus_klassenraden_notities.css' );
+	drupal_add_js ( drupal_get_path ( 'module', 'argus_klassenraden' ) . '/js/argus_klassenraden_notities.js' );
+	
 	return $block;
 }
 

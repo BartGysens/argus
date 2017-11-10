@@ -40,17 +40,8 @@ function argus_document_generator_ATT_Bewijs_van_nascholing_form($form, &$form_s
         '#type' => 'select',
         '#title' => t('Personeelslid'),
         '#description' => t('Selecteer het personeelslid waarvoor dit document moet worden aangemaakt.'),
-        '#options' => argus_get_user_select_options('personeelslid'),
+        '#options' => argus_engine_get_user_select_options('personeelslid'),
     );
-    
-    /* TODO: 
-    $form['nascholing'] = array(
-    		'#type' => 'select',
-    		'#title' => t('Nascholing'),
-    		'#description' => t('Selecteer een nascholing (of detaileer alle gegevens apart in de volgende velden).'),
-    		'#options' => argus_get_user_select_options('personeelslid'),
-    );
-    */
     
     $form['onderwerp'] = array(
         '#type' => 'textfield',

@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-4.6
+---------
+- Stronger caching
+- Better function definitions and use of argus - Engine
+
 v7.x-4.5
 ---------
 - Nieuwe feature om Stagebezoeken te controleren (/stages/bezoeken/controle)

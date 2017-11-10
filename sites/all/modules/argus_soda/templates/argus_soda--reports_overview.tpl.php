@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-print '<h2><a href="' . base_path () . drupal_get_path_alias ( 'node/' . $data ['cid'] ) . '" target="_blank">' . argus_get_class_name($data ['cid']) . '</a></h2>';
+print '<h2><a href="' . base_path () . drupal_get_path_alias ( 'node/' . $data ['cid'] ) . '" target="_blank">' . argus_klasbeheer_get_class_name($data ['cid']) . '</a></h2>';
 
 print '<table class="argus_uurrooster_schedule views-table sticky-enabled cols-4 tableheader-processed sticky-table" style="page-break-after: always;">';
 print '<thead>';

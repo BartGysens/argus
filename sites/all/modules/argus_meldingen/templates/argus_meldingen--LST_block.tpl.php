@@ -41,7 +41,7 @@
                     }
                     print '<li class="report_'.$about.'">'.date('d/m/y', strtotime($report->factdate)).' : ';
                     if ($reportType != 'pupil'){
-                        print '<a href="'.base_path().drupal_lookup_path('alias', 'user/'.$report->uid).'">'.argus_get_user_realname($report->uid).'</a> - ';
+                        print argus_engine_get_user_link( $report->uid ) . ' - ';
                     }
                     print '<a class="behaviourReportTitle" title="Melding van '.argus_get_user_realname($report->author).'&#13;--------------------------------&#13;'.htmlentities(strip_tags(str_replace('<br />',chr(13),nl2br($report->report)))).'">';
                     if ($report->private){

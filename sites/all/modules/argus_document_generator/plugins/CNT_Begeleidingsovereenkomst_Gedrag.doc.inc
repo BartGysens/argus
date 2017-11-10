@@ -37,7 +37,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Gedrag_form($form
 			'#type' => 'select',
 			'#title' => t ( 'Leerling' ),
 			'#description' => t ( 'Selecteer de leerling waarvoor dit document moet worden aangemaakt.' ),
-			'#options' => argus_get_user_select_options ( 'leerling' ),
+			'#options' => argus_engine_get_user_select_options ( 'leerling' ),
 			'#required' => false,
         /*
         '#ajax' => array(
@@ -122,7 +122,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Gedrag_form_submi
 	$document->setValue ( 'document_datum', date ( 'd/m/Y' ) );
 	
 	$document->setValue ( 'leerling', argus_get_user_realname ( $uid ) );
-	$document->setValue ( 'klas', argus_get_user_class ( $uid, 'title' ) );
+	$document->setValue ( 'klas', argus_klasbeheer_get_user_class ( $uid, 'title' ) );
 	
 	if ($age > 17) {
 		$document->setValue ( 'ouders', '' );
@@ -131,7 +131,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Gedrag_form_submi
 	}
 	
 	/* Retrieve details for this pupil */
-	$userDetails = argus_get_pupil_details ( $uid );
+	$userDetails = argus_engine_get_pupil_details ( $uid );
 	
 	/* Handle details about: behaviour - general */
 	$document->setValue ( 'schets_gedrag', $prefixList . ($userDetails ['behaviour'] ['totals'] ['negative'] + $userDetails ['behaviour'] ['totals'] ['positive']) . ' meldingen over gedrag waarvan ' . $userDetails ['behaviour'] ['totals'] ['negative'] . ' negatieve vs. ' . $userDetails ['behaviour'] ['totals'] ['positive'] . ' positieve berichten' . $suffixList );
@@ -170,7 +170,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Gedrag_form_submi
 	$document->setValue ( 'schets_gedrag_msl', $overview );
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/CNT Begeleidingsovereenkomst Gedrag ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
+	$filename = '/tmp/CNT Begeleidingsovereenkomst Gedrag ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
 	$document->save ( $filename );
 	
 	header ( "Pragma: public" );

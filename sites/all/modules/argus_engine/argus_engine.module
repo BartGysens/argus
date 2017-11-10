@@ -23,7 +23,7 @@
  * Handling cache for argus_...-modules
  */
 function argus_engine_modules_enabled($modules) {
-	argus_engine_cache_clear('module');
+	argus_engine_cache_clear ( 'module' );
 }
 
 /**
@@ -31,7 +31,7 @@ function argus_engine_modules_enabled($modules) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_user_role_presave($user_role) {
-	argus_engine_cache_clear();
+	argus_engine_cache_clear ();
 }
 
 /**
@@ -39,7 +39,7 @@ function argus_engine_user_role_presave($user_role) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_user_role_delete($user_role) {
-	argus_engine_cache_clear();
+	argus_engine_cache_clear ();
 }
 
 /**
@@ -47,7 +47,7 @@ function argus_engine_user_role_delete($user_role) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_user_presave($user) {
-	argus_engine_cache_clear();
+	argus_engine_cache_clear ();
 }
 
 /**
@@ -55,7 +55,7 @@ function argus_engine_user_presave($user) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_user_delete($user) {
-	argus_engine_cache_clear();
+	argus_engine_cache_clear ();
 }
 
 /**
@@ -63,7 +63,7 @@ function argus_engine_user_delete($user) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_node_presave($node) {
-	argus_engine_cache_clear('node');
+	argus_engine_cache_clear ( 'node' );
 }
 
 /**
@@ -71,7 +71,7 @@ function argus_engine_node_presave($node) {
  * Handling cache for argus_...-modules
  */
 function argus_engine_node_delete($node) {
-	argus_engine_cache_clear('node');
+	argus_engine_cache_clear ( 'node' );
 }
 
 /**
@@ -357,198 +357,129 @@ function argus_render($ntype, $entity, $field, $item = 0) {
  */
 function argus_get_user_realname($uid) {
 	if (isset ( $uid )) {
-		if (module_exists ( 'argus_gebruikers' )) {
-			$query = "SELECT un.field_user_sms_naam_value AS naam, uv.field_user_sms_voornaam_value AS voornaam " . "FROM {field_data_field_user_sms_naam} AS un " . "INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = un.entity_id " . "WHERE un.entity_id = :uid";
-			$user = db_query ( $query, array (
-					':uid' => $uid 
-			) )->fetchAll ();
-			if (count ( $user ) > 0) {
-				$user = $user [0];
-				if (variable_get ( 'argus_engine_demo_mode' )) {
-					$names = array (
-							'A' => 'Achten',
-							'B' => 'Buis',
-							'C' => 'Charleston',
-							'D' => 'Dremel',
-							'E' => 'Everton',
-							'F' => 'Franjes',
-							'G' => 'Go',
-							'H' => 'Hasselts',
-							'I' => 'Indigo',
-							'J' => 'Jenever',
-							'K' => 'Kaars',
-							'L' => 'Leef',
-							'M' => 'Maan',
-							'N' => 'Neverland',
-							'O' => 'Overhand',
-							'P' => 'Praats',
-							'Q' => 'Quilt',
-							'R' => 'Rock',
-							'S' => 'Stepje',
-							'T' => 'Toffe',
-							'U' => 'Uytermaete',
-							'V' => 'Varia',
-							'W' => 'Werelds',
-							'X' => 'Xena',
-							'Y' => 'Yperkyneet',
-							'Z' => 'Zonnekes' 
-					);
-					$key = strtoupper ( substr ( $user->naam, 0, 1 ) );
-					if (key_exists ( $key, $names )) {
-						$name = $names [$key];
-					} else {
-						$name = 'Anonymous';
-					}
-					return trim ( $name ) . ', ' . trim ( $user->voornaam );
+		$query = 'SELECT un.field_user_sms_naam_value AS naam, uv.field_user_sms_voornaam_value AS voornaam ';
+		$query .= 'FROM {field_data_field_user_sms_naam} AS un ';
+		$query .= 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = un.entity_id ';
+		$query .= 'WHERE un.entity_id = :uid';
+		$user = db_query ( $query, array (
+				':uid' => $uid 
+		) )->fetchAll ();
+		if (count ( $user ) > 0) {
+			$user = $user [0];
+			if (variable_get ( 'argus_engine_demo_mode' )) {
+				$names = array (
+						'A' => 'Achten',
+						'B' => 'Buis',
+						'C' => 'Charleston',
+						'D' => 'Dremel',
+						'E' => 'Everton',
+						'F' => 'Franjes',
+						'G' => 'Go',
+						'H' => 'Hasselts',
+						'I' => 'Indigo',
+						'J' => 'Jenever',
+						'K' => 'Kaars',
+						'L' => 'Leef',
+						'M' => 'Maan',
+						'N' => 'Neverland',
+						'O' => 'Overhand',
+						'P' => 'Praats',
+						'Q' => 'Quilt',
+						'R' => 'Rock',
+						'S' => 'Stepje',
+						'T' => 'Toffe',
+						'U' => 'Uytermaete',
+						'V' => 'Varia',
+						'W' => 'Werelds',
+						'X' => 'Xena',
+						'Y' => 'Yperkyneet',
+						'Z' => 'Zonnekes' 
+				);
+				$key = strtoupper ( substr ( $user->naam, 0, 1 ) );
+				if (key_exists ( $key, $names )) {
+					$name = $names [$key];
 				} else {
-					return trim ( $user->naam ) . ', ' . trim ( $user->voornaam );
+					$name = 'Anonymous';
 				}
+				return trim ( $name ) . ', ' . trim ( $user->voornaam );
 			} else {
-				if (variable_get ( 'argus_engine_demo_mode' )) {
-					return 'x.y';
-				} else {
-					$u = user_load ( $uid );
-					if ( $u ){
-						return $u->name;
-					} else {
-						return t( 'Onbekend' );
-					}
-				}
+				return trim ( $user->naam ) . ', ' . trim ( $user->voornaam );
 			}
 		} else {
 			if (variable_get ( 'argus_engine_demo_mode' )) {
 				return 'x.y';
 			} else {
 				$u = user_load ( $uid );
-				if ( $u ){
+				if ($u) {
 					return $u->name;
 				} else {
-					return t( 'Onbekend' );
+					return t ( 'Onbekend' );
 				}
 			}
 		}
-	}
-}
-
-/**
- * Retrieve the class for this user.
- *
- * Function returns a string
- *
- * @param $uid int
- *        	User id
- * @param $type string
- *        	Type of return value: id, title, onderwijsvorm, structuuronderdeel, graad, leerjaar, leerjaar_graad
- *        	
- * @return string
- */
-function argus_get_user_class($uid, $type = 'id') {
-	if (module_exists ( 'argus_klasbeheer' )) {
-		if (isset ( $uid )) {
-			$query = 'SELECT n.nid AS id ';
-			$query .= 'FROM {node} AS n ';
-			$query .= 'INNER JOIN {field_data_field_klas_leerlingen} AS l ON n.nid = l.entity_id ';
-			$query .= 'WHERE l.field_klas_leerlingen_target_id = :uid';
-			$currentClass = db_query ( $query, array (
-					':uid' => $uid 
-			) )->fetch ();
-			if ($currentClass) {
-				$currentClass = node_load ( $currentClass->id );
-				switch ($type) {
-					case 'title' :
-						return $currentClass->title;
-						break;
-					case 'onderwijsvorm' :
-						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_onderwijsvorm )) {
-							return $currentClass->field_klas_onderwijsvorm [$currentClass->language] [0] ['value'];
-						}
-						break;
-					case 'structuuronderdeel' :
-						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_structuuronderdeel )) {
-							return $currentClass->field_klas_structuuronderdeel [$currentClass->language] [0] ['value'];
-						}
-						break;
-					case 'graad' :
-						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_graad )) {
-							return $currentClass->field_klas_graad [$currentClass->language] [0] ['value'];
-						}
-						break;
-					case 'leerjaar' :
-						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_leerjaar )) {
-							return $currentClass->field_klas_leerjaar [$currentClass->language] [0] ['value'];
-						}
-						break;
-					case 'leerjaar_graad' :
-						$value = '';
-						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_leerjaar )) {
-							$value .= $currentClass->field_klas_leerjaar [$currentClass->language] [0] ['value'] . 'e jaar';
-						}
-						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_graad ) && array_key_exists ( $currentClass->language, $currentClass->field_klas_leerjaar )) {
-							$value .= ' van de ';
-						}
-						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_graad )) {
-							$value .= $currentClass->field_klas_graad [$currentClass->language] [0] ['value'] . 'e graad';
-						}
-						return $value;
-						break;
-					default : // id
-						return $currentClass->nid;
-						break;
-				}
-			} else {
-				return false;
-			}
+	} else {
+		if (variable_get ( 'argus_engine_demo_mode' )) {
+			return 'x.y';
 		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
-}
-
-/**
- * Retrieve the name of this class.
- *
- * Function returns a string
- *
- * @param $cid int
- *        	Node id
- *        	
- * @return string
- */
-function argus_get_class_name($cid) {
-	if (isset ( $cid )) {
-		$thisClass = node_load ( $cid );
-		if ($thisClass) {
-			return $thisClass->title;
+			$u = user_load ( $uid );
+			if ($u) {
+				return $u->name;
+			} else {
+				return t ( 'Onbekend' );
+			}
 		}
 	}
 }
 
 /**
- * Retrieve the teachers of this class.
+ * Retrieve the link for the user with his realname.
  *
- * Function returns an array
+ * Function returns a string (link)
  *
- * @param $cid int
- *        	Node id
- *        	
- * @return array int
+ * @param $uid integer
+ *        	User id
+ * @param $title string
+ *        	Title/Alt of the link
+ *        	default => realname
+ * @param $target string
+ *        	Target window (_blank, _self, ...)
+ *        	default <none>
+ * @param $classname boolean
+ *        	Add classname (if in case) tot title
+ *        	default false
  */
-function argus_get_class_teachers($cid) {
-	if (module_exists ( 'argus_klasbeheer' )) {
-		if (isset ( $cid )) {
-			$query = 'SELECT u.uid AS id ';
-			$query .= 'FROM {field_data_field_klas_leerkrachten} AS l ';
-			$query .= 'INNER JOIN {users} AS u ON l.field_klas_leerkrachten_target_id = u.uid ';
-			$query .= 'WHERE l.entity_id = :cid';
-			return db_query ( $query, array (
-					':cid' => $cid 
-			) )->fetchAll ();
+function argus_engine_get_user_link($uid, $title = null, $target = null, $classname = false) {
+	if (isset ( $uid )) {
+		if ($cache = cache_get ( 'argus_engine_get_user_link_' . $uid . '_' . $title . '_' . $target . '_' . $classname )) {
+			$returnStr = $cache->data;
+		} else {
+			$returnStr = '<a href="' . base_path () . drupal_lookup_path ( 'alias', 'user/' . $uid ) . '"';
+			
+			if ($target) {
+				$returnStr .= ' target="' . $target . '"';
+			}
+			
+			$returnStr .= '>';
+			
+			if ($title) {
+				$returnStr .= $title;
+			} else {
+				$returnStr .= argus_get_user_realname ( $uid );
+			}
+			
+			if ($classname){
+				$returnStr .= ' ('.argus_klasbeheer_get_user_class($uid, 'title') . ')';
+			}
+			
+			$returnStr .= '</a>';
+			
+			cache_set ( 'argus_engine_get_user_link_' . $uid . '_' . $title . '_' . $target . '_' . $classname, $returnStr );
 		}
 	} else {
-		return array ();
+		$returnStr = '<i>(geen link gevonden)</i>';
 	}
+	
+	return $returnStr;
 }
 
 /**
@@ -571,7 +502,7 @@ function argus_get_class_teachers($cid) {
  *        	
  * @return boolean
  */
-function argus_get_user_has_role($uid, $roles) {
+function argus_engine_get_user_has_role($uid, $roles) {
 	if (isset ( $uid ) && isset ( $roles )) {
 		// Load user
 		$u = user_load ( $uid );
@@ -618,7 +549,7 @@ function argus_get_user_has_role($uid, $roles) {
  * Retrieve an array with options for select
  *
  * @param
- *        	role string
+ *        	role string/array
  *        	Get users with specific role
  * @param
  *        	onlyActive boolean
@@ -626,19 +557,40 @@ function argus_get_user_has_role($uid, $roles) {
  *        	
  * @return array
  */
-function argus_get_user_select_options($role = NULL, $onlyActive = TRUE) {
+function argus_engine_get_user_select_options($roles = NULL, $onlyActive = TRUE) {
 	global $user;
-	if ($cache = cache_get ( 'argus_get_user_select_options_' . $user->uid . '_' . $role . '_' . $onlyActive )) {
+	
+	if (! is_array ( $roles )) {
+		$roles = array (
+				$roles 
+		);
+	}
+	$rids = array ();
+	foreach ( $roles as $role ) {
+		if (!intval($role)) {
+			$roleObj = user_role_load_by_name ( $role );
+			if ($roleObj) {
+				$role = $roleObj->rid;
+			} else {
+				$role = false;
+			}
+		} else {
+			$role = ( int ) $role;
+		}
+		
+		if ($role) {
+			$rids [] = $role;
+		}
+	}
+	
+	if ($cache = cache_get ( 'argus_engine_get_user_select_options_' . $user->uid . '_' . implode ( '-', $rids ) . '_' . $onlyActive )) {
 		$options = $cache->data;
 	} else {
-		if ($role) {
-			$roleObj = user_role_load_by_name ( $role );
-		}
 		if (module_exists ( 'argus_gebruikers' )) {
 			$query = 'SELECT u.uid AS uid, n.field_user_sms_naam_value AS name, v.field_user_sms_voornaam_value AS firstname, u.status ';
 			$query .= 'FROM {users} AS u ';
 			
-			if ($roleObj) {
+			if ($rids) {
 				$query .= 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ';
 			}
 			
@@ -652,9 +604,9 @@ function argus_get_user_select_options($role = NULL, $onlyActive = TRUE) {
 			
 			$vars = array ();
 			
-			if ($roleObj) {
-				$query .= ' AND ur.rid = :rid ';
-				$vars [':rid'] = $roleObj->rid;
+			if ($rids) {
+				$query .= ' AND ur.rid IN (:rids) ';
+				$vars [':rids'] = $rids;
 			}
 			
 			$query .= 'ORDER BY name ASC, firstname ASC';
@@ -663,6 +615,7 @@ function argus_get_user_select_options($role = NULL, $onlyActive = TRUE) {
 		} else {
 			$users = array ();
 		}
+		
 		$options = array ();
 		foreach ( $users as $u ) {
 			$option = $u->name . ', ' . $u->firstname;
@@ -673,7 +626,7 @@ function argus_get_user_select_options($role = NULL, $onlyActive = TRUE) {
 				}
 			}
 			
-			$class = argus_get_user_class ( $u->uid, 'title' );
+			$class = argus_klasbeheer_get_user_class ( $u->uid, 'title' );
 			if ($class) {
 				$option .= ' - ' . $class;
 			}
@@ -681,7 +634,7 @@ function argus_get_user_select_options($role = NULL, $onlyActive = TRUE) {
 			$options [$u->uid] = $option;
 		}
 		
-		cache_set ( 'argus_get_user_select_options_' . $user->uid . '_' . $role . '_' . $onlyActive, $options );
+		cache_set ( 'argus_engine_get_user_select_options_' . $user->uid . '_' . implode ( '-', $rids ) . '_' . $onlyActive, $options );
 	}
 	
 	return $options;
@@ -705,198 +658,203 @@ function argus_get_user_select_options($role = NULL, $onlyActive = TRUE) {
  *        	
  * @return array or false
  */
-function argus_get_pupil_details($uid, $type = array('behaviour','study','absences'), $sy = 0) {
-	$returnDetails = array ();
-	
+function argus_engine_get_pupil_details($uid, $type = array('behaviour','study','absences'), $sy = 0) {
 	if ($uid) {
-		
-		/* Filter data only for this schoolyear (active schoolyear) */
-		$schoolyear = ( array ) argus_schoolyear ( $sy );
-		
-		/* All details about behaviour */
-		if (in_array ( 'behaviour', $type )) {
-			$measures = array (
-					'phases' => array (
-							'fase1',
-							'fase2',
-							'bewarend',
-							'tucht' 
-					),
-					'totals' => array (
-							'positive',
-							'negative' 
-					) 
-			);
+		if ($cache = cache_get ( 'argus_engine_get_pupil_details_' . $user->uid . '_' . $uid .'_' . implode('-', $type) . '_' . $sy )) {
+			$returnDetails = $cache->data;
+		} else {
+			$returnDetails = array ();
 			
-			if (module_exists ( 'argus_meldingen' )) {
-				/* Retrieve reports on negative behaviour in each phase */
-				foreach ( $measures ['phases'] as $phase ) {
-					$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_msl_' . $phase . '_target_id AS mid, COUNT(m.field_lvs_melding_msl_' . $phase . '_target_id) AS cmid, mt.title AS title ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_msl_' . $phase . '} AS m ON l.entity_id = m.entity_id ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_' . $phase . '_target_id = mt.nid ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'AND title != \'\' ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'GROUP BY mid';
-					$result = db_query ( $query, array (
+			/* Filter data only for this schoolyear (active schoolyear) */
+			$schoolyear = ( array ) argus_schoolyear ( $sy );
+			
+			/* All details about behaviour */
+			if (in_array ( 'behaviour', $type )) {
+				$measures = array (
+						'phases' => array (
+								'fase1',
+								'fase2',
+								'bewarend',
+								'tucht' 
+						),
+						'totals' => array (
+								'positive',
+								'negative' 
+						) 
+				);
+				
+				if (module_exists ( 'argus_meldingen' )) {
+					/* Retrieve reports on negative behaviour in each phase */
+					foreach ( $measures ['phases'] as $phase ) {
+						$query = 'SELECT l.entity_id AS id, m.field_lvs_melding_msl_' . $phase . '_target_id AS mid, COUNT(m.field_lvs_melding_msl_' . $phase . '_target_id) AS cmid, mt.title AS title ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_msl_' . $phase . '} AS m ON l.entity_id = m.entity_id ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_' . $phase . '_target_id = mt.nid ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid ' . 'AND b.field_lvs_melding_betreft_value = :about ' . 'AND title != \'\' ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ' . 'GROUP BY mid';
+						$result = db_query ( $query, array (
+								':uid' => $uid,
+								':about' => 'negatief gedrag',
+								':startdate' => $schoolyear ['start'],
+								':enddate' => $schoolyear ['end'] 
+						) );
+						foreach ( $result->fetchAll () as $k => $r ) {
+							$returnDetails ['behaviour'] ['phases'] [$phase] [] = array (
+									'title' => $r->title,
+									'count' => $r->cmid 
+							);
+						}
+					}
+					
+					/* Get totals (also reports without measures included */
+					$query = 'SELECT l.entity_id AS id, ' . 'o.field_lvs_melding_onderwerp_value AS subject, ' . 'd.field_lvs_melding_datum_feit_value AS factdate ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
+					$results = db_query ( $query, array (
 							':uid' => $uid,
 							':about' => 'negatief gedrag',
 							':startdate' => $schoolyear ['start'],
 							':enddate' => $schoolyear ['end'] 
-					) );
-					foreach ( $result->fetchAll () as $k => $r ) {
-						$returnDetails ['behaviour'] ['phases'] [$phase] [] = array (
-								'title' => $r->title,
-								'count' => $r->cmid 
-						);
-					}
-				}
-				
-				/* Get totals (also reports without measures included */
-				$query = 'SELECT l.entity_id AS id, ' . 'o.field_lvs_melding_onderwerp_value AS subject, ' . 'd.field_lvs_melding_datum_feit_value AS factdate ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
-				$results = db_query ( $query, array (
-						':uid' => $uid,
-						':about' => 'negatief gedrag',
-						':startdate' => $schoolyear ['start'],
-						':enddate' => $schoolyear ['end'] 
-				) )->fetchAll ();
-				$returnDetails ['behaviour'] ['totals'] ['negative'] = count ( $results );
-				foreach ( $results as $r ) {
-					/* Retrieve reports on negative behaviour in each phase */
-					$ms = array ();
-					foreach ( $measures ['phases'] as $phase ) {
-						$query = 'SELECT mt.title AS title ' . 'FROM {field_data_field_lvs_melding_msl_' . $phase . '} AS m ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_' . $phase . '_target_id = mt.nid ' . 'WHERE m.entity_id = :nid ' . 'AND title != \'\'';
-						$result = db_query ( $query, array (
-								':nid' => $r->id 
-						) );
-						foreach ( $result->fetchAll () as $k => $m ) {
-							$ms [] = $m->title;
+					) )->fetchAll ();
+					$returnDetails ['behaviour'] ['totals'] ['negative'] = count ( $results );
+					foreach ( $results as $r ) {
+						/* Retrieve reports on negative behaviour in each phase */
+						$ms = array ();
+						foreach ( $measures ['phases'] as $phase ) {
+							$query = 'SELECT mt.title AS title ' . 'FROM {field_data_field_lvs_melding_msl_' . $phase . '} AS m ' . 'LEFT JOIN {node} AS mt ON m.field_lvs_melding_msl_' . $phase . '_target_id = mt.nid ' . 'WHERE m.entity_id = :nid ' . 'AND title != \'\'';
+							$result = db_query ( $query, array (
+									':nid' => $r->id 
+							) );
+							foreach ( $result->fetchAll () as $k => $m ) {
+								$ms [] = $m->title;
+							}
 						}
+						
+						$returnDetails ['behaviour'] ['negative'] [] = array (
+								'factdate' => $r->factdate,
+								'subject' => $r->subject,
+								'measures' => $ms 
+						);
 					}
 					
-					$returnDetails ['behaviour'] ['negative'] [] = array (
-							'factdate' => $r->factdate,
-							'subject' => $r->subject,
-							'measures' => $ms 
-					);
-				}
-				
-				$query = 'SELECT l.entity_id AS id, ' . 'o.field_lvs_melding_onderwerp_value AS subject, ' . 'd.field_lvs_melding_datum_feit_value AS factdate ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
-				$results = db_query ( $query, array (
-						':uid' => $uid,
-						':about' => 'positief gedrag',
-						':startdate' => $schoolyear ['start'],
-						':enddate' => $schoolyear ['end'] 
-				) )->fetchAll ();
-				$returnDetails ['behaviour'] ['totals'] ['positive'] = count ( $results );
-				foreach ( $results as $r ) {
-					$returnDetails ['behaviour'] ['positive'] [] = array (
-							'factdate' => $r->factdate,
-							'subject' => $r->subject 
-					);
-				}
-			} else {
-				$returnDetails ['behaviour'] = array (
-						'phases' => array (),
-						'negative' => array (),
-						'positive' => array (),
-						'totals' => array (
-								'negative' => 0,
-								'positive' => 0 
-						) 
-				);
-			}
-		}
-		
-		/* All details about absences */
-		if (module_exists ( 'argus_afwezigheden' )) {
-			if (in_array ( 'absences', $type )) {
-				$codes = array (
-						'-',
-						'B',
-						'L',
-						'D',
-						'Z',
-						'G',
-						'T',
-						'C',
-						'H',
-						'R',
-						'O',
-						'Q',
-						'P',
-						'J' 
-				);
-				$returnDetails ['absences'] ['totals'] = array ();
-				foreach ( $codes as $code ) {
-					$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND am = :code ' . 'AND datum BETWEEN :startdate AND :enddate ';
-					$result = db_query ( $query, array (
-							':uid' => $uid,
-							':code' => $code,
-							':startdate' => $schoolyear ['start'],
-							':enddate' => $schoolyear ['end'] 
-					) );
-					$total = $result->rowCount ();
-					$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND pm = :code ' . 'AND datum BETWEEN :startdate AND :enddate ';
-					$result = db_query ( $query, array (
-							':uid' => $uid,
-							':code' => $code,
-							':startdate' => $schoolyear ['start'],
-							':enddate' => $schoolyear ['end'] 
-					) );
-					$total += $result->rowCount ();
-					if ($total) {
-						$returnDetails ['absences'] ['totals'] [] = array (
-								'code' => $code,
-								'count' => $total 
-						);
-					}
-				}
-			}
-		} else {
-			$returnDetails ['absences'] ['totals'] = array ();
-		}
-		
-		/* ALl details about study */
-		if (module_exists ( 'argus_vakken' )) { // TODO: argus_skore?
-			if (in_array ( 'study', $type )) {
-				$returnDetails ['study'] = array (
-						'results' => array (),
-						'fails' => array () 
-				);
-				$query = 'SELECT id, afkorting, omschrijving ' . 'FROM {argus_skore_periode} ' . 'ORDER BY volgorde ASC';
-				$periods = db_query ( $query )->fetchAll ();
-				foreach ( $periods as $p ) {
-					$query = 'SELECT r.vak, r.behaald, r.max, ca.field_vak_afkorting_value AS vak_afkorting, cb.field_vak_beschrijving_value AS vak_beschrijving ' . 'FROM {argus_skore_resultaten} AS r ' . 'LEFT JOIN {field_data_field_vak_afkorting} AS ca ON r.vak = ca.entity_id ' . 'LEFT JOIN {field_data_field_vak_beschrijving} AS cb ON r.vak = cb.entity_id ' . 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid ' . 'ORDER BY cb.field_vak_beschrijving_value ASC';
+					$query = 'SELECT l.entity_id AS id, ' . 'o.field_lvs_melding_onderwerp_value AS subject, ' . 'd.field_lvs_melding_datum_feit_value AS factdate ' . 'FROM {field_data_field_lvs_melding_leerling} AS l ' . 'LEFT JOIN {field_data_field_lvs_melding_betreft} AS b ON l.entity_id = b.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_datum_feit} AS d ON l.entity_id = d.entity_id ' . 'LEFT JOIN {field_data_field_lvs_melding_onderwerp} AS o ON l.entity_id = o.entity_id ' . 'WHERE l.field_lvs_melding_leerling_target_id = :uid AND b.field_lvs_melding_betreft_value = :about ' . 'AND d.field_lvs_melding_datum_feit_value BETWEEN :startdate AND :enddate ';
 					$results = db_query ( $query, array (
 							':uid' => $uid,
-							':pid' => $p->id,
-							'schoolyear' => substr ( $schoolyear ['start'], 0, 4 ) . '-' . substr ( $schoolyear ['end'], 0, 4 ) 
+							':about' => 'positief gedrag',
+							':startdate' => $schoolyear ['start'],
+							':enddate' => $schoolyear ['end'] 
 					) )->fetchAll ();
-					$fails = array ();
+					$returnDetails ['behaviour'] ['totals'] ['positive'] = count ( $results );
 					foreach ( $results as $r ) {
-						if (isset ( $r->behaald )) {
-							$returnDetails ['study'] ['results'] ['periods'] [$p->id] ['results'] [$r->vak] = array (
-									'behaald' => round ( $r->behaald, 1 ),
-									'max' => round ( $r->max ),
-									'percent' => round ( $r->behaald / $r->max * 100, 1 ),
-									'vak_afkorting' => $r->vak_afkorting,
-									'vak_beschrijving' => $r->vak_beschrijving 
+						$returnDetails ['behaviour'] ['positive'] [] = array (
+								'factdate' => $r->factdate,
+								'subject' => $r->subject 
+						);
+					}
+				} else {
+					$returnDetails ['behaviour'] = array (
+							'phases' => array (),
+							'negative' => array (),
+							'positive' => array (),
+							'totals' => array (
+									'negative' => 0,
+									'positive' => 0 
+							) 
+					);
+				}
+			}
+			
+			/* All details about absences */
+			if (module_exists ( 'argus_afwezigheden' )) {
+				if (in_array ( 'absences', $type )) {
+					$codes = array (
+							'-',
+							'B',
+							'L',
+							'D',
+							'Z',
+							'G',
+							'T',
+							'C',
+							'H',
+							'R',
+							'O',
+							'Q',
+							'P',
+							'J' 
+					);
+					$returnDetails ['absences'] ['totals'] = array ();
+					foreach ( $codes as $code ) {
+						$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND am = :code ' . 'AND datum BETWEEN :startdate AND :enddate ';
+						$result = db_query ( $query, array (
+								':uid' => $uid,
+								':code' => $code,
+								':startdate' => $schoolyear ['start'],
+								':enddate' => $schoolyear ['end'] 
+						) );
+						$total = $result->rowCount ();
+						$query = 'SELECT id ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'WHERE a.leerling = :uid AND pm = :code ' . 'AND datum BETWEEN :startdate AND :enddate ';
+						$result = db_query ( $query, array (
+								':uid' => $uid,
+								':code' => $code,
+								':startdate' => $schoolyear ['start'],
+								':enddate' => $schoolyear ['end'] 
+						) );
+						$total += $result->rowCount ();
+						if ($total) {
+							$returnDetails ['absences'] ['totals'] [] = array (
+									'code' => $code,
+									'count' => $total 
 							);
-							
-							if (( real ) $r->behaald < (( real ) $r->max) / 2) {
-								$returnDetails ['study'] ['fails'] [$p->afkorting] [] = array (
+						}
+					}
+				}
+			} else {
+				$returnDetails ['absences'] ['totals'] = array ();
+			}
+			
+			/* ALl details about study */
+			if (module_exists ( 'argus_vakken' )) { // TODO: argus_skore?
+				if (in_array ( 'study', $type )) {
+					$returnDetails ['study'] = array (
+							'results' => array (),
+							'fails' => array () 
+					);
+					$query = 'SELECT id, afkorting, omschrijving ' . 'FROM {argus_skore_periode} ' . 'ORDER BY volgorde ASC';
+					$periods = db_query ( $query )->fetchAll ();
+					foreach ( $periods as $p ) {
+						$query = 'SELECT r.vak, r.behaald, r.max, ca.field_vak_afkorting_value AS vak_afkorting, cb.field_vak_beschrijving_value AS vak_beschrijving ' . 'FROM {argus_skore_resultaten} AS r ' . 'LEFT JOIN {field_data_field_vak_afkorting} AS ca ON r.vak = ca.entity_id ' . 'LEFT JOIN {field_data_field_vak_beschrijving} AS cb ON r.vak = cb.entity_id ' . 'WHERE r.leerling = :uid AND r.schooljaar = :schoolyear AND r.periode = :pid ' . 'ORDER BY cb.field_vak_beschrijving_value ASC';
+						$results = db_query ( $query, array (
+								':uid' => $uid,
+								':pid' => $p->id,
+								'schoolyear' => substr ( $schoolyear ['start'], 0, 4 ) . '-' . substr ( $schoolyear ['end'], 0, 4 ) 
+						) )->fetchAll ();
+						$fails = array ();
+						foreach ( $results as $r ) {
+							if (isset ( $r->behaald )) {
+								$returnDetails ['study'] ['results'] ['periods'] [$p->id] ['results'] [$r->vak] = array (
+										'behaald' => round ( $r->behaald, 1 ),
+										'max' => round ( $r->max ),
+										'percent' => round ( $r->behaald / $r->max * 100, 1 ),
 										'vak_afkorting' => $r->vak_afkorting,
-										'vak_beschrijving' => $r->vak_beschrijving,
-										'result' => round ( $r->behaald, 1 ),
-										'max' => round ( $r->max ) 
+										'vak_beschrijving' => $r->vak_beschrijving 
 								);
+								
+								if (( real ) $r->behaald < (( real ) $r->max) / 2) {
+									$returnDetails ['study'] ['fails'] [$p->afkorting] [] = array (
+											'vak_afkorting' => $r->vak_afkorting,
+											'vak_beschrijving' => $r->vak_beschrijving,
+											'result' => round ( $r->behaald, 1 ),
+											'max' => round ( $r->max ) 
+									);
+								}
 							}
 						}
 					}
 				}
+			} else {
+				$returnDetails ['study'] = array (
+						'results' => array (
+								'periods' => array () 
+						),
+						'fails' => array () 
+				);
 			}
-		} else {
-			$returnDetails ['study'] = array (
-					'results' => array (
-							'periods' => array () 
-					),
-					'fails' => array () 
-			);
+			
+			cache_set ( 'argus_engine_get_pupil_details_' . $user->uid . '_' . $uid .'_' . implode('-', $type) . '_' . $sy, $returnDetails );
 		}
 	}
 	
@@ -958,7 +916,7 @@ function argus_schoolyear($schoolyear = 0, $format = 'Ymd', $today = NULL) {
  *        	
  * @return type string HTML-output
  */
-function argus_schoolyear_selectionBox($defaultValue = NULL, $onlySelect = FALSE, $addScript = TRUE) {
+function argus_engine_schoolyear_selectionBox($defaultValue = NULL, $onlySelect = FALSE, $addScript = TRUE) {
 	// Determine default value; first from param then from url => get
 	if (! $defaultValue) {
 		$params = drupal_get_query_parameters ();
@@ -966,26 +924,34 @@ function argus_schoolyear_selectionBox($defaultValue = NULL, $onlySelect = FALSE
 			$defaultValue = $params ['schooljaar'];
 		}
 	}
-	$returnStr = '<select id="schoolyear_select_box" name="schoolyear_select_box"';
-	if ($addScript) {
-		$returnStr .= ' onchange="javascript:window.location.href = \'' . base_path () . drupal_lookup_path ( 'alias', current_path () ) . '?schooljaar=\'+this.value;"';
-	}
-	$returnStr .= '>';
 	
-	$schoolyear = ( int ) substr ( argus_schoolyear () ['start'], 0, 4 );
-	for($y = 0; $y < 6; $y ++) {
-		$returnStr .= '<option value="' . ($schoolyear - $y) . '"';
-		if ($schoolyear - $y == $defaultValue) {
-			$returnStr .= ' selected="selected"';
-		}
-		$returnStr .= '>' . ($schoolyear - $y) . ' - ' . ($schoolyear - $y + 1) . '</option>';
-	}
-	$returnStr .= '</select>';
-	if ($onlySelect) {
-		return $returnStr;
+	if ($cache = cache_get ( 'argus_engine_schoolyear_selectionBox_' . $defaultValue . '_' . $onlySelect . '_' . $addScript )) {
+		$returnStr = $cache->data;
 	} else {
-		return ' - ' . t ( 'schooljaar' ) . ': ' . $returnStr;
+		$returnStr = '<select id="schoolyear_select_box" name="schoolyear_select_box"';
+		if ($addScript) {
+			$returnStr .= ' onchange="javascript:window.location.href = \'' . base_path () . drupal_lookup_path ( 'alias', current_path () ) . '?schooljaar=\'+this.value;"';
+		}
+		$returnStr .= '>';
+		
+		$schoolyear = ( int ) substr ( argus_schoolyear () ['start'], 0, 4 );
+		for($y = 0; $y < 6; $y ++) {
+			$returnStr .= '<option value="' . ($schoolyear - $y) . '"';
+			if ($schoolyear - $y == $defaultValue) {
+				$returnStr .= ' selected="selected"';
+			}
+			$returnStr .= '>' . ($schoolyear - $y) . ' - ' . ($schoolyear - $y + 1) . '</option>';
+		}
+		$returnStr .= '</select>';
+		
+		if (! $onlySelect) {
+			$returnStr = ' - ' . t ( 'schooljaar' ) . ': ' . $returnStr;
+		}
+		
+		cache_set ( 'argus_engine_schoolyear_selectionBox_' . $defaultValue . '_' . $onlySelect . '_' . $addScript, $returnStr );
 	}
+	
+	return $returnStr;
 }
 
 /**
@@ -1050,52 +1016,6 @@ function argus_engine_mail($subject, $msg, $to, $node = NULL) {
 }
 
 /**
- * Return class, currently active in argus
- *
- * @param integer $listType
- *        	Indicate type of returned list: 0 = simple array id/title, 1 = optionlist string
- * @param integer $defaultValue
- *        	Default value for this list (in case of selection)
- * @return array/string Depending on $listType-param
- */
-function argus_classes_retrieve($listType = 0, $defaultValue = NULL) {
-	switch ($listType) {
-		case 1 :
-			$returnParam = '';
-			break;
-		default :
-			$returnParam = array ();
-	}
-	
-	$classes = array ();
-	if (module_exists ( 'argus_klasbeheer' )) {
-		$query = new EntityFieldQuery ();
-		$query->entityCondition ( 'entity_type', 'node' )->entityCondition ( 'bundle', 'klas' )->propertyCondition ( 'status', NODE_PUBLISHED )->propertyOrderBy ( 'title', 'ASC' );
-		$classes = $query->execute ();
-	}
-	if (count ( $classes )) {
-		foreach ( $classes ['node'] as $key => $c ) {
-			$c = ( array ) node_load ( $key );
-			
-			switch ($listType) {
-				case 1 :
-					$returnParam .= '<option value="' . $key . '"';
-					if ($key == $defaultValue) {
-						$returnParam .= ' selected';
-					}
-					$returnParam .= '>' . $c ['title'] . '</option>';
-					break;
-				default :
-					$returnParam [$key] = $c ['title'];
-			}
-		}
-		return $returnParam;
-	} else {
-		return array ();
-	}
-}
-
-/**
  * Report to user
  *
  * @param $message string
@@ -1138,7 +1058,7 @@ function argus_report($message, $vars = array(), $type = 'status', $cat = 'argus
  *        	String to check and adjust for use in accountnames, filenames, etc.
  * @return string Sanitized string
  */
-function argus_sanitize_string($str) {
+function argus_engine_sanitize_string($str) {
 	$str = str_replace ( ' ', '-', $str );
 	
 	$str = strtolower ( $str );
@@ -1202,7 +1122,10 @@ function argus_engine_sortBy($field, &$array, $direction = 'ASC') {
  * @return array Array of user objects.
  */
 function argus_engine_get_users_with_role($role, $active_user = TRUE, $only_keys = FALSE) {
+	global $user;
+	
 	$users = array ();
+	
 	$rid = 0;
 	if (is_int ( $role )) {
 		$rid = $role;
@@ -1211,24 +1134,31 @@ function argus_engine_get_users_with_role($role, $active_user = TRUE, $only_keys
 			$rid = $role_obj->rid;
 		}
 	}
+	
 	if ($rid) {
-		$uids = db_select ( 'users_roles', 'ur' )->fields ( 'ur', array (
-				'uid' 
-		) )->condition ( 'ur.rid', $rid )->execute ()->fetchCol ();
-		if (! empty ( $uids )) {
-			$query = new EntityFieldQuery ();
-			$query->entityCondition ( 'entity_type', 'user' )->propertyCondition ( 'uid', $uids, 'IN' );
-			if ($active_user) {
-				$query->propertyCondition ( 'status', 1 );
-			}
-			$entities = $query->execute ();
-			if ($only_keys) {
-				$users = array_keys ( $entities ['user'] );
-			} else {
-				if (! empty ( $entities )) {
-					$users = user_load_multiple ( array_keys ( $entities ['user'] ) );
+		if ($cache = cache_get ( 'argus_engine_get_users_with_role_' . $user->id . '_' . $rid . '_' . $active_user . '_' . $only_keys )) {
+			$users = $cache->data;
+		} else {
+			$uids = db_select ( 'users_roles', 'ur' )->fields ( 'ur', array (
+					'uid' 
+			) )->condition ( 'ur.rid', $rid )->execute ()->fetchCol ();
+			if (! empty ( $uids )) {
+				$query = new EntityFieldQuery ();
+				$query->entityCondition ( 'entity_type', 'user' )->propertyCondition ( 'uid', $uids, 'IN' );
+				if ($active_user) {
+					$query->propertyCondition ( 'status', 1 );
+				}
+				$entities = $query->execute ();
+				if ($only_keys) {
+					$users = array_keys ( $entities ['user'] );
+				} else {
+					if (! empty ( $entities )) {
+						$users = user_load_multiple ( array_keys ( $entities ['user'] ) );
+					}
 				}
 			}
+			
+			cache_set ( 'argus_engine_get_users_with_role_' . $user->id . '_' . $rid . '_' . $active_user . '_' . $only_keys, $users );
 		}
 	}
 	
@@ -1267,9 +1197,7 @@ function argus_engine_get_periods($optionList = false) {
 /**
  * Generate password.
  *
- * @return string.
- * 
- * Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
+ * @return string. Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
  *         - een kleine letter bevatten (a-z);
  *         - een hoofdletter bevatten (A-Z);
  *         - een cijfer bevatten (0-9);
@@ -1300,9 +1228,7 @@ function argus_engine_generate_password() {
 /**
  * Check password.
  *
- * @return boolean.
- * 
- * Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
+ * @return boolean. Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
  *         - een kleine letter bevatten (a-z);
  *         - een hoofdletter bevatten (A-Z);
  *         - een cijfer bevatten (0-9);
@@ -1343,30 +1269,39 @@ function argus_engine_check_password($pwd) {
 /**
  * Check password.
  *
- * @return boolean.
- * 
- * Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
+ * @return boolean. Een wachtwoord dient minstens uit 8 karakters te bestaan en aan 3 van de 4 volgende voorwaarden voldoen:
  *         - een kleine letter bevatten (a-z);
  *         - een hoofdletter bevatten (A-Z);
  *         - een cijfer bevatten (0-9);
  *         - een ander karakter bevatten (._-*!?/).
  */
 function argus_engine_cache_clear($type = 'user') {
-	global $user;
-	switch ( $type ){
-		case 'module':
-			cache_clear_all ( 'quicknav_modulesList_' . $user->uid, 'cache', true );
+	switch ($type) {
+		case 'module' :
+			cache_clear_all ( 'quicknav_modulesList_', 'cache', true );
 			break;
-		case 'node':
-			cache_clear_all( 'smartschool_users_by_role_', 'cache', true );
-			break;
-		case 'user':
-		default:
-			cache_clear_all( 'smartschool_users_by_role_', 'cache', true );
-			cache_clear_all( 'smartschool_search_users_by_role_view_', 'cache', true );
-			cache_clear_all( 'argus_get_user_select_options_', 'cache', true );
-			cache_clear_all( 'argus_klasbeheer_get_active_classes_', 'cache', true );
-			cache_clear_all( 'argus_klasbeheer_get_pupils_', 'cache', true );
-			cache_clear_all( 'argus_klasbeheer_get_teachers_', 'cache', true );
+		case 'user' :
+			cache_clear_all ( 'argus_engine_get_user_link_', 'cache', true );
+			cache_clear_all ( 'argus_engine_get_user_select_options_', 'cache', true );
+			cache_clear_all ( 'quicknav_myPeopleList_', 'cache', true );
+			cache_clear_all ( 'smartschool_users_by_role_', 'cache', true );
+			cache_clear_all ( 'smartschool_search_users_by_role_view_', 'cache', true );
+		case 'node' :
+		default :
+			cache_clear_all ( 'argus_lokalen_get_active_classrooms', 'cache', true );
+			cache_clear_all ( 'argus_klasbeheer_get_active_classes_', 'cache', true );
+			cache_clear_all ( 'argus_klasbeheer_get_pupils_', 'cache', true );
+			cache_clear_all ( 'argus_klasbeheer_get_teachers_', 'cache', true );
+			cache_clear_all ( 'argus_uurrooster_get_users_with_schedule_', 'cache', true );
+			cache_clear_all ( 'argus_uurrooster_vervanging_list_full_', 'cache', true );
 	}
+	
+	// These caches should be cleared always
+	cache_clear_all ( 'navigation_', 'cache', true );
+	cache_clear_all ( 'quicknav_myTasksList_', 'cache', true );
+	cache_clear_all ( 'quicknav_myItemsListByTitle_', 'cache', true );
+	cache_clear_all ( 'quicknav_myItemsListByCreated_', 'cache', true );
+	cache_clear_all ( 'quicknav_myItemsListByChanged_', 'cache', true );
+	cache_clear_all ( 'quicknav_myItemsListByTitle_', 'cache', true );
+	cache_clear_all ( 'quicknav_myQuicklinks_', 'cache', true );
 }

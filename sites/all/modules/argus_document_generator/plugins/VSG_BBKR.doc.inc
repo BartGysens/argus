@@ -38,7 +38,7 @@ function argus_document_generator_VSG_BBKR_form($form, &$form_state) {
 			'#type' => 'select',
 			'#title' => t ( 'Leerling' ),
 			'#description' => t ( 'Selecteer de leerling waarvoor dit document moet worden aangemaakt.' ),
-			'#options' => argus_get_user_select_options ( 'leerling' ),
+			'#options' => argus_engine_get_user_select_options ( 'leerling' ),
 			'#required' => false 
 	);
 	$form ['datetime'] = array (
@@ -79,13 +79,13 @@ function argus_document_generator_VSG_BBKR_form_submit($form, &$form_state) {
 	/* Load user (student/pupil) */
 	$uid = $form_state ['values'] ['leerling'];
 	$u = user_load ( $uid );
-	$uClass = argus_get_user_class ( $uid );
+	$uClass = argus_klasbeheer_get_user_class ( $uid );
 	
 	/* Start replacing values in template */
 	$document->setValue ( 'datum', date ( 'd/m/Y', strtotime ( $form_state ['values'] ['datetime'] ) ) );
 	$document->setValue ( 'uur', date ( 'H:i', strtotime ( $form_state ['values'] ['datetime'] ) ) );
 	$document->setValue ( 'leerling', argus_get_user_realname ( $uid ) );
-	$document->setValue ( 'klas', argus_get_user_class ( $uid, 'title' ) );
+	$document->setValue ( 'klas', argus_klasbeheer_get_user_class ( $uid, 'title' ) );
 	
 	$document->setValue ( 'feit', str_replace ( chr ( 13 ), '<w:br/>', $form_state ['values'] ['fact'] ) );
 	
@@ -104,7 +104,7 @@ function argus_document_generator_VSG_BBKR_form_submit($form, &$form_state) {
 	$document->setValue ( 'schets_algemeen', $overview );
 	
 	/* Retrieve details for this pupil */
-	$userDetails = argus_get_pupil_details ( $uid );
+	$userDetails = argus_engine_get_pupil_details ( $uid );
 	
 	/* Handle details about: behaviour */
 	$measures = array ();
@@ -153,7 +153,7 @@ function argus_document_generator_VSG_BBKR_form_submit($form, &$form_state) {
 			'right' => '' 
 	);
 	if ($uClass) {
-		foreach ( argus_get_class_teachers ( $uClass ) as $t => $teacher ) {
+		foreach ( argus_klasbeheer_get_class_teachers ( $uClass ) as $t => $teacher ) {
 			switch ($t % 3) {
 				case 0 :
 					$teachers ['left'] .= argus_get_user_realname ( $teacher->id ) . '<w:br/><w:br/>';
@@ -172,7 +172,7 @@ function argus_document_generator_VSG_BBKR_form_submit($form, &$form_state) {
 	$document->setValue ( 'leerkrachten_rechts', $teachers ['right'] );
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/VSG BBKR ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY', strtotime ( $form_state ['values'] ['datetime'] ) ) . '.docx';
+	$filename = '/tmp/VSG BBKR ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY', strtotime ( $form_state ['values'] ['datetime'] ) ) . '.docx';
 	$document->save ( $filename );
 	
 	header ( "Pragma: public" );

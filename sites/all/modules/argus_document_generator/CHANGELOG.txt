@@ -1,5 +1,11 @@
 **Releases:
 
+v7.x-4.17
+---------
+- Stronger caching
+- Better function definitions and use of argus - Engine
+- Different plugins updated
+
 v7.x-4.16
 ---------
 - Better way of merging docx / reports with DocxMerge

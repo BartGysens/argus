@@ -39,7 +39,7 @@
 					<tr>
 						<?php
 						
-						print '<td><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'" target="_blank">'.argus_get_user_realname($uid).'</a>';
+						print '<td>' . argus_engine_get_user_link( $uid, null, '_blank' );
 						if (user_access('create lvs_klassenraad_notitie content') || user_access('edit any lvs_klassenraad_notitie content')) {
 							print '<div style="font-size: smaller;" class="action-links"><a href="'.url(current_path().'/edit/'.$uid, array('absolute' => TRUE)).'">bewerken</a></div>';
 						}

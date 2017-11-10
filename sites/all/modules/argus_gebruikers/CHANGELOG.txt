@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-6.8
+---------
+- Stronger caching
+- Better function definitions and use of argus - Engine
 
 v7.x-6.7
 ---------

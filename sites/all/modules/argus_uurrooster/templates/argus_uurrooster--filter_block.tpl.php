@@ -18,37 +18,6 @@
  */
  
 global $base_url;
-
-/* Select user based upon the role selected */
-$bundles = array('uurrooster_vervanging', 'uurrooster_permanentie', 'uurrooster_les', 'uurrooster_toezicht');
-$query = 'SELECT DISTINCT(u.uid) AS id '
-		. 'FROM {users} AS u '
-		. 'INNER JOIN {field_data_field_user_sms_naam} AS un ON u.uid = un.entity_id '
-		. 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON u.uid = uv.entity_id '
-		. 'LEFT JOIN {field_data_field_uurrooster_les_leerkracht} AS l ON l.field_uurrooster_les_leerkracht_target_id = u.uid '
-		. 'LEFT JOIN {field_data_field_uurrooster_perm_vervanger} AS p ON p.field_uurrooster_perm_vervanger_target_id = u.uid '
-		. 'LEFT JOIN {field_data_field_uurrooster_toez_toezichter} AS t ON t.field_uurrooster_toez_toezichter_target_id = u.uid ';
-if (module_exists('argus_uurrooster_vervanging')){
-		$query .= 'LEFT JOIN {field_data_field_gebruiker} AS g ON g.field_gebruiker_target_id = u.uid ';
-		$bundle[] = 'uurrooster_vervanging';
-}
-$query .= 'WHERE status = 1 '
-		. 'AND (';
-if (module_exists('argus_uurrooster_vervanging')){
-		$query .= 'g.bundle IN (:bundle) OR ';
-}
-$query .= 'l.bundle IN (:bundle) OR p.bundle IN (:bundle) OR t.bundle IN (:bundle)) '
-		. 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
-$users_lkr = db_query($query, array(':bundle' => $bundles))->fetchAll();
-
-$query = 'SELECT DISTINCT(u.uid) AS id '
-		. 'FROM {users} AS u '
-		. 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid '
-		. 'INNER JOIN {field_data_field_user_sms_naam} AS un ON u.uid = un.entity_id '
-		. 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON u.uid = uv.entity_id '
-		. 'WHERE ur.rid IN (:rids) AND status = 1 '
-		. 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
-$users_lln = db_query($query, array(':rids' => variable_get('argus_engine_roles_pupil')))->fetchAll();
 ?>
 
 <div class="menu-block-wrapper">
@@ -57,12 +26,7 @@ $users_lln = db_query($query, array(':rids' => variable_get('argus_engine_roles_
             <select id="argus_uurrooster_change_classes">
             <?php 
             echo '<option value="">-</option>';
-            $query = 'SELECT nid, title ' .
-					'FROM {node} AS k ' .
-					'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON k.nid = lln.entity_id ' .
-					'WHERE k.status = 1 ' .
-					'ORDER BY k.title ASC';
-			$classes = db_query ( $query )->fetchAllKeyed();
+            $classes = argus_klasbeheer_get_active_classes();
 			if (count( $classes ) > 0) {
                 foreach ($classes as $key => $c) {
                     echo '<option value="'.$key.'"';
@@ -80,14 +44,15 @@ $users_lln = db_query($query, array(':rids' => variable_get('argus_engine_roles_
             <select id="argus_uurrooster_change_user_lkr">
             <?php 
             echo '<option value="">-</option>';
-            foreach ($users_lkr as $u) {
-            	echo '<option value="'.$u->id.'"';
+            $users_lkr = argus_uurrooster_get_users_with_schedule(variable_get('argus_engine_roles_teacher'));
+            foreach ($users_lkr as $u_id => $u_name) {
+            	echo '<option value="'.$u_id.'"';
                 if (isset($uid)) {
-                    if ($u->id == $uid) {
+                    if ($u_id == $uid) {
                         echo ' selected';
                     }
                 }
-            	echo '>'.argus_get_user_realname($u->id).'</option>';
+            	echo '>'.$u_name.'</option>';
             } ?>
             </select><br />
 
@@ -95,14 +60,15 @@ $users_lln = db_query($query, array(':rids' => variable_get('argus_engine_roles_
             <select id="argus_uurrooster_change_user_lln">
             <?php 
             echo '<option value="">-</option>';
-            foreach ($users_lln as $u) {
-                echo '<option value="'.$u->id.'"';
+            $users_lln = argus_engine_get_user_select_options(variable_get('argus_engine_roles_pupil'));
+            foreach ($users_lln as $u_id => $u_name) {
+            	echo '<option value="'.$u_id.'"';
                 if (isset($uid)) {
-                    if ($u->id == $uid) {
+                    if ($u_id == $uid) {
                         echo ' selected';
                     }
                 }
-                echo '>'.argus_get_user_realname($u->id).'</option>';
+            	echo '>'.$u_name.'</option>';
             } ?>
             </select><br />
 
@@ -110,12 +76,7 @@ $users_lln = db_query($query, array(':rids' => variable_get('argus_engine_roles_
             <select id="argus_uurrooster_change_rooms">
             <?php 
             echo '<option value="">-</option>';
-            $query = new EntityFieldQuery();
-            $query->entityCondition('entity_type', 'node')
-                ->entityCondition('bundle', 'lokaal')
-                ->propertyCondition('status', NODE_PUBLISHED)
-                ->propertyOrderBy('title', 'ASC');
-            $rooms = $query->execute();
+            $rooms = argus_lokalen_get_active_classrooms();
             if (isset($rooms)) {
             	if (array_key_exists('node', $rooms)){
 	                foreach ($rooms['node'] as $key => $r) {

@@ -74,7 +74,7 @@ $q = $_SERVER['QUERY_STRING'];
 	            	
 	                print '<tr class="'.($i%2 == 0 ? "even" : "odd").' views-row-first">';
 	                    print '<td class="views-field views-field-counter views-align-left">'.($i+1).'</td>';
-	                	print '<td class="views-field views-field-counter views-align-left"><a href="'.base_path().drupal_lookup_path('alias', 'user/'.$uid).'">'.argus_get_user_realname($uid).' ('.argus_get_user_class($uid, 'title').')</a></td>';
+	                	print '<td class="views-field views-field-counter views-align-left">'.argus_engine_get_user_link( $uid, null, null, true ).'</td>';
 	                    print '<td class="views-field views-field-counter views-align-center">'.$total.'</td>';
 	                    
 	                    print '<td class="views-field views-field-counter views-align-left">';

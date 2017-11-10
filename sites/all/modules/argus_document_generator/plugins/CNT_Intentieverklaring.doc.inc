@@ -38,7 +38,7 @@ function argus_document_generator_CNT_Intentieverklaring_form($form, &$form_stat
 			'#type' => 'select',
 			'#title' => t ( 'Leerling' ),
 			'#description' => t ( 'Selecteer de leerling waarvoor dit document moet worden aangemaakt.' ),
-			'#options' => argus_get_user_select_options ( 'leerling' ),
+			'#options' => argus_engine_get_user_select_options ( 'leerling' ),
 			'#required' => false 
 	);
 	$form ['submit'] = array (
@@ -77,7 +77,7 @@ function argus_document_generator_CNT_Intentieverklaring_form_submit($form, &$fo
 	
 	/* Start replacing values in template */
 	$document->setValue ( 'leerling', argus_get_user_realname ( $uid ) );
-	$document->setValue ( 'klas', argus_get_user_class ( $uid, 'title' ) );
+	$document->setValue ( 'klas', argus_klasbeheer_get_user_class ( $uid, 'title' ) );
 	
 	if ($age > 17) {
 		$document->setValue ( 'ouders', '' );
@@ -86,10 +86,10 @@ function argus_document_generator_CNT_Intentieverklaring_form_submit($form, &$fo
 	}
 	
 	/* Retrieve details for this pupil */
-	$userDetails = argus_get_pupil_details ( $uid );
+	$userDetails = argus_engine_get_pupil_details ( $uid );
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/CNT Intentieverklaring ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
+	$filename = '/tmp/CNT Intentieverklaring ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
 	$document->save ( $filename );
 	
 	header ( "Pragma: public" );

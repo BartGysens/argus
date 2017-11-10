@@ -1951,7 +1951,7 @@ function argus_klasbeheer_block_info() {
 	$blocks ['klasbeeld'] = array (
 			'info' => t ( 'Klasbeeld' ),
 			'cache' => DRUPAL_CACHE_GLOBAL,
-			'weight' => -10,
+			'weight' => - 10,
 			'status' => 1,
 			'region' => 'sidebar_first',
 			'visibility' => BLOCK_VISIBILITY_LISTED,
@@ -1982,7 +1982,7 @@ function argus_klasbeheer_block_view($delta = '') {
 		$pupils = array ();
 		
 		// Setup query for ktt/hktt
-		if (argus_get_user_has_role ( $user->uid, 'ktt' )) {
+		if (argus_engine_get_user_has_role ( $user->uid, 'ktt' )) {
 			$q2 = 'SELECT n.nid AS id, ' . 'n.title AS title ' . 'FROM {node} AS n ' . 'LEFT JOIN {field_data_field_klas_klastitularis} AS ktt ON n.nid = ktt.entity_id ' . 'LEFT JOIN {field_data_field_klas_hulpklastitularis} AS hktt ON n.nid = hktt.entity_id ' . 'WHERE ktt.field_klas_klastitularis_target_id = :uid ' . 'OR hktt.field_klas_hulpklastitularis_target_id = :uid ';
 			$variables ['myClasses'] = db_query ( $q2, array (
 					':uid' => $user->uid 
@@ -2008,12 +2008,12 @@ function argus_klasbeheer_block_view($delta = '') {
 		}
 		
 		// Setup query for ilb
-		if (argus_get_user_has_role ( $user->uid, 'ilb' )) {
+		if (argus_engine_get_user_has_role ( $user->uid, 'ilb' )) {
 			$variables ['reportType'] = 'ilb';
 		}
 		
 		// Setup query for staff
-		if (argus_get_user_has_role ( $user->uid, 'staff' )) {
+		if (argus_engine_get_user_has_role ( $user->uid, 'staff' )) {
 			$variables ['reportType'] = 'staff';
 		}
 		
@@ -2335,12 +2335,12 @@ function argus_klasbeheer_preprocess_node(&$variables) {
  * Retrieve all active classes with pupils.
  *
  * Function returns an array
- *        	
+ *
  * @return array int
  */
 function argus_klasbeheer_get_active_classes() {
 	global $user;
-	if ( $cache = cache_get ( 'argus_klasbeheer_get_active_classes_' . $user->uid ) ) {
+	if ($cache = cache_get ( 'argus_klasbeheer_get_active_classes_' . $user->uid )) {
 		$result = $cache->data;
 	} else {
 		$query = 'SELECT n.nid AS id, n.title ';
@@ -2350,8 +2350,8 @@ function argus_klasbeheer_get_active_classes() {
 		$query .= 'GROUP BY n.nid HAVING COUNT(*) > 0 ';
 		$query .= 'ORDER BY n.title ASC';
 		$result = db_query ( $query, array (
-					':type' => 'klas' 
-			) )->fetchAllKeyed();
+				':type' => 'klas' 
+		) )->fetchAllKeyed ();
 		
 		cache_set ( 'argus_klasbeheer_get_active_classes_' . $user->uid, $result );
 	}
@@ -2372,7 +2372,7 @@ function argus_klasbeheer_get_active_classes() {
 function argus_klasbeheer_get_pupils($cid) {
 	if (isset ( $cid )) {
 		global $user;
-		if ( $cache = cache_get ( 'argus_klasbeheer_get_pupils_' . $user->uid . '_' . $cid ) ) {
+		if ($cache = cache_get ( 'argus_klasbeheer_get_pupils_' . $user->uid . '_' . $cid )) {
 			$result = $cache->data;
 		} else {
 			$query = 'SELECT u.uid AS id ';
@@ -2381,10 +2381,10 @@ function argus_klasbeheer_get_pupils($cid) {
 			$query .= 'LEFT JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = u.uid ';
 			$query .= 'LEFT JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = u.uid ';
 			$query .= 'WHERE l.entity_id = :cid ';
-			//$query .= 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
+			// $query .= 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
 			$result = db_query ( $query, array (
 					':cid' => $cid 
-			) )->fetchCol();
+			) )->fetchCol ();
 			
 			cache_set ( 'argus_klasbeheer_get_pupils_' . $user->uid . '_' . $cid, $result );
 		}
@@ -2406,7 +2406,7 @@ function argus_klasbeheer_get_pupils($cid) {
 function argus_klasbeheer_get_teachers($cid) {
 	if (isset ( $cid )) {
 		global $user;
-		if ( $cache = cache_get ( 'argus_klasbeheer_get_teachers_' . $user->uid . '_' . $cid ) ) {
+		if ($cache = cache_get ( 'argus_klasbeheer_get_teachers_' . $user->uid . '_' . $cid )) {
 			$result = $cache->data;
 		} else {
 			$query = 'SELECT u.uid AS id ';
@@ -2421,5 +2421,128 @@ function argus_klasbeheer_get_teachers($cid) {
 		}
 		
 		return $result;
+	}
+}
+
+/**
+ * Retrieve the class for this user.
+ *
+ * Function returns a string
+ *
+ * @param $uid int
+ *        	User id
+ * @param $type string
+ *        	Type of return value: id, title, onderwijsvorm, structuuronderdeel, graad, leerjaar, leerjaar_graad
+ *        	
+ * @return string
+ */
+function argus_klasbeheer_get_user_class($uid, $type = 'id') {
+	if (isset ( $uid )) {
+		if ($cache = cache_get ( 'argus_klasbeheer_get_user_class_' . $uid . '_' . $type )) {
+			$result = $cache->data;
+		} else {
+			$query = 'SELECT n.nid AS id ';
+			$query .= 'FROM {node} AS n ';
+			$query .= 'INNER JOIN {field_data_field_klas_leerlingen} AS l ON n.nid = l.entity_id ';
+			$query .= 'WHERE l.field_klas_leerlingen_target_id = :uid';
+			$currentClass = db_query ( $query, array (
+					':uid' => $uid 
+			) )->fetch ();
+			
+			if ($currentClass) {
+				$currentClass = node_load ( $currentClass->id );
+				switch ($type) {
+					case 'title' :
+						$result = $currentClass->title;
+						break;
+					case 'onderwijsvorm' :
+						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_onderwijsvorm )) {
+							$result = $currentClass->field_klas_onderwijsvorm [$currentClass->language] [0] ['value'];
+						}
+						break;
+					case 'structuuronderdeel' :
+						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_structuuronderdeel )) {
+							$result = $currentClass->field_klas_structuuronderdeel [$currentClass->language] [0] ['value'];
+						}
+						break;
+					case 'graad' :
+						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_graad )) {
+							$result = $currentClass->field_klas_graad [$currentClass->language] [0] ['value'];
+						}
+						break;
+					case 'leerjaar' :
+						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_leerjaar )) {
+							$result = $currentClass->field_klas_leerjaar [$currentClass->language] [0] ['value'];
+						}
+						break;
+					case 'leerjaar_graad' :
+						$result = '';
+						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_leerjaar )) {
+							$result .= $currentClass->field_klas_leerjaar [$currentClass->language] [0] ['value'] . 'e jaar';
+						}
+						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_graad ) && array_key_exists ( $currentClass->language, $currentClass->field_klas_leerjaar )) {
+							$result .= ' van de ';
+						}
+						if (array_key_exists ( $currentClass->language, $currentClass->field_klas_graad )) {
+							$result .= $currentClass->field_klas_graad [$currentClass->language] [0] ['value'] . 'e graad';
+						}
+						break;
+					default : // id
+						$result = $currentClass->nid;
+						break;
+				}
+			} else {
+				$result = false;
+			}
+			
+			cache_set ( 'argus_klasbeheer_get_user_class_' . $uid . '_' . $type, $result );
+		}
+	} else {
+		$result = false;
+	}
+	
+	return $result;
+}
+
+/**
+ * Retrieve the name of this class.
+ *
+ * Function returns a string
+ *
+ * @param $cid int
+ *        	Node id
+ *        	
+ * @return string
+ */
+function argus_klasbeheer_get_class_name($cid) {
+	if (isset ( $cid )) {
+		$thisClass = node_load ( $cid );
+		if ($thisClass) {
+			return $thisClass->title;
+		}
+	}
+}
+
+/**
+ * Retrieve the teachers of this class.
+ *
+ * Function returns an array
+ *
+ * @param $cid int
+ *        	Node id
+ *        	
+ * @return array int
+ */
+function argus_klasbeheer_get_class_teachers($cid) {
+	if (isset ( $cid )) {
+		$query = 'SELECT u.uid AS id ';
+		$query .= 'FROM {field_data_field_klas_leerkrachten} AS l ';
+		$query .= 'INNER JOIN {users} AS u ON l.field_klas_leerkrachten_target_id = u.uid ';
+		$query .= 'WHERE l.entity_id = :cid';
+		return db_query ( $query, array (
+				':cid' => $cid 
+		) )->fetchAll ();
+	} else {
+		return array ();
 	}
 }

@@ -38,7 +38,7 @@ function argus_document_generator_MAP_Voorblad_TUCHTDOSSIER_form($form, &$form_s
         '#type' => 'select',
         '#title' => t('Leerling'),
         '#description' => t('Selecteer de leerling waarvoor dit document moet worden aangemaakt.'),
-        '#options' => argus_get_user_select_options('leerling'),
+        '#options' => argus_engine_get_user_select_options('leerling'),
         '#required' => false,
     );
     $form['date_file'] = array(
@@ -78,11 +78,11 @@ function argus_document_generator_MAP_Voorblad_TUCHTDOSSIER_form_submit($form, &
     
     /* Start replacing values in template */
     $document->setValue('leerling', argus_get_user_realname($uid));
-    $document->setValue('klas', argus_get_user_class($uid, 'title'));
+    $document->setValue('klas', argus_klasbeheer_get_user_class($uid, 'title'));
     $document->setValue('datum', date('d/m/Y', strtotime($form_state['values']['date_file'])));
     
     /* Generate the document and initiate download */
-    $filename = '/tmp/MAP Voorblad TUCHTDOSSIER '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_get_user_class($uid, 'title').'.docx';
+    $filename = '/tmp/MAP Voorblad TUCHTDOSSIER '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_klasbeheer_get_user_class($uid, 'title').'.docx';
     $document->save($filename);
     
     header("Pragma: public");

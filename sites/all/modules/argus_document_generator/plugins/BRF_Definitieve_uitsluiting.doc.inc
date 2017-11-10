@@ -38,7 +38,7 @@ function argus_document_generator_BRF_Definitieve_uitsluiting_form($form, &$form
 			'#type' => 'select',
 			'#title' => t ( 'Leerling' ),
 			'#description' => t ( 'Selecteer de leerling waarvoor dit document moet worden aangemaakt.' ),
-			'#options' => argus_get_user_select_options ( 'leerling' ),
+			'#options' => argus_engine_get_user_select_options ( 'leerling' ),
 			'#required' => false 
 	);
 	$form ['date_last_fact'] = array (
@@ -159,7 +159,7 @@ function argus_document_generator_BRF_Definitieve_uitsluiting_form_submit($form,
 	$document->setValue ( 'uur_hoorinzage', date ( 'H:i', strtotime ( $form_state ['values'] ['date_hi'] ) ) );
 	
 	/* Generate the document and initiate download */
-	$filename = '/tmp/BRF Definitieve uitsluiting ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
+	$filename = '/tmp/BRF Definitieve uitsluiting ' . str_replace ( ', ', ' ', argus_get_user_realname ( $uid ) ) . ' ' . argus_klasbeheer_get_user_class ( $uid, 'title' ) . ' ' . date ( 'dmY' ) . '.docx';
 	$document->save ( $filename );
 	
 	header ( "Pragma: public" );

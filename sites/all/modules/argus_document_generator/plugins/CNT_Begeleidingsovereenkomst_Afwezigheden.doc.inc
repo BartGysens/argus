@@ -38,7 +38,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Afwezigheden_form
         '#type' => 'select',
         '#title' => t('Leerling'),
         '#description' => t('Selecteer de leerling waarvoor dit document moet worden aangemaakt.'),
-        '#options' => argus_get_user_select_options('leerling'),
+        '#options' => argus_engine_get_user_select_options('leerling'),
         '#required' => false,
     );
     $form['submit'] = array(
@@ -78,7 +78,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Afwezigheden_form
     
     /* Start replacing values in template */
     $document->setValue('leerling', argus_get_user_realname($uid));
-    $document->setValue('klas', argus_get_user_class($uid, 'title'));
+    $document->setValue('klas', argus_klasbeheer_get_user_class($uid, 'title'));
     
     if ($age > 17){
         $document->setValue('ouders', '');
@@ -87,7 +87,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Afwezigheden_form
     }
     
     /* Retrieve details for this pupil */
-    $userDetails = argus_get_pupil_details($uid);
+    $userDetails = argus_engine_get_pupil_details($uid);
     
     /* Handle details about: absences */
     if (count($userDetails['absences']['totals'])){
@@ -102,7 +102,7 @@ function argus_document_generator_CNT_Begeleidingsovereenkomst_Afwezigheden_form
     $document->setValue('schets_afwezigheden', $overview);
     
     /* Generate the document and initiate download */
-    $filename = '/tmp/CNT Begeleidingsovereenkomst Afwezigheden '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_get_user_class($uid, 'title').' '.date('dmY').'.docx';
+    $filename = '/tmp/CNT Begeleidingsovereenkomst Afwezigheden '.str_replace(', ', ' ', argus_get_user_realname($uid)).' '.argus_klasbeheer_get_user_class($uid, 'title').' '.date('dmY').'.docx';
     $document->save($filename);
     
     header("Pragma: public");
