@@ -102,6 +102,7 @@ function argus_azindex_theme() {
  */
 function getMenuItems($items) {
 	$links = array ();
+	
 	foreach ( $items as $item ) {
 		if (drupal_valid_path ( $item ['link'] ['link_path'], true )) {
 			if (! in_array ( $item ['link'] ['link_path'], array (
@@ -109,6 +110,16 @@ function getMenuItems($items) {
 					'<nolink>' 
 			) )) {
 				$links [$item ['link'] ['link_title']] = $item ['link'] ['link_path'];
+				
+				if (isset($item ['link'] ['options'] ['query'])){
+					$queryStr = '';
+					foreach($item ['link'] ['options'] ['query'] as $p => $v){
+						$queryStr .= $p . '=' . $v . '&';
+					}
+					if ($queryStr){
+						$links [$item ['link'] ['link_title']] .= '?' . substr($queryStr, 0, -1);
+					}
+				}
 			}
 			if ($item ['link'] ['has_children'] && $item ['link'] ['expanded']) {
 				$links = array_merge ( $links, getMenuItems ( $item ['below'] ) );

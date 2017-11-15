@@ -1,5 +1,9 @@
 **Releases:
 
+v7.x-1.5
+---------
+- Insertion of options / querying in url
+
 v7.x-1.4
 ---------
 - Fix in caching
