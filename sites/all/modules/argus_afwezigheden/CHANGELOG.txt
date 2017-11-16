@@ -5,6 +5,7 @@ v7.x-4.0
 - New system for latecomers
 - Added update function
 - Setup form for latecomers to set reasons
+- Added count of 'roze kaart' in overview
 
 v7.x-3.5
 ---------

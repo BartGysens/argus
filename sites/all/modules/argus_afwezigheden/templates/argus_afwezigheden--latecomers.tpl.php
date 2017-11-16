@@ -38,12 +38,13 @@ if (isset ( $_GET )) {
                 <th rowspan="2" class="views-field active views-align-left">Nr.</th>
                 <th rowspan="2" class="views-field active views-align-left">Leerling</th>
                 <th rowspan="2" class="views-field views-align-center">Aantal</th>
-                <th colspan="2" class="views-field views-align-center">Status</th>
+                <th colspan="3" class="views-field views-align-center">Status</th>
                 <th rowspan="2" class="views-field views-align-right" style="font-weight: bold !important;">Acties voor <?php print format_date(strtotime($today),'custom', 'D, d M Y'); ?></th>
             </tr>
             <tr>
                 <th class="views-field views-align-center" style="font-size: smaller;">Gewettigd</th>
                 <th class="views-field views-align-center" style="font-size: smaller;">Ongewettigd</th>
+                <th class="views-field views-align-center" style="font-size: smaller;">Roze kaart</th>
             </tr>
         </thead>
         <tbody>
@@ -79,6 +80,13 @@ if (isset ( $_GET )) {
 	                    print '<td class="views-field views-align-center" style="font-size: smaller;">' . count($dates[1]) . '</td>';
 	                    
 	                    print '<td class="views-field views-align-center" style="font-size: smaller;">' . count($dates[0]) . '</td>';
+	                    
+	                    $query = 'SELECT a.id AS id, lr.reason AS reason FROM {argus_lvs_latecomers_rectified} AS lr INNER JOIN {argus_lvs_afwezigheden} AS a ON a.id = lr.date_late WHERE reason = :reason AND a.leerling = :uid';
+	                    $reason = db_query ( $query, array (
+	                    		':reason' => 'roze kaart',
+	                    		':uid' => $uid,
+	                    ) )->fetchAllKeyed();
+	                    print '<td class="views-field views-align-center" style="font-size: smaller;">' . ( $reason ? count( $reason ) : '' ) . '</td>';
 	                    
 	                    print '<td class="views-field views-align-right">';
 	                    $waiter = false;
