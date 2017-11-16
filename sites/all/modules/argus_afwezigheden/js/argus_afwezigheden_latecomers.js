@@ -13,46 +13,90 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
  */
 
 jQuery(document).ready(function() {
-    jQuery('.wet').mouseover(function(){                        
-    	jQuery('#'+this.id+'_tt').show();
-    });
-    jQuery('.wet').mouseout(function(){                        
-    	jQuery('#'+this.id+'_tt').hide();
-    });
-    
-    jQuery('.onw').mouseover(function(){                        
-    	jQuery('#'+this.id+'_tt').show();
-    });
-    jQuery('.onw').mouseout(function(){                        
-    	jQuery('#'+this.id+'_tt').hide();
-    });
-    
-    /* Filter */
-    jQuery('#argus_afwezigheden_latecomers_reset').click(function(){
-    	jQuery('#argus_afwezigheden_latecomers_classes').val(null);
-    	jQuery('#argus_afwezigheden_latecomers_lln').val(null);
-    	argus_afwezigheden_latecomers_loadPage();
-    });
-    
-    jQuery('#argus_afwezigheden_latecomers_classes').change(function(){
-    	argus_afwezigheden_latecomers_loadPage();
-    });
-    jQuery('#argus_afwezigheden_latecomers_lln').change(function(){
-    	argus_afwezigheden_latecomers_loadPage();
-    });
-    jQuery('#argus_afwezigheden_latecomers_only_today').change(function(){
-    	argus_afwezigheden_latecomers_loadPage();
-    });
+	jQuery('.argus_afwezigheden_create').click(function() {
+		var id = this.id;
+		var reason = jQuery('#select_' + id).val();
+		
+		jQuery('#create_block_form_' + id).hide();
+		jQuery('#waiter_' + id).show();
+		
+		jQuery.ajax({
+			url : Drupal.settings.basePath + 'telaatkomers-wettiging.create',
+			type : 'POST',
+			async : false,
+			data : {
+				did : id,
+				reason : reason
+			},
+			success : function(data) {
+				var url = jQuery(location).attr('origin');
+
+				var d = jQuery('#argus_afwezigheden_latecomers_date').val();
+				var uid = jQuery('#argus_afwezigheden_latecomers_lln').val();
+				var cid = jQuery('#argus_afwezigheden_latecomers_classes').val();
+
+				window.location = url + '/telaatkomers?d=' + d + '&uid=' + uid + '&cid=' + cid;
+			}
+		});
+
+	});
+
+	jQuery('.argus_afwezigheden_delete').click(function() {
+		var id = this.id;
+		
+		jQuery('#delete_block_form_' + id).hide();
+		jQuery('#waiter_' + id).show();
+
+		jQuery.ajax({
+			url : Drupal.settings.basePath + 'telaatkomers-wettiging.delete/' + id,
+			type : 'GET',
+			async : false,
+			success : function(data) {
+				var url = jQuery(location).attr('origin');
+
+				var d = jQuery('#argus_afwezigheden_latecomers_date').val();
+				var uid = jQuery('#argus_afwezigheden_latecomers_lln').val();
+				var cid = jQuery('#argus_afwezigheden_latecomers_classes').val();
+
+				window.location = url + '/telaatkomers?d=' + d + '&uid=' + uid + '&cid=' + cid;
+			}
+		});
+
+	});
+
+	/* Filter */
+	jQuery('#argus_afwezigheden_latecomers_reset').click(function() {
+		jQuery('#argus_afwezigheden_latecomers_classes').val(null);
+		jQuery('#argus_afwezigheden_latecomers_lln').val(null);
+		jQuery('#argus_afwezigheden_latecomers_date').val(null);
+		argus_afwezigheden_latecomers_loadPage();
+	});
+
+	jQuery('#argus_afwezigheden_latecomers_classes').change(function() {
+		argus_afwezigheden_latecomers_loadPage();
+	});
+	jQuery('#argus_afwezigheden_latecomers_lln').change(function() {
+		argus_afwezigheden_latecomers_loadPage();
+	});
+	jQuery('#argus_afwezigheden_latecomers_date').change(function() {
+		argus_afwezigheden_latecomers_loadPage();
+	});
+
+	jQuery.datepicker.formatDate("yy-mm-dd", new Date(2007, 1 - 1, 26));
+	jQuery('.date_picker').removeClass('hasDatepicker').datepicker({
+		dateFormat : "dd-mm-yy"
+	});
 });
 
-function argus_afwezigheden_latecomers_loadPage(){
-	var url = jQuery(location).attr('origin')+jQuery(location).attr('pathname');
+function argus_afwezigheden_latecomers_loadPage() {
+	var url = jQuery(location).attr('origin') + jQuery(location).attr('pathname');
+	var d = jQuery('#argus_afwezigheden_latecomers_date').val();
 	var uid = jQuery('#argus_afwezigheden_latecomers_lln').val();
 	var cid = jQuery('#argus_afwezigheden_latecomers_classes').val();
-	var st = jQuery('#argus_afwezigheden_latecomers_only_today').is(':checked');
-	
-	window.location = url + '?uid=' + uid + '&cid=' + cid + '&st=' + st;
+
+	window.location = url + '?d=' + d + '&uid=' + uid + '&cid=' + cid;
 }

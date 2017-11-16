@@ -1,7 +1,7 @@
 name = Afwezigheden
 description = Genereer lijsten van leerlingen op basis van Smartschool afwezigheden.
 package = argus - a Quality control extension
-version = 7.x-3.5
+version = 7.x-4.0
 core = 7.x
 project = argus_afwezigheden
 datestamp = 1425720891
@@ -22,5 +22,6 @@ dependencies[] = argus_engine
 dependencies[] = argus_gebruikers
 dependencies[] = argus_klasbeheer
 dependencies[] = block
+dependencies[] = realname
 test_dependencies[] = argus_sms_sync
 test_dependencies[] = argus_embeddings

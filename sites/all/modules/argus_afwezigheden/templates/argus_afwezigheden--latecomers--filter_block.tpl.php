@@ -23,6 +23,17 @@ global $base_url;
 	<div>
 		<div class="views-exposed-form">
 			<div class="views-exposed-widgets clearfix">
+		
+				<div class="views-exposed-widget">
+					<label for="edit-realname">Datum</label>
+					<div class="views-widget">
+						<input id="argus_afwezigheden_latecomers_date" class="date_picker hasDatepicker" type="text" name="d" value="<?php if (isset ( $_GET )) {
+									if (array_key_exists ( 'd', $_GET )) {
+										echo $_GET ['d'];
+									}
+								}  ?>" />
+					</div>
+				</div>
 
 				<div class="views-exposed-widget">
 	
@@ -31,12 +42,8 @@ global $base_url;
 						<select id="argus_afwezigheden_latecomers_classes">
 				            <?php
 							echo '<option value="">-</option>';
-							$query = 'SELECT nid, title ' .
-									'FROM {node} AS k ' .
-									'INNER JOIN {field_data_field_klas_leerlingen} AS lln ON k.nid = lln.entity_id ' .
-									'WHERE k.status = 1 ' .
-									'ORDER BY k.title ASC';
-							$classes = db_query ( $query )->fetchAllKeyed();
+							
+							$classes = argus_klasbeheer_get_active_classes();
 							if (count( $classes ) > 0) {
 								foreach ( $classes as $key => $c ) {
 									echo '<option value="' . $key . '"';
@@ -61,43 +68,21 @@ global $base_url;
 					<div class="views-widget">
 						<select id="argus_afwezigheden_latecomers_lln">
 				            <?php
-							$query = 'SELECT DISTINCT(u.uid) AS id ' .
-									 'FROM {users} AS u ' . 
-									 'INNER JOIN {users_roles} AS ur ON u.uid = ur.uid ' . 
-									 'INNER JOIN {field_data_field_user_sms_naam} AS un ON u.uid = un.entity_id ' . 
-									 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON u.uid = uv.entity_id ' . 
-									 'WHERE ur.rid IN (:rids) AND status = 1 ' . 
-									 'ORDER BY un.field_user_sms_naam_value ASC, uv.field_user_sms_voornaam_value ASC';
-							$users_lln = db_query ( $query, array (
-									':rids' => variable_get ( 'argus_engine_roles_pupil' ) 
-							) )->fetchAll ();
+							$users_lln = argus_engine_get_user_select_options(variable_get ( 'argus_engine_roles_pupil' ));
 							echo '<option value="">-</option>';
-							foreach ( $users_lln as $u ) {
-								echo '<option value="' . $u->id . '"';
+							foreach ( $users_lln as $uid => $uname ) {
+								echo '<option value="' . $uid . '"';
 								if (isset ( $_GET )) {
 									if (array_key_exists ( 'uid', $_GET )) {
-										if ($u->id == $_GET ['uid']) {
+										if ($uid == $_GET ['uid']) {
 											echo ' selected';
 										}
 									}
 								}
-								echo '>' . argus_get_user_realname ( $u->id ) . '</option>';
+								echo '>' . $uname . '</option>';
 							}
 							?>
 				        </select>
-					</div>
-				</div>
-		
-				<div class="views-exposed-widget">
-					<label for="edit-realname">Status</label>
-					<div class="views-widget">
-						<input id="argus_afwezigheden_latecomers_only_today" type="checkbox" value="1" name="st" <?php if (isset ( $_GET )) {
-									if (array_key_exists ( 'st', $_GET )) {
-										if ($_GET ['st'] == 'true') {
-											echo ' checked="checked"';
-										}
-									}
-								}  ?> /> <label for="argus_afwezigheden_latecomers_only_today" class="option">enkel vandaag tonen</label>
 					</div>
 				</div>
 		

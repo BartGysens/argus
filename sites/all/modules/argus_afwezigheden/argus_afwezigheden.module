@@ -33,6 +33,20 @@ function argus_afwezigheden_menu() {
 	}
 	
 	$items = array ();
+	$items ['admin/config/argus/afwezigheden'] = array (
+			'title' => 'Afwezigheden',
+			'description' => 'Stel de parameters op waarmee je de afwezigheden en telaatkomers beheert.',
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array (
+					'argus_afwezigheden_setup_form' 
+			),
+			'access arguments' => array (
+					'access administration pages' 
+			),
+			'type' => MENU_NORMAL_ITEM,
+			'weight' => 1 
+	);
+	
 	$items ['afwezigheden'] = array (
 			'title' => t ( 'Afwezigheden' ),
 			'description' => 'Overzicht van de afwezigheden per leerling.',
@@ -77,14 +91,15 @@ function argus_afwezigheden_menu() {
 			'access arguments' => array (
 					'access argus_absences_latecomers content' 
 			),
-			'type' => MENU_CALLBACK 
+			'type' => MENU_CALLBACK
 	);
 	$items ['telaatkomers-wettiging.delete'] = array (
 			'page callback' => 'argus_afwezigheden_latecomers_rectification_delete',
+			'page arguments' => array( 1 ),
 			'access arguments' => array (
 					'access argus_absences_latecomers content' 
 			),
-			'type' => MENU_CALLBACK 
+			'type' => MENU_CALLBACK
 	);
 	return $items;
 }
@@ -107,6 +122,23 @@ function argus_afwezigheden_permission() {
 					'title' => t ( 'Te laat komen beheren' ) 
 			) 
 	);
+}
+
+/**
+ * Page callback: Afwezigheden instellingen
+ *
+ * @see argus_buscheck_setup_form()
+ */
+function argus_afwezigheden_setup_form($form, &$form_state) {
+	$form ['argus_afwezigheden_latecomers_justification_reasons'] = array (
+			'#type' => 'textarea',
+			'#title' => t ( 'Telaakomers - geldige wettigingen' ),
+			'#default_value' => variable_get ( 'argus_afwezigheden_latecomers_justification_reasons', NULL ),
+			'#cols' => 70,
+			'#rows' => 10,
+			'#description' => t ( 'Voeg de geldige redenen toe waarmee je een telaatkomer kan wettigen. Geef één waarde per regel.' ) 
+	);
+	return system_settings_form ( $form );
 }
 
 /**
@@ -151,7 +183,7 @@ function argus_afwezigheden_block_info() {
 			'absences_filter_block' => array (
 					'info' => t ( 'Afwezigheden: filter' ),
 					'cache' => DRUPAL_CACHE_GLOBAL,
-					'weight' => -10,
+					'weight' => - 10,
 					'status' => 1,
 					'region' => 'sidebar_first',
 					'visibility' => BLOCK_VISIBILITY_LISTED,
@@ -160,7 +192,7 @@ function argus_afwezigheden_block_info() {
 			'latecomers_filter_block' => array (
 					'info' => t ( 'Telaatkomers: filter' ),
 					'cache' => DRUPAL_CACHE_GLOBAL,
-					'weight' => -10,
+					'weight' => - 10,
 					'status' => 1,
 					'region' => 'sidebar_first',
 					'visibility' => BLOCK_VISIBILITY_LISTED,
@@ -173,7 +205,7 @@ function argus_afwezigheden_block_info() {
 					'status' => 1,
 					'region' => 'sidebar_first',
 					'visibility' => BLOCK_VISIBILITY_LISTED,
-					'pages' => '<front>'
+					'pages' => '<front>' 
 			) 
 	);
 	
@@ -238,7 +270,7 @@ function argus_afwezigheden_overview($day = NULL, $uid = NULL) {
 			NULL 
 	);
 	
-	$query = 'SELECT a.leerling, a.leerling ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'INNER JOIN users AS u ON u.uid = a.leerling ' . 'WHERE a.am IN (:codes) ' . 'AND u.status = 1 ' . 'AND DATE_FORMAT(a.datum,\'%Y-%m-%d\') = :day ';
+	$query = 'SELECT a.leerling, a.leerling FROM {argus_lvs_afwezigheden} AS a INNER JOIN users AS u ON u.uid = a.leerling WHERE a.am IN (:codes) AND u.status = 1 AND DATE_FORMAT(a.datum,\'%Y-%m-%d\') = :day ';
 	if (is_numeric ( $uid ))
 		$query .= ' AND a.leerling = ' . $uid;
 	$result = db_query ( $query, array (
@@ -252,7 +284,7 @@ function argus_afwezigheden_overview($day = NULL, $uid = NULL) {
 	) );
 	$usersAM_nok = $result->fetchAllKeyed ();
 	
-	$query = 'SELECT a.leerling, a.leerling ' . 'FROM {argus_lvs_afwezigheden} AS a ' . 'INNER JOIN users AS u ON u.uid = a.leerling ' . 'WHERE a.pm IN (:codes) ' . 'AND u.status = 1 ' . 'AND DATE_FORMAT(a.datum,\'%Y-%m-%d\') = :day ';
+	$query = 'SELECT a.leerling, a.leerling FROM {argus_lvs_afwezigheden} AS a INNER JOIN users AS u ON u.uid = a.leerling WHERE a.pm IN (:codes) AND u.status = 1 AND DATE_FORMAT(a.datum,\'%Y-%m-%d\') = :day ';
 	if (is_numeric ( $uid ))
 		$query .= ' AND a.leerling = ' . $uid;
 	$result = db_query ( $query, array (
@@ -409,14 +441,14 @@ function argus_afwezigheden_bcodes_form($form, &$form_state) {
 	/*
 	 * Fetch all absences and calculate totals
 	 */
-	$query = 'SELECT leerling, COUNT(am) AS total ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE am=\'B\' ' . 'AND datum BETWEEN :startdate AND :enddate ' . 'GROUP BY leerling ' . 'ORDER BY total DESC';
+	$query = 'SELECT leerling, COUNT(am) AS total FROM {argus_lvs_afwezigheden} WHERE am=\'B\' AND datum BETWEEN :startdate AND :enddate GROUP BY leerling ORDER BY total DESC';
 	$result = db_query ( $query, array (
 			':startdate' => $schoolyear ['start'],
 			':enddate' => $schoolyear ['end'] 
 	) );
 	$usersAM = $result->fetchAll ();
 	
-	$query = 'SELECT leerling, COUNT(pm) AS total ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE pm=\'B\' ' . 'AND datum BETWEEN :startdate AND :enddate ' . 'GROUP BY leerling ' . 'ORDER BY total DESC';
+	$query = 'SELECT leerling, COUNT(pm) AS total FROM {argus_lvs_afwezigheden} WHERE pm=\'B\' AND datum BETWEEN :startdate AND :enddate GROUP BY leerling ORDER BY total DESC';
 	$result = db_query ( $query, array (
 			':startdate' => $schoolyear ['start'],
 			':enddate' => $schoolyear ['end'] 
@@ -457,13 +489,13 @@ function argus_afwezigheden_bcodes_form($form, &$form_state) {
 					break;
 				$u = user_load ( $uid );
 				
-				$query = 'SELECT c.title AS title ' . 'FROM {node} AS c ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id ' . 'WHERE l.field_klas_leerlingen_target_id = :uid';
+				$query = 'SELECT c.title AS title FROM {node} AS c LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id WHERE l.field_klas_leerlingen_target_id = :uid';
 				$result = db_query ( $query, array (
 						':uid' => $uid 
 				) );
 				$class = $result->fetchAll ();
 				
-				$form ['#suffix'] .= '<li>' . argus_engine_get_user_link( $uid, null, null, true ) . ' : <span style="color: red;">' . $total . '</span></li>';
+				$form ['#suffix'] .= '<li>' . argus_engine_get_user_link ( $uid, null, null, true ) . ' : <span style="color: red;">' . $total . '</span></li>';
 			}
 			$form ['#suffix'] .= '</ol>';
 		}
@@ -478,13 +510,13 @@ function argus_afwezigheden_bcodes_form($form, &$form_state) {
 				if ($total < 31) {
 					$u = user_load ( $uid );
 					
-					$query = 'SELECT c.title AS title ' . 'FROM {node} AS c ' . 'LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id ' . 'WHERE l.field_klas_leerlingen_target_id = :uid';
+					$query = 'SELECT c.title AS title FROM {node} AS c LEFT JOIN {field_data_field_klas_leerlingen} AS l ON c.nid = l.entity_id WHERE l.field_klas_leerlingen_target_id = :uid';
 					$result = db_query ( $query, array (
 							':uid' => $uid 
 					) );
 					$class = $result->fetchAll ();
 					
-					$form ['#suffix'] .= '<li>' . argus_engine_get_user_link( $uid, null, null, true ) . ' : <span style="color: red;">' . $total . '</span></li>';
+					$form ['#suffix'] .= '<li>' . argus_engine_get_user_link ( $uid, null, null, true ) . ' : <span style="color: red;">' . $total . '</span></li>';
 				}
 			}
 			$form ['#suffix'] .= '</ol>';
@@ -514,13 +546,13 @@ function argus_afwezigheden_justification($uid = NULL) {
 	/* Filter data only for this schoolyear (active schoolyear) */
 	$schoolyear = ( array ) argus_schoolyear ( 0 );
 	
-	if ($cache = cache_get ( 'argus_afwezigheden_justification_' . $uid . '_' . $schoolyear['start'] )) {
+	if ($cache = cache_get ( 'argus_afwezigheden_justification_' . $uid . '_' . $schoolyear ['start'] )) {
 		$userDates = $cache->data;
 	} else {
 		/*
 		 * Fetch all absences and calculate totals
 		 */
-		$query = 'SELECT leerling, datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE am=\'-\' ' . 'AND datum BETWEEN :startdate AND :enddate ';
+		$query = 'SELECT leerling, datum FROM {argus_lvs_afwezigheden} WHERE am=\'-\' AND datum BETWEEN :startdate AND :enddate ';
 		if (is_numeric ( $uid ))
 			$query .= ' AND leerling = ' . $uid;
 		$result = db_query ( $query, array (
@@ -529,7 +561,7 @@ function argus_afwezigheden_justification($uid = NULL) {
 		) );
 		$usersAM = $result->fetchAll ();
 		
-		$query = 'SELECT leerling, datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE pm=\'-\' ' . 'AND datum BETWEEN :startdate AND :enddate ';
+		$query = 'SELECT leerling, datum FROM {argus_lvs_afwezigheden} WHERE pm=\'-\' AND datum BETWEEN :startdate AND :enddate ';
 		if (is_numeric ( $uid ))
 			$query .= ' AND leerling = ' . $uid;
 		$result = db_query ( $query, array (
@@ -547,7 +579,7 @@ function argus_afwezigheden_justification($uid = NULL) {
 					$userDates [$fullname] ['id'] = $u->leerling;
 					$userDates [$fullname] ['username'] = $user->name;
 					
-					$query = 'SELECT datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE (am=\'|\' OR am=\'|\') AND leerling = :uid AND datum > :date ' . 'ORDER BY datum ASC';
+					$query = 'SELECT datum FROM {argus_lvs_afwezigheden} WHERE (am=\'|\' OR am=\'|\') AND leerling = :uid AND datum > :date ORDER BY datum ASC';
 					$result = db_query ( $query, array (
 							':uid' => $u->leerling,
 							':date' => $u->datum 
@@ -573,7 +605,7 @@ function argus_afwezigheden_justification($uid = NULL) {
 				$userDates [$fullname] ['id'] = $u->leerling;
 				$userDates [$fullname] ['username'] = $user->name;
 				
-				$query = 'SELECT datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'WHERE (am=\'|\' OR am=\'|\') AND leerling = :uid AND datum > :date ' . 'ORDER BY datum ASC';
+				$query = 'SELECT datum FROM {argus_lvs_afwezigheden} WHERE (am=\'|\' OR am=\'|\') AND leerling = :uid AND datum > :date ORDER BY datum ASC';
 				$result = db_query ( $query, array (
 						':uid' => $u->leerling,
 						':date' => $u->datum 
@@ -593,7 +625,7 @@ function argus_afwezigheden_justification($uid = NULL) {
 		}
 		ksort ( $userDates );
 		
-		cache_set ( 'argus_afwezigheden_justification_' . $uid . '_' . $schoolyear['start'], $userDates );
+		cache_set ( 'argus_afwezigheden_justification_' . $uid . '_' . $schoolyear ['start'], $userDates );
 	}
 	
 	if (is_numeric ( $uid )) {
@@ -610,14 +642,20 @@ function argus_afwezigheden_justification($uid = NULL) {
  *
  * @return array
  */
-function argus_afwezigheden_latecomers($uid = NULL) {
+function argus_afwezigheden_latecomers($uid = null) {
 	/* Filter data only for this schoolyear (active schoolyear) */
 	$schoolyear = ( array ) argus_schoolyear ( 0 );
 	
 	/*
 	 * Fetch all latecomings and calculate totals
 	 */
-	$query = 'SELECT id, leerling, datum ' . 'FROM {argus_lvs_afwezigheden} ' . 'INNER JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = leerling ' . 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = leerling ' . 'RIGHT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = leerling ' . 'WHERE (am=\'L\' OR pm=\'L\') ' . 'AND datum BETWEEN :startdate AND :enddate ';
+	$query = 'SELECT id, leerling, datum ';
+	$query .= 'FROM {argus_lvs_afwezigheden} ';
+	$query .= 'INNER JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = leerling ';
+	$query .= 'INNER JOIN {field_data_field_user_sms_voornaam} AS uv ON uv.entity_id = leerling ';
+	$query .= 'RIGHT JOIN {field_data_field_klas_leerlingen} AS k ON k.field_klas_leerlingen_target_id = leerling ';
+	$query .= 'WHERE (am=\'L\' OR pm=\'L\') ';
+	$query .= 'AND datum BETWEEN :startdate AND :enddate ';
 	$params = array (
 			':startdate' => $schoolyear ['start'],
 			':enddate' => $schoolyear ['end'] 
@@ -649,13 +687,20 @@ function argus_afwezigheden_latecomers($uid = NULL) {
 	
 	$userDates = array ();
 	foreach ( $dates_late as $d ) {
-		$query = 'SELECT id ' . 'FROM {argus_lvs_latecomers_rectified} ' . 'WHERE date_late = :date';
+		if (! array_key_exists ( $d->leerling, $userDates )) {
+			$userDates [$d->leerling] = array (
+					0 => array (),
+					1 => array () 
+			);
+		}
+		$query = 'SELECT id FROM {argus_lvs_latecomers_rectified} WHERE date_late = :date';
 		$userDates [$d->leerling] [db_query ( $query, array (
 				':date' => $d->id 
 		) )->rowCount ()] [$d->id] = $d->datum;
 	}
 	
 	drupal_add_css ( drupal_get_path ( 'module', 'argus_afwezigheden' ) . '/css/argus_afwezigheden_latecomers.css' );
+	drupal_add_library ( 'system', 'ui.datepicker' );
 	drupal_add_js ( drupal_get_path ( 'module', 'argus_afwezigheden' ) . '/js/argus_afwezigheden_latecomers.js' );
 	
 	if (is_numeric ( $uid )) {
@@ -674,24 +719,18 @@ function argus_afwezigheden_latecomers($uid = NULL) {
 /**
  * Create rectification.
  *
- * @param $did int
- *        	Reference ID for argus_lvs_afwezigheden
  */
-function argus_afwezigheden_latecomers_rectification_create($did) {
-	if (db_query ( "SHOW TABLES LIKE 'argus_lvs_latecomers_rectified'" )->rowCount () == 0) {
-		$query = 'CREATE TABLE argus_lvs_latecomers_rectified (
-            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            date_late INT(6) UNSIGNED
-        )';
-		$result = db_query ( $query );
+function argus_afwezigheden_latecomers_rectification_create() {
+	if (isset($_POST['did'])){
+			$did = $_POST['did'];
+			$reason = $_POST['reason'];
 	}
-	
 	if ($did) {
-		$query = 'INSERT INTO {argus_lvs_latecomers_rectified} (date_late) VALUES (:did)';
+		$query = 'INSERT INTO {argus_lvs_latecomers_rectified} (date_late, reason) VALUES (:did, :reason)';
 		$result = db_query ( $query, array (
-				':did' => $did 
+				':did' => $did,
+				':reason' => $reason,
 		) );
-		header ( 'location:' . base_path () . 'telaatkomers?' . $_SERVER ['QUERY_STRING'] );
 	} else {
 		// Somethin' happend what wasn't cosher -> watchDog
 		watchdog ( 'argus', 'Misbruik van de wettiging van telaatkomers geconstateerd', array (), WATCHDOG_EMERGENCY );
@@ -708,7 +747,6 @@ function argus_afwezigheden_latecomers_rectification_delete($did) {
 		$result = db_query ( $query, array (
 				':did' => $did 
 		) );
-		header ( 'location:' . base_path () . 'telaatkomers?' . $_SERVER ['QUERY_STRING'] );
 	} else {
 		// Somethin' happend what wasn't cosher -> watchDog
 		watchdog ( 'argus', 'Misbruik van de wettiging van telaatkomers geconstateerd', array (), WATCHDOG_EMERGENCY );

@@ -17,8 +17,17 @@
  */
 
 global $base_url;
+$path = drupal_get_path('module', 'argus_afwezigheden');
 
 $q = $_SERVER['QUERY_STRING'];
+
+if (isset ( $_GET )) {
+	if (array_key_exists ( 'd', $_GET )) {
+		$today = date('Y-m-d 00:00:00', strtotime( $_GET['d'] ) );
+	} else {
+		$today = date('Y-m-d 00:00:00');
+	}
+}
 
 ?>
 
@@ -29,41 +38,31 @@ $q = $_SERVER['QUERY_STRING'];
                 <th rowspan="2" class="views-field active views-align-left">Nr.</th>
                 <th rowspan="2" class="views-field active views-align-left">Leerling</th>
                 <th rowspan="2" class="views-field views-align-center">Aantal</th>
-                <th colspan="3" class="views-field views-align-center" style="font-weight: strong;">Status</th>
+                <th colspan="2" class="views-field views-align-center">Status</th>
+                <th rowspan="2" class="views-field views-align-right" style="font-weight: bold !important;">Acties voor <?php print format_date(strtotime($today),'custom', 'D, d M Y'); ?></th>
             </tr>
             <tr>
-                <th class="views-field views-align-left" style="font-size: smaller;">Avondstudie</th>
-                <th class="views-field views-align-left" style="font-size: smaller;">Gewettigd</th>
-                <th class="views-field views-align-left" style="font-size: smaller;">Ongewettigd</th>
+                <th class="views-field views-align-center" style="font-size: smaller;">Gewettigd</th>
+                <th class="views-field views-align-center" style="font-size: smaller;">Ongewettigd</th>
             </tr>
         </thead>
         <tbody>
             <?php
             
+            $reasons = implode( '</option><option>', explode( chr( 13 ), variable_get( 'argus_afwezigheden_latecomers_justification_reasons' ) ) );
+            
             $i = 0;
-            $pass1 = true;
-            $pass2 = true;
             foreach ($data as $uid => $dates){
+            	$pass = true;
             	if (isset ( $_GET )) {
-            		if (array_key_exists ( 'st', $_GET )) {
-            			if ($_GET ['st'] == 'true') {
-			            	$pass1 = false;
-			            	if (isset($dates[0])){
-			            		if (in_array(date('Y-m-d 00:00:00'),$dates[0])){
-			            			$pass1 = true;
-			            		}
-			            	}
-			            	$pass2 = false;
-			            	if (isset($dates[1])){
-			            		if (in_array(date('Y-m-d 00:00:00'),$dates[1])){
-			            			$pass2 = true;
-			            		}
-			            	}
-		            	}
+            		if (array_key_exists ( 'd', $_GET )) {
+            			if ( ( !in_array( $today, $dates[0] ) ) && ( !in_array( $today, $dates[1] ) ) ) {
+            				$pass = false;
+            			}
             		}
             	}
             	
-            	if ($pass1 || $pass2){
+            	if ( $pass ){
 	            	$total = 0;
 	                if (isset($dates[0])){
 	            		$total += count($dates[0]);
@@ -72,47 +71,42 @@ $q = $_SERVER['QUERY_STRING'];
 	            		$total += count($dates[1]);
 	            	}
 	            	
-	                print '<tr class="'.($i%2 == 0 ? "even" : "odd").' views-row-first">';
-	                    print '<td class="views-field views-field-counter views-align-left">'.($i+1).'</td>';
-	                	print '<td class="views-field views-field-counter views-align-left">'.argus_engine_get_user_link( $uid, null, null, true ).'</td>';
-	                    print '<td class="views-field views-field-counter views-align-center">'.$total.'</td>';
+	                print '<tr class="' . ( $i % 2 == 0 ? "even" : "odd" ) . ' views-row-first">';
+	                    print '<td class="views-field views-align-center">' . ( $i + 1 ) . '</td>';
+	                	print '<td class="views-field views-align-left">' . argus_engine_get_user_link( $uid, null, null, true ) . '</td>';
+	                    print '<td class="views-field views-align-center">' . $total . '</td>';
+						
+	                    print '<td class="views-field views-align-center" style="font-size: smaller;">' . count($dates[1]) . '</td>';
 	                    
-	                    print '<td class="views-field views-field-counter views-align-left">';
+	                    print '<td class="views-field views-align-center" style="font-size: smaller;">' . count($dates[0]) . '</td>';
+	                    
+	                    print '<td class="views-field views-align-right">';
+	                    $waiter = false;
 	                    if (isset($dates[0])){
-		                    if ($k = array_keys($dates[0], date('Y-m-d 00:00:00'))){
-		                    	print '<a href="telaatkomers-wettiging.create/'.$k[0].'?'.$q.'">'.t('wettigen').'</a>';
+		                    if ($k = array_keys($dates[0], $today)){
+		                    	print '<div id="create_block_form_' . $k[0] . '">';
+			                    	print '<select id="select_' . $k[0] . '"><option>' . $reasons . '</option></select> ';
+			                    	print '<a href="#" class="argus_afwezigheden_create" id="' . $k[0] . '">' . t( 'wettigen' ) . '</a>';
+			                    print '</div>';
+			                    $waiter = $k[0];
 		                    }
 	                    }
-	                    print '</td>';
-	
-	                    print '<td class="views-field views-field-counter views-align-left">';
 	                    if (isset($dates[1])){
-		                    print count($dates[1]);
-	                    	print '<ul>';
-		                    foreach ($dates[1] as $did => $d){
-			                    print '<li>';
-		                    	if (date('Y-m-d 00:00:00') == $d){
-			                    	print '<a href="telaatkomers-wettiging.delete/'.$did.'?'.$q.'">';
-			                    }
-			                    print date('d/m/y',strtotime($d));
-		                    	if (date('Y-m-d 00:00:00') == $d){
-			                    	print '<div style="font-size: smaller;">'.t('wettiging ongedaan maken').'</div></a>';
-			                    }
-			                    print '</li>';
+		                    if ($k = array_keys($dates[1], $today)){
+		                    	$query = 'SELECT reason FROM {argus_lvs_latecomers_rectified} WHERE date_late = :id';
+		                    	$reason = db_query ( $query, array (
+		                    			':id' => $k[0],
+		                    	) )->fetchField();
+		                    	
+		                    	print '<div id="delete_block_form_' . $k[0] . '">';
+			                    	print '<a href="#" class="argus_afwezigheden_delete" id="' . $k[0] . '">' . t( 'wettiging ongedaan maken' ) . ' (' . $reason . ')</a>';
+			                    print '</div>';
+			                    $waiter = $k[0];
 		                    }
-		                    print '</ul>';
 	                    }
-	                    print '</td>';
-	                    
-	                    print '<td id="onw'.$uid.'" class="views-field views-field-counter views-align-left onw">';
-	                    if (isset($dates[0])){
-		                    print count($dates[0]);
-		                    print '<div id="onw'.$uid.'_tt" class="onw_tt">';
-	                    	foreach ($dates[0] as $did => $d){
-		                    	print format_date(strtotime($d),'custom', 'D, d M Y').'<br />';
-		                    }
-		                    print '</div>';
-	                    }
+	                	if ($waiter){
+	                		print '<img src="' . $base_url . '/' . $path . '/images/waiter.gif" class="argus_afwezigheden_waiter" id="waiter_' . $waiter . '" />';
+	                	}
 	                    print '</td>';
 	                print '</tr>';
 	                $i++;

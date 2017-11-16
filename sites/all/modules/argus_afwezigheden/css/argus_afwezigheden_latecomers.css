@@ -20,12 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Author     : bartgysens
 */
 
-.wet_tt,
-.onw_tt{
+.argus_afwezigheden_waiter{
 	display: none;
-	border: 1px solid #aaa;
-	padding: 1px 7px;
-	background: #ffd;
-	line-height: 1.5em;
-	position: absolute;
 }

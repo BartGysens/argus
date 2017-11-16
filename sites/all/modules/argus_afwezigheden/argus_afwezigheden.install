@@ -9,7 +9,7 @@
  * Implementation of hook_install().
  */
 function argus_afwezigheden_install() {
-	if (db_query ( "SHOW TABLES LIKE 'argus_lvs_afwezigheden'" )->rowCount () == 0) {
+	if (! db_table_exists ( 'argus_lvs_afwezigheden' ) ) {
 		$query = 'CREATE TABLE argus_lvs_afwezigheden (
             id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             leerling VARCHAR(100) NOT NULL,
@@ -19,6 +19,19 @@ function argus_afwezigheden_install() {
             motivatie VARCHAR(200)
         )';
 		$result = db_query ( $query );
+	}
+	
+	if (! db_table_exists ( 'argus_lvs_latecomers_rectified' )) {
+		$query = 'CREATE TABLE argus_lvs_latecomers_rectified (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            date_late INT(6) UNSIGNED,
+            reason TEXT
+        )';
+		$result = db_query ( $query );
+	} elseif (! db_field_exists ( 'argus_lvs_latecomers_rectified', 'reason' )) {
+		db_add_field ( 'argus_lvs_latecomers_rectified', 'reason', array (
+				'type' => 'text'
+		) );
 	}
 }
 
@@ -31,3 +44,33 @@ function argus_afwezigheden_uninstall() {
 	}
 }
 
+
+/**
+ * Implementation of hook_install().
+ */
+function argus_afwezigheden_update_7400(&$sandbox) {
+	if (! db_table_exists ( 'argus_lvs_afwezigheden' ) ) {
+		$query = 'CREATE TABLE argus_lvs_afwezigheden (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            leerling VARCHAR(100) NOT NULL,
+            datum DATETIME NOT NULL,
+            am VARCHAR(1),
+            pm VARCHAR(1),
+            motivatie VARCHAR(200)
+        )';
+		$result = db_query ( $query );
+	}
+	
+	if (! db_table_exists ( 'argus_lvs_latecomers_rectified' )) {
+		$query = 'CREATE TABLE argus_lvs_latecomers_rectified (
+            id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            date_late INT(6) UNSIGNED,
+            reason TEXT
+        )';
+		$result = db_query ( $query );
+	} elseif (! db_field_exists ( 'argus_lvs_latecomers_rectified', 'reason' )) {
+		db_add_field ( 'argus_lvs_latecomers_rectified', 'reason', array (
+				'type' => 'text'
+		) );
+	}
+}

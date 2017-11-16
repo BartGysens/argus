@@ -1,5 +1,11 @@
 **Releases:
 
+v7.x-4.0
+---------
+- New system for latecomers
+- Added update function
+- Setup form for latecomers to set reasons
+
 v7.x-3.5
 ---------
 - Stronger caching
