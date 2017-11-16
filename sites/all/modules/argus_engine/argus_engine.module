@@ -468,7 +468,7 @@ function argus_engine_get_user_link($uid, $title = null, $target = null, $classn
 			}
 			
 			if ($classname){
-				$returnStr .= ' ('.argus_klasbeheer_get_user_class($uid, 'title') . ')';
+				$returnStr .= ' - '.argus_klasbeheer_get_user_class($uid, 'title');
 			}
 			
 			$returnStr .= '</a>';
@@ -554,10 +554,13 @@ function argus_engine_get_user_has_role($uid, $roles) {
  * @param
  *        	onlyActive boolean
  *        	Disgard active status
+ * @param
+ *        	classes boolean
+ *        	Add classes to list
  *        	
  * @return array
  */
-function argus_engine_get_user_select_options($roles = NULL, $onlyActive = TRUE) {
+function argus_engine_get_user_select_options($roles = null, $onlyActive = true, $classes = false) {
 	global $user;
 	
 	if (! is_array ( $roles )) {
@@ -583,7 +586,7 @@ function argus_engine_get_user_select_options($roles = NULL, $onlyActive = TRUE)
 		}
 	}
 	
-	if ($cache = cache_get ( 'argus_engine_get_user_select_options_' . $user->uid . '_' . implode ( '-', $rids ) . '_' . $onlyActive )) {
+	if ($cache = cache_get ( 'argus_engine_get_user_select_options_' . $user->uid . '_' . implode ( '-', $rids ) . '_' . $onlyActive . '_' . $classes )) {
 		$options = $cache->data;
 	} else {
 		if (module_exists ( 'argus_gebruikers' )) {
@@ -626,15 +629,17 @@ function argus_engine_get_user_select_options($roles = NULL, $onlyActive = TRUE)
 				}
 			}
 			
-			$class = argus_klasbeheer_get_user_class ( $u->uid, 'title' );
-			if ($class) {
-				$option .= ' - ' . $class;
+			if ($classes){
+				$class = argus_klasbeheer_get_user_class ( $u->uid, 'title' );
+				if ($class) {
+					$option .= ' - ' . $class;
+				}
 			}
 			
 			$options [$u->uid] = $option;
 		}
 		
-		cache_set ( 'argus_engine_get_user_select_options_' . $user->uid . '_' . implode ( '-', $rids ) . '_' . $onlyActive, $options );
+		cache_set ( 'argus_engine_get_user_select_options_' . $user->uid . '_' . implode ( '-', $rids ) . '_' . $onlyActive . '_' . $classes, $options );
 	}
 	
 	return $options;

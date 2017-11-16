@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-1.12
+---------
+- Conventional naming pupils / realname
+- Extended function in caching and user options
+
 v7.x-1.11
 ---------
 - Stronger caching
