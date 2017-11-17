@@ -99,9 +99,14 @@ function theme_fpa_user_admin_permissions($variables) {
         'checkbox' => array(
           '#markup' => $nameless_checkbox_output,
         ),
-      ),
+      ),		
     ),
   );
+    		
+    		  //remove 3-rd party inputs
+    		  foreach($form['checkboxes'] as $rid => $element) {
+    			    if (!isset($element['#type']) || $element['#type'] != 'checkboxes') unset($form['checkboxes'][$rid]);
+    			  }
   
   $checkboxes_children = element_children($form['checkboxes']);
   

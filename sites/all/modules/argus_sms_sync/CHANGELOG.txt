@@ -1,5 +1,10 @@
 **Releases:
 
+v7.x-1.13
+---------
+- Fix in days sync absents (+1 day)
+- Update user selection absents
+
 v7.x-1.12
 ---------
 - Preparation for module installation

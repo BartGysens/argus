@@ -50,14 +50,11 @@ ul.multiselect_btns {
 }
 li.multiselect_add, li.multiselect_remove {
 	background: none;
-  height: 38px;
+  height: 55px;
   overflow: hidden;
 	width: 33px;
 	margin: 0px;
 	padding: 0px;
-}
-li.multiselect_add {
-	margin-bottom: 15px;
 }
 .multiselect_add a {
   display: block;
