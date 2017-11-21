@@ -661,7 +661,7 @@ function argus_sms_sync_now() {
 	
 	/* Handle groups/roles from Smartschool */
 	if (variable_get ( 'argus_sms_data_accounts_remove_old_roles' )) {
-		// argus_sms_dataRemoveOldGroups();
+		argus_sms_dataRemoveOldGroups();
 	}
 	
 	/* Handle groups/roles from Smartschool */
@@ -675,7 +675,7 @@ function argus_sms_sync_now() {
 	}
 	
 	if (variable_get ( 'argus_sms_data_classes_classteachers' )) {
-		// argus_sms_dataClassTeachers();
+		argus_sms_dataClassTeachers();
 	}
 	
 	/* Handle modules */
@@ -1623,6 +1623,7 @@ function argus_sms_data_photos_file_process($element, &$form_state, $form) {
  * - string $accesscode: Wachtwoord webservices
  */
 function argus_sms_dataClassList() {
+	$i = 0;
 	if ($client = argus_sms_getSOAPclient ()) {
 		$result = $client->getClassListJSON ( variable_get ( 'argus_sms_api_password' ) );
 		if (is_int ( $result )) {
@@ -1657,6 +1658,8 @@ function argus_sms_dataClassList() {
 					$node->comment = 0;
 					$cntGroupsNew ++;
 				}
+				
+				$i++;
 				
 				// Set data for node
 				$node->status = 1;
@@ -1728,7 +1731,7 @@ function argus_sms_dataClassList() {
 		}
 	}
 	argus_report ( '%i <em>klassen</em> gesynchroniseerd (%cntGroupsNew toegevoegd, %cntGroupsInactive gedeactiveerd en %cntGroupsEdit bijgewerkt).', array (
-			'%i' => $i,
+			'%i' => count( $i ),
 			'%cntGroupsNew' => $cntGroupsNew,
 			'%cntGroupsEdit' => $cntGroupsEdit,
 			'%cntGroupsInactive' => count ( $foundClasses ) 
@@ -2176,7 +2179,7 @@ function argus_sms_dataAbsents() {
 				), 'error', 'argus' );
 			} else {
 				$retrievedData = json_decode ( $result, true );
-				dvm($retrievedData);
+				
 				foreach ( $checkDates as $d ) {
 					if (isset ( $retrievedData [$d] )) {
 						/* Check if report already exists in argus */
