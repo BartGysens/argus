@@ -45,7 +45,7 @@
 		
 		print '<td class="views-field views-align-left">' . argus_engine_get_user_link( $r['begeleider'], null, '_blank' ) . '</td>';
 
-		print '<td class="views-field views-align-left">' . argus_engine_get_user_link( $$r['leerling'], null, '_blank' ) . '</td>';
+		print '<td class="views-field views-align-left">' . argus_engine_get_user_link( $r['leerling'], null, '_blank' ) . '</td>';
 
 		print '<td class="views-field views-align-center">'.$r['klas'].'</td>';
 

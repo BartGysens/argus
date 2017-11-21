@@ -1283,14 +1283,9 @@ function argus_beleidsplannen_model_action($body = '', $deadline = NULL, $execut
 		$executor = $user->uid;
 	}
 	
-	$executor_roles = array (
-			88,
-			87,
-			225 
-	);
 	$query = 'SELECT ur.uid FROM {users_roles} AS ur INNER JOIN {users} AS u ON u.uid = ur.uid INNER JOIN {field_data_field_user_sms_naam} AS un ON un.entity_id = ur.uid INNER JOIN {field_data_field_user_sms_voornaam} AS uf ON uf.entity_id = ur.uid WHERE ur.rid in (:rids) AND u.status = 1 ORDER BY un.field_user_sms_naam_value ASC, uf.field_user_sms_voornaam_value ASC';
 	$executors = db_query ( $query, array (
-			':rids' => $executor_roles 
+			':rids' => variable_get( 'argus_engine_roles_workers', array() ), 
 	) )->fetchCol ();
 	
 	if (is_null ( $deadline )) {
