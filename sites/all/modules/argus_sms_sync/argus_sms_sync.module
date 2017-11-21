@@ -2142,7 +2142,7 @@ function argus_sms_dataAbsents() {
 	}
 	
 	if ($client = argus_sms_getSOAPclient ()) {
-		$users = argus_engine_get_user_select_options ( variable_get ( 'argus_engine_roles_pupil' ) );
+		$users = argus_engine_get_user_select_options ( variable_get ( 'argus_engine_roles_pupil' ), true, false, 'username' );
 		
 		$cntAbsencesNew = 0;
 		$cntAbsencesEdit = 0;

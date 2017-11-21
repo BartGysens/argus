@@ -34,7 +34,7 @@ function argus_afwezigheden_menu() {
 	
 	$items = array ();
 	$items ['admin/config/argus/afwezigheden'] = array (
-			'title' => 'Afwezigheden',
+			'title' => 'LVS: Afwezigheden',
 			'description' => 'Stel de parameters op waarmee je de afwezigheden en telaatkomers beheert.',
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array (

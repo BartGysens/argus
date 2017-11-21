@@ -557,10 +557,13 @@ function argus_engine_get_user_has_role($uid, $roles) {
  * @param
  *        	classes boolean
  *        	Add classes to list
+ * @param
+ *        	$fields string
+ *        	Selected fields for display
  *        	
  * @return array
  */
-function argus_engine_get_user_select_options($roles = null, $onlyActive = true, $classes = false) {
+function argus_engine_get_user_select_options($roles = null, $onlyActive = true, $classes = false, $fields = false ) {
 	global $user;
 	
 	if (! is_array ( $roles )) {
@@ -590,7 +593,7 @@ function argus_engine_get_user_select_options($roles = null, $onlyActive = true,
 		$options = $cache->data;
 	} else {
 		if (module_exists ( 'argus_gebruikers' )) {
-			$query = 'SELECT u.uid AS uid, n.field_user_sms_naam_value AS name, v.field_user_sms_voornaam_value AS firstname, u.status ';
+			$query = 'SELECT u.uid AS uid, u.name AS username, n.field_user_sms_naam_value AS name, v.field_user_sms_voornaam_value AS firstname, u.status ';
 			$query .= 'FROM {users} AS u ';
 			
 			if ($rids) {
@@ -621,7 +624,13 @@ function argus_engine_get_user_select_options($roles = null, $onlyActive = true,
 		
 		$options = array ();
 		foreach ( $users as $u ) {
-			$option = $u->name . ', ' . $u->firstname;
+			switch ($fields){
+				case 'username':
+					$option = $u->username;
+					break;
+				default:
+					$option = $u->name . ', ' . $u->firstname;
+			}
 			
 			if (! $onlyActive) {
 				if (! $u->status) {
