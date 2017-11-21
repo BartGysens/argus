@@ -4,6 +4,7 @@ v7.x-1.13
 ---------
 - Fix in days sync absents (+1 day)
 - Update user selection absents
+- Fix in count class sync
 
 v7.x-1.12
 ---------
